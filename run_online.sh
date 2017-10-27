@@ -10,11 +10,13 @@ fi
 vv="v${vv}"
 
 cd /data/usr/local/superset&&sed -i "s/\/v[0-9\.]*/\/$vv/g" ./uwsgi.ini&&mkdir $vv&&cd $vv
-git clone ssh://qiwenbao@gerrit.dev.aixuexi.com:29418/superset
-cd superset
-tar -zxvf superset.tar.gz
-mv superset temp
-mv temp/* .
+git clone ssh://qiwenbao@gerrit.dev.aixuexi.com:29418/superset --depth=1
+git clone ssh://qiwenbao@gerrit.dev.aixuexi.com:29418/supersetJSDeploy --depth=1
+cp -r ./supersetJSDeploy/dist ./superset/superset/static/assets/
+#cd superset
+#tar -zxvf superset.tar.gz
+#mv superset temp
+#mv temp/* .
 ln -s /usr/local/python35/lib/python3.5/site-packages/flask_appbuilder/static/appbuilder /data/usr/local/superset/$vv/superset/superset/static
 
 upid=$(sudo netstat -nlp | grep :15801 | awk '{print $7}' | awk -F"/" '{ print $1 }')

@@ -18,7 +18,7 @@ export function getExploreUrl(form_data, endpointType = 'base', force = false,
 
   // Building the directory part of the URI
   let directory = '/superset/explore/';
-  if (['json', 'csv', 'query'].indexOf(endpointType) >= 0) {
+  if (['json', 'csv', 'query','xlsx'].indexOf(endpointType) >= 0) {
     directory = '/superset/explore_json/';
   }
   const [datasource_id, datasource_type] = form_data.datasource.split('__');
@@ -32,6 +32,9 @@ export function getExploreUrl(form_data, endpointType = 'base', force = false,
   }
   if (endpointType === 'csv') {
     search.csv = 'true';
+  }
+  if (endpointType === 'xlsx') {
+    search.xlsx = 'true';
   }
   if (endpointType === 'standalone') {
     search.standalone = 'true';

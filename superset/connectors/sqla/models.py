@@ -162,7 +162,7 @@ class SqlaTable(Model, BaseDatasource):
     column_class = TableColumn
 
     __tablename__ = 'tables'
-    table_name = Column(String(250))
+    table_name = Column(String(250),nullable=False)
     main_dttm_col = Column(String(250))
     database_id = Column(Integer, ForeignKey('dbs.id'), nullable=False)
     fetch_values_predicate = Column(String(1000))

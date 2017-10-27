@@ -39,6 +39,8 @@ from superset import (
 from superset.legacy import cast_form_data
 from superset.utils import has_access, QueryStatus
 from superset.connectors.connector_registry import ConnectorRegistry
+from superset.connectors.sqla.models import SqlMetric
+from superset.utils import metric_format
 import superset.models.core as models
 from superset.models.sql_lab import Query
 from superset.sql_parse import SupersetQuery
@@ -968,6 +970,14 @@ class Superset(BaseSupersetView):
                 headers=generate_download_headers("csv"),
                 mimetype="application/csv")
 
+        if request.args.get("xlsx") == "true":
+            dfa=viz_obj.get_df()
+            filename = time.strftime("%Y%m%d_%H%M%S",time.localtime(time.time())) + u'.xlsx'
+            filepath = os.path.join(sqllab_data_dir, filename)
+            dfa.to_excel(filepath, index=False, encoding='utf-8', engine='xlsxwriter')
+            return send_file(filepath, as_attachment=True,
+                attachment_filename=quote(filename))
+
         if request.args.get("query") == "true":
             try:
                 query_obj = viz_obj.query_obj()
@@ -1099,10 +1109,10 @@ class Superset(BaseSupersetView):
             "forced_height": request.args.get('height'),
             'common': self.common_bootsrap_payload(),
         }
+        print(self.common_bootsrap_payload())
         table_name = datasource.table_name \
             if datasource_type == 'table' \
             else datasource.datasource_name
-        print(table_name, 111111111111111111)
         if slc:
             title = "[slice] " + slc.slice_name
         else:
@@ -1224,7 +1234,16 @@ class Superset(BaseSupersetView):
         obj = db.session.query(model).filter_by(id=id_).first()
         if obj:
             setattr(obj, attr, value == 'true')
-            db.session.commit()
+        if value=='true':
+            arg=metric_format(attr,obj)
+            db.session.add(SqlMetric(**arg))
+        else:
+            metric_name = attr + '__' + obj.column_name
+            metric_obj=db.session.query(SqlMetric).filter(SqlMetric.table_id == obj.table_id,
+                                                  SqlMetric.metric_name == metric_name).first()
+            if metric_obj:
+                db.session.delete(metric_obj)
+        db.session.commit()
         return json_success("OK")
 
     @api

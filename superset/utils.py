@@ -663,3 +663,20 @@ def get_celery_app(config):
         return _celery_app
     _celery_app = celery.Celery(config_source=config.get('CELERY_CONFIG'))
     return _celery_app
+
+def metric_format(value, item):
+    """
+        #格式化生成sql_metric表对象时参数
+    """
+    table_name = str(item.table.table_name)
+    if value == 'count_distinct':
+        expression = 'COUNT(DISTINCT %s.%s)' % (table_name, item.column_name)
+    else:
+        expression = "%s(%s.%s)" % (value.upper(), table_name, item.column_name)
+    return {
+        'metric_name': '%s__%s' % (value, item.column_name),
+        'verbose_name': '%s__%s' % (value, item.column_name),
+        'metric_type': value,
+        'expression': expression,
+        'table_id': item.table_id
+    }

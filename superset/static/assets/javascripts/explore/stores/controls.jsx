@@ -14,6 +14,7 @@ const TIME_PERIOD_DEFAULT = TIME_PERIOD_START + ' - ' + TIME_PERIOD_END;
 
 // input choices & options
 const D3_FORMAT_OPTIONS = [
+  ['.', '. | 12345'],
   ['.3s', '.3s | 12.3k'],
   ['.3%', '.3% | 1234543.210%'],
   ['.4r', '.4r | 12350'],
@@ -36,7 +37,8 @@ export const D3_TIME_FORMAT_OPTIONS = [
 
 const timeColumnOption = {
   verbose_name: 'Time',
-  column_name: '__timestamp',
+  // column_name: '__timestamp',
+  column_name: '时间',
   description: (
     'A reference to the [Time] configuration, taking granularity into ' +
     'account'),
@@ -646,7 +648,7 @@ export const controls = {
     label: '数字格式',
     // label: 'Number format',
     renderTrigger: true,
-    default: '.3s',
+    default: '.',
     choices: D3_FORMAT_OPTIONS,
     description: D3_FORMAT_DOCS,
   },
@@ -869,7 +871,7 @@ export const controls = {
     freeForm: true,
     label: 'Y Axis Format',
     renderTrigger: true,
-    default: '.3s',
+    default: '.',
     choices: D3_FORMAT_OPTIONS,
     description: D3_FORMAT_DOCS,
   },

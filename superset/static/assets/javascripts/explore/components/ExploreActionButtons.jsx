@@ -44,6 +44,15 @@ export default function ExploreActionButtons({
         >
           <i className="fa fa-file-text-o" /> .csv
         </a>
+          <a
+          href={slice.data.xlsx_endpoint}
+          className={exportToCSVClasses}
+          title="Export to .xlsx format"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i className="fa fa-file-text-o" /> .xlsx
+        </a>
 
         <DisplayQueryButton
           queryResponse={queryResponse}

@@ -46,8 +46,7 @@ class BaseViz(object):
 
     def __init__(self, datasource, form_data):
         if not datasource:
-            # raise Exception(_("Viz is missing a datasource"))
-            raise Exception(_("请选择您要查看的数据源"))
+            raise Exception(_("Viz is missing a datasource"))
         self.datasource = datasource
         self.request = request
         self.viz_type = form_data.get("viz_type")
@@ -181,8 +180,7 @@ class BaseViz(object):
             to_dttm = utils.parse_human_datetime(until)
             print(from_dttm, to_dttm)
             if from_dttm > to_dttm:
-                # raise Exception(_("From date cannot be larger than to date"))
-                raise Exception(_("起始查询时间不能大于终止时间"))
+                raise Exception(_("From date cannot be larger than to date"))
 
         # extras are used to query elements specific to a datasource type
         # for instance the extra where clause that applies only to Tables
@@ -358,11 +356,9 @@ class TableViz(BaseViz):
             (fd.get('granularity_sqla') and fd.get('time_grain_sqla'))
         )
         if fd.get('include_time') and not conditions_met:
-            # raise Exception(_(
-            #     "Pick a granularity in the Time section or "
-            #     "uncheck 'Include Time'"))
             raise Exception(_(
-                "请选择时间下的字段名和粒度或取消勾选Include Time"))
+                "Pick a granularity in the Time section or "
+                "uncheck 'Include Time'"))
         return fd.get('include_time')
 
     def query_obj(self):
@@ -370,11 +366,9 @@ class TableViz(BaseViz):
         fd = self.form_data
 
         if fd.get('all_columns') and (fd.get('groupby') or fd.get('metrics')):
-            # raise Exception(_(
-            #     "Choose either fields to [Group By] and [Metrics] or "
-            #     "[Columns], not both"))
             raise Exception(_(
-                "取消选择的维度和指标，或者查询的列"))
+                "Choose either fields to [Group By] and [Metrics] or "
+                "[Columns], not both"))
 
         if fd.get('all_columns'):
             d['columns'] = fd.get('all_columns')
@@ -420,16 +414,13 @@ class PivotTableViz(BaseViz):
         if not groupby:
             groupby = []
         if not groupby:
-            # raise Exception(_("Please choose at least one \"Group by\" field "))
-            raise Exception(_("请至少选择一个维度"))
+            raise Exception(_("Please choose at least one \"Group by\" field "))
         if not metrics:
-            # raise Exception(_("Please choose at least one metric"))
-            raise Exception(_("请至少选择一个指标"))
+            raise Exception(_("Please choose at least one metric"))
         if (
                 any(v in groupby for v in columns) or
                 any(v in columns for v in groupby)):
-            # raise Exception(_("'Group By' and 'Columns' can't overlap"))
-            raise Exception(_("维度与可查询的列不能重合"))
+            raise Exception(_("'Group By' and 'Columns' can't overlap"))
         return d
 
     def get_data(self, df):
@@ -713,8 +704,7 @@ class BubbleViz(NVD3Viz):
             self.y_metric,
         ]
         if not all(d['metrics'] + [self.entity]):
-            # raise Exception(_("Pick a metric for x, y and size"))
-            raise Exception(_("请为x,y,size选择一个指标"))
+            raise Exception(_("Pick a metric for x, y and size"))
         return d
 
     def get_data(self, df):
@@ -766,8 +756,7 @@ class BulletViz(NVD3Viz):
             self.metric,
         ]
         if not self.metric:
-            # raise Exception(_("Pick a metric to display"))
-            raise Exception(_("选择一个指标来隐藏"))
+            raise Exception(_("Pick a metric to display"))
         return d
 
     def get_data(self, df):
@@ -798,7 +787,7 @@ class BigNumberViz(BaseViz):
         d = super(BigNumberViz, self).query_obj()
         metric = self.form_data.get('metric')
         if not metric:
-            raise Exception(_("请选择指标!"))
+            raise Exception(_("Pick a metric!"))
         d['metrics'] = [self.form_data.get('metric')]
         self.form_data['metric'] = metric
         return d
@@ -827,8 +816,7 @@ class BigNumberTotalViz(BaseViz):
         d = super(BigNumberTotalViz, self).query_obj()
         metric = self.form_data.get('metric')
         if not metric:
-            # raise Exception(_("Pick a metric!"))
-            raise Exception(_("请选择一个指标!"))
+            raise Exception(_("Pick a metric!"))
         d['metrics'] = [self.form_data.get('metric')]
         self.form_data['metric'] = metric
         return d
@@ -894,8 +882,7 @@ class NVD3TimeSeriesViz(NVD3Viz):
         fd = self.form_data
         df = df.fillna(0)
         if fd.get("granularity") == "all":
-            # raise Exception(_("Pick a time granularity for your time series"))
-            raise Exception(_("请为时间序列选择一个时间粒度"))
+            raise Exception(_("Pick a time granularity for your time series"))
 
         df = df.pivot_table(
             index=DTTM_ALIAS,
@@ -985,15 +972,12 @@ class NVD3DualLineViz(NVD3Viz):
         m2 = self.form_data.get('metric_2')
         d['metrics'] = [m1, m2]
         if not m1:
-            # raise Exception(_("Pick a metric for left axis!"))
-            raise Exception(_("请为左轴选择一个指标!"))
+            raise Exception(_("Pick a metric for left axis!"))
         if not m2:
-            # raise Exception(_("Pick a metric for right axis!"))
-            raise Exception(_("请为右轴选择一个指标!"))
+            raise Exception(_("Pick a metric for right axis!"))
         if m1 == m2:
-            # raise Exception(_("Please choose different metrics"
-            #                 " on left and right axis"))
-            raise Exception(_("左右轴的指标不应相同!"))
+            raise Exception(_("Please choose different metrics"
+                            " on left and right axis"))
         return d
 
     def to_series(self, df, classed=''):
@@ -1035,8 +1019,7 @@ class NVD3DualLineViz(NVD3Viz):
         df = df.fillna(0)
 
         if self.form_data.get("granularity") == "all":
-            # raise Exception(_("Pick a time granularity for your time series"))
-            raise Exception(_("请为时间轴选择一个时间粒度"))
+            raise Exception(_("Pick a time granularity for your time series"))
 
         metric = fd.get('metric')
         metric_2 = fd.get('metric_2')
@@ -1107,8 +1090,7 @@ class HistogramViz(BaseViz):
             'row_limit', int(config.get('VIZ_ROW_LIMIT')))
         numeric_column = self.form_data.get('all_columns_x')
         if numeric_column is None:
-            # raise Exception(_("Must have one numeric column specified"))
-            raise Exception(_("必须选择一个指定的数字列"))
+            raise Exception(_("Must have one numeric column specified"))
         d['columns'] = [numeric_column]
         return d
 
@@ -1134,11 +1116,9 @@ class DistributionBarViz(DistributionPieViz):
                 len(fd.get('groupby') or []) + len(fd.get('columns') or [])
                 ):
             raise Exception(
-                # _("Can't have overlap between Series and Breakdowns"))
                 _("Can't have overlap between Series and Breakdowns"))
         if not fd.get('metrics'):
-            # raise Exception(_("Pick at least one metric"))
-            raise Exception(_("至少选择一种指标"))
+            raise Exception(_("Pick at least one metric"))
         if not fd.get('groupby'):
             raise Exception(_("Pick at least one field for [Series]"))
         return d

@@ -140,7 +140,7 @@ function nvd3Vis(slice, payload) {
   };
 
   const vizType = fd.viz_type;
-  const f = d3.format('.3s');
+  const f = d3.format(fd.y_axis_format || '.3s');
   const reduceXTicks = fd.reduce_x_ticks || false;
   let stacked = false;
   let row;

@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.4.0\n"
+"Generated-By: Babel 2.5.1\n"
 
 #: superset/db_engine_specs.py:192 superset/db_engine_specs.py:223
 #: superset/db_engine_specs.py:267 superset/db_engine_specs.py:315
@@ -122,11 +122,11 @@ msgstr ""
 
 #: superset/viz.py:49
 msgid "Viz is missing a datasource"
-msgstr ""
+msgstr "请选择您要查看的数据源"
 
 #: superset/viz.py:158
 msgid "From date cannot be larger than to date"
-msgstr ""
+msgstr "起始查询时间不能大于终止时间"
 
 #: superset/viz.py:322
 msgid "Table View"
@@ -134,11 +134,11 @@ msgstr "表视图"
 
 #: superset/viz.py:334
 msgid "Pick a granularity in the Time section or uncheck 'Include Time'"
-msgstr ""
+msgstr "请选择时间下的字段名和粒度或取消勾选Include Time"
 
 #: superset/viz.py:344
 msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
-msgstr ""
+msgstr "取消选择的维度和指标，或者查询的列"
 
 #: superset/viz.py:378
 msgid "Pivot Table"
@@ -146,15 +146,15 @@ msgstr "透视表"
 
 #: superset/viz.py:392
 msgid "Please choose at least one \"Group by\" field "
-msgstr ""
+msgstr "请至少选择一个维度"
 
 #: superset/viz.py:394
 msgid "Please choose at least one metric"
-msgstr ""
+msgstr "请至少选择一个指标"
 
 #: superset/viz.py:398
 msgid "'Group By' and 'Columns' can't overlap"
-msgstr ""
+msgstr "维度与可查询的列不能重合"
 
 #: superset/viz.py:431
 msgid "Markup"
@@ -186,7 +186,7 @@ msgstr "气泡图"
 
 #: superset/viz.py:686
 msgid "Pick a metric for x, y and size"
-msgstr ""
+msgstr "请为x,y,size选择一个指标"
 
 #: superset/viz.py:712
 msgid "Bullet Chart"
@@ -194,7 +194,7 @@ msgstr "子弹图"
 
 #: superset/viz.py:738
 msgid "Pick a metric to display"
-msgstr ""
+msgstr "选择一个指标来隐藏"
 
 #: superset/viz.py:761
 msgid "Big Number with Trendline"
@@ -202,7 +202,7 @@ msgstr "数字和趋势线"
 
 #: superset/viz.py:769 superset/viz.py:798
 msgid "Pick a metric!"
-msgstr ""
+msgstr "请选择指标!"
 
 #: superset/viz.py:790
 msgid "Big Number"
@@ -214,7 +214,7 @@ msgstr "时间序列-折线图"
 
 #: superset/viz.py:864 superset/viz.py:1001
 msgid "Pick a time granularity for your time series"
-msgstr ""
+msgstr "请为时间序列选择一个时间粒度"
 
 #: superset/viz.py:944
 msgid "Time Series - Dual Axis Line Chart"
@@ -222,15 +222,15 @@ msgstr "时间序列-双轴线图"
 
 #: superset/viz.py:954
 msgid "Pick a metric for left axis!"
-msgstr ""
+msgstr "请为左轴选择一个指标!"
 
 #: superset/viz.py:956
 msgid "Pick a metric for right axis!"
-msgstr ""
+msgstr "请为右轴选择一个指标!"
 
 #: superset/viz.py:958
 msgid "Please choose different metrics on left and right axis"
-msgstr ""
+msgstr "左右轴的指标不应相同!"
 
 #: superset/viz.py:1019
 msgid "Time Series - Bar Chart"
@@ -254,7 +254,7 @@ msgstr "直方图"
 
 #: superset/viz.py:1072
 msgid "Must have one numeric column specified"
-msgstr ""
+msgstr "必须选择一个指定的数字列"
 
 #: superset/viz.py:1087
 msgid "Distribution - Bar Chart"

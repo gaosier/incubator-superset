@@ -6,12 +6,15 @@ import traceback
 from flask import g, redirect, Response, flash, abort, get_flashed_messages
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
+from flask_babel import get_locale
 
 from flask_appbuilder import BaseView
 from flask_appbuilder import ModelView
 from flask_appbuilder.widgets import ListWidget
 from flask_appbuilder.actions import action
 from flask_appbuilder.models.sqla.filters import BaseFilter
+from superset.translations.utils import get_language_pack
+
 
 from superset import appbuilder, conf, db, utils, sm, sql_parse
 from superset.connectors.connector_registry import ConnectorRegistry
@@ -191,9 +194,12 @@ class BaseSupersetView(BaseView):
     def common_bootsrap_payload(self):
         """Common data always sent to the client"""
         messages = get_flashed_messages(with_categories=True)
+        locale = str(get_locale())
         return {
             'flash_messages': messages,
             'conf': {k: conf.get(k) for k in FRONTEND_CONF_KEYS},
+            'locale': locale,
+            'language_pack': get_language_pack(locale),
         }
 
 

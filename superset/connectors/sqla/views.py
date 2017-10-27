@@ -18,7 +18,7 @@ from superset.views.base import (
     SupersetModelView, ListWidgetWithCheckboxes, DeleteMixin, DatasourceFilter,
     get_datasource_exist_error_mgs,
 )
-
+from superset.utils import metric_format
 from . import models
 
 
@@ -86,7 +86,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'table': _("Table"),
         'count_distinct': _("Count Distinct"),
         'sum': _("Sum"),
-        'avg':_("求平均"),
+        'avg':_("Avg"),
         'min': _("Min"),
         'max': _("Max"),
         'expression': _("Expression"),
@@ -110,7 +110,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         dic=self.metric_name_dic(item)
         for n in dic:
             if dic[n]['flag']:
-                args = self.metric_format(dic[n]['value'], item)
+                args = metric_format(dic[n]['value'], item)
                 db.session.add(models.SqlMetric(**args))
                 db.session.commit()
 
@@ -120,23 +120,6 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
                'max__' + item.column_name: {'flag': item.max, 'value': 'max'},
                'min__' + item.column_name: {'flag': item.min, 'value': 'min'},
                'count_distinct__' + item.column_name: {'flag': item.count_distinct, 'value': 'count_distinct'}}
-
-    def metric_format(self,value,item):
-        """
-            #格式化生成sql_metric表对象时参数
-        """
-        table_name=str(item.table)
-        if value=='count_distinct':
-            expression='COUNT(DISTINCT %s.%s)'%(table_name,item.column_name)
-        else:
-            expression= "%s(%s.%s)" % (value.upper(), table_name, item.column_name)
-        return {
-            'metric_name': '%s__%s' % (value, item.column_name),
-            'verbose_name': '%s__%s' % (value, item.column_name),
-            'metric_type': value,
-            'expression': expression,
-            'table_id':item.table_id
-        }
 
     def post_update(self, item):
         """
@@ -153,7 +136,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
                 db.session.commit()
         for n in list(set(dic) - metric_in):
             if dic[n]['flag']:
-                args = self.metric_format(dic[n]['value'], item)
+                args = metric_format(dic[n]['value'], item)
                 db.session.add(models.SqlMetric(**args))
                 db.session.commit()
 appbuilder.add_view_no_menu(TableColumnInlineView)
@@ -288,7 +271,7 @@ class TableModelView(DatasourceModelView, DeleteMixin):  # noqa
         'owner': _("Owner"),
         'main_dttm_col': _("Main Datetime Column"),
         'description': _('Description'),
-        'verbose_name':_('表备注信息')
+        'verbose_name':_('Verbose Name')
     }
 
     def pre_add(self, table):
