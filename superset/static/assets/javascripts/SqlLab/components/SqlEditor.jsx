@@ -23,7 +23,7 @@ import Timer from '../../components/Timer';
 import SqlEditorLeftBar from './SqlEditorLeftBar';
 import { STATE_BSSTYLE_MAP } from '../constants';
 import RunQueryActionButton from './RunQueryActionButton';
-
+import { t } from '../../locales';
 
 const propTypes = {
   actions: PropTypes.object.isRequired,
@@ -131,7 +131,7 @@ class SqlEditor extends React.PureComponent {
     }
     let ctasControls;
     if (this.props.database && this.props.database.allow_ctas) {
-      const ctasToolTip = 'Create table as with query results';
+      const ctasToolTip = t('Create table as with query results');
       ctasControls = (
         <FormGroup>
           <InputGroup>
@@ -139,7 +139,7 @@ class SqlEditor extends React.PureComponent {
               type="text"
               bsSize="small"
               className="input-sm"
-              placeholder="new table name"
+              placeholder={t('new table name')}
               onChange={this.ctasChanged.bind(this)}
             />
             <InputGroup.Button>

@@ -113,7 +113,7 @@ msgstr "半小时"
 
 #: superset/db_engine_specs.py:929
 msgid "10 minute"
-msgstr ""
+msgstr "10 分钟"
 
 #: superset/utils.py:499
 #, python-format
@@ -134,11 +134,11 @@ msgstr "表视图"
 
 #: superset/viz.py:334
 msgid "Pick a granularity in the Time section or uncheck 'Include Time'"
-msgstr "请选择时间下的字段名和粒度或取消勾选Include Time"
+msgstr "在以时间作为维度时必须选择时间粒度"
 
 #: superset/viz.py:344
 msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
-msgstr "取消选择的维度和指标，或者查询的列"
+msgstr "聚合查询与非聚合查询不能同时进行选择"
 
 #: superset/viz.py:378
 msgid "Pivot Table"
@@ -262,7 +262,7 @@ msgstr "分布-柱状图"
 
 #: superset/viz.py:1098
 msgid "Can't have overlap between Series and Breakdowns"
-msgstr ""
+msgstr "分类与分类组成不能重复"
 
 #: superset/viz.py:1100
 msgid "Pick at least one metric"
@@ -411,6 +411,9 @@ msgstr "最小值"
 #: superset/connectors/druid/views.py:51 superset/connectors/sqla/views.py:90
 msgid "Max"
 msgstr "最大值"
+
+msgid "Avg"
+msgstr "平均值"
 
 #: superset/connectors/druid/views.py:54 superset/connectors/sqla/views.py:50
 msgid ""
@@ -1303,4 +1306,13 @@ msgstr ""
 #: superset/views/sql_lab.py:79
 msgid "Saved Queries"
 msgstr "已保存查询"
+
+msgid "asc"
+msgstr "升序"
+
+msgid "desc"
+msgstr "降序"
+
+msgid "No data."
+msgstr "无数据，请更改数据源、筛选条件或查询时间"
 

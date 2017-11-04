@@ -9,6 +9,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from superset import utils
 from superset.models.core import Slice
 from superset.models.helpers import AuditMixinNullable, ImportMixin
+from flask_babel import lazy_gettext as _
 
 
 class BaseDatasource(AuditMixinNullable, ImportMixin):
@@ -135,12 +136,19 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
     def data(self):
         """Data representation of the datasource sent to the frontend"""
         order_by_choices = []
+        order_by_metric = []
         # for s in sorted(self.column_names):
         for s in sorted(self.columns,key=lambda x:x.column_name):
             a= s.verbose_name if s.verbose_name else s.column_name
-            order_by_choices.append((json.dumps([s.column_name, True]), a + '(升序)'))
-            order_by_choices.append((json.dumps([s.column_name, False]), a + '(降序)'))
-
+            order_by_choices.append((json.dumps([s.column_name, True]), a + '(%s)'%(_('asc'))))
+            order_by_choices.append((json.dumps([s.column_name, False]), a + '(%s)'%(_('desc'))))
+            if s.groupby:
+                order_by_metric.append((json.dumps([s.column_name, True]), a + '(%s)'%(_('asc')),'groupby'))
+                order_by_metric.append((json.dumps([s.column_name, False]), a + '(%s)'%(_('desc')),'groupby'))
+        for s1 in sorted(self.metrics,key=lambda x:x.metric_name):
+            b = s1.verbose_name if s1.verbose_name else s1.metric_name
+            order_by_metric.append((json.dumps([s1.metric_name, True]), b + '(%s)'%(_('asc')),'metrics'))
+            order_by_metric.append((json.dumps([s1.metric_name, False]), b + '(%s)'%(_('desc')),'metrics'))
         verbose_map = {
             o.metric_name: o.verbose_name or o.metric_name
             for o in self.metrics
@@ -158,11 +166,14 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             # 'filterable_cols': utils.choicify(self.filterable_column_names),
             'filterable_cols': list(sorted([(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
                                             for i in self.columns if i.filterable])),
-            'gb_cols': utils.choicify(self.groupby_column_names),
+            # 'gb_cols': utils.choicify(self.groupby_column_names),
+            'gb_cols': list(sorted([(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
+                                    for i in self.columns if i.groupby])),
             'id': self.id,
             'metrics_combo': self.metrics_combo,
             'name': self.name,
             'order_by_choices': order_by_choices,
+            'order_by_metric': order_by_metric,
             'type': self.type,
             'metrics': [o.data for o in self.metrics],
             'columns': [o.data for o in self.columns],

@@ -3,6 +3,7 @@ import d3 from 'd3';
 import $ from 'jquery';
 
 import { formatDate, UTC } from './dates';
+import { t } from '../locales';
 
 export function d3FormatPreset(format) {
   // like d3.format, but with support for presets like 'smart_date'
@@ -168,7 +169,7 @@ export function formatSelectOptionsForRange(start, end) {
 
 export function formatSelectOptions(options) {
   return options.map(opt =>
-     [opt, opt.toString()],
+     [opt, t(opt.toString())],
   );
 }
 

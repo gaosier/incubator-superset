@@ -20,6 +20,7 @@ const propTypes = {
   valueRenderer: PropTypes.func,
   valueKey: PropTypes.string,
   options: PropTypes.array,
+  options_bak: PropTypes.array,
 };
 
 const defaultProps = {
@@ -89,7 +90,8 @@ pasteSelect.propTypes = {
 export default class SelectControl extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.state = { options: this.getOptions(props) };
+    let options = this.getOptions(props);
+    this.state = { options: options, options_bak: options};
     this.onChange = this.onChange.bind(this);
   }
   componentWillReceiveProps(nextProps) {
@@ -99,11 +101,60 @@ export default class SelectControl extends React.PureComponent {
       this.setState({ options });
     }
   }
+  componentDidMount(){
+    if(this.props.name == 'order_by_metric'){
+        let optsMap={};
+        this.props.choices.map((c) => {
+            optsMap[JSON.parse(c[0])[0]]=c[2]
+        });
+        this.props.store.subscribe(() => {
+            let state = this.props.store.getState();
+            let data = state.data;
+            if(state.type == 'order_by_metric'){
+                let oldoptions = this.state.options.filter(function (option) {
+                            let value1 = JSON.parse(option.value)[0];
+                            if(optsMap[value1]!=state.name){
+                                return true
+                            }
+                            return false
+                });
+                let options = this.state.options_bak.filter(function(option){
+                            let value2 = JSON.parse(option.value)[0];
+                            if(data.indexOf(value2)!=-1){
+                                return true;
+                            }
+                            return false;
+                        });
+                this.setState({
+                    data: data,
+                    options: options.concat(oldoptions),
+                    options_bak: this.state.options_bak
+                });
+            }
+            }
+         );
+    }else if(this.props.name == 'groupby'||this.props.name=='metrics'){
+        setTimeout(() => {
+            this.props.store.dispatch({
+                type: 'order_by_metric',
+                name:this.props.name,
+                data: this.props.value
+            })
+        }, 200);
+    }
+  }
   onChange(opt) {
     let optionValue = opt ? opt[this.props.valueKey] : null;
     // if multi, return options values as an array
     if (this.props.multi) {
       optionValue = opt ? opt.map(o => o[this.props.valueKey]) : null;
+    }
+    if(this.props.name == 'groupby'||this.props.name=='metrics'){
+        this.props.store.dispatch({
+            type: 'order_by_metric',
+            name:this.props.name,
+            data: optionValue
+        });
     }
     this.props.onChange(optionValue);
   }
@@ -155,7 +206,7 @@ export default class SelectControl extends React.PureComponent {
       placeholder: t('Select %s', this.state.options.length),
       options: this.state.options,
       value: this.props.value,
-      labelKey: 'label',
+      labelKey: this.props.labelKey||'label',
       valueKey: this.props.valueKey,
       autosize: false,
       clearable: this.props.clearable,
@@ -175,7 +226,7 @@ export default class SelectControl extends React.PureComponent {
     return (
       <div>
         {this.props.showHeader &&
-          <ControlHeader {...this.props} />
+          <ControlHeader {...this.props} opts={this.state.options} clickfunc={this.onChange}/>
         }
         {selectWrap}
       </div>

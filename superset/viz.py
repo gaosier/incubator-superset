@@ -76,9 +76,6 @@ class BaseViz(object):
                 timestamp_format = dttm_col.python_date_format
 
         # The datasource here can be different backend but the interface is common
-        print(query_obj)
-        print(self.datasource)
-        print(type(self.datasource))
         self.results = self.datasource.query(query_obj)
         self.query = self.results.query
         self.status = self.results.status
@@ -93,7 +90,7 @@ class BaseViz(object):
         if df is None or df.empty:
             self.status = utils.QueryStatus.FAILED
             if not self.error_message:
-                self.error_message = "No data."
+                self.error_message =str(_("No data."))
             return pd.DataFrame()
         else:
             if DTTM_ALIAS in df.columns:
@@ -163,7 +160,6 @@ class BaseViz(object):
         from_dttm,to_dttm = None, None
         if granularity is not None:
             form_since, form_until = self._parse_time_peroid(form_data.get("time_period"))
-            print(form_since, form_until)
             since = (
                 extra_filters.get('__from') or
                 form_since or
@@ -178,7 +174,6 @@ class BaseViz(object):
 
             until = extra_filters.get('__to') or form_until
             to_dttm = utils.parse_human_datetime(until)
-            print(from_dttm, to_dttm)
             if from_dttm > to_dttm:
                 raise Exception(_("From date cannot be larger than to date"))
 
@@ -365,16 +360,18 @@ class TableViz(BaseViz):
         d = super(TableViz, self).query_obj()
         fd = self.form_data
 
-        if fd.get('all_columns') and (fd.get('groupby') or fd.get('metrics')):
+        if fd.get('all_columns') and (fd.get('groupby') or fd.get('metrics') or fd.get('order_by_metric')):
             raise Exception(_(
                 "Choose either fields to [Group By] and [Metrics] or "
                 "[Columns], not both"))
-
         if fd.get('all_columns'):
             d['columns'] = fd.get('all_columns')
             d['groupby'] = []
             order_by_cols = fd.get('order_by_cols') or []
             d['orderby'] = [json.loads(t) for t in order_by_cols]
+        else:
+            order_by_metric = fd.get('order_by_metric') or []
+            d['orderby'] = [json.loads(t) for t in order_by_metric]
 
         d['is_timeseries'] = self.should_be_timeseries()
         return d
@@ -409,6 +406,9 @@ class PivotTableViz(BaseViz):
         groupby = self.form_data.get('groupby')
         columns = self.form_data.get('columns')
         metrics = self.form_data.get('metrics')
+        order_by_metric = self.form_data.get('order_by_metric')
+        if order_by_metric:
+            d['orderby'] = [json.loads(t) for t in order_by_metric]
         if not columns:
             columns = []
         if not groupby:
@@ -1065,6 +1065,12 @@ class DistributionPieViz(NVD3Viz):
     verbose_name = _("Distribution - NVD3 - Pie Chart")
     is_timeseries = False
 
+    def query_obj(self):
+        d = super(NVD3Viz, self).query_obj()  # noqa
+        fd = self.form_data
+        order_by_metric = fd.get('order_by_metric') or []
+        d['orderby'] = [json.loads(t) for t in order_by_metric]
+        return d
     def get_data(self, df):
         df = df.pivot_table(
             index=self.groupby,
@@ -1126,8 +1132,8 @@ class DistributionBarViz(DistributionPieViz):
     def get_data(self, df):
         fd = self.form_data
 
-        row = df.groupby(self.groupby).sum()[self.metrics[0]].copy()
-        row.sort_values(ascending=False, inplace=True)
+        row = df.groupby(self.groupby,sort=False).sum()[self.metrics[0]].copy()
+        # row.sort_values(ascending=False, inplace=True)
         columns = fd.get('columns') or []
         pt = df.pivot_table(
             index=self.groupby,

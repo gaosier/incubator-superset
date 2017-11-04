@@ -37,7 +37,6 @@ def url_param(param, default=None):
     :param default: the value to return in the absence of the parameter
     :type default: str
     """
-    print(request.args)
     return request.args.get(param, default)
 
 

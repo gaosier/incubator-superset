@@ -22,9 +22,9 @@ def get_language_pack(locale):
     """
     pack = ALL_LANGUAGE_PACKS.get(locale)
     if not pack:
-        filename = DIR + '/{}/LC_MESSAGES/messages.json'.format(locale)
+        filename =os.path.abspath(DIR + '/{}/LC_MESSAGES/messages.json'.format(locale))
         try:
-            with open(filename) as f:
+            with open(filename,encoding='utf8') as f:
                 pack = json.load(f)
                 ALL_LANGUAGE_PACKS[locale] = pack
         except Exception:

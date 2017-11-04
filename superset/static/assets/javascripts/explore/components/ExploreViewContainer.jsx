@@ -149,7 +149,7 @@ class ExploreViewContainer extends React.Component {
         id="explore-container"
         className="container-fluid"
         style={{
-          height: this.state.height,
+          // height: this.state.height,
           overflow: 'hidden',
         }}
       >

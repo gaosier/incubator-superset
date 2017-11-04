@@ -1,5 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {createStore} from 'redux'
+function reducer(state = {}, action) {
+      return action;
+}
+let store = createStore(reducer);
+
 
 import BoundsControl from './controls/BoundsControl';
 import CheckboxControl from './controls/CheckboxControl';
@@ -102,6 +108,7 @@ export default class Control extends React.PureComponent {
         <ControlType
           onChange={this.onChange}
           {...this.props}
+          store={store}
         />
       </div>
     );

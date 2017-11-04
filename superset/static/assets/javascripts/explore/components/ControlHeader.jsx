@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ControlLabel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import InfoTooltipWithTrigger from '../../components/InfoTooltipWithTrigger';
+import { Button } from 'react-bootstrap';
+import { t } from '../../locales';
 
 const propTypes = {
   label: PropTypes.string.isRequired,
@@ -20,6 +22,22 @@ const defaultProps = {
 export default function ControlHeader({
     label, description, validationErrors, renderTrigger, leftNode, rightNode }) {
   const hasError = (validationErrors.length > 0);
+  const opts=arguments[0].opts;
+  const clickFunc=arguments[0].clickfunc;
+  const buttStyle={
+      padding:1
+  };
+  const selectAll=arguments[0].button ?(
+      <div className="pull-left">
+       <Button
+          bsSize="small"
+          onClick={clickFunc.bind(this,opts)}
+          style={buttStyle}
+        >
+          {t('Select all')}
+        </Button>
+      </div>
+  ):(null);
   return (
     <div>
       <div className="pull-left">
@@ -70,6 +88,7 @@ export default function ControlHeader({
           }
         </ControlLabel>
       </div>
+     {selectAll}
       {rightNode &&
         <div className="pull-right">
           {rightNode}

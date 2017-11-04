@@ -412,6 +412,9 @@ msgstr ""
 msgid "Max"
 msgstr ""
 
+msgid "Avg"
+msgstr ""
+
 #: superset/connectors/druid/views.py:54 superset/connectors/sqla/views.py:50
 msgid ""
 "Whether this column is exposed in the `Filters` section of the explore "
@@ -1304,6 +1307,15 @@ msgstr ""
 msgid "Saved Queries"
 msgstr ""
 
+msgid "asc"
+msgstr ""
+
+msgid "desc"
+msgstr ""
+
+msgid "No data."
+msgstr ""
+
 #~ msgid "Databases"
 #~ msgstr ""
 
@@ -2175,5 +2187,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Welcome!"
+#~ msgstr ""
+
+#~ msgid "Unserializable object No data. of type"
 #~ msgstr ""
 

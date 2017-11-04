@@ -143,7 +143,8 @@ function tableVis(slice, payload) {
   // Sorting table by main column
   if (metrics.length > 0) {
     const mainMetric = metrics[0];
-    datatable.column(data.columns.indexOf(mainMetric)).order('desc').draw();
+    // datatable.column(data.columns.indexOf(mainMetric)).order('desc').draw();
+    datatable.draw();
   }
   container.parents('.widget').find('.tooltip').remove();
 }

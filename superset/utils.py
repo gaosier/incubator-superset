@@ -42,6 +42,7 @@ from past.builtins import basestring
 from pydruid.utils.having import Having
 from sqlalchemy import event, exc, select
 from sqlalchemy.types import TypeDecorator, TEXT
+from flask_babel import lazy_gettext as _
 
 logging.getLogger('MARKDOWN').setLevel(logging.INFO)
 
@@ -671,11 +672,13 @@ def metric_format(value, item):
     table_name = str(item.table.table_name)
     if value == 'count_distinct':
         expression = 'COUNT(DISTINCT %s.%s)' % (table_name, item.column_name)
+        verbose_name='%s(%s)'%(item.verbose_name or item.column_name,_('Count Distinct'))
     else:
         expression = "%s(%s.%s)" % (value.upper(), table_name, item.column_name)
+        verbose_name='%s(%s)'%(item.verbose_name or item.column_name , _(value.capitalize()))
     return {
         'metric_name': '%s__%s' % (value, item.column_name),
-        'verbose_name': '%s__%s' % (value, item.column_name),
+        'verbose_name': verbose_name,
         'metric_type': value,
         'expression': expression,
         'table_id': item.table_id

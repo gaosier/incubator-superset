@@ -26,6 +26,7 @@ const propTypes = {
   options: PropTypes.array,
   startDate: PropTypes.any,
   endDate: PropTypes.any,
+  linkedCalendars: PropTypes.bool,
   ranges: PropTypes.any,
 };
 
@@ -44,6 +45,7 @@ const defaultProps = {
   valueKey: 'value',
   startDate: moment().subtract(6, 'days'),
   endDate: moment(),
+  linkedCalendars: false,
   ranges: {
     今天: [moment(), moment()],
     昨天: [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -118,6 +120,7 @@ export default class DatetimeRangePickerControl extends React.PureComponent {
             ranges={this.state.ranges}
             onEvent={this.handleEvent}
             locale={locale}
+            linkedCalendars={this.props.linkedCalendars}
           >
             <BootstrapButton className="selected-date-range-btn" style={buttonStyle}>
               <div className="pull-left">

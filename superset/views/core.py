@@ -1005,7 +1005,6 @@ class Superset(BaseSupersetView):
         # dic.update({m.metric_name : (m.verbose_name or m.metric_name) for m in viz_obj.datasource.metrics})
         # for i in payload['data']:
         #     i['key']=dic[i['key']]
-        print(payload,99999999999999999999999)
         status = 200
         if payload.get('status') == QueryStatus.FAILED:
             status = 400
@@ -1109,7 +1108,6 @@ class Superset(BaseSupersetView):
             "forced_height": request.args.get('height'),
             'common': self.common_bootsrap_payload(),
         }
-        print(self.common_bootsrap_payload())
         table_name = datasource.table_name \
             if datasource_type == 'table' \
             else datasource.datasource_name

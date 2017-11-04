@@ -547,12 +547,19 @@ class SqlaTable(Model, BaseDatasource):
             qry = qry.where(and_(*where_clause_and))
         qry = qry.having(and_(*having_clause_and))
         if groupby:
-            qry = qry.order_by(desc(main_metric_expr))
-        elif orderby:
-            for col, ascending in orderby:
-                direction = asc if ascending else desc
-                qry = qry.order_by(direction(col))
-
+            if not orderby:
+                qry = qry.order_by(desc(main_metric_expr))
+            else:
+                # group_sort_name={i.name:i.name for i in select_exprs}
+                for col, ascending in orderby:
+                    # if group_sort_name.get(col):
+                    direction = asc if ascending else desc
+                    qry = qry.order_by(direction(col))
+        else:
+            if orderby:
+                for col, ascending in orderby:
+                    direction = asc if ascending else desc
+                    qry = qry.order_by(direction(col))
         if row_limit:
             qry = qry.limit(row_limit)
 
@@ -597,7 +604,6 @@ class SqlaTable(Model, BaseDatasource):
         status = QueryStatus.SUCCESS
         error_message = None
         df = None
-        print(sql,66666666666666666666666666666)
         try:
             df = self.database.get_df(sql, self.schema)
         except Exception as e:
@@ -652,8 +658,10 @@ class SqlaTable(Model, BaseDatasource):
                 dbcol = TableColumn(column_name=col.name, type=datatype)
                 dbcol.groupby = dbcol.is_string
                 dbcol.filterable = dbcol.is_string
-                # dbcol.sum = dbcol.is_num
-                # dbcol.avg = dbcol.is_num
+                dbcol.sum = dbcol.is_num
+                dbcol.avg = dbcol.is_num
+                dbcol.max = dbcol.is_num
+                dbcol.min = dbcol.is_num
                 dbcol.is_dttm = dbcol.is_time
                 if comment_info_dict:
                     dbcol.verbose_name=comment_info_dict[dbcol.column_name]
@@ -667,35 +675,35 @@ class SqlaTable(Model, BaseDatasource):
             if dbcol.sum:
                 metrics.append(M(
                     metric_name='sum__' + dbcol.column_name,
-                    verbose_name='sum__' + dbcol.column_name,
+                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Sum')),
                     metric_type='sum',
                     expression="SUM({})".format(quoted)
                 ))
             if dbcol.avg:
                 metrics.append(M(
                     metric_name='avg__' + dbcol.column_name,
-                    verbose_name='avg__' + dbcol.column_name,
+                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Avg')),
                     metric_type='avg',
                     expression="AVG({})".format(quoted)
                 ))
             if dbcol.max:
                 metrics.append(M(
                     metric_name='max__' + dbcol.column_name,
-                    verbose_name='max__' + dbcol.column_name,
+                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Max')),
                     metric_type='max',
                     expression="MAX({})".format(quoted)
                 ))
             if dbcol.min:
                 metrics.append(M(
                     metric_name='min__' + dbcol.column_name,
-                    verbose_name='min__' + dbcol.column_name,
+                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Min')),
                     metric_type='min',
                     expression="MIN({})".format(quoted)
                 ))
             if dbcol.count_distinct:
                 metrics.append(M(
                     metric_name='count_distinct__' + dbcol.column_name,
-                    verbose_name='count_distinct__' + dbcol.column_name,
+                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Count Distinct')),
                     metric_type='count_distinct',
                     expression="COUNT(DISTINCT {})".format(quoted)
                 ))
