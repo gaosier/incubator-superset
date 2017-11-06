@@ -97,7 +97,7 @@ msgstr "周一为一周开始"
 
 #: superset/db_engine_specs.py:375 superset/db_engine_specs.py:893
 msgid "week_ending_saturday"
-msgstr "周日为一周开始"
+msgstr "周六为一周开始"
 
 #: superset/db_engine_specs.py:378 superset/db_engine_specs.py:896
 msgid "week_start_sunday"

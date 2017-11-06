@@ -18,6 +18,7 @@ from sqlalchemy.sql import table, literal_column, text, column
 from flask import escape, Markup
 from flask_appbuilder import Model
 from flask_babel import lazy_gettext as _
+from flask_babel import gettext as __
 
 from superset import db, utils, import_util, sm
 from superset.connectors.base.models import BaseDatasource, BaseColumn, BaseMetric
@@ -287,7 +288,7 @@ class SqlaTable(Model, BaseDatasource):
         if self.type == 'table':
             grains = self.database.grains() or []
             if grains:
-                grains = [(g.name, g.name) for g in grains]
+                grains = [(g.name, __(g.name)) for g in grains]
             d['granularity_sqla'] = utils.choicify(self.dttm_cols)
             d['granularity_sqla'] =self.my_dttm_cols
             d['time_grain_sqla'] = grains
@@ -547,9 +548,9 @@ class SqlaTable(Model, BaseDatasource):
             qry = qry.where(and_(*where_clause_and))
         qry = qry.having(and_(*having_clause_and))
         if groupby:
-            if not orderby:
-                qry = qry.order_by(desc(main_metric_expr))
-            else:
+            # if not orderby:
+            #     qry = qry.order_by(desc(main_metric_expr))
+            if orderby:
                 # group_sort_name={i.name:i.name for i in select_exprs}
                 for col, ascending in orderby:
                     # if group_sort_name.get(col):

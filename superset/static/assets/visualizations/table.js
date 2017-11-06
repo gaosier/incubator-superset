@@ -68,7 +68,12 @@ function tableVis(slice, payload) {
         html = tsFormatter(val);
       }
       if (typeof (val) === 'string') {
-        html = `<span class="like-pre">${val}</span>`;
+        let new_val=new Date(val);
+        if (isNaN(new_val)){
+          html = `<span class="like-pre">${val}</span>`;
+      }else{
+          html = tsFormatter(new_val.getTime());
+        }
       }
       if (isMetric) {
         const format_ = slice.datasource.column_formats[c] || fd.number_format || '.3s';
