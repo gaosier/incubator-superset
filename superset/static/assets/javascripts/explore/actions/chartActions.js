@@ -48,7 +48,7 @@ export function removeChartAlert() {
 }
 
 export const RUN_QUERY = 'RUN_QUERY';
-export function runQuery(formData, force = false, timeout = 60) {
+export function runQuery(formData, force = false, timeout = 120) {
   return function (dispatch, getState) {
     const { explore } = getState();
     const lastQueryFormData = getFormDataFromControls(explore.controls);

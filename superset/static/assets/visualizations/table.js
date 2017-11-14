@@ -1,5 +1,6 @@
 import d3 from 'd3';
-import 'datatables-bootstrap3-plugin/media/css/datatables-bootstrap3.css';
+// import 'datatables-bootstrap3-plugin/media/css/datatables-bootstrap3.css';
+import 'datatables.net-bs/css/dataTables.bootstrap.css';
 import 'datatables.net';
 import dt from 'datatables.net-bs';
 
@@ -66,14 +67,13 @@ function tableVis(slice, payload) {
       const isMetric = metrics.indexOf(c) >= 0;
       if (c === '__timestamp') {
         html = tsFormatter(val);
-      }
-      if (typeof (val) === 'string') {
+      };
+      if (c === fd.granularity_sqla){
         let new_val=new Date(val);
-        if (isNaN(new_val)){
-          html = `<span class="like-pre">${val}</span>`;
-      }else{
-          html = tsFormatter(new_val.getTime());
-        }
+        html = tsFormatter(new_val.getTime())
+      }
+      else if (typeof (val) === 'string') {
+        html = `<span class="like-pre">${val}</span>`;
       }
       if (isMetric) {
         const format_ = slice.datasource.column_formats[c] || fd.number_format || '.3s';
@@ -139,12 +139,14 @@ function tableVis(slice, payload) {
     aaSorting: [],
     searching: fd.include_search,
     bInfo: false,
-    scrollY: height + 'px',
+    scrollY: height,
     scrollCollapse: true,
+    aLengthMenu:[10,25,40,50,75,100,150,200],
     scrollX: true,
+    bPaginate : true,
   });
   fixDataTableBodyHeight(
-      container.find('.dataTables_wrapper'), height);
+      container.find('.dataTables_wrapper'), height-125);
   // Sorting table by main column
   if (metrics.length > 0) {
     const mainMetric = metrics[0];

@@ -547,7 +547,7 @@ class SqlaTable(Model, BaseDatasource):
         else:
             qry = qry.where(and_(*where_clause_and))
         qry = qry.having(and_(*having_clause_and))
-        if groupby:
+        if groupby or metrics_exprs:
             # if not orderby:
             #     qry = qry.order_by(desc(main_metric_expr))
             if orderby:
@@ -560,7 +560,8 @@ class SqlaTable(Model, BaseDatasource):
             if orderby:
                 for col, ascending in orderby:
                     direction = asc if ascending else desc
-                    qry = qry.order_by(direction(col))
+                    # qry = qry.order_by(col)
+                    qry = qry.order_by(direction(cols.get(col).sqla_col))
         if row_limit:
             qry = qry.limit(row_limit)
 
@@ -610,8 +611,11 @@ class SqlaTable(Model, BaseDatasource):
         except Exception as e:
             status = QueryStatus.FAILED
             logging.exception(e)
-            error_message = (
-                self.database.db_engine_spec.extract_error_message(e))
+            # error_message = (
+            #     self.database.db_engine_spec.extract_error_message(e))
+            error_message=(
+                '查询语句不合法，请修改或联系管理员'
+            )
 
         return QueryResult(
             status=status,

@@ -224,6 +224,10 @@ class ChartContainer extends React.PureComponent {
       return this.renderAlert();
     }
     const loading = this.props.chartStatus === 'loading';
+    let row_queried;
+    if(this.props.queryResponse){
+          row_queried= "共查询到"+ this.props.queryResponse.row_queried + "条数据"
+        }
     return (
       <div>
         {loading &&
@@ -234,6 +238,9 @@ class ChartContainer extends React.PureComponent {
             style={{ position: 'absolute' }}
           />
         }
+        <div style={{display:loading ? "none":"block"}}>
+            {row_queried}
+        </div>
         <div
           id={this.props.containerId}
           ref={(ref) => { this.chartContainerRef = ref; }}

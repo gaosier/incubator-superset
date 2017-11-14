@@ -1380,6 +1380,12 @@ msgstr ""
 msgid "No data."
 msgstr ""
 
+msgid "Please choose groupby which should be only one"
+msgstr ""
+
+msgid "The number of metric should be only one"
+msgstr ""
+
 #~ msgid "Unserializable object No data. of type"
 #~ msgstr ""
 

@@ -265,9 +265,11 @@ class BaseViz(object):
             is_cached = False
             cache_timeout = self.cache_timeout
             stacktrace = None
+            row_queried=None
             try:
                 df = self.get_df()
                 if not self.error_message:
+                    row_queried=len(df.index)
                     data = self.get_data(df)
             except Exception as e:
                 logging.exception(e)
@@ -280,6 +282,7 @@ class BaseViz(object):
                 'cache_key': cache_key,
                 'cache_timeout': cache_timeout,
                 'data': data,
+                'row_queried':row_queried,
                 'error': self.error_message,
                 'form_data': self.form_data,
                 'query': self.query,
@@ -359,8 +362,7 @@ class TableViz(BaseViz):
     def query_obj(self):
         d = super(TableViz, self).query_obj()
         fd = self.form_data
-
-        if fd.get('all_columns') and (fd.get('groupby') or fd.get('metrics') or fd.get('order_by_metric')):
+        if (fd.get('all_columns') or fd.get('order_by_cols')) and (fd.get('groupby') or fd.get('metrics') or fd.get('order_by_metric')):
             raise Exception(_(
                 "Choose either fields to [Group By] and [Metrics] or "
                 "[Columns], not both"))
@@ -436,8 +438,20 @@ class PivotTableViz(BaseViz):
             margins=self.form_data.get('pivot_margins'),
         )
         # Display metrics side by side with each column
+        a=df.index
         if self.form_data.get('combine_metric'):
             df = df.stack(0).unstack()
+            value=list(df.columns.levels[0]).index("All")
+            df_label_0=list(df.columns.labels[0])
+            df_label_1=list(df.columns.labels[1])
+            count=df_label_0.count(value)
+            for i in range(count):
+                index=df_label_0.index(value)
+                df_label_0.append(df_label_0.pop(index))
+                df_label_1.append(df_label_1.pop(index))
+            b=df.columns.set_labels([df_label_0,df_label_1])
+            df = df.reindex(index=a,columns=b)
+            # from pandas.core.indexes.frozen import FrozenNDArray
         return dict(
             columns=list(df.columns),
             html=df.to_html(
@@ -1070,6 +1084,14 @@ class DistributionPieViz(NVD3Viz):
         fd = self.form_data
         order_by_metric = fd.get('order_by_metric') or []
         d['orderby'] = [json.loads(t) for t in order_by_metric]
+        # print(type(self)==DistributionBarViz,type(self)==DistributionPieViz)
+        if self.viz_type =='pie':
+            if len(self.form_data.get("groupby")) !=1:
+                # raise Exception(_("请选择维度且个数为一"))
+                raise Exception(_("Please choose groupby which should be only one"))
+            if len(self.form_data.get("metrics")) !=1:
+                # raise Exception(_("指标个数只能为一"))
+                raise Exception(_("The number of metric should be only one"))
         return d
     def get_data(self, df):
         df = df.pivot_table(

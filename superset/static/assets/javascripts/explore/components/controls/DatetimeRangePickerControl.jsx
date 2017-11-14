@@ -60,30 +60,52 @@ export default class DatetimeRangePickerControl extends React.PureComponent {
   constructor(props) {
     super(props);
     this.handleEvent = this.handleEvent.bind(this);
+    if(props.value){
+      let val=props.value.split('-');
+      props.startDate=moment(val[0],'YYYY年MM月DD日');
+      props.endDate=moment(val[1]||val[0],'YYYY年MM月DD日');
+    }
     this.state = {
       ranges: this.getRanges(props),
       startDate: props.startDate,
       endDate: props.endDate,
     };
   }
-
-  onChange(value) {
+  componentDidMount() {
+      this.props.store.subscribe(() => {
+          let state = this.props.store.getState();
+          let data = state.data;
+          if (state.type == 'hidden_calendar') {
+              if (!data){
+                this.setState({
+                    display:'none'
+                })
+              }
+              else {
+                this.setState({
+                      display:'block'
+                  })
+              }}
+      });
+  }
+  onChange(value){
     this.props.onChange(value);
   }
-  getRanges(props) {
+  getRanges(props){
     if (props.ranges) {
       return props.ranges;
     }
     return [];
   }
   getLabel() {
+    let label;
     const start = this.state.startDate.format('YYYY年MM月DD日');
     const end = this.state.endDate.format('YYYY年MM月DD日');
-    let label = start + ' - ' + end;
+    label = start + ' - ' + end;
     if (start === end) {
       label = start;
     }
-    return label;
+  return label;
   }
   handleEvent(event, picker) {
     this.setState({
@@ -109,7 +131,7 @@ export default class DatetimeRangePickerControl extends React.PureComponent {
     };
     const buttonStyle = { width: '100%' };
     return (
-      <div>
+      <div style={{display:this.state.display}}>
         {this.props.showHeader &&
           <ControlHeader {...this.props} />
         }
@@ -119,6 +141,7 @@ export default class DatetimeRangePickerControl extends React.PureComponent {
             endDate={this.state.endDate}
             ranges={this.state.ranges}
             onEvent={this.handleEvent}
+            showDropdowns
             locale={locale}
             linkedCalendars={this.props.linkedCalendars}
           >

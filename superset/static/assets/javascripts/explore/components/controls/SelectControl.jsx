@@ -133,7 +133,8 @@ export default class SelectControl extends React.PureComponent {
             }
             }
          );
-    }else if(this.props.name == 'groupby'||this.props.name=='metrics'){
+    }
+    else if(this.props.name == 'groupby'||this.props.name=='metrics'){
         setTimeout(() => {
             this.props.store.dispatch({
                 type: 'order_by_metric',
@@ -142,6 +143,14 @@ export default class SelectControl extends React.PureComponent {
             })
         }, 200);
     }
+    else if(this.props.name=='granularity_sqla'){
+        setTimeout(() => {
+            this.props.store.dispatch({
+                type: 'hidden_calendar',
+                name:this.props.name,
+                data: this.props.value
+            })
+        }, 200);}
   }
   onChange(opt) {
     let optionValue = opt ? opt[this.props.valueKey] : null;
@@ -152,6 +161,13 @@ export default class SelectControl extends React.PureComponent {
     if(this.props.name == 'groupby'||this.props.name=='metrics'){
         this.props.store.dispatch({
             type: 'order_by_metric',
+            name:this.props.name,
+            data: optionValue
+        });
+    }
+    if(this.props.name=='granularity_sqla'){
+        this.props.store.dispatch({
+            type: 'hidden_calendar',
             name:this.props.name,
             data: optionValue
         });

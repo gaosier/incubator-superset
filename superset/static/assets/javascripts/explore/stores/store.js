@@ -76,6 +76,14 @@ export function getControlsState(state, form_data) {
     if (typeof control.default === 'function') {
       control.default = control.default(control);
     }
+    //改变视图时 不全选
+    if(vizType ==='table'){
+      if(form_data.groupby || form_data.metrics){
+        if(k==='all_columns'){
+          control.default=[]
+        }
+      }
+    }
     control.validationErrors = [];
     control.value = formData[k] !== undefined ? formData[k] : control.default;
     controlsState[k] = control;

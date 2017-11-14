@@ -94,7 +94,8 @@ export const controls = {
     labelKey: 'verbose_name',
     optionRenderer: m => <MetricOption metric={m} />,
     valueRenderer: m => <MetricOption metric={m} />,
-    default: c => c.options && c.options.length > 0 ? [c.options[0].metric_name] : null,
+    // default: c => c.options && c.options.length > 0 ? [c.options[0].metric_name] : null,
+    default:[],
     mapStateToProps: state => ({
       options: (state.datasource) ? state.datasource.metrics : [],
     }),
@@ -524,8 +525,9 @@ export const controls = {
   granularity_sqla: {
     type: 'SelectControl',
     label: t('Time Column'),
-    default: control =>
-      control.choices && control.choices.length > 0 ? control.choices[0][0] : null,
+    // default: control =>
+    //   control.choices && control.choices.length > 0 ? control.choices[0][0] : null,
+    default:null,
     description: t('The time column for the visualization. Note that you ' +
     'can define arbitrary expression that return a DATETIME ' +
     'column in the table or. Also note that the ' +
@@ -846,7 +848,7 @@ export const controls = {
     type: 'SelectControl',
     freeForm: true,
     label: t('Page Length'),
-    default: 0,
+    default: 40,
     choices: formatSelectOptions([0, 10, 25, 40, 50, 75, 100, 150, 200]),
     description: t('Rows per page, 0 means no pagination'),
   },

@@ -26,6 +26,7 @@ module.exports = function (slice, payload) {
     $(this)[0].textContent = slice.datasource.verbose_map[s] || s;
   };
   slice.container.find('thead tr:first th').each(replaceCell);
+  slice.container.find('thead tr:eq(1) th').each(replaceCell);
   slice.container.find('thead tr th:first-child').each(replaceCell);
 
   // jQuery hack to format number
@@ -54,7 +55,7 @@ module.exports = function (slice, payload) {
       scrollCollapse: true,
       scrollX: true,
     });
-    table.column('0').order('desc').draw();
+    table.draw();
     fixDataTableBodyHeight(container.find('.dataTables_wrapper'), height);
   } else {
     // When there is more than 1 group by column we just render the table, without using

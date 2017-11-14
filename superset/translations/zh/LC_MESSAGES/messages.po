@@ -266,11 +266,11 @@ msgstr "分类与分类组成不能重复"
 
 #: superset/viz.py:1100
 msgid "Pick at least one metric"
-msgstr ""
+msgstr "请至少选择一个指标"
 
 #: superset/viz.py:1102
 msgid "Pick at least one field for [Series]"
-msgstr ""
+msgstr "请至少选择一个分类"
 
 #: superset/viz.py:1155
 msgid "Sunburst"
@@ -633,7 +633,7 @@ msgstr ""
 
 #: superset/connectors/sqla/views.py:28
 msgid "List Columns"
-msgstr ""
+msgstr "列列表"
 
 #: superset/connectors/sqla/views.py:29
 msgid "Show Column"
@@ -683,7 +683,7 @@ msgstr "数据库表达式"
 
 #: superset/connectors/sqla/views.py:103
 msgid "List Metrics"
-msgstr ""
+msgstr "指标列表"
 
 #: superset/connectors/sqla/views.py:104
 msgid "Show Metric"
@@ -1315,4 +1315,10 @@ msgstr "降序"
 
 msgid "No data."
 msgstr "无数据，请更改数据源、筛选条件或查询时间"
+
+msgid "Please choose groupby which should be only one"
+msgstr "请选择维度且个数为一"
+
+msgid "The number of metric should be only one"
+msgstr "指标个数只能为一"
 

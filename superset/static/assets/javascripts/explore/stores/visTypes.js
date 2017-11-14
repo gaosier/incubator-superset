@@ -56,7 +56,7 @@ export const sections = {
       'that allow for advanced analytical post processing ' +
       'of query results'),
       controlSetRows: [
-        ['rolling_type', 'rolling_periods', 'min_periods'],
+        ['rolling_type', 'rolling_periods',],
         ['time_compare'],
         ['num_period_compare', 'period_ratio_type'],
         ['resample_how', 'resample_rule'],
@@ -114,6 +114,7 @@ export const visTypes = {
         validators: [],
       },
       all_columns:{
+        default: c => c.choices && c.choices.length > 0 ? c.choices.map(a => a[0]): [],
         button : 'True',
       },
       time_grain_sqla: {
@@ -167,7 +168,7 @@ export const visTypes = {
       {
         label: t('Query'),
         controlSetRows: [
-          ['metrics', 'groupby'],
+          [ 'groupby','metrics'],
           ['order_by_metric'],
           ['row_limit'],
           // ['limit'],
