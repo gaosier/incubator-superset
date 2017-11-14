@@ -21,6 +21,8 @@ const propTypes = {
   valueKey: PropTypes.string,
   options: PropTypes.array,
   options_bak: PropTypes.array,
+  clearAllText: PropTypes.string,
+  clearValueText: PropTypes.string,
 };
 
 const defaultProps = {
@@ -36,6 +38,8 @@ const defaultProps = {
   optionRenderer: opt => opt.label,
   valueRenderer: opt => opt.label,
   valueKey: 'value',
+  clearAllText: '清空',
+  clearValueText: '清空',
 };
 
 // Handle `onPaste` so that users may paste in
@@ -230,6 +234,8 @@ export default class SelectControl extends React.PureComponent {
       onChange: this.onChange,
       optionRenderer: this.props.optionRenderer,
       valueRenderer: this.props.valueRenderer,
+      clearAllText: this.props.clearAllText,
+      clearValueText: this.props.clearValueText,
     };
     //  Tab, comma or Enter will trigger a new option created for FreeFormSelect
     const selectWrap = this.props.freeForm ? (

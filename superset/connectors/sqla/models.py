@@ -43,6 +43,8 @@ class TableColumn(Model, BaseColumn):
     expression = Column(Text, default='')
     python_date_format = Column(String(255))
     database_expression = Column(String(255))
+    is_hybrid = Column(Boolean, default=False)
+    hybrid_expression = Column(String(255))
 
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
@@ -62,10 +64,19 @@ class TableColumn(Model, BaseColumn):
 
     def get_time_filter(self, start_dttm, end_dttm):
         col = self.sqla_col.label('__time')
-        return and_(
-            col >= text(self.dttm_sql_literal(start_dttm)),
-            col <= text(self.dttm_sql_literal(end_dttm)),
-        )
+        l = []
+        col_partition = column('day').label('day')
+        if self.is_hybrid:
+            if start_dttm:
+                l.append(col_partition >= text(self.dttm_hybird_literal(start_dttm)))
+            if end_dttm:
+                l.append(col_partition <= text(self.dttm_hybird_literal(end_dttm)))
+        else:
+            if start_dttm:
+                l.append(col >= text(self.dttm_sql_literal(start_dttm)))
+            if end_dttm:
+                l.append(col <= text(self.dttm_sql_literal(end_dttm)))
+        return and_(*l)
 
     def get_timestamp_expression(self, time_grain):
         """Getting the time component of the query"""
@@ -114,6 +125,14 @@ class TableColumn(Model, BaseColumn):
             s = self.table.database.db_engine_spec.convert_dttm(
                 self.type or '', dttm)
             return s or "'{}'".format(dttm.strftime(tf))
+
+    def dttm_hybird_literal(self, dttm):
+        """转换时间格式符合hybird分区格式
+
+        """
+
+        tf = self.hybrid_expression or '%Y%m%d'
+        return "'{0}'".format(dttm.strftime(tf))
 
 
 class SqlMetric(Model, BaseMetric):
@@ -337,7 +356,7 @@ class SqlaTable(Model, BaseDatasource):
                 compile_kwargs={"literal_binds": True}
             )
         )
-        logging.info(sql)
+        #logging.info(sql)
         sql = sqlparse.format(sql, reindent=True)
         return sql
 
@@ -560,7 +579,6 @@ class SqlaTable(Model, BaseDatasource):
             if orderby:
                 for col, ascending in orderby:
                     direction = asc if ascending else desc
-                    # qry = qry.order_by(col)
                     qry = qry.order_by(direction(cols.get(col).sqla_col))
         if row_limit:
             qry = qry.limit(row_limit)
@@ -613,9 +631,8 @@ class SqlaTable(Model, BaseDatasource):
             logging.exception(e)
             # error_message = (
             #     self.database.db_engine_spec.extract_error_message(e))
-            error_message=(
-                '查询语句不合法，请修改或联系管理员'
-            )
+            error_message = (
+                '查询语句不合法，请修改或联系管理员')
 
         return QueryResult(
             status=status,

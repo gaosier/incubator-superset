@@ -623,7 +623,7 @@ msgstr "缺少时间字段"
 
 #: superset/connectors/sqla/models.py:395
 msgid "Metric '{}' is not valid"
-msgstr ""
+msgstr "请重新选择查询字段"
 
 #: superset/connectors/sqla/models.py:581
 msgid ""
@@ -637,15 +637,15 @@ msgstr "列列表"
 
 #: superset/connectors/sqla/views.py:29
 msgid "Show Column"
-msgstr ""
+msgstr "展示列"
 
 #: superset/connectors/sqla/views.py:30
 msgid "Add Column"
-msgstr ""
+msgstr "添加列"
 
 #: superset/connectors/sqla/views.py:31
 msgid "Edit Column"
-msgstr ""
+msgstr "编辑列"
 
 #: superset/connectors/sqla/views.py:46
 msgid ""
@@ -687,15 +687,15 @@ msgstr "指标列表"
 
 #: superset/connectors/sqla/views.py:104
 msgid "Show Metric"
-msgstr ""
+msgstr "展示指标"
 
 #: superset/connectors/sqla/views.py:105
 msgid "Add Metric"
-msgstr ""
+msgstr "添加指标"
 
 #: superset/connectors/sqla/views.py:106
 msgid "Edit Metric"
-msgstr ""
+msgstr "编辑指标"
 
 #: superset/connectors/sqla/views.py:135
 msgid "SQL Expression"
@@ -1321,4 +1321,13 @@ msgstr "请选择维度且个数为一"
 
 msgid "The number of metric should be only one"
 msgstr "指标个数只能为一"
+
+msgid "Edit User Information"
+msgstr "编辑用户信息"
+
+msgid "Hybrid Expression"
+msgstr "Hybrid描述"
+
+msgid "Is Hybrid"
+msgstr "是否分区"
 

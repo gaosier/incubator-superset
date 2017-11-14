@@ -1232,15 +1232,16 @@ class Superset(BaseSupersetView):
         obj = db.session.query(model).filter_by(id=id_).first()
         if obj:
             setattr(obj, attr, value == 'true')
-        if value=='true':
-            arg=metric_format(attr,obj)
-            db.session.add(SqlMetric(**arg))
-        else:
-            metric_name = attr + '__' + obj.column_name
-            metric_obj=db.session.query(SqlMetric).filter(SqlMetric.table_id == obj.table_id,
-                                                  SqlMetric.metric_name == metric_name).first()
-            if metric_obj:
-                db.session.delete(metric_obj)
+        if attr in ['max','min','avg','sum','count_distinct']:
+            if value=='true':
+                arg=metric_format(attr,obj)
+                db.session.add(SqlMetric(**arg))
+            else:
+                metric_name = attr + '__' + obj.column_name
+                metric_obj=db.session.query(SqlMetric).filter(SqlMetric.table_id == obj.table_id,
+                                                      SqlMetric.metric_name == metric_name).first()
+                if metric_obj:
+                    db.session.delete(metric_obj)
         db.session.commit()
         return json_success("OK")
 

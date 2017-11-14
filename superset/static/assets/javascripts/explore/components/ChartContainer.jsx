@@ -238,7 +238,8 @@ class ChartContainer extends React.PureComponent {
             style={{ position: 'absolute' }}
           />
         }
-        <div style={{display:loading ? "none":"block"}}>
+        {/*<div style={{display:loading ? "none":"block"}}>*/}
+        <div style={{display:"none"}}>
             {row_queried}
         </div>
         <div
