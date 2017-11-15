@@ -54,7 +54,8 @@ export default class DatasourceControl extends React.PureComponent {
             schema: ds.schema,
             name: (
               <a
-                href="#"
+                // href="#"
+                href={window.location.pathname}
                 onClick={this.selectDatasource.bind(this, ds.uid)}
                 className="datasource-link"
               >
