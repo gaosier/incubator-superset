@@ -10,17 +10,18 @@ const propTypes = {
 };
 const UserInfo = ({ user }) => (
   <div>
-    <a href="https://en.gravatar.com/">
-      <Gravatar
-        email={user.email}
-        width="100%"
-        height=""
-        alt={t('Profile picture provided by Gravatar')}
-        className="img-rounded"
-        style={{ borderRadius: 15 }}
-      />
-    </a>
-    <hr />
+    {/*<a href="https://en.gravatar.com/">*/}
+    {/*<a href="#">*/}
+      {/*<Gravatar*/}
+        {/*email={user.email}*/}
+        {/*width="100%"*/}
+        {/*height=""*/}
+        {/*alt={t('Profile picture provided by Gravatar')}*/}
+        {/*className="img-rounded"*/}
+        {/*style={{ borderRadius: 15 }}*/}
+      {/*/>*/}
+    {/*</a>*/}
+    {/*<hr />*/}
     <Panel>
       <h3>
         <strong>{user.firstName} {user.lastName}</strong>

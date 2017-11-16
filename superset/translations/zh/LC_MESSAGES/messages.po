@@ -1331,3 +1331,6 @@ msgstr "Hybrid描述"
 msgid "Is Hybrid"
 msgstr "是否分区"
 
+msgid "Is Memcached"
+msgstr "是否缓存"
+

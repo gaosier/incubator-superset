@@ -52,7 +52,11 @@ function tableVis(slice, payload) {
     .enter()
     .append('th')
     .text(function (d) {
-      return d;
+      if (d === '__timestamp') {
+          return '时间分组';
+      }
+      else
+          return d;
     });
 
   table.append('tbody')
@@ -66,7 +70,7 @@ function tableVis(slice, payload) {
       let html;
       const isMetric = metrics.indexOf(c) >= 0;
       if (c === '__timestamp') {
-        html = tsFormatter(val);
+        html = val;
       };
       if (c === fd.granularity_sqla){
         let new_val=new Date(val);

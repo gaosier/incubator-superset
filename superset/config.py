@@ -340,3 +340,9 @@ try:
             superset_config.__file__))
 except ImportError:
     pass
+
+SUPERSET_MEMCACHED={
+    'servers':('f8ed3954cee74f46.m.cnbjalinu17pub001.ocs.aliyuncs.com:11211'),
+    'username':'f8ed3954cee74f46',
+    'password':'Gaosi2012'
+}

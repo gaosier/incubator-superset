@@ -22,13 +22,13 @@ from flask_babel import gettext as __
 
 from superset import db, utils, import_util, sm
 from superset.connectors.base.models import BaseDatasource, BaseColumn, BaseMetric
-from superset.utils import DTTM_ALIAS, QueryStatus
+from superset.utils import DTTM_ALIAS, QueryStatus,time_grain_convert
 from superset.models.helpers import QueryResult
 from superset.models.core import Database
 from superset.jinja_context import get_template_processor
 from superset.models.helpers import set_perm
 from flask import session
-
+from superset.config import SUPERSET_MEMCACHED
 class TableColumn(Model, BaseColumn):
 
     """ORM object for table columns, each table can have multiple columns"""
@@ -44,6 +44,7 @@ class TableColumn(Model, BaseColumn):
     python_date_format = Column(String(255))
     database_expression = Column(String(255))
     is_hybrid = Column(Boolean, default=False)
+    is_memcached = Column(Boolean, default=False)
     hybrid_expression = Column(String(255))
 
     export_fields = (
@@ -92,7 +93,7 @@ class TableColumn(Model, BaseColumn):
                     expr = db_spec.epoch_to_dttm().format(col=expr)
                 elif pdf == 'epoch_ms':
                     expr = db_spec.epoch_ms_to_dttm().format(col=expr)
-            grain = self.table.database.grains_dict().get(time_grain, '{col}')
+            grain = self.table.database.grains_dict(self.is_hybrid).get(time_grain, '{col}')
             expr = grain.function.format(col=expr)
         return literal_column(expr, type_=DateTime).label(DTTM_ALIAS)
 
@@ -318,6 +319,16 @@ class SqlaTable(Model, BaseDatasource):
         sample values for the given column.
         """
         cols = {col.column_name: col for col in self.columns}
+        try:
+            if cols[column_name].is_memcached:
+                import bmemcached
+                import json
+                mc = bmemcached.Client(SUPERSET_MEMCACHED['servers'], SUPERSET_MEMCACHED['username'],
+                                       SUPERSET_MEMCACHED['password'])
+                if mc.get('%s-%s'%(self.table_name,column_name)):
+                    return json.loads(mc.get('%s-%s'%(self.table_name,column_name)))
+        except Exception as e:
+            pass
         target_col = cols[column_name]
         tp = self.get_template_processor()
         db_engine_spec = self.database.db_engine_spec
@@ -356,7 +367,6 @@ class SqlaTable(Model, BaseDatasource):
                 compile_kwargs={"literal_binds": True}
             )
         )
-        #logging.info(sql)
         sql = sqlparse.format(sql, reindent=True)
         return sql
 
@@ -619,8 +629,14 @@ class SqlaTable(Model, BaseDatasource):
             return {k: (v or k) for (k, v) in self.database.get_sqla_engine().execute(sql).fetchall()}
 
     def query(self, query_obj):
+        def format_time_grain(index, time_grain_sqla=None):
+            if index.name == '__timestamp':
+                index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla))
+            return index
         qry_start_dttm = datetime.now()
         sql = self.get_query_str(query_obj)
+        time_grain_sqla = query_obj['form_data'].get('time_grain_sqla',None)
+        #logging.info(sql)
         status = QueryStatus.SUCCESS
         error_message = None
         df = None
@@ -633,6 +649,8 @@ class SqlaTable(Model, BaseDatasource):
             #     self.database.db_engine_spec.extract_error_message(e))
             error_message = (
                 '查询语句不合法，请修改或联系管理员')
+        if '__timestamp' in df.columns and time_grain_sqla is not None:
+            df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
 
         return QueryResult(
             status=status,

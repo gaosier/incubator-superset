@@ -1416,6 +1416,9 @@ msgstr ""
 msgid "Is Hybrid"
 msgstr ""
 
+msgid "Is Memcached"
+msgstr ""
+
 #~ msgid "Unserializable object No data. of type"
 #~ msgstr ""
 

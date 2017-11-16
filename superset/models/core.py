@@ -689,8 +689,22 @@ class Database(Model, AuditMixinNullable):
         """
         return self.db_engine_spec.time_grains
 
-    def grains_dict(self):
-        return {grain.name: grain for grain in self.grains()}
+    def hybrid_grains(self):
+        """Defines time granularity database-specific expressions.
+
+        The idea here is to make it easy for users to change the time grain
+        form a datetime (maybe the source grain is arbitrary timestamps, daily
+        or 5 minutes increments) to another, "truncated" datetime. Since
+        each database has slightly different but similar datetime functions,
+        this allows a mapping between database engines and actual functions.
+        """
+        return self.db_engine_spec.hybrid_time_grains
+
+    def grains_dict(self, is_hybrid=False):
+        if is_hybrid:
+            return {grain.name: grain for grain in self.hybrid_grains()}
+        else:
+            return {grain.name: grain for grain in self.grains()}
 
     def get_extra(self):
         extra = {}

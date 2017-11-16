@@ -1331,6 +1331,9 @@ msgstr ""
 msgid "Is Hybrid"
 msgstr ""
 
+msgid "Is Memcached"
+msgstr ""
+
 #~ msgid "Databases"
 #~ msgstr ""
 

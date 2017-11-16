@@ -93,14 +93,14 @@ class BaseViz(object):
                 self.error_message =str(_("No data."))
             return pd.DataFrame()
         else:
-            if DTTM_ALIAS in df.columns:
-                if timestamp_format in ("epoch_s", "epoch_ms"):
-                    df[DTTM_ALIAS] = pd.to_datetime(df[DTTM_ALIAS], utc=False)
-                else:
-                    df[DTTM_ALIAS] = pd.to_datetime(
-                        df[DTTM_ALIAS], utc=False, format=timestamp_format)
-                if self.datasource.offset:
-                    df[DTTM_ALIAS] += timedelta(hours=self.datasource.offset)
+            #if DTTM_ALIAS in df.columns:
+            #    if timestamp_format in ("epoch_s", "epoch_ms"):
+            #        df[DTTM_ALIAS] = pd.to_datetime(df[DTTM_ALIAS], utc=False)
+            #    else:
+            #        df[DTTM_ALIAS] = pd.to_datetime(
+            #            df[DTTM_ALIAS], utc=False, format=timestamp_format)
+            #    if self.datasource.offset:
+            #        df[DTTM_ALIAS] += timedelta(hours=self.datasource.offset)
             df.replace([np.inf, -np.inf], np.nan)
             df = df.fillna(0)
         return df

@@ -40,7 +40,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     add_columns = edit_columns
     list_columns = [
         'column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
-        'sum','avg', 'min', 'max', 'is_dttm', 'is_hybrid']
+        'sum','avg', 'min', 'max', 'is_dttm', 'is_hybrid','is_memcached']
     page_size = 500
     description_columns = {
         'is_dttm': _(
@@ -95,6 +95,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'database_expression': _("Database Expression"),
         'type': _('Type'),
         'is_hybrid': _("Is Hybrid"),
+        'is_memcached': _("Is Memcached"),
         'hybrid_expression': _("Hybrid Expression"),
     }
     def post_delete(self, item):
