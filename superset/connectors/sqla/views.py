@@ -36,11 +36,11 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'column_name', 'verbose_name', 'description',
         'type', 'groupby', 'filterable',
         'table', 'count_distinct', 'sum','avg', 'min', 'max', 'expression',
-        'is_dttm', 'python_date_format', 'database_expression', 'hybrid_expression']
+        'is_dttm', 'python_date_format', 'database_expression', 'partition_expression']
     add_columns = edit_columns
     list_columns = [
         'column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
-        'sum','avg', 'min', 'max', 'is_dttm', 'is_hybrid','is_memcached']
+        'sum','avg', 'min', 'max', 'is_dttm', 'is_partition','is_memcached']
     page_size = 500
     description_columns = {
         'is_dttm': _(
@@ -94,9 +94,9 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'python_date_format': _("Datetime Format"),
         'database_expression': _("Database Expression"),
         'type': _('Type'),
-        'is_hybrid': _("Is Hybrid"),
+        'is_partition': _("Is Partition"),
         'is_memcached': _("Is Memcached"),
-        'hybrid_expression': _("Hybrid Expression"),
+        'partition_expression': _("Partition Expression"),
     }
     def post_delete(self, item):
         """
@@ -212,7 +212,7 @@ class TableModelView(DatasourceModelView, DeleteMixin):  # noqa
     add_columns = ['database', 'table_name','verbose_name']
     edit_columns = [
         'table_name', 'sql', 'filter_select_enabled', 'slices',
-        'fetch_values_predicate', 'database', 'schema','verbose_name',
+        'fetch_values_predicate', 'database', 'schema','verbose_name', 
         'description', 'owner',
         'main_dttm_col', 'default_endpoint', 'offset', 'cache_timeout']
     show_columns = edit_columns + ['perm']
@@ -275,7 +275,7 @@ class TableModelView(DatasourceModelView, DeleteMixin):  # noqa
         'owner': _("Owner"),
         'main_dttm_col': _("Main Datetime Column"),
         'description': _('Description'),
-        'verbose_name':_('Verbose Name')
+        'verbose_name':_('Verbose Name'),
     }
 
     def pre_add(self, table):

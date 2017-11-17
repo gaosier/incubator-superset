@@ -544,6 +544,7 @@ class Database(Model, AuditMixinNullable):
     allow_ctas = Column(Boolean, default=False)
     allow_dml = Column(Boolean, default=False)
     force_ctas_schema = Column(String(250))
+    is_hybrid = Column(Boolean, default=False)
     extra = Column(Text, default=textwrap.dedent("""\
     {
         "metadata_params": {},
@@ -700,8 +701,8 @@ class Database(Model, AuditMixinNullable):
         """
         return self.db_engine_spec.hybrid_time_grains
 
-    def grains_dict(self, is_hybrid=False):
-        if is_hybrid:
+    def grains_dict(self):
+        if self.is_hybrid:
             return {grain.name: grain for grain in self.hybrid_grains()}
         else:
             return {grain.name: grain for grain in self.grains()}

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-08-17 03:23+0200\n"
+"POT-Creation-Date: 2017-11-17 14:38+0800\n"
 "PO-Revision-Date: 2016-05-01 23:07-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -18,341 +18,370 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.1\n"
 
-#: superset/db_engine_specs.py:192 superset/db_engine_specs.py:223
-#: superset/db_engine_specs.py:267 superset/db_engine_specs.py:315
-#: superset/db_engine_specs.py:360 superset/db_engine_specs.py:810
-#: superset/db_engine_specs.py:846 superset/db_engine_specs.py:878
-#: superset/db_engine_specs.py:924 superset/db_engine_specs.py:961
-#: superset/db_engine_specs.py:987
+#: superset/db_engine_specs.py:239 superset/db_engine_specs.py:270
+#: superset/db_engine_specs.py:314 superset/db_engine_specs.py:362
+#: superset/db_engine_specs.py:385 superset/db_engine_specs.py:437
+#: superset/db_engine_specs.py:895 superset/db_engine_specs.py:931
+#: superset/db_engine_specs.py:963 superset/db_engine_specs.py:1009
+#: superset/db_engine_specs.py:1046 superset/db_engine_specs.py:1072
 msgid "Time Column"
 msgstr "时间字段"
 
-#: superset/db_engine_specs.py:193 superset/db_engine_specs.py:224
-#: superset/db_engine_specs.py:316 superset/db_engine_specs.py:361
-#: superset/db_engine_specs.py:811 superset/db_engine_specs.py:879
-#: superset/db_engine_specs.py:962
+#: superset/db_engine_specs.py:240 superset/db_engine_specs.py:271
+#: superset/db_engine_specs.py:363 superset/db_engine_specs.py:386
+#: superset/db_engine_specs.py:438 superset/db_engine_specs.py:896
+#: superset/db_engine_specs.py:964 superset/db_engine_specs.py:1047
 msgid "second"
 msgstr "秒"
 
-#: superset/db_engine_specs.py:194 superset/db_engine_specs.py:227
-#: superset/db_engine_specs.py:319 superset/db_engine_specs.py:363
-#: superset/db_engine_specs.py:813 superset/db_engine_specs.py:847
-#: superset/db_engine_specs.py:881 superset/db_engine_specs.py:925
-#: superset/db_engine_specs.py:963 superset/db_engine_specs.py:988
+#: superset/db_engine_specs.py:241 superset/db_engine_specs.py:274
+#: superset/db_engine_specs.py:366 superset/db_engine_specs.py:388
+#: superset/db_engine_specs.py:440 superset/db_engine_specs.py:898
+#: superset/db_engine_specs.py:932 superset/db_engine_specs.py:966
+#: superset/db_engine_specs.py:1010 superset/db_engine_specs.py:1048
+#: superset/db_engine_specs.py:1073
 msgid "minute"
 msgstr "分"
 
-#: superset/db_engine_specs.py:195 superset/db_engine_specs.py:231
-#: superset/db_engine_specs.py:321 superset/db_engine_specs.py:365
-#: superset/db_engine_specs.py:819 superset/db_engine_specs.py:849
-#: superset/db_engine_specs.py:883 superset/db_engine_specs.py:931
-#: superset/db_engine_specs.py:964 superset/db_engine_specs.py:989
+#: superset/db_engine_specs.py:242 superset/db_engine_specs.py:278
+#: superset/db_engine_specs.py:368 superset/db_engine_specs.py:389
+#: superset/db_engine_specs.py:442 superset/db_engine_specs.py:904
+#: superset/db_engine_specs.py:934 superset/db_engine_specs.py:968
+#: superset/db_engine_specs.py:1016 superset/db_engine_specs.py:1049
+#: superset/db_engine_specs.py:1074
 msgid "hour"
 msgstr "小时"
 
-#: superset/db_engine_specs.py:196 superset/db_engine_specs.py:236
-#: superset/db_engine_specs.py:268 superset/db_engine_specs.py:323
-#: superset/db_engine_specs.py:367 superset/db_engine_specs.py:821
-#: superset/db_engine_specs.py:851 superset/db_engine_specs.py:885
-#: superset/db_engine_specs.py:933 superset/db_engine_specs.py:965
-#: superset/db_engine_specs.py:990
+#: superset/db_engine_specs.py:243 superset/db_engine_specs.py:283
+#: superset/db_engine_specs.py:315 superset/db_engine_specs.py:370
+#: superset/db_engine_specs.py:390 superset/db_engine_specs.py:444
+#: superset/db_engine_specs.py:906 superset/db_engine_specs.py:936
+#: superset/db_engine_specs.py:970 superset/db_engine_specs.py:1018
+#: superset/db_engine_specs.py:1050 superset/db_engine_specs.py:1075
 msgid "day"
 msgstr "天"
 
-#: superset/db_engine_specs.py:197 superset/db_engine_specs.py:242
-#: superset/db_engine_specs.py:269 superset/db_engine_specs.py:324
-#: superset/db_engine_specs.py:369 superset/db_engine_specs.py:823
-#: superset/db_engine_specs.py:853 superset/db_engine_specs.py:887
-#: superset/db_engine_specs.py:966 superset/db_engine_specs.py:991
+#: superset/db_engine_specs.py:244 superset/db_engine_specs.py:289
+#: superset/db_engine_specs.py:316 superset/db_engine_specs.py:371
+#: superset/db_engine_specs.py:391 superset/db_engine_specs.py:446
+#: superset/db_engine_specs.py:908 superset/db_engine_specs.py:938
+#: superset/db_engine_specs.py:972 superset/db_engine_specs.py:1051
+#: superset/db_engine_specs.py:1076
 msgid "week"
 msgstr "周"
 
-#: superset/db_engine_specs.py:198 superset/db_engine_specs.py:244
-#: superset/db_engine_specs.py:271 superset/db_engine_specs.py:326
-#: superset/db_engine_specs.py:371 superset/db_engine_specs.py:825
-#: superset/db_engine_specs.py:855 superset/db_engine_specs.py:889
-#: superset/db_engine_specs.py:935 superset/db_engine_specs.py:967
-#: superset/db_engine_specs.py:992
+#: superset/db_engine_specs.py:245 superset/db_engine_specs.py:291
+#: superset/db_engine_specs.py:318 superset/db_engine_specs.py:373
+#: superset/db_engine_specs.py:393 superset/db_engine_specs.py:448
+#: superset/db_engine_specs.py:910 superset/db_engine_specs.py:940
+#: superset/db_engine_specs.py:974 superset/db_engine_specs.py:1020
+#: superset/db_engine_specs.py:1052 superset/db_engine_specs.py:1077
 msgid "month"
 msgstr "月"
 
-#: superset/db_engine_specs.py:199 superset/db_engine_specs.py:246
-#: superset/db_engine_specs.py:328 superset/db_engine_specs.py:373
-#: superset/db_engine_specs.py:827 superset/db_engine_specs.py:857
-#: superset/db_engine_specs.py:891 superset/db_engine_specs.py:937
-#: superset/db_engine_specs.py:968 superset/db_engine_specs.py:993
+#: superset/db_engine_specs.py:246 superset/db_engine_specs.py:293
+#: superset/db_engine_specs.py:375 superset/db_engine_specs.py:395
+#: superset/db_engine_specs.py:450 superset/db_engine_specs.py:912
+#: superset/db_engine_specs.py:942 superset/db_engine_specs.py:976
+#: superset/db_engine_specs.py:1022 superset/db_engine_specs.py:1053
+#: superset/db_engine_specs.py:1078
 msgid "quarter"
 msgstr "季度"
 
-#: superset/db_engine_specs.py:200 superset/db_engine_specs.py:250
-#: superset/db_engine_specs.py:330 superset/db_engine_specs.py:829
-#: superset/db_engine_specs.py:859 superset/db_engine_specs.py:939
-#: superset/db_engine_specs.py:969 superset/db_engine_specs.py:994
+#: superset/db_engine_specs.py:247 superset/db_engine_specs.py:297
+#: superset/db_engine_specs.py:377 superset/db_engine_specs.py:396
+#: superset/db_engine_specs.py:914 superset/db_engine_specs.py:944
+#: superset/db_engine_specs.py:1024 superset/db_engine_specs.py:1054
+#: superset/db_engine_specs.py:1079
 msgid "year"
 msgstr "年"
 
-#: superset/db_engine_specs.py:332
+#: superset/db_engine_specs.py:379 superset/db_engine_specs.py:398
 msgid "week_start_monday"
 msgstr "周一为一周开始"
 
-#: superset/db_engine_specs.py:375 superset/db_engine_specs.py:893
+#: superset/db_engine_specs.py:452 superset/db_engine_specs.py:978
 msgid "week_ending_saturday"
 msgstr "周六为一周开始"
 
-#: superset/db_engine_specs.py:378 superset/db_engine_specs.py:896
+#: superset/db_engine_specs.py:455 superset/db_engine_specs.py:981
 msgid "week_start_sunday"
 msgstr "周日为一周结束"
 
-#: superset/db_engine_specs.py:815 superset/db_engine_specs.py:927
+#: superset/db_engine_specs.py:900 superset/db_engine_specs.py:1012
 msgid "5 minute"
 msgstr "5 分钟"
 
-#: superset/db_engine_specs.py:817
+#: superset/db_engine_specs.py:902
 msgid "half hour"
 msgstr "半小时"
 
-#: superset/db_engine_specs.py:929
+#: superset/db_engine_specs.py:1014
 msgid "10 minute"
 msgstr "10 分钟"
 
-#: superset/utils.py:499
-#, python-format
-msgid "[Superset] Access to the datasource %(name)s was granted"
-msgstr ""
+#: superset/connectors/druid/views.py:48 superset/connectors/sqla/models.py:736
+#: superset/connectors/sqla/views.py:87 superset/utils.py:675
+msgid "Count Distinct"
+msgstr "计数"
 
 #: superset/viz.py:49
 msgid "Viz is missing a datasource"
 msgstr "请选择您要查看的数据源"
 
-#: superset/viz.py:158
+#: superset/viz.py:93
+msgid "No data."
+msgstr "无数据，请更改数据源、筛选条件或查询时间"
+
+#: superset/viz.py:178
 msgid "From date cannot be larger than to date"
 msgstr "起始查询时间不能大于终止时间"
 
-#: superset/viz.py:322
+#: superset/viz.py:345
 msgid "Table View"
 msgstr "表视图"
 
-#: superset/viz.py:334
+#: superset/viz.py:357
 msgid "Pick a granularity in the Time section or uncheck 'Include Time'"
 msgstr "在以时间作为维度时必须选择时间粒度"
 
-#: superset/viz.py:344
+#: superset/viz.py:366
 msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
 msgstr "聚合查询与非聚合查询不能同时进行选择"
 
-#: superset/viz.py:378
+#: superset/viz.py:402
 msgid "Pivot Table"
 msgstr "透视表"
 
-#: superset/viz.py:392
+#: superset/viz.py:419
 msgid "Please choose at least one \"Group by\" field "
 msgstr "请至少选择一个维度"
 
-#: superset/viz.py:394
+#: superset/viz.py:421
 msgid "Please choose at least one metric"
 msgstr "请至少选择一个指标"
 
-#: superset/viz.py:398
+#: superset/viz.py:425
 msgid "'Group By' and 'Columns' can't overlap"
 msgstr "维度与可查询的列不能重合"
 
-#: superset/viz.py:431
+#: superset/viz.py:470
 msgid "Markup"
 msgstr "标记"
 
-#: superset/viz.py:450
+#: superset/viz.py:489
 msgid "Separator"
 msgstr "分隔符"
 
-#: superset/viz.py:466
+#: superset/viz.py:501
 msgid "Word Cloud"
 msgstr "词汇云"
 
-#: superset/viz.py:489
+#: superset/viz.py:524
 msgid "Treemap"
 msgstr "树状图"
 
-#: superset/viz.py:515
+#: superset/viz.py:550
 msgid "Calendar Heatmap"
 msgstr "时间热力图"
 
-#: superset/viz.py:573
+#: superset/viz.py:607
 msgid "Box Plot"
 msgstr "箱线图"
 
-#: superset/viz.py:662
+#: superset/viz.py:697
 msgid "Bubble Chart"
 msgstr "气泡图"
 
-#: superset/viz.py:686
+#: superset/viz.py:721
 msgid "Pick a metric for x, y and size"
 msgstr "请为x,y,size选择一个指标"
 
-#: superset/viz.py:712
+#: superset/viz.py:747
 msgid "Bullet Chart"
 msgstr "子弹图"
 
-#: superset/viz.py:738
+#: superset/viz.py:773
 msgid "Pick a metric to display"
 msgstr "选择一个指标来隐藏"
 
-#: superset/viz.py:761
+#: superset/viz.py:796
 msgid "Big Number with Trendline"
 msgstr "数字和趋势线"
 
-#: superset/viz.py:769 superset/viz.py:798
+#: superset/viz.py:804 superset/viz.py:833
 msgid "Pick a metric!"
 msgstr "请选择指标!"
 
-#: superset/viz.py:790
+#: superset/viz.py:825
 msgid "Big Number"
 msgstr "数字"
 
-#: superset/viz.py:817
+#: superset/viz.py:852
 msgid "Time Series - Line Chart"
 msgstr "时间序列-折线图"
 
-#: superset/viz.py:864 superset/viz.py:1001
+#: superset/viz.py:899 superset/viz.py:1036
 msgid "Pick a time granularity for your time series"
 msgstr "请为时间序列选择一个时间粒度"
 
-#: superset/viz.py:944
+#: superset/viz.py:979
 msgid "Time Series - Dual Axis Line Chart"
 msgstr "时间序列-双轴线图"
 
-#: superset/viz.py:954
+#: superset/viz.py:989
 msgid "Pick a metric for left axis!"
 msgstr "请为左轴选择一个指标!"
 
-#: superset/viz.py:956
+#: superset/viz.py:991
 msgid "Pick a metric for right axis!"
 msgstr "请为右轴选择一个指标!"
 
-#: superset/viz.py:958
+#: superset/viz.py:993
 msgid "Please choose different metrics on left and right axis"
 msgstr "左右轴的指标不应相同!"
 
-#: superset/viz.py:1019
+#: superset/viz.py:1054
 msgid "Time Series - Bar Chart"
 msgstr "时间序列-柱状图"
 
-#: superset/viz.py:1027
+#: superset/viz.py:1062
 msgid "Time Series - Percent Change"
 msgstr "时间序列-百分比变化"
 
-#: superset/viz.py:1035
+#: superset/viz.py:1070
 msgid "Time Series - Stacked"
 msgstr "时间序列-堆积图"
 
-#: superset/viz.py:1044
+#: superset/viz.py:1079
 msgid "Distribution - NVD3 - Pie Chart"
 msgstr "分布-饼图"
 
-#: superset/viz.py:1062
+#: superset/viz.py:1091
+msgid "Please choose groupby which should be only one"
+msgstr "请选择维度且个数为一"
+
+#: superset/viz.py:1094
+msgid "The number of metric should be only one"
+msgstr "指标个数只能为一"
+
+#: superset/viz.py:1111
 msgid "Histogram"
 msgstr "直方图"
 
-#: superset/viz.py:1072
+#: superset/viz.py:1121
 msgid "Must have one numeric column specified"
 msgstr "必须选择一个指定的数字列"
 
-#: superset/viz.py:1087
+#: superset/viz.py:1136
 msgid "Distribution - Bar Chart"
 msgstr "分布-柱状图"
 
-#: superset/viz.py:1098
+#: superset/viz.py:1147
 msgid "Can't have overlap between Series and Breakdowns"
 msgstr "分类与分类组成不能重复"
 
-#: superset/viz.py:1100
+#: superset/viz.py:1149
 msgid "Pick at least one metric"
 msgstr "请至少选择一个指标"
 
-#: superset/viz.py:1102
+#: superset/viz.py:1151
 msgid "Pick at least one field for [Series]"
 msgstr "请至少选择一个分类"
 
-#: superset/viz.py:1155
+#: superset/viz.py:1204
 msgid "Sunburst"
 msgstr "环状层次图"
 
-#: superset/viz.py:1188
+#: superset/viz.py:1237
 msgid "Sankey"
 msgstr "蛇形图"
 
-#: superset/viz.py:1195
+#: superset/viz.py:1244
 msgid "Pick exactly 2 columns as [Source / Target]"
 msgstr ""
 
-#: superset/viz.py:1226
+#: superset/viz.py:1275
 msgid ""
 "There's a loop in your Sankey, please provide a tree. Here's a faulty "
 "link: {}"
 msgstr ""
 
-#: superset/viz.py:1237 superset/viz.py:1258
+#: superset/viz.py:1286 superset/viz.py:1307
 msgid "Directed Force Layout"
 msgstr "有向图"
 
-#: superset/viz.py:1244
+#: superset/viz.py:1293
 msgid "Pick exactly 2 columns to 'Group By'"
 msgstr ""
 
-#: superset/viz.py:1291
+#: superset/viz.py:1340
 msgid "Country Map"
 msgstr ""
 
-#: superset/viz.py:1320
+#: superset/viz.py:1369
 msgid "World Map"
 msgstr "世界地图"
 
-#: superset/viz.py:1370
+#: superset/viz.py:1419
 msgid "Filters"
 msgstr "筛选"
 
-#: superset/viz.py:1378
+#: superset/viz.py:1427
 msgid "Pick at least one filter field"
 msgstr ""
 
-#: superset/viz.py:1405
+#: superset/viz.py:1454
 msgid "iFrame"
 msgstr "内嵌框架"
 
-#: superset/viz.py:1422
+#: superset/viz.py:1471
 msgid "Parallel Coordinates"
 msgstr "平行坐标"
 
-#: superset/viz.py:1447
+#: superset/viz.py:1496
 msgid "Heatmap"
 msgstr "热力图"
 
-#: superset/viz.py:1498
+#: superset/viz.py:1547
 msgid "Horizon Charts"
 msgstr "水平图"
 
-#: superset/viz.py:1509
+#: superset/viz.py:1558
 msgid "Mapbox"
 msgstr "箱图"
 
-#: superset/viz.py:1524
+#: superset/viz.py:1573
 msgid "Must have a [Group By] column to have 'count' as the [Label]"
 msgstr ""
 
-#: superset/viz.py:1537
+#: superset/viz.py:1586
 msgid "Choice of [Label] must be present in [Group By]"
 msgstr ""
 
-#: superset/viz.py:1542
+#: superset/viz.py:1591
 msgid "Choice of [Point Radius] must be present in [Group By]"
 msgstr ""
 
-#: superset/viz.py:1547
+#: superset/viz.py:1596
 msgid "[Longitude] and [Latitude] columns must be present in [Group By]"
 msgstr ""
 
-#: superset/viz.py:1612
+#: superset/viz.py:1661
 msgid "Event flow"
 msgstr ""
+
+#: superset/connectors/base/models.py:143
+#: superset/connectors/base/models.py:146
+#: superset/connectors/base/models.py:150
+msgid "asc"
+msgstr "升序"
+
+#: superset/connectors/base/models.py:144
+#: superset/connectors/base/models.py:147
+#: superset/connectors/base/models.py:151
+msgid "desc"
+msgstr "降序"
 
 #: superset/connectors/druid/models.py:975
 msgid "No data was returned."
@@ -379,12 +408,12 @@ msgid "Column"
 msgstr "列"
 
 #: superset/connectors/druid/views.py:44 superset/connectors/druid/views.py:109
-#: superset/connectors/sqla/views.py:95 superset/connectors/sqla/views.py:134
+#: superset/connectors/sqla/views.py:96 superset/connectors/sqla/views.py:182
 msgid "Type"
 msgstr "类型"
 
-#: superset/connectors/druid/views.py:45 superset/views/core.py:314
-#: superset/views/core.py:338 superset/views/core.py:369
+#: superset/connectors/druid/views.py:45 superset/views/core.py:320
+#: superset/views/core.py:344 superset/views/core.py:375
 msgid "Datasource"
 msgstr "数据源"
 
@@ -396,24 +425,20 @@ msgstr "可分组"
 msgid "Filterable"
 msgstr "可筛选"
 
-#: superset/connectors/druid/views.py:48 superset/connectors/sqla/views.py:87
-msgid "Count Distinct"
-msgstr "计数"
-
-#: superset/connectors/druid/views.py:49 superset/connectors/sqla/views.py:88
+#: superset/connectors/druid/views.py:49 superset/connectors/sqla/models.py:708
+#: superset/connectors/sqla/views.py:88
 msgid "Sum"
 msgstr "求和"
 
-#: superset/connectors/druid/views.py:50 superset/connectors/sqla/views.py:89
+#: superset/connectors/druid/views.py:50 superset/connectors/sqla/models.py:729
+#: superset/connectors/sqla/views.py:90
 msgid "Min"
 msgstr "最小值"
 
-#: superset/connectors/druid/views.py:51 superset/connectors/sqla/views.py:90
+#: superset/connectors/druid/views.py:51 superset/connectors/sqla/models.py:722
+#: superset/connectors/sqla/views.py:91
 msgid "Max"
 msgstr "最大值"
-
-msgid "Avg"
-msgstr "平均值"
 
 #: superset/connectors/druid/views.py:54 superset/connectors/sqla/views.py:50
 msgid ""
@@ -437,30 +462,30 @@ msgstr ""
 msgid "Edit Druid Metric"
 msgstr ""
 
-#: superset/connectors/druid/views.py:100 superset/connectors/sqla/views.py:116
+#: superset/connectors/druid/views.py:100 superset/connectors/sqla/views.py:164
 msgid ""
 "Whether the access to this metric is restricted to certain roles. Only "
 "roles with the permission 'metric access on XXX (the name of this "
 "metric)' are allowed to access this metric"
 msgstr "是否访问受限。只有有权限的用户才能访问。"
 
-#: superset/connectors/druid/views.py:106 superset/connectors/sqla/views.py:131
+#: superset/connectors/druid/views.py:106 superset/connectors/sqla/views.py:179
 msgid "Metric"
 msgstr "度量"
 
 #: superset/connectors/druid/views.py:107
-#: superset/connectors/druid/views.py:229 superset/connectors/sqla/views.py:83
-#: superset/connectors/sqla/views.py:132 superset/connectors/sqla/views.py:229
-#: superset/views/core.py:370 superset/views/sql_lab.py:56
+#: superset/connectors/druid/views.py:227 superset/connectors/sqla/views.py:83
+#: superset/connectors/sqla/views.py:180 superset/connectors/sqla/views.py:277
+#: superset/views/core.py:376 superset/views/sql_lab.py:56
 msgid "Description"
 msgstr "描述"
 
 #: superset/connectors/druid/views.py:108 superset/connectors/sqla/views.py:82
-#: superset/connectors/sqla/views.py:133
+#: superset/connectors/sqla/views.py:181 superset/connectors/sqla/views.py:278
 msgid "Verbose Name"
 msgstr "全称"
 
-#: superset/connectors/druid/views.py:110 superset/views/core.py:555
+#: superset/connectors/druid/views.py:110 superset/views/core.py:561
 msgid "JSON"
 msgstr ""
 
@@ -485,7 +510,7 @@ msgid "Edit Druid Cluster"
 msgstr ""
 
 #: superset/connectors/druid/views.py:142
-#: superset/connectors/druid/views.py:228
+#: superset/connectors/druid/views.py:226
 msgid "Cluster"
 msgstr "集群"
 
@@ -513,17 +538,6 @@ msgstr ""
 msgid "Broker Endpoint"
 msgstr ""
 
-#: superset/connectors/druid/views.py:163
-msgid "Druid Clusters"
-msgstr "Druid集群"
-
-#: superset/connectors/druid/views.py:166
-#: superset/connectors/druid/views.py:268
-#: superset/connectors/druid/views.py:307 superset/connectors/sqla/views.py:287
-#: superset/views/core.py:283
-msgid "Sources"
-msgstr "数据源"
-
 #: superset/connectors/druid/views.py:173
 msgid "List Druid Datasource"
 msgstr ""
@@ -540,7 +554,7 @@ msgstr ""
 msgid "Edit Druid Datasource"
 msgstr ""
 
-#: superset/connectors/druid/views.py:197 superset/connectors/sqla/views.py:178
+#: superset/connectors/druid/views.py:195 superset/connectors/sqla/views.py:226
 msgid ""
 "The list of slices associated with this table. By altering this "
 "datasource, you may change how these associated slices behave. Also note "
@@ -549,11 +563,11 @@ msgid ""
 "datasource for a slice, overwrite the slice from the 'explore view'"
 msgstr ""
 
-#: superset/connectors/druid/views.py:205 superset/connectors/sqla/views.py:186
+#: superset/connectors/druid/views.py:203 superset/connectors/sqla/views.py:234
 msgid "Timezone offset (in hours) for this datasource"
 msgstr "数据源的时差(单位：小时)"
 
-#: superset/connectors/druid/views.py:209
+#: superset/connectors/druid/views.py:207
 msgid ""
 "Time expression to use as a predicate when retrieving distinct values to "
 "populate the filter component. Only applies when `Enable Filter Select` "
@@ -561,75 +575,71 @@ msgid ""
 "filter will be populated based on the distinct value over the past week"
 msgstr ""
 
-#: superset/connectors/druid/views.py:216 superset/connectors/sqla/views.py:208
+#: superset/connectors/druid/views.py:214 superset/connectors/sqla/views.py:256
 msgid ""
 "Whether to populate the filter's dropdown in the explore view's filter "
 "section with a list of distinct values fetched from the backend on the "
 "fly"
 msgstr ""
 
-#: superset/connectors/druid/views.py:220
+#: superset/connectors/druid/views.py:218
 msgid ""
 "Redirects to this endpoint when clicking on the datasource from the "
 "datasource list"
 msgstr ""
 
-#: superset/connectors/druid/views.py:226 superset/connectors/sqla/views.py:215
+#: superset/connectors/druid/views.py:224 superset/connectors/sqla/views.py:263
 msgid "Associated Slices"
 msgstr ""
 
-#: superset/connectors/druid/views.py:227
+#: superset/connectors/druid/views.py:225
 msgid "Data Source"
 msgstr "数据源"
 
-#: superset/connectors/druid/views.py:230 superset/connectors/sqla/views.py:227
+#: superset/connectors/druid/views.py:228 superset/connectors/sqla/views.py:275
 msgid "Owner"
 msgstr "所有者"
 
-#: superset/connectors/druid/views.py:231
+#: superset/connectors/druid/views.py:229
 msgid "Is Hidden"
 msgstr "隐藏"
 
-#: superset/connectors/druid/views.py:232 superset/connectors/sqla/views.py:220
+#: superset/connectors/druid/views.py:230 superset/connectors/sqla/views.py:268
 msgid "Enable Filter Select"
 msgstr ""
 
-#: superset/connectors/druid/views.py:233 superset/connectors/sqla/views.py:222
+#: superset/connectors/druid/views.py:231 superset/connectors/sqla/views.py:270
 msgid "Default Endpoint"
 msgstr ""
 
-#: superset/connectors/druid/views.py:234
+#: superset/connectors/druid/views.py:232
 msgid "Time Offset"
 msgstr "时间偏移"
 
-#: superset/connectors/druid/views.py:235 superset/connectors/sqla/views.py:224
-#: superset/views/core.py:248 superset/views/core.py:366
+#: superset/connectors/druid/views.py:233 superset/connectors/sqla/views.py:272
+#: superset/views/core.py:253 superset/views/core.py:372
 msgid "Cache Timeout"
 msgstr "缓存时间"
 
-#: superset/connectors/druid/views.py:266
-msgid "Druid Datasources"
-msgstr "Druid数据源"
-
-#: superset/connectors/druid/views.py:304
-msgid "Refresh Druid Metadata"
-msgstr "刷新Druid元数据"
-
-#: superset/connectors/sqla/models.py:390
+#: superset/connectors/sqla/models.py:422
 msgid ""
 "Datetime column not provided as part table configuration and is required "
 "by this type of chart"
 msgstr "缺少时间字段"
 
-#: superset/connectors/sqla/models.py:395
+#: superset/connectors/sqla/models.py:427
 msgid "Metric '{}' is not valid"
 msgstr "请重新选择查询字段"
 
-#: superset/connectors/sqla/models.py:581
+#: superset/connectors/sqla/models.py:660
 msgid ""
 "Table doesn't seem to exist in the specified database, couldn't fetch "
 "column information"
 msgstr ""
+
+#: superset/connectors/sqla/models.py:715 superset/connectors/sqla/views.py:89
+msgid "Avg"
+msgstr "平均值"
 
 #: superset/connectors/sqla/views.py:28
 msgid "List Columns"
@@ -660,144 +670,152 @@ msgid ""
 "most case users should not need to alter this."
 msgstr ""
 
-#: superset/connectors/sqla/views.py:86 superset/connectors/sqla/views.py:136
-#: superset/connectors/sqla/views.py:216 superset/views/core.py:376
+#: superset/connectors/sqla/views.py:86 superset/connectors/sqla/views.py:184
+#: superset/connectors/sqla/views.py:264 superset/views/core.py:382
 msgid "Table"
 msgstr "表"
 
-#: superset/connectors/sqla/views.py:91
+#: superset/connectors/sqla/views.py:92
 msgid "Expression"
 msgstr "表达式"
 
-#: superset/connectors/sqla/views.py:92
+#: superset/connectors/sqla/views.py:93
 msgid "Is temporal"
 msgstr "表示时间"
 
-#: superset/connectors/sqla/views.py:93
+#: superset/connectors/sqla/views.py:94
 msgid "Datetime Format"
 msgstr "时间格式"
 
-#: superset/connectors/sqla/views.py:94
+#: superset/connectors/sqla/views.py:95
 msgid "Database Expression"
 msgstr "数据库表达式"
 
-#: superset/connectors/sqla/views.py:103
+#: superset/connectors/sqla/views.py:97
+msgid "Is Partition"
+msgstr "是否分区"
+
+#: superset/connectors/sqla/views.py:98
+msgid "Is Memcached"
+msgstr "是否缓存"
+
+#: superset/connectors/sqla/views.py:99
+msgid "Partition Expression"
+msgstr "分区时间格式符"
+
+#: superset/connectors/sqla/views.py:151
 msgid "List Metrics"
 msgstr "指标列表"
 
-#: superset/connectors/sqla/views.py:104
+#: superset/connectors/sqla/views.py:152
 msgid "Show Metric"
 msgstr "展示指标"
 
-#: superset/connectors/sqla/views.py:105
+#: superset/connectors/sqla/views.py:153
 msgid "Add Metric"
 msgstr "添加指标"
 
-#: superset/connectors/sqla/views.py:106
+#: superset/connectors/sqla/views.py:154
 msgid "Edit Metric"
 msgstr "编辑指标"
 
-#: superset/connectors/sqla/views.py:135
+#: superset/connectors/sqla/views.py:183
 msgid "SQL Expression"
 msgstr "SQL表达式"
 
-#: superset/connectors/sqla/views.py:137
+#: superset/connectors/sqla/views.py:185
 msgid "D3 Format"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:138
+#: superset/connectors/sqla/views.py:186
 msgid "Is Restricted"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:155
+#: superset/connectors/sqla/views.py:203
 msgid "List Tables"
 msgstr "数据集"
 
-#: superset/connectors/sqla/views.py:156
+#: superset/connectors/sqla/views.py:204
 msgid "Show Table"
 msgstr "查看数据集"
 
-#: superset/connectors/sqla/views.py:157
+#: superset/connectors/sqla/views.py:205
 msgid "Add Table"
 msgstr "添加数据集"
 
-#: superset/connectors/sqla/views.py:158
+#: superset/connectors/sqla/views.py:206
 msgid "Edit Table"
 msgstr "编辑数据集"
 
-#: superset/connectors/sqla/views.py:187
+#: superset/connectors/sqla/views.py:235
 msgid "Name of the table that exists in the source database"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:189
+#: superset/connectors/sqla/views.py:237
 msgid "Schema, as used only in some databases like Postgres, Redshift and DB2"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:195
+#: superset/connectors/sqla/views.py:243
 msgid ""
 "This fields acts a Superset view, meaning that Superset will run a query "
 "against this string as a subquery."
 msgstr ""
 
-#: superset/connectors/sqla/views.py:199
+#: superset/connectors/sqla/views.py:247
 msgid ""
 "Predicate applied when fetching distinct value to populate the filter "
 "control component. Supports jinja template syntax. Applies only when "
 "`Enable Filter Select` is on."
 msgstr ""
 
-#: superset/connectors/sqla/views.py:205
+#: superset/connectors/sqla/views.py:253
 msgid "Redirects to this endpoint when clicking on the table from the table list"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:217
+#: superset/connectors/sqla/views.py:265
 msgid "Changed By"
 msgstr "修改人"
 
-#: superset/connectors/sqla/views.py:218 superset/views/core.py:244
+#: superset/connectors/sqla/views.py:266 superset/views/core.py:249
 #: superset/views/sql_lab.py:19 superset/views/sql_lab.py:55
 msgid "Database"
 msgstr "数据库"
 
-#: superset/connectors/sqla/views.py:219 superset/views/core.py:246
+#: superset/connectors/sqla/views.py:267 superset/views/core.py:251
 msgid "Last Changed"
 msgstr "更新时间"
 
-#: superset/connectors/sqla/views.py:221
+#: superset/connectors/sqla/views.py:269
 msgid "Schema"
 msgstr "模式"
 
-#: superset/connectors/sqla/views.py:223
+#: superset/connectors/sqla/views.py:271
 msgid "Offset"
 msgstr "偏移"
 
-#: superset/connectors/sqla/views.py:225
+#: superset/connectors/sqla/views.py:273
 msgid "Table Name"
 msgstr "表名"
 
-#: superset/connectors/sqla/views.py:226
+#: superset/connectors/sqla/views.py:274
 msgid "Fetch Values Predicate"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:228
+#: superset/connectors/sqla/views.py:276
 msgid "Main Datetime Column"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:248
+#: superset/connectors/sqla/views.py:299
 msgid ""
 "Table [{}] could not be found, please double check your database "
 "connection, schema, and table name"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:261
+#: superset/connectors/sqla/views.py:312
 msgid ""
 "The table was created. As part of this two phase configuration process, "
 "you should now click the edit button by the new table to configure it."
 msgstr ""
-
-#: superset/connectors/sqla/views.py:285
-msgid "Tables"
-msgstr "数据集"
 
 #: superset/templates/appbuilder/navbar_right.html:41
 msgid "Profile"
@@ -848,8 +866,7 @@ msgstr "取消"
 msgid "Welcome!"
 msgstr "欢迎！"
 
-#: superset/templates/superset/welcome.html:13 superset/views/core.py:368
-#: superset/views/core.py:528
+#: superset/templates/superset/welcome.html:13 superset/views/core.py:374
 msgid "Dashboards"
 msgstr "看板"
 
@@ -857,202 +874,138 @@ msgstr "看板"
 msgid "Test Connection"
 msgstr "测试连接"
 
-#: superset/views/base.py:58
-#, python-format
-msgid "Datasource %(name)s already exists"
-msgstr "数据源%(name)s 已存在"
-
-#: superset/views/base.py:206
+#: superset/views/base.py:222
 msgid "json isn't valid"
 msgstr ""
 
-#: superset/views/base.py:257
-msgid "Delete"
-msgstr ""
-
-#: superset/views/base.py:258
-msgid "Delete all Really?"
-msgstr ""
-
-#: superset/views/core.py:56
-msgid "This endpoint requires the `all_datasource_access` permission"
-msgstr ""
-
-#: superset/views/core.py:58
-msgid "The datasource seems to have been deleted"
-msgstr ""
-
-#: superset/views/core.py:59
-msgid "The access requests seem to have been deleted"
-msgstr ""
-
-#: superset/views/core.py:61
-msgid "The user seems to have been deleted"
-msgstr ""
-
-#: superset/views/core.py:62
-msgid "You don't have access to this datasource"
-msgstr ""
-
-#: superset/views/core.py:66
-#, python-format
-msgid ""
-"This view requires the database %(name)s or `all_datasource_access` "
-"permission"
-msgstr ""
-
-#: superset/views/core.py:71
-#, python-format
-msgid ""
-"This endpoint requires the datasource %(name)s, database or "
-"`all_datasource_access` permission"
-msgstr ""
-
-#: superset/views/core.py:174
+#: superset/views/core.py:179
 msgid "List Databases"
 msgstr "数据源"
 
-#: superset/views/core.py:175
+#: superset/views/core.py:180
 msgid "Show Database"
 msgstr ""
 
-#: superset/views/core.py:176
+#: superset/views/core.py:181
 msgid "Add Database"
 msgstr ""
 
-#: superset/views/core.py:177
+#: superset/views/core.py:182
 msgid "Edit Database"
 msgstr ""
 
-#: superset/views/core.py:212
+#: superset/views/core.py:217
 msgid "Expose this DB in SQL Lab"
 msgstr ""
 
-#: superset/views/core.py:213
+#: superset/views/core.py:218
 msgid ""
 "Allow users to run synchronous queries, this is the default and should "
 "work well for queries that can be executed within a web request scope "
 "(<~1 minute)"
 msgstr ""
 
-#: superset/views/core.py:217
+#: superset/views/core.py:222
 msgid ""
 "Allow users to run queries, against an async backend. This assumes that "
 "you have a Celery worker setup as well as a results backend."
 msgstr ""
 
-#: superset/views/core.py:221
+#: superset/views/core.py:226
 msgid "Allow CREATE TABLE AS option in SQL Lab"
 msgstr ""
 
-#: superset/views/core.py:222
+#: superset/views/core.py:227
 msgid ""
 "Allow users to run non-SELECT statements (UPDATE, DELETE, CREATE, ...) in"
 " SQL Lab"
 msgstr ""
 
-#: superset/views/core.py:226
+#: superset/views/core.py:231
 msgid ""
 "When allowing CREATE TABLE AS option in SQL Lab, this option forces the "
 "table to be created in this schema"
 msgstr ""
 
-#: superset/views/core.py:240
+#: superset/views/core.py:245
 msgid "Expose in SQL Lab"
 msgstr ""
 
-#: superset/views/core.py:241
+#: superset/views/core.py:246
 msgid "Allow CREATE TABLE AS"
 msgstr ""
 
-#: superset/views/core.py:242
+#: superset/views/core.py:247
 msgid "Allow DML"
 msgstr ""
 
-#: superset/views/core.py:243
+#: superset/views/core.py:248
 msgid "CTAS Schema"
 msgstr ""
 
-#: superset/views/core.py:245 superset/views/core.py:367
-#: superset/views/core.py:475 superset/views/core.py:539
+#: superset/views/core.py:250 superset/views/core.py:373
+#: superset/views/core.py:481 superset/views/core.py:545
 msgid "Creator"
 msgstr "作者"
 
-#: superset/views/core.py:247
+#: superset/views/core.py:252
 msgid "SQLAlchemy URI"
 msgstr ""
 
-#: superset/views/core.py:249
+#: superset/views/core.py:254
 msgid "Extra"
 msgstr "扩展"
 
-#: superset/views/core.py:250
+#: superset/views/core.py:255
 msgid "Allow Run Sync"
 msgstr ""
 
-#: superset/views/core.py:251
+#: superset/views/core.py:256
 msgid "Allow Run Async"
 msgstr ""
 
-#: superset/views/core.py:269
-msgid "Import Dashboards"
-msgstr "导入仪表盘"
+#: superset/views/core.py:257
+msgid "Is Hybrid"
+msgstr "是否海量数据库"
 
-#: superset/views/core.py:273 superset/views/core.py:2330
-#: superset/views/sql_lab.py:30
-msgid "Manage"
-msgstr "管理"
-
-#: superset/views/core.py:280
-msgid "Databases"
-msgstr "数据库"
-
-#: superset/views/core.py:311 superset/views/core.py:552
+#: superset/views/core.py:317 superset/views/core.py:558
 #: superset/views/sql_lab.py:18 superset/views/sql_lab.py:54
 msgid "User"
 msgstr "用户"
 
-#: superset/views/core.py:312
+#: superset/views/core.py:318
 msgid "User Roles"
 msgstr "用户角色"
 
-#: superset/views/core.py:313
+#: superset/views/core.py:319
 msgid "Database URL"
 msgstr "数据库URL"
 
-#: superset/views/core.py:315
+#: superset/views/core.py:321
 msgid "Roles to grant"
 msgstr ""
 
-#: superset/views/core.py:316
+#: superset/views/core.py:322
 msgid "Created On"
 msgstr "创建日期"
 
-#: superset/views/core.py:322
-msgid "Access requests"
-msgstr "访问请求"
-
-#: superset/views/core.py:324 superset/views/core.py:563
-msgid "Security"
-msgstr "安全"
-
-#: superset/views/core.py:331
+#: superset/views/core.py:337
 msgid "List Slices"
 msgstr "切片列表"
 
-#: superset/views/core.py:332
+#: superset/views/core.py:338
 msgid "Show Slice"
 msgstr "查看切片"
 
-#: superset/views/core.py:333
+#: superset/views/core.py:339
 msgid "Add Slice"
 msgstr "添加切片"
 
-#: superset/views/core.py:334
+#: superset/views/core.py:340
 msgid "Edit Slice"
 msgstr "编辑切片"
 
-#: superset/views/core.py:355
+#: superset/views/core.py:361
 msgid ""
 "These parameters are generated dynamically when clicking the save or "
 "overwrite button in the explore view. This JSON object is exposed here "
@@ -1060,202 +1013,136 @@ msgid ""
 "parameters."
 msgstr "当单击“保存”或“覆盖”按钮时，这些参数会在视图中动态生成。高级用户可以在这里改变特定的参数。"
 
-#: superset/views/core.py:360
+#: superset/views/core.py:366
 msgid "Duration (in seconds) of the caching timeout for this slice."
 msgstr "切片数据过期时间(秒)"
 
-#: superset/views/core.py:371
+#: superset/views/core.py:377
 msgid "Last Modified"
 msgstr "最后修改"
 
-#: superset/views/core.py:372 superset/views/core.py:474
+#: superset/views/core.py:378 superset/views/core.py:480
 msgid "Owners"
 msgstr "所有者"
 
-#: superset/views/core.py:373
+#: superset/views/core.py:379
 msgid "Parameters"
 msgstr "参数"
 
-#: superset/views/core.py:374 superset/views/core.py:416
+#: superset/views/core.py:380 superset/views/core.py:422
 msgid "Slice"
 msgstr "切片"
 
-#: superset/views/core.py:375
+#: superset/views/core.py:381
 msgid "Name"
 msgstr "名字"
 
-#: superset/views/core.py:377
+#: superset/views/core.py:383
 msgid "Visualization Type"
 msgstr "图表类型"
 
-#: superset/views/core.py:404 superset/views/core.py:473
-msgid "Slices"
-msgstr "切片"
-
-#: superset/views/core.py:433
+#: superset/views/core.py:439
 msgid "List Dashboards"
 msgstr "看板列表"
 
-#: superset/views/core.py:434
+#: superset/views/core.py:440
 msgid "Show Dashboard"
 msgstr "查看看板"
 
-#: superset/views/core.py:435
+#: superset/views/core.py:441
 msgid "Add Dashboard"
 msgstr "添加看板"
 
-#: superset/views/core.py:436
+#: superset/views/core.py:442
 msgid "Edit Dashboard"
 msgstr "编辑看板"
 
-#: superset/views/core.py:447
+#: superset/views/core.py:453
 msgid ""
 "This json object describes the positioning of the widgets in the "
 "dashboard. It is dynamically generated when adjusting the widgets size "
 "and positions by using drag & drop in the dashboard view"
 msgstr "这个JSON对象描述了部件在看板中的位置。它是动态生成的，可以通过拖放，在看板中调整整部件的大小和位置。"
 
-#: superset/views/core.py:452
+#: superset/views/core.py:458
 msgid ""
 "The css for individual dashboards can be altered here, or in the "
 "dashboard view where changes are immediately visible"
 msgstr "可以在这里或者在看板视图修改单个看板的CSS样式"
 
-#: superset/views/core.py:456
+#: superset/views/core.py:462
 msgid "To get a readable URL for your dashboard"
 msgstr "为看板生成一个可读的URL"
 
-#: superset/views/core.py:457
+#: superset/views/core.py:463
 msgid ""
 "This JSON object is generated dynamically when clicking the save or "
 "overwrite button in the dashboard view. It is exposed here for reference "
 "and for power users who may want to alter specific parameters."
 msgstr "当在看板视图中单击“保存”或“覆盖”按钮时，这些参数会在视图中动态生成。高级用户可以在这里改变特定的参数。"
 
-#: superset/views/core.py:462
+#: superset/views/core.py:468
 msgid "Owners is a list of users who can alter the dashboard."
 msgstr "“所有者”是一组可以修改看板的用户列表"
 
-#: superset/views/core.py:470 superset/views/core.py:537
+#: superset/views/core.py:476 superset/views/core.py:543
 msgid "Dashboard"
 msgstr "看板"
 
-#: superset/views/core.py:471 superset/views/core.py:538
+#: superset/views/core.py:477 superset/views/core.py:544
 msgid "Title"
 msgstr "标题"
 
-#: superset/views/core.py:472
+#: superset/views/core.py:478
 msgid "Slug"
 msgstr ""
 
-#: superset/views/core.py:476 superset/views/core.py:540
+#: superset/views/core.py:479
+msgid "Slices"
+msgstr "切片"
+
+#: superset/views/core.py:482 superset/views/core.py:546
 #: superset/views/sql_lab.py:57
 msgid "Modified"
 msgstr "已修改"
 
-#: superset/views/core.py:477
+#: superset/views/core.py:483
 msgid "Position JSON"
 msgstr "位置参数"
 
-#: superset/views/core.py:478
+#: superset/views/core.py:484
 msgid "CSS"
 msgstr ""
 
-#: superset/views/core.py:479
+#: superset/views/core.py:485
 msgid "JSON Metadata"
 msgstr "JSON模板"
 
-#: superset/views/core.py:480
+#: superset/views/core.py:486
 msgid "Underlying Tables"
 msgstr "底层表"
 
-#: superset/views/core.py:503
-msgid "Export"
-msgstr ""
-
-#: superset/views/core.py:503
-msgid "Export dashboards?"
-msgstr ""
-
-#: superset/views/core.py:553
+#: superset/views/core.py:559
 msgid "Action"
 msgstr "操作"
 
-#: superset/views/core.py:554
+#: superset/views/core.py:560
 msgid "dttm"
 msgstr "DTTM"
 
-#: superset/views/core.py:561
-msgid "Action Log"
-msgstr "操作日志"
-
-#: superset/views/core.py:792
-msgid "Access was requested"
-msgstr ""
-
-#: superset/views/core.py:853
-#, python-format
-msgid ""
-"%(user)s was granted the role %(role)s that gives access to the "
-"%(datasource)s"
-msgstr ""
-
-#: superset/views/core.py:869
-#, python-format
-msgid "Role %(r)s was extended to provide the access to the datasource %(ds)s"
-msgstr ""
-
-#: superset/views/core.py:878
-msgid "You have no permission to approve this request"
-msgstr ""
-
-#: superset/views/core.py:1618
-msgid ""
-"Malformed request. slice_id or table_name and db_name arguments are "
-"expected"
-msgstr ""
-
-#: superset/views/core.py:1624
-#, python-format
-msgid "Slice %(id)s not found"
-msgstr ""
-
-#: superset/views/core.py:1636
-#, python-format
-msgid "Table %(t)s wasn't found in the database %(d)s"
-msgstr ""
-
-#: superset/views/core.py:1774
-#, python-format
-msgid "Can't find User '%(name)s', please ask your admin to create one."
-msgstr ""
-
-#: superset/views/core.py:1781
-#, python-format
-msgid "Can't find DruidCluster with cluster_name = '%(name)s'"
-msgstr ""
-
-#: superset/views/core.py:2042
+#: superset/views/core.py:2065
 msgid "Query record was not created as expected."
 msgstr ""
 
-#: superset/views/core.py:2316
+#: superset/views/core.py:2377
 msgid "Template Name"
 msgstr ""
 
-#: superset/views/core.py:2327
-msgid "CSS Templates"
-msgstr "CSS模板"
-
-#: superset/views/core.py:2337
+#: superset/views/core.py:2398
 msgid "SQL Editor"
 msgstr "SQL编辑器"
 
-#: superset/views/core.py:2342 superset/views/core.py:2351
-msgid "SQL Lab"
-msgstr "SQL工具箱"
-
-#: superset/views/core.py:2346
+#: superset/views/core.py:2407
 msgid "Query Search"
 msgstr "查询搜索"
 
@@ -1270,10 +1157,6 @@ msgstr ""
 #: superset/views/sql_lab.py:22 superset/views/sql_lab.py:58
 msgid "End Time"
 msgstr ""
-
-#: superset/views/sql_lab.py:28
-msgid "Queries"
-msgstr "查询"
 
 #: superset/views/sql_lab.py:37
 msgid "List Saved Query"
@@ -1303,34 +1186,130 @@ msgstr ""
 msgid "Changed on"
 msgstr ""
 
-#: superset/views/sql_lab.py:79
+msgid "[Superset] Access to the datasource %(name)s was granted"
+msgstr ""
+
+msgid "Druid Clusters"
+msgstr "Druid集群"
+
+msgid "Sources"
+msgstr "数据源"
+
+msgid "Druid Datasources"
+msgstr "Druid数据源"
+
+msgid "Refresh Druid Metadata"
+msgstr "刷新Druid元数据"
+
+msgid "Tables"
+msgstr "数据集"
+
+msgid "Datasource %(name)s already exists"
+msgstr "数据源%(name)s 已存在"
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete all Really?"
+msgstr ""
+
+msgid "This endpoint requires the `all_datasource_access` permission"
+msgstr ""
+
+msgid "The datasource seems to have been deleted"
+msgstr ""
+
+msgid "The access requests seem to have been deleted"
+msgstr ""
+
+msgid "The user seems to have been deleted"
+msgstr ""
+
+msgid "You don't have access to this datasource"
+msgstr ""
+
+msgid ""
+"This view requires the database %(name)s"
+" or `all_datasource_access` permission"
+msgstr ""
+
+msgid ""
+"This endpoint requires the datasource "
+"%(name)s, database or `all_datasource_access` "
+"permission"
+msgstr ""
+
+msgid "Import Dashboards"
+msgstr "导入仪表盘"
+
+msgid "Manage"
+msgstr "管理"
+
+msgid "Databases"
+msgstr "数据库"
+
+msgid "Access requests"
+msgstr "访问请求"
+
+msgid "Security"
+msgstr "安全"
+
+msgid "Export"
+msgstr ""
+
+msgid "Export dashboards?"
+msgstr ""
+
+msgid "Action Log"
+msgstr "操作日志"
+
+msgid "Access was requested"
+msgstr ""
+
+msgid ""
+"%(user)s was granted the role %(role)s"
+" that gives access to the "
+"%(datasource)s"
+msgstr ""
+
+msgid "Role %(r)s was extended to provide the access to the datasource %(ds)s"
+msgstr ""
+
+msgid "You have no permission to approve this request"
+msgstr ""
+
+msgid ""
+"Malformed request. slice_id or table_name "
+"and db_name arguments are expected"
+msgstr ""
+
+msgid "Slice %(id)s not found"
+msgstr ""
+
+msgid "Table %(t)s wasn't found in the database %(d)s"
+msgstr ""
+
+msgid "Can't find User '%(name)s', please ask your admin to create one."
+msgstr ""
+
+msgid "Can't find DruidCluster with cluster_name = '%(name)s'"
+msgstr ""
+
+msgid "CSS Templates"
+msgstr "CSS模板"
+
+msgid "SQL Lab"
+msgstr "SQL工具箱"
+
+msgid "Queries"
+msgstr "查询"
+
 msgid "Saved Queries"
 msgstr "已保存查询"
-
-msgid "asc"
-msgstr "升序"
-
-msgid "desc"
-msgstr "降序"
-
-msgid "No data."
-msgstr "无数据，请更改数据源、筛选条件或查询时间"
-
-msgid "Please choose groupby which should be only one"
-msgstr "请选择维度且个数为一"
-
-msgid "The number of metric should be only one"
-msgstr "指标个数只能为一"
 
 msgid "Edit User Information"
 msgstr "编辑用户信息"
 
 msgid "Hybrid Expression"
 msgstr "Hybrid描述"
-
-msgid "Is Hybrid"
-msgstr "是否分区"
-
-msgid "Is Memcached"
-msgstr "是否缓存"
 

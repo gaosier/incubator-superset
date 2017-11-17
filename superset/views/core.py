@@ -187,7 +187,7 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
     add_columns = [
         'database_name', 'sqlalchemy_uri', 'cache_timeout', 'extra',
         'expose_in_sqllab', 'allow_run_sync', 'allow_run_async',
-        'allow_ctas', 'allow_dml', 'force_ctas_schema']
+        'allow_ctas', 'allow_dml', 'force_ctas_schema', 'is_hybrid']
     search_exclude_columns = (
         'password', 'tables', 'created_by', 'changed_by', 'queries',
         'saved_queries', )
@@ -254,6 +254,7 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
         'extra': _("Extra"),
         'allow_run_sync': _("Allow Run Sync"),
         'allow_run_async': _("Allow Run Async"),
+        'is_hybrid':_('Is Hybrid')
     }
 
     def pre_add(self, db):

@@ -28,7 +28,7 @@ from superset.models.core import Database
 from superset.jinja_context import get_template_processor
 from superset.models.helpers import set_perm
 from flask import session
-from superset.config import SUPERSET_MEMCACHED
+
 class TableColumn(Model, BaseColumn):
 
     """ORM object for table columns, each table can have multiple columns"""
@@ -43,9 +43,8 @@ class TableColumn(Model, BaseColumn):
     expression = Column(Text, default='')
     python_date_format = Column(String(255))
     database_expression = Column(String(255))
-    is_hybrid = Column(Boolean, default=False)
-    is_memcached = Column(Boolean, default=False)
-    hybrid_expression = Column(String(255))
+    is_partition = Column(Boolean, default=False)
+    partition_expression = Column(String(255))
 
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
@@ -67,7 +66,8 @@ class TableColumn(Model, BaseColumn):
         col = self.sqla_col.label('__time')
         l = []
         col_partition = column('day').label('day')
-        if self.is_hybrid:
+        #是否分区
+        if self.is_partition:
             if start_dttm:
                 l.append(col_partition >= text(self.dttm_hybird_literal(start_dttm)))
             if end_dttm:
@@ -93,7 +93,7 @@ class TableColumn(Model, BaseColumn):
                     expr = db_spec.epoch_to_dttm().format(col=expr)
                 elif pdf == 'epoch_ms':
                     expr = db_spec.epoch_ms_to_dttm().format(col=expr)
-            grain = self.table.database.grains_dict(self.is_hybrid).get(time_grain, '{col}')
+            grain = self.table.database.grains_dict().get(time_grain, '{col}')
             expr = grain.function.format(col=expr)
         return literal_column(expr, type_=DateTime).label(DTTM_ALIAS)
 
@@ -132,7 +132,7 @@ class TableColumn(Model, BaseColumn):
 
         """
 
-        tf = self.hybrid_expression or '%Y%m%d'
+        tf = self.partition_expression or '%Y%m%d'
         return "'{0}'".format(dttm.strftime(tf))
 
 
@@ -319,16 +319,6 @@ class SqlaTable(Model, BaseDatasource):
         sample values for the given column.
         """
         cols = {col.column_name: col for col in self.columns}
-        try:
-            if cols[column_name].is_memcached:
-                import bmemcached
-                import json
-                mc = bmemcached.Client(SUPERSET_MEMCACHED['servers'], SUPERSET_MEMCACHED['username'],
-                                       SUPERSET_MEMCACHED['password'])
-                if mc.get('%s-%s'%(self.table_name,column_name)):
-                    return json.loads(mc.get('%s-%s'%(self.table_name,column_name)))
-        except Exception as e:
-            pass
         target_col = cols[column_name]
         tp = self.get_template_processor()
         db_engine_spec = self.database.db_engine_spec
@@ -649,7 +639,7 @@ class SqlaTable(Model, BaseDatasource):
             #     self.database.db_engine_spec.extract_error_message(e))
             error_message = (
                 '查询语句不合法，请修改或联系管理员')
-        if '__timestamp' in df.columns and time_grain_sqla is not None:
+        if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
             df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
 
         return QueryResult(
