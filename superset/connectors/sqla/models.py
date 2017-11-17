@@ -28,7 +28,7 @@ from superset.models.core import Database
 from superset.jinja_context import get_template_processor
 from superset.models.helpers import set_perm
 from flask import session
-
+from superset.config import SUPERSET_MEMCACHED
 class TableColumn(Model, BaseColumn):
 
     """ORM object for table columns, each table can have multiple columns"""
@@ -45,6 +45,7 @@ class TableColumn(Model, BaseColumn):
     database_expression = Column(String(255))
     is_partition = Column(Boolean, default=False)
     partition_expression = Column(String(255))
+    is_memcached = Column(Boolean, default=False)
 
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
@@ -319,6 +320,15 @@ class SqlaTable(Model, BaseDatasource):
         sample values for the given column.
         """
         cols = {col.column_name: col for col in self.columns}
+        try:
+            if cols[column_name].is_memcached:
+                import bmemcached
+                import json
+                mc = bmemcached.Client(SUPERSET_MEMCACHED['servers'], SUPERSET_MEMCACHED['username'],SUPERSET_MEMCACHED['password'])
+                if mc.get('superset-%s-%s' % (self.table_name, column_name)):
+                    return json.loads(mc.get('superset-%s-%s' % (self.table_name, column_name)))
+        except Exception as e:
+            pass
         target_col = cols[column_name]
         tp = self.get_template_processor()
         db_engine_spec = self.database.db_engine_spec

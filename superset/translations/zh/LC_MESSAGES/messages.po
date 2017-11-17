@@ -68,7 +68,7 @@ msgstr "天"
 #: superset/db_engine_specs.py:972 superset/db_engine_specs.py:1051
 #: superset/db_engine_specs.py:1076
 msgid "week"
-msgstr "周"
+msgstr "周(周日为一周开始)"
 
 #: superset/db_engine_specs.py:245 superset/db_engine_specs.py:291
 #: superset/db_engine_specs.py:318 superset/db_engine_specs.py:373
@@ -98,7 +98,7 @@ msgstr "年"
 
 #: superset/db_engine_specs.py:379 superset/db_engine_specs.py:398
 msgid "week_start_monday"
-msgstr "周一为一周开始"
+msgstr "周(周一为一周开始)"
 
 #: superset/db_engine_specs.py:452 superset/db_engine_specs.py:978
 msgid "week_ending_saturday"
