@@ -158,7 +158,8 @@ function tableVis(slice, payload) {
       sFirst: "首页",
       sPrevious: "前一页",
       sNext: "后一页",
-      sLast: "尾页"
+      sLast: "尾页",
+      sSearch: "搜索:",
       },}
   });
   fixDataTableBodyHeight(

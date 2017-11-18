@@ -525,9 +525,9 @@ export const controls = {
   granularity_sqla: {
     type: 'SelectControl',
     label: t('Time Column'),
-    // default: control =>
-    //   control.choices && control.choices.length > 0 ? control.choices[0][0] : null,
-    default:null,
+    default: control =>
+      control.choices && control.choices.length > 0 ? control.choices[0][0] : null,
+    // default:null,
     description: t('The time column for the visualization. Note that you ' +
     'can define arbitrary expression that return a DATETIME ' +
     'column in the table or. Also note that the ' +
@@ -1013,7 +1013,7 @@ export const controls = {
     type: 'CheckboxControl',
     label: t('Search Box'),
     renderTrigger: true,
-    default: false,
+    default: true,
     description: t('Whether to include a client side search box'),
   },
 

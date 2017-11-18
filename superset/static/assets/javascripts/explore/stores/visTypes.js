@@ -153,6 +153,10 @@ export const visTypes = {
     controlOverrides: {
       groupby: {
         label: t('Series'),
+        default: c => c.options && c.options.length > 0 ? [c.options[0].column_name] : [],
+      },
+      metrics:{
+        default: c => c.options && c.options.length > 0 ? [c.options[0].metric_name] : [],
       },
       columns: {
         label: t('Breakdowns'),

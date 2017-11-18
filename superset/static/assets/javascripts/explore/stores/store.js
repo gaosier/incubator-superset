@@ -39,6 +39,9 @@ export function getControlsState(state, form_data) {
   * */
 
   // Getting a list of active control names for the current viz
+  if(state.datasource.is_new_datasource){
+    form_data={viz_type:form_data.viz_type,datasource:form_data.datasource};
+  }
   const formData = Object.assign({}, form_data);
   const vizType = formData.viz_type || 'table';
 

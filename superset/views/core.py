@@ -2211,7 +2211,9 @@ class Superset(BaseSupersetView):
         # Check permission for datasource
         if not self.datasource_access(datasource):
             return json_error_response(DATASOURCE_ACCESS_ERR)
-        return json_success(json.dumps(datasource.data))
+        data=datasource.data
+        data['is_new_datasource']=True
+        return json_success(json.dumps(data))
 
     @expose("/queries/<last_updated_ms>")
     def queries(self, last_updated_ms):
