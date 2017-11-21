@@ -57,6 +57,20 @@ function tableVis(slice, payload) {
       }
       else
           return d;
+    })
+    .style('min-width', function (d) {
+           let le = d.replace(/[\u0391-\uFFE5]/g,"aa").length;
+           let c = parseInt(le/5);
+           if(c == 2){
+                return c*12 + 'px';
+           }else if(c == 3){
+                return c*12 + 'px';
+           }else if(c > 3){
+                return '48px'
+           }
+           else{
+            return null;
+           }
     });
 
   table.append('tbody')
@@ -129,6 +143,25 @@ function tableVis(slice, payload) {
     .style('cursor', function (d) {
       return (!d.isMetric) ? 'pointer' : '';
     })
+    .style('min-width', function (d) {
+           let v= d.val;
+           if(!v){
+            return null;
+           }
+           v = v + '';
+           let le = v.replace(/[\u0391-\uFFE5]/g,"aa").length;
+           let c = parseInt(le/10);
+           if(c == 2){
+            return  '120px';
+           }else if(c==3){
+            return '160px'
+           }else if(c>3){
+            return '200px'
+           }
+           else{
+            return null;
+           }
+    })
     .html(d => d.html ? d.html : d.val);
   const height = slice.height();
   let paging = false;
@@ -149,18 +182,19 @@ function tableVis(slice, payload) {
     scrollX: true,
     bPaginate : true,
     oLanguage: {
-      sLengthMenu: "每页显示 _MENU_ 条记录",
-      sZeroRecords: "抱歉， 没有找到",
-      sInfo: "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
-      sInfoEmpty: "没有数据",
-      sInfoFiltered: "(从 _MAX_ 条数据中检索)",
-      oPaginate: {
-      sFirst: "首页",
-      sPrevious: "前一页",
-      sNext: "后一页",
-      sLast: "尾页",
-      sSearch: "搜索:",
-      },}
+        sLengthMenu: "每页显示 _MENU_ 条记录",
+        sZeroRecords: "抱歉， 没有找到",
+        // sInfo: "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+        sInfo: "总共_PAGES_ 页，显示第_START_ 到第 _END_ ，筛选之后得到 _TOTAL_ 条",
+        sInfoEmpty: "没有数据",
+        sInfoFiltered: "(从 _MAX_ 条数据中检索)",
+        oPaginate: {
+            sFirst: "首页",
+            sPrevious: "前一页",
+            sNext: "后一页",
+            sLast: "尾页"
+        },
+        sSearch: '<span class="label label-success">搜索：</span>'}
   });
   fixDataTableBodyHeight(
       container.find('.dataTables_wrapper'), height-125);
