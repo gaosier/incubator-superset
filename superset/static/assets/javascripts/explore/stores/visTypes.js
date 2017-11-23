@@ -112,6 +112,11 @@ export const visTypes = {
     controlOverrides: {
       metrics: {
         validators: [],
+        default:[],
+      },
+      groupby:{
+        validators: [],
+        default:[],
       },
       all_columns:{
         default: c => c.choices && c.choices.length > 0 ? c.choices.map(a => a[0]): [],
@@ -152,11 +157,7 @@ export const visTypes = {
     ],
     controlOverrides: {
       groupby: {
-        label: t('Series'),
-        default: c => c.options && c.options.length > 0 ? [c.options[0].column_name] : [],
-      },
-      metrics:{
-        default: c => c.options && c.options.length > 0 ? [c.options[0].metric_name] : [],
+        label: t('Series')
       },
       columns: {
         label: t('Breakdowns'),

@@ -81,14 +81,21 @@ export function getControlsState(state, form_data) {
     }
     //改变视图时 不全选
     if(vizType ==='table'){
-      if(form_data.groupby || form_data.metrics){
         if(k==='all_columns'){
+          if(form_data.groupby !==undefined&&form_data.groupby.length>0 ||  form_data.metrics!==undefined &&form_data.metrics.length>0){
           control.default=[]
         }
       }
     }
+    if(vizType==='pie'){
+      if(k==='metrics'){
+        if(formData.metrics!== undefined && formData.metrics.length>1){
+          formData.metrics=[formData.metrics[0]]
+        }
+    }
+    }
     control.validationErrors = [];
-    control.value = formData[k] !== undefined ? formData[k] : control.default;
+    control.value = formData[k]===null ||formData[k] !== undefined&& formData[k].length>0  ? formData[k] : control.default;
     controlsState[k] = control;
   });
   return controlsState;

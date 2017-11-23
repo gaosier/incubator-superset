@@ -326,7 +326,7 @@ class SqlaTable(Model, BaseDatasource):
                 import json
                 mc = bmemcached.Client(SUPERSET_MEMCACHED['servers'], SUPERSET_MEMCACHED['username'],SUPERSET_MEMCACHED['password'])
                 if mc.get('superset-%s-%s' % (self.table_name, column_name)):
-                    return json.loads(mc.get('superset-%s-%s' % (self.table_name, column_name)))
+                    return mc.get('superset-%s-%s' % (self.table_name, column_name))
         except Exception as e:
             pass
         target_col = cols[column_name]

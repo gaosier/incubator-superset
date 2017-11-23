@@ -197,7 +197,7 @@ function tableVis(slice, payload) {
         sSearch: '<span class="label label-success">搜索：</span>'}
   });
   fixDataTableBodyHeight(
-      container.find('.dataTables_wrapper'), height-125);
+      container.find('.dataTables_wrapper'), height-75);
   // Sorting table by main column
   if (metrics.length > 0) {
     const mainMetric = metrics[0];

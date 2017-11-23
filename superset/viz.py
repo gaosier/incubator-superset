@@ -366,6 +366,8 @@ class TableViz(BaseViz):
             raise Exception(_(
                 "Choose either fields to [Group By] and [Metrics] or "
                 "[Columns], not both"))
+        if not (fd.get('all_columns') or (fd.get('groupby') and fd.get('metrics'))):
+            raise Exception(_("Please choose groupby or not groupby choices"))
         if fd.get('all_columns'):
             d['columns'] = fd.get('all_columns')
             d['groupby'] = []
@@ -1086,9 +1088,9 @@ class DistributionPieViz(NVD3Viz):
         d['orderby'] = [json.loads(t) for t in order_by_metric]
         # print(type(self)==DistributionBarViz,type(self)==DistributionPieViz)
         if self.viz_type =='pie':
-            if len(self.form_data.get("groupby")) !=1:
-                # raise Exception(_("请选择维度且个数为一"))
-                raise Exception(_("Please choose groupby which should be only one"))
+        #     if len(self.form_data.get("groupby")) !=1:
+        #         # raise Exception(_("请选择维度且个数为一"))
+        #         raise Exception(_("Please choose groupby which should be only one"))
             if len(self.form_data.get("metrics")) !=1:
                 # raise Exception(_("指标个数只能为一"))
                 raise Exception(_("The number of metric should be only one"))
@@ -1099,6 +1101,12 @@ class DistributionPieViz(NVD3Viz):
             values=[self.metrics[0]])
         df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
         df = df.reset_index()
+        if len(self.groupby)>1:
+            se=df[self.groupby[0]]
+            for i in self.groupby[1:]:
+                se = se + '/' + df[i]
+            df.insert(0,'new_x',se)
+            df=df.drop(self.groupby,axis=1)
         df.columns = ['x', 'y']
         return df.to_dict(orient="records")
 

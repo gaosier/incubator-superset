@@ -35,6 +35,7 @@ module.exports = function (slice, payload) {
       const metric = cols[i];
       const format = slice.datasource.column_formats[metric] || fd.number_format || '.3s';
       const tdText = $(this)[0].textContent;
+      console.log(tdText,1111);
       if (!isNaN(tdText) && tdText !== '') {
         $(this)[0].textContent = d3format(format, tdText);
       }
@@ -48,15 +49,33 @@ module.exports = function (slice, payload) {
     // overflow: 'auto' on the table.
     container.css('overflow', 'hidden');
     const table = container.find('table').DataTable({
-      paging: false,
-      searching: false,
-      bInfo: false,
+      paging: true,
+      pageLength:40,
+      aaSorting: [],
+      searching: true,
+      bInfo: true,
       scrollY: `${height}px`,
       scrollCollapse: true,
+      aLengthMenu:[10,25,40,50,75,100,150,200],
       scrollX: true,
+      bPaginate : true,
+      oLanguage: {
+          sLengthMenu: "每页显示 _MENU_ 条记录",
+          sZeroRecords: "抱歉， 没有找到",
+          // sInfo: "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+          sInfo: "总共_PAGES_ 页，显示第_START_ 到第 _END_ ，筛选之后得到 _TOTAL_ 条",
+          sInfoEmpty: "没有数据",
+          sInfoFiltered: "(从 _MAX_ 条数据中检索)",
+          oPaginate: {
+              sFirst: "首页",
+              sPrevious: "前一页",
+              sNext: "后一页",
+              sLast: "尾页"
+          },
+          sSearch: '<span class="label label-success">搜索：</span>'}
     });
+    fixDataTableBodyHeight(container.find('.dataTables_wrapper'), height-75);
     table.draw();
-    fixDataTableBodyHeight(container.find('.dataTables_wrapper'), height);
   } else {
     // When there is more than 1 group by column we just render the table, without using
     // the DataTable plugin, so we need to handle the scrolling ourselves.

@@ -1313,3 +1313,6 @@ msgstr "编辑用户信息"
 msgid "Hybrid Expression"
 msgstr "Hybrid描述"
 
+msgid "Please choose groupby or not groupby choices"
+msgstr "请选择聚合查询或非聚合查询的选项"
+

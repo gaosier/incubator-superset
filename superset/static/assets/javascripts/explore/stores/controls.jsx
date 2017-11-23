@@ -48,8 +48,9 @@ const groupByControl = {
   type: 'SelectControl',
   multi: true,
   label: t('Group by'),
-  default: [],
+  default: c => c.options && c.options.length > 0 ? [c.options[0].column_name] : [],
   includeTime: false,
+  validators: [v.nonEmpty],
   description: t('One or many controls to group by'),
   optionRenderer: c => <ColumnOption column={c} />,
   valueRenderer: c => <ColumnOption column={c} />,
@@ -94,8 +95,7 @@ export const controls = {
     labelKey: 'verbose_name',
     optionRenderer: m => <MetricOption metric={m} />,
     valueRenderer: m => <MetricOption metric={m} />,
-    // default: c => c.options && c.options.length > 0 ? [c.options[0].metric_name] : null,
-    default:[],
+    default: c => c.options && c.options.length > 0 ? [c.options[0].metric_name] : [],
     mapStateToProps: state => ({
       options: (state.datasource) ? state.datasource.metrics : [],
     }),
@@ -384,6 +384,8 @@ export const controls = {
 
   columns: Object.assign({}, groupByControl, {
     label: t('Columns'),
+    default: [],
+    validators: [],
     description: t('One or many controls to pivot as columns'),
   }),
 
