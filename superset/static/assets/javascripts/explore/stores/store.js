@@ -40,7 +40,7 @@ export function getControlsState(state, form_data) {
 
   // Getting a list of active control names for the current viz
   if(state.datasource.is_new_datasource){
-    form_data={viz_type:form_data.viz_type,datasource:form_data.datasource};
+    form_data={viz_type:form_data.viz_type,datasource:form_data.datasource,slice_id:form_data.slice_id};
   }
   const formData = Object.assign({}, form_data);
   const vizType = formData.viz_type || 'table';
@@ -95,7 +95,7 @@ export function getControlsState(state, form_data) {
     }
     }
     control.validationErrors = [];
-    control.value = formData[k]===null ||formData[k] !== undefined&& formData[k].length>0  ? formData[k] : control.default;
+    control.value =((formData[k] instanceof Array) && formData[k].length>0) || (!(formData[k] instanceof Array) && formData[k] !== undefined )? formData[k] : control.default;
     controlsState[k] = control;
   });
   return controlsState;

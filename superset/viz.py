@@ -43,6 +43,7 @@ class BaseViz(object):
     verbose_name = "Base Viz"
     credits = ""
     is_timeseries = False
+    default_fillna=0
 
     def __init__(self, datasource, form_data):
         if not datasource:
@@ -60,6 +61,21 @@ class BaseViz(object):
 
         self.status = None
         self.error_message = None
+
+    def get_fillna_for_type(self, col_type):
+        """Returns the value for use as filler for a specific Column.type"""
+        if col_type:
+            if col_type == 'TEXT' or col_type.startswith('VARCHAR'):
+                return ' NULL'
+        return self.default_fillna
+
+    def get_fillna_for_columns(self, columns=None):
+        """Returns a dict or scalar that can be passed to DataFrame.fillna"""
+        if columns is None:
+            return self.default_fillna
+        columns_types = self.datasource.columns_types
+        fillna = {c: self.get_fillna_for_type(columns_types.get(c)) for c in columns}
+        return fillna
 
     def get_df(self, query_obj=None):
         """Returns a pandas dataframe based on the query object"""
@@ -102,7 +118,8 @@ class BaseViz(object):
             #    if self.datasource.offset:
             #        df[DTTM_ALIAS] += timedelta(hours=self.datasource.offset)
             df.replace([np.inf, -np.inf], np.nan)
-            df = df.fillna(0)
+            fillna = self.get_fillna_for_columns(df.columns)
+            df = df.fillna(fillna)
         return df
 
     def get_extra_filters(self):
@@ -440,19 +457,19 @@ class PivotTableViz(BaseViz):
             margins=self.form_data.get('pivot_margins'),
         )
         # Display metrics side by side with each column
-        a=df.index
+        a = df.index
+        from pandas.core.indexes.multi import MultiIndex
+        if type(df.columns) == MultiIndex:
+            df=df.reindex(index=a,columns=df[self.form_data.get('metrics')].columns)
+        else:
+            df=df.reindex(index=a,columns=self.form_data.get('metrics'))
         if self.form_data.get('combine_metric'):
             df = df.stack(0).unstack()
-            value=list(df.columns.levels[0]).index("All")
-            df_label_0=list(df.columns.labels[0])
-            df_label_1=list(df.columns.labels[1])
-            count=df_label_0.count(value)
-            for i in range(count):
-                index=df_label_0.index(value)
-                df_label_0.append(df_label_0.pop(index))
-                df_label_1.append(df_label_1.pop(index))
-            b=df.columns.set_labels([df_label_0,df_label_1])
-            df = df.reindex(index=a,columns=b)
+            if type(df.columns)==MultiIndex:
+                values = list(df.columns.levels[0])
+                values.remove('All')
+                values.append('All')
+                df = df.reindex(index=a,columns=df[values].columns)
             # from pandas.core.indexes.frozen import FrozenNDArray
         return dict(
             columns=list(df.columns),

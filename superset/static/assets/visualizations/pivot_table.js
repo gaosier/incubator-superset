@@ -35,7 +35,6 @@ module.exports = function (slice, payload) {
       const metric = cols[i];
       const format = slice.datasource.column_formats[metric] || fd.number_format || '.3s';
       const tdText = $(this)[0].textContent;
-      console.log(tdText,1111);
       if (!isNaN(tdText) && tdText !== '') {
         $(this)[0].textContent = d3format(format, tdText);
       }
@@ -50,13 +49,13 @@ module.exports = function (slice, payload) {
     container.css('overflow', 'hidden');
     const table = container.find('table').DataTable({
       paging: true,
-      pageLength:40,
+      pageLength:50,
       aaSorting: [],
       searching: true,
       bInfo: true,
       scrollY: `${height}px`,
       scrollCollapse: true,
-      aLengthMenu:[10,25,40,50,75,100,150,200],
+      aLengthMenu:[25,50,100,200,500,1000],
       scrollX: true,
       bPaginate : true,
       oLanguage: {
