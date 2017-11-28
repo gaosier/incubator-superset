@@ -444,7 +444,7 @@ class PivotTableViz(BaseViz):
             raise Exception(_("'Group By' and 'Columns' can't overlap"))
         return d
 
-    def get_data(self, df):
+    def get_data(self, df,is_xlsx=False):
         if (
                 self.form_data.get("granularity") == "all" and
                 DTTM_ALIAS in df):
@@ -471,6 +471,8 @@ class PivotTableViz(BaseViz):
                 values.append('All')
                 df = df.reindex(index=a,columns=df[values].columns)
             # from pandas.core.indexes.frozen import FrozenNDArray
+        if is_xlsx:
+            return df
         return dict(
             columns=list(df.columns),
             html=df.to_html(
@@ -1119,9 +1121,9 @@ class DistributionPieViz(NVD3Viz):
         df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
         df = df.reset_index()
         if len(self.groupby)>1:
-            se=df[self.groupby[0]]
+            se=df[self.groupby[0]].astype('str')
             for i in self.groupby[1:]:
-                se = se + '/' + df[i]
+                se = se + '/' + df[i].astype('str')
             df.insert(0,'new_x',se)
             df=df.drop(self.groupby,axis=1)
         df.columns = ['x', 'y']

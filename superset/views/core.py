@@ -207,6 +207,8 @@ class DatabaseView(SupersetModelView, DeleteMixin):  # noqa
     add_template = "superset/models/database/add.html"
     edit_template = "superset/models/database/edit.html"
     base_order = ('changed_on', 'desc')
+    order_columns = ['database_name', 'allow_run_sync', 'allow_run_async',
+        'allow_dml', 'modified']
     description_columns = {
         'sqlalchemy_uri': utils.markdown(
             "Refer to the "
@@ -352,6 +354,7 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
         'slice_name', 'description', 'viz_type', 'owners', 'dashboards',
         'params', 'cache_timeout']
     base_order = ('changed_on', 'desc')
+    order_columns = ['viz_type', 'datasource_link', 'modified']
     description_columns = {
         'description': Markup(
             "The content here can be displayed as widget headers in the "
@@ -449,6 +452,7 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
     search_columns = ('dashboard_title', 'slug', 'owners')
     add_columns = edit_columns
     base_order = ('changed_on', 'desc')
+    order_columns = ['modified']
     description_columns = {
         'position_json': _(
             "This json object describes the positioning of the widgets in "
@@ -973,9 +977,13 @@ class Superset(BaseSupersetView):
 
         if request.args.get("xlsx") == "true":
             dfa=viz_obj.get_df()
+            #先特殊处理pivot_table的下载
+            viz_type = self.get_form_data().get('viz_type', 'table')
+            if viz_type=='pivot_table':
+                dfa=viz_obj.get_data(dfa,is_xlsx=True)
             filename = time.strftime("%Y%m%d_%H%M%S",time.localtime(time.time())) + u'.xlsx'
             filepath = os.path.join(sqllab_data_dir, filename)
-            dfa.to_excel(filepath, index=False, encoding='utf-8', engine='xlsxwriter')
+            dfa.to_excel(filepath, index=True, encoding='utf-8', engine='xlsxwriter')
             return send_file(filepath, as_attachment=True,
                 attachment_filename=quote(filename))
 

@@ -163,16 +163,16 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         })
         return {
             # 'all_cols': utils.choicify(self.column_names),
-            'all_cols': list(sorted([(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in self.columns])),
+            'all_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in sorted(self.columns,key=lambda x:x.order_number) if i.is_active],
             'column_formats': self.column_formats,
             'edit_url': self.url,
             'filter_select': self.filter_select_enabled,
             # 'filterable_cols': utils.choicify(self.filterable_column_names),
-            'filterable_cols': list(sorted([(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
-                                            for i in self.columns if i.filterable])),
+            'filterable_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
+                                            for i in sorted(self.columns,key=lambda x:x.order_number) if i.filterable],
             # 'gb_cols': utils.choicify(self.groupby_column_names),
-            'gb_cols': list(sorted([(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
-                                    for i in self.columns if i.groupby])),
+            'gb_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
+                                    for i in sorted(self.columns,key=lambda x:x.order_number) if i.groupby],
             'id': self.id,
             'metrics_combo': self.metrics_combo,
             'name': self.name,

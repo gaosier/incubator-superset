@@ -7,7 +7,7 @@ import pandas as pd
 
 from sqlalchemy import (
     Column, Integer, String, ForeignKey, Text, Boolean,
-    DateTime,
+    DateTime,INTEGER
 )
 import sqlalchemy as sa
 from sqlalchemy import asc, and_, desc, select
@@ -46,6 +46,7 @@ class TableColumn(Model, BaseColumn):
     is_partition = Column(Boolean, default=False)
     partition_expression = Column(String(255))
     is_memcached = Column(Boolean, default=False)
+    order_number=Column(INTEGER,default=0)
 
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
@@ -325,8 +326,13 @@ class SqlaTable(Model, BaseDatasource):
                 import bmemcached
                 import json
                 mc = bmemcached.Client(SUPERSET_MEMCACHED['servers'], SUPERSET_MEMCACHED['username'],SUPERSET_MEMCACHED['password'])
-                if mc.get('superset-%s-%s' % (self.table_name, column_name)):
-                    return mc.get('superset-%s-%s' % (self.table_name, column_name))
+                key='superset-%s-%s' % (self.table_name, column_name)
+                if mc.get(key):
+                    num_li=mc.get(key)
+                    li=[]
+                    for i in num_li:
+                        li.extend(mc.get('%s-%s'%(key,i)))
+                    return li
         except Exception as e:
             pass
         target_col = cols[column_name]

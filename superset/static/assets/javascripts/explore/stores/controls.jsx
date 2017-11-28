@@ -24,7 +24,7 @@ const D3_FORMAT_OPTIONS = [
   ['$,.2f', '$,.2f | $12,345.43'],
 ];
 
-const ROW_LIMIT_OPTIONS = [10, 50, 100, 250, 500, 1000, 5000, 10000, 50000,100000];
+const ROW_LIMIT_OPTIONS = [10, 50, 100, 250, 500, 1000, 5000, 10000, 50000];
 
 const SERIES_LIMITS = [0, 5, 10, 25, 50, 100, 500];
 
