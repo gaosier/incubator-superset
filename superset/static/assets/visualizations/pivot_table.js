@@ -41,7 +41,7 @@ module.exports = function (slice, payload) {
     });
   });
 
-  if (fd.groupby.length === 1) {
+  if (fd.groupby.length === 1 && !fd.include_time) {
     // When there is only 1 group by column,
     // we use the DataTable plugin to make the header fixed.
     // The plugin takes care of the scrolling so we don't need

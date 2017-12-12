@@ -6,6 +6,8 @@ import ControlHeader from '../ControlHeader';
 import { t } from '../../../locales';
 import VirtualizedRendererWrap from '../../../components/VirtualizedRendererWrap';
 import OnPasteSelect from '../../../components/OnPasteSelect';
+import SortableComponent from './ReactSortableHoc';
+import {createStore} from 'redux'
 
 const propTypes = {
   choices: PropTypes.array,
@@ -98,8 +100,12 @@ export default class SelectControl extends React.PureComponent {
   constructor(props) {
     super(props);
     let options = this.getOptions(props);
-    this.state = { options: options, options_bak: options};
+    this.state = { options: options, options_bak: options,sorttext:"排序"};
     this.onChange = this.onChange.bind(this);
+    function reducer(state = {}, action) {
+      return action;
+    }
+    this.store = createStore(reducer);
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.choices !== this.props.choices ||
@@ -158,6 +164,26 @@ export default class SelectControl extends React.PureComponent {
                 data: this.props.value
             })
         }, 200);}
+    this.store.subscribe(() => {
+      let state = this.store.getState();
+      if(state.type==="show_vals"){
+          this.setState({
+                display:"block",
+                sorttext:'排序',
+                    });
+          this.onChange(state.data_list)
+      }
+      else if (state.type==="start_sort"){
+          this.setState({
+              display:'none',
+              sorttext:'完成'
+          });
+          this.store.dispatch({
+              type:"show_sort",
+              data_list:this.props.value
+          });
+      }
+  });
   }
   onChange(opt) {
     let optionValue = opt ? opt[this.props.valueKey] : null;
@@ -249,13 +275,19 @@ export default class SelectControl extends React.PureComponent {
     // ) : (
     //   pasteSelect(selectProps)
     // );
+      const sortComp=this.props.can_sort?(
+          <SortableComponent items={this.props.value} opts={this.state.options} labelKey={this.props.labelKey||'label'} valueKey={this.props.valueKey} store={this.store}/>
+      ):(null);
     return (
       <div>
         {this.props.showHeader &&
-          <ControlHeader {...this.props} opts={this.state.options} clickfunc={this.onChange}/>
+          <ControlHeader {...this.props} opts={this.state.options} clickfunc={this.onChange} store={this.store} sorttext={this.state.sorttext}/>
         }
         {/*{selectWrap}*/}
-        <OnPasteSelect {...selectProps} selectWrap={VirtualizedSelect} />
+        {sortComp}
+        <div style={{display:this.state.display}}>
+            <OnPasteSelect {...selectProps} selectWrap={VirtualizedSelect} />
+        </div>
       </div>
     );
   }

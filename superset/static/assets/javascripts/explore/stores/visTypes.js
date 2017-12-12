@@ -56,11 +56,10 @@ export const sections = {
       'that allow for advanced analytical post processing ' +
       'of query results'),
       controlSetRows: [
-        ['rolling_type', 'rolling_periods',],
+        ['resample_how', 'resample_rule', 'resample_fillmethod'],
+        ['rolling_type', 'rolling_periods'],
+        [ 'period_ratio_type','num_period_compare'],
         ['time_compare'],
-        ['num_period_compare', 'period_ratio_type'],
-        ['resample_how', 'resample_rule'],
-        ['resample_fillmethod'],
       ],
     },
   ],
@@ -87,7 +86,7 @@ export const visTypes = {
         description: t('Use this section if you want a query that aggregates'),
         controlSetRows: [
           ['groupby', 'metrics'],
-          ['include_time'],
+          // ['include_time'],
           ['order_by_metric'],
         ],
       },
@@ -105,9 +104,9 @@ export const visTypes = {
           ['table_timestamp_format'],
           ['row_limit', 'page_length'],
           ['number_format'],
-          ['include_search'],
-        ],
-      },
+          ['include_search']
+        ]
+      }
     ],
     controlOverrides: {
       metrics: {
@@ -135,8 +134,8 @@ export const visTypes = {
       {
         label: t('Query'),
         controlSetRows: [
-          ['groupby'],
-          ['columns'],
+          ['groupby','columns'],
+          // ['include_time','include_time_2'],
           ['metrics'],
           ['order_by_metric'],
           ['row_limit'],
@@ -174,9 +173,10 @@ export const visTypes = {
         label: t('Query'),
         controlSetRows: [
           [ 'groupby','metrics'],
+          // [ 'include_time'],
           ['order_by_metric'],
+          ['limit'],
           ['row_limit'],
-          // ['limit'],
         ],
       },
       {
@@ -199,7 +199,9 @@ export const visTypes = {
         label: t('Query'),
         controlSetRows: [
           ['groupby', 'columns'],
+          // ['include_time','include_time_2'],
           ['metrics'],
+          ['order_by_metric'],
           ['row_limit'],
         ],
       },
@@ -213,7 +215,7 @@ export const visTypes = {
     ],
     controlOverrides: {
       groupby: { includeTime: true },
-      columns: { includeTime: true ,lable: '分类'}
+      columns: { includeTime: true ,label: t('Breakdowns')}
     },
   },
 
@@ -252,7 +254,11 @@ export const visTypes = {
     controlOverrides: {
       x_axis_format: {
         choices: D3_TIME_FORMAT_OPTIONS,
-        default: 'smart_date',
+        default: 'smart_date'
+      },
+      groupby:{
+        validators: [],
+        default:[],
       },
     },
   },

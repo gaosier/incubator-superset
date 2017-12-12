@@ -51,7 +51,7 @@ class BaseViz(object):
         self.datasource = datasource
         self.request = request
         self.viz_type = form_data.get("viz_type")
-        self.form_data = form_data
+        self.form_data = self.deal_form_data(form_data)
 
         self.query = ""
         self.token = self.form_data.get(
@@ -62,12 +62,47 @@ class BaseViz(object):
         self.status = None
         self.error_message = None
 
+    def reorder_columns(self, columns,type=1):
+        fd = self.form_data
+        if type==1:
+            if fd.get('include_time'):
+                columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
+        else:
+            if fd.get('include_time_2'):
+                columns.insert(fd.get('include_time_2') - 1, DTTM_ALIAS)
+        return columns
+
+    def deal_form_data(self,form_data):
+        if self.viz_type in ['table','pie','dist_bar','pivot_table','line']:
+            groupby=form_data.get("groupby") or []
+            columns = form_data.get("columns") or []
+            if DTTM_ALIAS in groupby:
+                form_data['include_time']=groupby.index(DTTM_ALIAS)+1
+                form_data['groupby'].remove(DTTM_ALIAS)
+            if DTTM_ALIAS in columns:
+                form_data['include_time_2'] = columns.index(DTTM_ALIAS)+1
+                form_data['columns'].remove(DTTM_ALIAS)
+        return form_data
+
     def get_fillna_for_type(self, col_type):
         """Returns the value for use as filler for a specific Column.type"""
         if col_type:
             if col_type == 'TEXT' or col_type.startswith('VARCHAR'):
                 return ' NULL'
         return self.default_fillna
+
+    def should_be_timeseries(self):
+        fd = self.form_data
+        # TODO handle datasource-type-specific code in datasource
+        conditions_met = (
+            (fd.get('granularity') and fd.get('granularity') != 'all') or
+            (fd.get('granularity_sqla') and fd.get('time_grain_sqla'))
+        )
+        if (fd.get('include_time') or fd.get('include_time_2')) and not conditions_met:
+            raise Exception(_(
+                "Pick a granularity in the Time section or "
+                "uncheck 'Include Time'"))
+        return fd.get('include_time') or fd.get('include_time_2')
 
     def get_fillna_for_columns(self, columns=None):
         """Returns a dict or scalar that can be passed to DataFrame.fillna"""
@@ -383,7 +418,7 @@ class TableViz(BaseViz):
             raise Exception(_(
                 "Choose either fields to [Group By] and [Metrics] or "
                 "[Columns], not both"))
-        if not (fd.get('all_columns') or (fd.get('groupby') and fd.get('metrics'))):
+        if not (fd.get('all_columns') or ((fd.get('groupby')or fd.get("include_time")) and fd.get('metrics'))):
             raise Exception(_("Please choose groupby or not groupby choices"))
         if fd.get('all_columns'):
             d['columns'] = fd.get('all_columns')
@@ -400,7 +435,12 @@ class TableViz(BaseViz):
     def get_data(self, df):
         if not self.should_be_timeseries() and DTTM_ALIAS in df:
             del df[DTTM_ALIAS]
-
+        columns=df.columns.tolist()
+        fd = self.form_data
+        if fd.get('include_time'):
+            columns.remove(DTTM_ALIAS)
+            columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
+        df=df[columns]
         return dict(
             records=df.to_dict(orient="records"),
             columns=list(df.columns),
@@ -424,6 +464,7 @@ class PivotTableViz(BaseViz):
 
     def query_obj(self):
         d = super(PivotTableViz, self).query_obj()
+        fd=self.form_data
         groupby = self.form_data.get('groupby')
         columns = self.form_data.get('columns')
         metrics = self.form_data.get('metrics')
@@ -434,7 +475,7 @@ class PivotTableViz(BaseViz):
             columns = []
         if not groupby:
             groupby = []
-        if not groupby:
+        if not groupby and not fd.get('include_time') :
             raise Exception(_("Please choose at least one \"Group by\" field "))
         if not metrics:
             raise Exception(_("Please choose at least one metric"))
@@ -442,6 +483,9 @@ class PivotTableViz(BaseViz):
                 any(v in groupby for v in columns) or
                 any(v in columns for v in groupby)):
             raise Exception(_("'Group By' and 'Columns' can't overlap"))
+        if fd.get('include_time') and fd.get('include_time_2'):
+            raise Exception(_("You can only choose one include_time"))
+        d['is_timeseries'] = self.should_be_timeseries()
         return d
 
     def get_data(self, df,is_xlsx=False):
@@ -449,9 +493,14 @@ class PivotTableViz(BaseViz):
                 self.form_data.get("granularity") == "all" and
                 DTTM_ALIAS in df):
             del df[DTTM_ALIAS]
+        fd = self.form_data
+        columns = self.reorder_columns(fd.get('columns') or [],type=2)
+        groupby=self.reorder_columns(self.groupby)
         df = df.pivot_table(
-            index=self.form_data.get('groupby'),
-            columns=self.form_data.get('columns'),
+            # index=self.form_data.get('groupby'),
+            index=groupby,
+            # columns=self.form_data.get('columns'),
+            columns=columns,
             values=self.form_data.get('metrics'),
             aggfunc=self.form_data.get('pandas_aggfunc'),
             margins=self.form_data.get('pivot_margins'),
@@ -929,6 +978,7 @@ class NVD3TimeSeriesViz(NVD3Viz):
             fm = None
         how = fd.get("resample_how")
         rule = fd.get("resample_rule")
+        df.index = pd.to_datetime(df.index)
         if how and rule:
             df = df.resample(rule, how=how, fill_method=fm)
             if not fm:
@@ -1113,19 +1163,21 @@ class DistributionPieViz(NVD3Viz):
             if len(self.form_data.get("metrics")) !=1:
                 # raise Exception(_("指标个数只能为一"))
                 raise Exception(_("The number of metric should be only one"))
+        d['is_timeseries'] = self.should_be_timeseries()
         return d
     def get_data(self, df):
+        index=self.reorder_columns(self.groupby)
         df = df.pivot_table(
-            index=self.groupby,
+            index=index,
             values=[self.metrics[0]])
         df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
         df = df.reset_index()
-        if len(self.groupby)>1:
-            se=df[self.groupby[0]].astype('str')
-            for i in self.groupby[1:]:
+        if len(index)>1:
+            se=df[index[0]].astype('str')
+            for i in index[1:]:
                 se = se + '/' + df[i].astype('str')
             df.insert(0,'new_x',se)
-            df=df.drop(self.groupby,axis=1)
+            df=df.drop(index,axis=1)
         df.columns = ['x', 'y']
         return df.to_dict(orient="records")
 
@@ -1174,18 +1226,26 @@ class DistributionBarViz(DistributionPieViz):
                 _("Can't have overlap between Series and Breakdowns"))
         if not fd.get('metrics'):
             raise Exception(_("Pick at least one metric"))
-        if not fd.get('groupby'):
+        if not fd.get('groupby') and not fd.get('include_time'):
             raise Exception(_("Pick at least one field for [Series]"))
+        if fd.get('include_time') and fd.get('include_time_2'):
+            raise Exception(_("You can only choose one include_time"))
         return d
 
     def get_data(self, df):
         fd = self.form_data
-
-        row = df.groupby(self.groupby,sort=False).sum()[self.metrics[0]].copy()
-        # row.sort_values(ascending=False, inplace=True)
         columns = fd.get('columns') or []
+        index = self.groupby
+        if not self.should_be_timeseries() and DTTM_ALIAS in df:
+            del df[DTTM_ALIAS]
+        else:
+            index=self.reorder_columns(index)
+            columns=self.reorder_columns(columns,type=2)
+        row = df.groupby(index,sort=False).sum()[self.metrics[0]].copy()
+        # row.sort_values(ascending=False, inplace=True)
+        # print(columns,fd.get('groupby'),fd.get('metrics'),self.metrics)
         pt = df.pivot_table(
-            index=self.groupby,
+            index=index,
             columns=columns,
             values=self.metrics)
         if fd.get("contribution"):

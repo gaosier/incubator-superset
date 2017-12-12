@@ -395,7 +395,13 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
     @expose('/add', methods=['GET', 'POST'])
     @has_access
     def add(self):
-        datasources = ConnectorRegistry.get_all_datasources(db.session)
+        # datasources = ConnectorRegistry.get_all_datasources(db.session)
+        #增加切片时的权限控制
+        query = db.session.query(models.Slice.datasource_id).distinct()
+        obj = SliceFilter('id', self.datamodel)
+        tables_class = ConnectorRegistry.sources['table']
+        datasources=db.session.query(tables_class).filter(tables_class.id.in_(obj.apply(query, lambda: []))).all()
+
         datasources = [
             {'value': str(d.id) + '__' + d.type, 'label': repr(d)}
             for d in datasources

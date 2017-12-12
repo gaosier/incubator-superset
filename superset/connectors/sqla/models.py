@@ -655,8 +655,9 @@ class SqlaTable(Model, BaseDatasource):
             #     self.database.db_engine_spec.extract_error_message(e))
             error_message = (
                 '查询语句不合法，请修改或联系管理员')
-        if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
-            df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
+        if query_obj['form_data'].get('viz_type')!='line':
+            if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
+                df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
 
         return QueryResult(
             status=status,
@@ -684,6 +685,7 @@ class SqlaTable(Model, BaseDatasource):
         db_dialect = self.database.get_sqla_engine().dialect
         #获取mysql的comment信息
         comment_info_dict=self.init_table(table)
+        count=0
         for col in table.columns:
             try:
                 datatype = "{}".format(col.type).upper()
@@ -709,6 +711,7 @@ class SqlaTable(Model, BaseDatasource):
                 dbcol.max = dbcol.is_num
                 dbcol.min = dbcol.is_num
                 dbcol.is_dttm = dbcol.is_time
+                dbcol.order_number=count*100
                 if comment_info_dict:
                     dbcol.verbose_name=comment_info_dict[dbcol.column_name]
             db.session.merge(self)

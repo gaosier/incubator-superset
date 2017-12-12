@@ -47,10 +47,12 @@ const timeColumnOption = {
 const groupByControl = {
   type: 'SelectControl',
   multi: true,
+  can_sort:true,
   label: t('Group by'),
   default: c => c.options && c.options.length > 0 ? [c.options[0].column_name] : [],
   includeTime: false,
-  validators: [v.nonEmpty],
+  // validators: [v.nonEmpty],
+  validators: [],
   description: t('One or many controls to group by'),
   optionRenderer: c => <ColumnOption column={c} />,
   valueRenderer: c => <ColumnOption column={c} />,
@@ -90,7 +92,8 @@ export const controls = {
     type: 'SelectControl',
     multi: true,
     label: t('Metrics'),
-    validators: [v.nonEmpty],
+    // validators: [v.nonEmpty],
+    validators: [],
     valueKey: 'metric_name',
     labelKey: 'verbose_name',
     optionRenderer: m => <MetricOption metric={m} />,
@@ -257,6 +260,13 @@ export const controls = {
     default: false,
   },
 
+  include_time_2: {
+    type: 'CheckboxControl',
+    label: t('Include Time'),
+    description: t('Whether to include the time granularity as defined in the time section'),
+    default: false,
+  },
+
   bar_stacked: {
     type: 'CheckboxControl',
     label: t('Stacked Bars'),
@@ -395,6 +405,8 @@ export const controls = {
     label: t('Columns'),
     default: [],
     description: t('Columns to display'),
+    // 用于复选框排序
+    can_sort:true,
     mapStateToProps: state => ({
       choices: (state.datasource) ? state.datasource.all_cols : [],
     }),

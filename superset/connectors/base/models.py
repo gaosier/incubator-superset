@@ -161,6 +161,11 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             o.column_name: o.verbose_name or o.column_name
             for o in self.columns
         })
+        verbose_map.update({'__timestamp':"时间分组"})
+        gb_cols=[(i.column_name, i.verbose_name if i.verbose_name else i.column_name) \
+         for i in sorted(self.columns, key=lambda x: x.order_number) if i.groupby]
+        columns=[o.data for o in self.columns]
+        columns.append({'column_name':'__timestamp', 'verbose_name':'时间分组','groupby':True})
         return {
             # 'all_cols': utils.choicify(self.column_names),
             'all_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in sorted(self.columns,key=lambda x:x.order_number) if i.is_active],
@@ -171,8 +176,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'filterable_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
                                             for i in sorted(self.columns,key=lambda x:x.order_number) if i.filterable],
             # 'gb_cols': utils.choicify(self.groupby_column_names),
-            'gb_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
-                                    for i in sorted(self.columns,key=lambda x:x.order_number) if i.groupby],
+            'gb_cols': gb_cols,
             'id': self.id,
             'metrics_combo': self.metrics_combo,
             'name': self.name,
@@ -180,7 +184,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'order_by_metric': order_by_metric,
             'type': self.type,
             'metrics': [o.data for o in self.metrics],
-            'columns': [o.data for o in self.columns],
+            'columns': columns,
             'verbose_map': verbose_map,
         }
 

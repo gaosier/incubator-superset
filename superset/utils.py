@@ -693,19 +693,22 @@ def time_grain_convert(frm_date, time_grain_sqla):
     elif time_grain_sqla=='second':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d %H:%M:%S')
-        return frm_date.strftime('%Y年%m月%d日%H时%M分%S秒')
+        # return frm_date.strftime('%Y年%m月%d日%H时%M分%S秒')
+            return '{0}年{1}月{2}日{3}时{4}分{5}秒'.format(frm_date.year, frm_date.month, frm_date.day, frm_date.hour, frm_date.minute,frm_date.second)
     elif time_grain_sqla=='minute':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d %H:%M:%S')
-        return frm_date.strftime('%Y年%m月%d日%H时%M分')
+        # return frm_date.strftime('%Y年%m月%d日%H时%M分')
+        return '{0}年{1}月{2}日{3}时{4}分'.format(frm_date.year, frm_date.month,frm_date.day,frm_date.hour,frm_date.minute)
     elif time_grain_sqla=='hour':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d %H:%M:%S')
-        return frm_date.strftime('%Y年%m月%d日%H时')
+        # return frm_date.strftime('%Y年%m月%d日%H时')
+            return '{0}年{1}月{2}日{3}时'.format(frm_date.year, frm_date.month, frm_date.day, frm_date.hour)
     elif time_grain_sqla=='day':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
-        return '{0}年{1}月{1}日'.format(frm_date.year, frm_date.month,frm_date.day)
+        return '{0}年{1}月{2}日'.format(frm_date.year, frm_date.month,frm_date.day)
     elif time_grain_sqla=='week':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
