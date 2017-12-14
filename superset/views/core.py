@@ -18,7 +18,7 @@ from urllib.parse import quote
 import sqlalchemy as sqla
 
 from flask import (
-    g, request, redirect, flash, Response, render_template, Markup,
+    g, request, redirect, flash, Response, render_template, Markup,session,
     abort, url_for,send_from_directory,send_file)
 from flask_appbuilder import expose
 from flask_appbuilder.actions import action
@@ -39,7 +39,7 @@ from superset import (
 from superset.legacy import cast_form_data
 from superset.utils import has_access, QueryStatus
 from superset.connectors.connector_registry import ConnectorRegistry
-from superset.connectors.sqla.models import SqlMetric
+from superset.connectors.sqla.models import SqlMetric,SqlaTable
 from superset.utils import metric_format
 import superset.models.core as models
 from superset.models.sql_lab import Query
@@ -47,7 +47,7 @@ from superset.sql_parse import SupersetQuery
 
 from .base import (
     api, SupersetModelView, BaseSupersetView, DeleteMixin,
-    SupersetFilter, get_user_roles, json_error_response, get_error_msg
+    SupersetFilter, get_user_roles, json_error_response, get_error_msg,DatasourceFilter
 )
 
 config = app.config
@@ -134,7 +134,9 @@ class SliceFilter(SupersetFilter):
             return query
         perms = self.get_view_menus('datasource_access')
         # TODO(bogdan): add `schema_access` support here
-        return query.filter(self.model.perm.in_(perms))
+        from sqlalchemy import or_
+        sub_qry=db.session.query(models.Slice.id).filter(or_(models.Slice.owners.contains(g.user),models.Slice.show_users.contains(g.user))).distinct()
+        return query.filter(self.model.perm.in_(perms)).filter(models.Slice.id.in_(sub_qry))
 
 
 class DashboardFilter(SupersetFilter):
@@ -342,16 +344,13 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
     edit_title = _('Edit Slice')
 
     can_add = False
-    label_columns = {
-        'datasource_link': _('Datasource'),
-    }
     search_columns = (
         'slice_name', 'description', 'viz_type', 'owners',
     )
     list_columns = [
         'slice_link', 'viz_type', 'datasource_link', 'creator', 'modified']
     edit_columns = [
-        'slice_name', 'description', 'viz_type', 'owners', 'dashboards',
+        'slice_name', 'description', 'viz_type', 'owners','show_users', 'dashboards',
         'params', 'cache_timeout']
     base_order = ('changed_on', 'desc')
     order_columns = ['viz_type', 'datasource_link', 'modified']
@@ -397,11 +396,12 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
     def add(self):
         # datasources = ConnectorRegistry.get_all_datasources(db.session)
         #增加切片时的权限控制
-        query = db.session.query(models.Slice.datasource_id).distinct()
-        obj = SliceFilter('id', self.datamodel)
-        tables_class = ConnectorRegistry.sources['table']
-        datasources=db.session.query(tables_class).filter(tables_class.id.in_(obj.apply(query, lambda: []))).all()
-
+        # query = db.session.query(models.Slice.datasource_id).distinct()
+        # obj = SliceFilter('id', self.datamodel)
+        # tables_class = ConnectorRegistry.sources['table']
+        # datasources=db.session.query(tables_class).filter(tables_class.id.in_(obj.apply(query, lambda: []))).all()
+        query = db.session.query(SqlaTable).distinct()
+        datasources = DatasourceFilter('id', SQLAInterface(SqlaTable)).apply(query, lambda: []).all()
         datasources = [
             {'value': str(d.id) + '__' + d.type, 'label': repr(d)}
             for d in datasources

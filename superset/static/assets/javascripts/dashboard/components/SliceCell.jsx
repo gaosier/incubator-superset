@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { t } from '../../locales';
 import { getExploreUrl } from '../../explore/exploreUtils';
+import { exportSlice, hasSvg } from '../../components/ExportSlice';
 
 const propTypes = {
   slice: PropTypes.object.isRequired,
@@ -49,6 +50,15 @@ function SliceCell({ expandedSlices, removeSlice, slice }) {
               <a href={getExploreUrl(slice.form_data)} title={t('Explore chart')} data-toggle="tooltip">
                 <i className="fa fa-share" />
               </a>
+              <a
+                 className="exportPNG"
+                 onClick={() => { exportSlice(slice, 'png'); }}
+                 title="Export PNG"
+                 data-toggle="tooltip"
+                 style={{ display: hasSvg(slice) ? 'inline' : 'none' }}
+               >
+                 <i className="fa fa-download" />
+               </a>
               <a
                 className="remove-chart"
                 title={t('Remove chart from dashboard')}

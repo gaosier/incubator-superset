@@ -88,6 +88,11 @@ slice_user = Table('slice_user', metadata,
                    Column('user_id', Integer, ForeignKey('ab_user.id')),
                    Column('slice_id', Integer, ForeignKey('slices.id'))
                    )
+slice_show_user=Table('slice_show_user', metadata,
+                   Column('id', Integer, primary_key=True),
+                   Column('user_id', Integer, ForeignKey('ab_user.id')),
+                   Column('slice_id', Integer, ForeignKey('slices.id'))
+                   )
 
 
 class Slice(Model, AuditMixinNullable, ImportMixin):
@@ -106,6 +111,7 @@ class Slice(Model, AuditMixinNullable, ImportMixin):
     cache_timeout = Column(Integer)
     perm = Column(String(1000))
     owners = relationship(sm.user_model, secondary=slice_user)
+    show_users = relationship(sm.user_model, secondary=slice_show_user)
 
     export_fields = ('slice_name', 'datasource_type', 'datasource_name',
                      'viz_type', 'params', 'cache_timeout')

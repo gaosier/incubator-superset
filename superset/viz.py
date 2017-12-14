@@ -980,7 +980,15 @@ class NVD3TimeSeriesViz(NVD3Viz):
         rule = fd.get("resample_rule")
         df.index = pd.to_datetime(df.index)
         if how and rule:
-            df = df.resample(rule, how=how, fill_method=fm)
+            # df = df.resample(rule, how=how, fill_method=fm)
+            if how=='sum':
+                df = df.resample(rule, fill_method=fm).sum()
+            elif how=='mean':
+                df = df.resample(rule,fill_method=fm).mean()
+            elif how=='median':
+                df = df.resample(rule, fill_method=fm).median()
+            else:
+                df.resample(rule, how=how, fill_method=fm)
             if not fm:
                 df = df.fillna(0)
 
@@ -998,11 +1006,11 @@ class NVD3TimeSeriesViz(NVD3Viz):
 
         if rolling_type in ('mean', 'std', 'sum') and rolling_periods:
             if rolling_type == 'mean':
-                df = pd.rolling_mean(df, int(rolling_periods), min_periods=0)
+                df = df.rolling(int(rolling_periods), min_periods=0).mean()
             elif rolling_type == 'std':
-                df = pd.rolling_std(df, int(rolling_periods), min_periods=0)
+                df = df.rolling(int(rolling_periods), min_periods=0).std()
             elif rolling_type == 'sum':
-                df = pd.rolling_sum(df, int(rolling_periods), min_periods=0)
+                df = df.rolling(int(rolling_periods), min_periods=0).sum()
         elif rolling_type == 'cumsum':
             df = df.cumsum()
 
