@@ -135,55 +135,73 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'connection': self.connection,
             'creator': str(self.created_by),
         }
-
+    def filter_columns_metrics(self):
+        """
+        处理在有先或者没有切片id时，度量和指标显示的下拉框的值
+        :return:
+        """
+        slice_users=getattr(self,'slice_users',None)
+        if slice_users:
+            return [i for i in self.columns if (i.created_by in slice_users) or (i.created_by_fk in [1,None])],\
+                    [i for i in self.metrics if (i.created_by in slice_users) or (i.created_by_fk in [1, None])]
+        else:
+            from flask import g
+            return [i for i in self.columns if i.created_by_fk in [g.user.id,1,None]],\
+                    [i for i in self.metrics if i.created_by_fk in [g.user.id,1,None]]
     @property
     def data(self):
         """Data representation of the datasource sent to the frontend"""
         order_by_choices = []
         order_by_metric = []
         # for s in sorted(self.column_names):
-        for s in sorted(self.columns,key=lambda x:x.column_name):
+        filterd_columns,filterd_metrics=self.filter_columns_metrics()
+        for s in sorted(filterd_columns,key=lambda x:x.column_name):
             a= s.verbose_name if s.verbose_name else s.column_name
             order_by_choices.append((json.dumps([s.column_name, True]), a + '(%s)'%(_('asc'))))
             order_by_choices.append((json.dumps([s.column_name, False]), a + '(%s)'%(_('desc'))))
             if s.groupby:
                 order_by_metric.append((json.dumps([s.column_name, True]), a + '(%s)'%(_('asc')),'groupby'))
                 order_by_metric.append((json.dumps([s.column_name, False]), a + '(%s)'%(_('desc')),'groupby'))
-        for s1 in sorted(self.metrics,key=lambda x:x.metric_name):
+        for s1 in sorted(filterd_metrics,key=lambda x:x.metric_name):
             b = s1.verbose_name if s1.verbose_name else s1.metric_name
             order_by_metric.append((json.dumps([s1.metric_name, True]), b + '(%s)'%(_('asc')),'metrics'))
             order_by_metric.append((json.dumps([s1.metric_name, False]), b + '(%s)'%(_('desc')),'metrics'))
         verbose_map = {
             o.metric_name: o.verbose_name or o.metric_name
-            for o in self.metrics
+            for o in filterd_metrics
         }
         verbose_map.update({
             o.column_name: o.verbose_name or o.column_name
-            for o in self.columns
+            for o in filterd_columns
         })
         verbose_map.update({'__timestamp':"时间分组"})
         gb_cols=[(i.column_name, i.verbose_name if i.verbose_name else i.column_name) \
-         for i in sorted(self.columns, key=lambda x: x.order_number) if i.groupby]
-        columns=[o.data for o in self.columns]
+         for i in sorted(filterd_columns, key=lambda x: x.order_number) if i.groupby]
+        columns=[o.data for o in filterd_columns]
         columns.append({'column_name':'__timestamp', 'verbose_name':'时间分组','groupby':True})
         return {
             # 'all_cols': utils.choicify(self.column_names),
-            'all_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in sorted(self.columns,key=lambda x:x.order_number) if i.is_active],
+            'all_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.is_active],
             'column_formats': self.column_formats,
             'edit_url': self.url,
             'filter_select': self.filter_select_enabled,
             # 'filterable_cols': utils.choicify(self.filterable_column_names),
             'filterable_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
-                                            for i in sorted(self.columns,key=lambda x:x.order_number) if i.filterable],
+                                            for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.filterable],
             # 'gb_cols': utils.choicify(self.groupby_column_names),
             'gb_cols': gb_cols,
             'id': self.id,
-            'metrics_combo': self.metrics_combo,
+            # 'metrics_combo': self.metrics_combo,
+            'metrics_combo': sorted(
+                [
+                (m.metric_name, m.verbose_name or m.metric_name)
+                for m in filterd_metrics],
+                key=lambda x: x[1]),
             'name': self.name,
             'order_by_choices': order_by_choices,
             'order_by_metric': order_by_metric,
             'type': self.type,
-            'metrics': [o.data for o in self.metrics],
+            'metrics': [o.data for o in filterd_metrics],
             'columns': columns,
             'verbose_map': verbose_map,
         }
@@ -303,6 +321,10 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
         backref=backref('metrics', cascade='all, delete-orphan'),
         enable_typechecks=False)
     """
+
+    def __repr__(self):
+        return self.metric_name
+
     @property
     def perm(self):
         raise NotImplementedError()

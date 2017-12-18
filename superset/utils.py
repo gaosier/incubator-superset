@@ -671,10 +671,10 @@ def metric_format(value, item):
     """
     table_name = str(item.table.table_name)
     if value == 'count_distinct':
-        expression = 'COUNT(DISTINCT %s.%s)' % (table_name, item.column_name)
+        expression = 'COUNT(DISTINCT %s)'%(item.expression) if item.expression else 'COUNT(DISTINCT %s.%s)' % (table_name, item.column_name)
         verbose_name='%s(%s)'%(item.verbose_name or item.column_name,_('Count Distinct'))
     else:
-        expression = "%s(%s.%s)" % (value.upper(), table_name, item.column_name)
+        expression = "%s(%s)" % (value.upper(),item.expression)if item.expression else "%s(%s.%s)" % (value.upper(), table_name, item.column_name)
         verbose_name='%s(%s)'%(item.verbose_name or item.column_name , _(value.capitalize()))
     return {
         'metric_name': '%s__%s' % (value, item.column_name),

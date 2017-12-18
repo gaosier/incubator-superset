@@ -109,18 +109,19 @@ def check_ownership(obj, raise_if_false=True):
     if 'Admin' in roles:
         return True
     session = db.create_scoped_session()
-    orig_obj = session.query(obj.__class__).filter_by(id=obj.id).first()
-    owner_names = (user.username for user in orig_obj.owners)
+    # orig_obj = session.query(obj.__class__).filter_by(id=obj.id).first()
+    orig_obj=obj
     if (
             hasattr(orig_obj, 'created_by') and
             orig_obj.created_by and
             orig_obj.created_by.username == g.user.username):
         return True
+    # owner_names = (user.username for user in orig_obj.owners)
     if (
             hasattr(orig_obj, 'owners') and
             g.user and
             hasattr(g.user, 'username') and
-            g.user.username in owner_names):
+            g.user.username in (user.username for user in orig_obj.owners)):
         return True
     if raise_if_false:
         raise security_exception
@@ -135,8 +136,9 @@ class SliceFilter(SupersetFilter):
         perms = self.get_view_menus('datasource_access')
         # TODO(bogdan): add `schema_access` support here
         from sqlalchemy import or_
-        sub_qry=db.session.query(models.Slice.id).filter(or_(models.Slice.owners.contains(g.user),models.Slice.show_users.contains(g.user))).distinct()
-        return query.filter(self.model.perm.in_(perms)).filter(models.Slice.id.in_(sub_qry))
+        sub_qry_1=db.session.query(models.Slice.id).filter(models.Slice.owners.contains(g.user))
+        sub_qry_2=db.session.query(models.Slice.id).filter(models.Slice.show_users.contains(g.user))
+        return query.filter(self.model.perm.in_(perms)).filter(or_(models.Slice.id.in_(sub_qry_1),models.Slice.id.in_(sub_qry_2)))
 
 
 class DashboardFilter(SupersetFilter):
@@ -350,7 +352,7 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
     list_columns = [
         'slice_link', 'viz_type', 'datasource_link', 'creator', 'modified']
     edit_columns = [
-        'slice_name', 'description', 'viz_type', 'owners','show_users', 'dashboards',
+        'slice_name', 'description', 'viz_type','show_users', 'dashboards',
         'params', 'cache_timeout']
     base_order = ('changed_on', 'desc')
     order_columns = ['viz_type', 'datasource_link', 'modified']
@@ -1105,7 +1107,10 @@ class Superset(BaseSupersetView):
                 slice_overwrite_perm,
                 datasource_id,
                 datasource_type)
-
+        if slc:
+            datasource.slice_users=slc.owners
+        else:
+            datasource.slice_users=None
         form_data['datasource'] = str(datasource_id) + '__' + datasource_type
         standalone = request.args.get("standalone") == "true"
         # standalone = True
@@ -1242,22 +1247,36 @@ class Superset(BaseSupersetView):
         modelview_to_model = {
             'TableColumnInlineView':
                 ConnectorRegistry.sources['table'].column_class,
+            'MyTableColumnInlineView':
+                ConnectorRegistry.sources['table'].column_class,
         }
         model = modelview_to_model[model_view]
         obj = db.session.query(model).filter_by(id=id_).first()
         if obj:
-            setattr(obj, attr, value == 'true')
-        if attr in ['max','min','avg','sum','count_distinct']:
-            if value=='true':
-                arg=metric_format(attr,obj)
-                db.session.add(SqlMetric(**arg))
+            if check_ownership(obj,False):
+                setattr(obj, attr, value == 'true')
+                if attr in ['max','min','avg','sum','count_distinct']:
+                    if value=='true':
+                        arg=metric_format(attr,obj)
+                        db.session.add(SqlMetric(**arg))
+                    else:
+                        metric_name = attr + '__' + obj.column_name
+                        roles=(i.name for i in g.user.roles)
+                        if 'Admin' in roles:
+                            metric_obj=db.session.query(SqlMetric).filter(SqlMetric.table_id == obj.table_id,
+                                                              SqlMetric.metric_name == metric_name).first()
+                        else:
+                            metric_obj = db.session.query(SqlMetric).filter(SqlMetric.table_id == obj.table_id,
+                                                            SqlMetric.metric_name == metric_name,SqlMetric.created_by==g.user).first()
+                        if metric_obj:
+                            db.session.delete(metric_obj)
+                db.session.commit()
             else:
-                metric_name = attr + '__' + obj.column_name
-                metric_obj=db.session.query(SqlMetric).filter(SqlMetric.table_id == obj.table_id,
-                                                      SqlMetric.metric_name == metric_name).first()
-                if metric_obj:
-                    db.session.delete(metric_obj)
-        db.session.commit()
+                from flask import make_response,jsonify
+                response = make_response(jsonify({'message': str('您无权限修改不属于您的字段'),
+                                                  'severity': 'danger'}), 401)
+                response.headers['Content-Type'] = "application/json"
+                return response
         return json_success("OK")
 
     @api

@@ -15,12 +15,12 @@ from superset import appbuilder, db, utils, security, sm
 from superset.utils import has_access
 from superset.connectors.base.views import DatasourceModelView
 from superset.views.base import (
-    SupersetModelView, ListWidgetWithCheckboxes, DeleteMixin, DatasourceFilter,
+    SupersetModelView, ListWidgetWithCheckboxes, DeleteMixin, DatasourceFilter,TableColumnFilter,
     get_datasource_exist_error_mgs,
 )
 from superset.utils import metric_format
 from . import models
-
+from superset.views.core import check_ownership
 
 class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     datamodel = SQLAInterface(models.TableColumn)
@@ -41,7 +41,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     list_columns = [
         'order_number','column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
         'sum','avg', 'min', 'max', 'is_dttm', 'is_partition','is_memcached','is_active']
-    page_size = 500
+    page_size = 80
     description_columns = {
         'is_dttm': _(
             "Whether to make this column available as a "
@@ -174,7 +174,7 @@ class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         ),
     }
     add_columns = edit_columns
-    page_size = 500
+    page_size = 80
     label_columns = {
         'metric_name': _("Metric"),
         'description': _("Description"),
@@ -331,3 +331,49 @@ appbuilder.add_view(
     icon='fa-table',)
 
 appbuilder.add_separator("Sources")
+
+class MyTableColumnInlineView(TableColumnInlineView):
+    edit_columns = [
+        'column_name', 'verbose_name', 'description',
+        'type', 'groupby', 'filterable','count_distinct', 'sum', 'avg', 'min', 'max',
+        'table',  'expression',
+        'is_dttm']
+    add_columns = edit_columns
+    base_filters = [['id', TableColumnFilter, lambda: []]]
+    list_columns = [
+        'column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'is_dttm','count_distinct', 'sum', 'avg', 'min', 'max','created_by' ]
+    def pre_update(self, obj):
+        check_ownership(obj)
+
+    def pre_delete(self, obj):
+        check_ownership(obj)
+
+appbuilder.add_view_no_menu(MyTableColumnInlineView)
+
+class MySqlMetricInlineView(SqlMetricInlineView):
+    list_columns = ['metric_name', 'verbose_name', 'metric_type','created_by']
+    edit_columns = [
+        'metric_name', 'description', 'verbose_name', 'metric_type',
+        'expression', 'table',]
+    add_columns = edit_columns
+    base_filters = [['id', TableColumnFilter, lambda: []]]
+    def pre_update(self, obj):
+        check_ownership(obj)
+
+    def pre_delete(self, obj):
+        check_ownership(obj)
+appbuilder.add_view_no_menu(MySqlMetricInlineView)
+
+class MyTableModelView(TableModelView):
+    edit_columns=['table_name']
+    related_views = [MyTableColumnInlineView,MySqlMetricInlineView]
+    def pre_update(self, obj):
+        check_ownership(obj)
+
+appbuilder.add_view(
+    MyTableModelView,
+    "My Tables",
+    label="自定义数据集",
+    icon="fa-table",
+    category="",
+    category_icon='',)
