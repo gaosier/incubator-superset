@@ -173,7 +173,8 @@ class SliceAdder extends React.Component {
     return (
       <ModalTrigger
         triggerNode={this.props.triggerNode}
-        tooltip={t('Add a new slice to the dashboard')}
+        // tooltip={t('Add a new slice to the dashboard')}
+        tooltip={"添加切片至看板"}
         isButton
         modalBody={modalContent}
         bsSize="large"

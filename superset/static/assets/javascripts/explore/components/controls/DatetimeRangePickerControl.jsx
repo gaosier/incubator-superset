@@ -60,15 +60,25 @@ export default class DatetimeRangePickerControl extends React.PureComponent {
   constructor(props) {
     super(props);
     this.handleEvent = this.handleEvent.bind(this);
+    let ranges=this.getRanges(props);
+    let chosenLabel=props.value;
     if(props.value){
-      let val=props.value.split('-');
-      props.startDate=moment(val[0],'YYYY年MM月DD日');
-      props.endDate=moment(val[1]||val[0],'YYYY年MM月DD日');
+      if (props.value in ranges){
+        props.startDate=ranges[props.value][0];
+        props.endDate=ranges[props.value][1];
+      }
+    else {
+        chosenLabel="自定义";
+        let val=props.value.split('-');
+        props.startDate=moment(val[0],'YYYY年MM月DD日');
+        props.endDate=moment(val[1]||val[0],'YYYY年MM月DD日');
+      }
     }
     this.state = {
-      ranges: this.getRanges(props),
+      ranges: ranges,
       startDate: props.startDate,
       endDate: props.endDate,
+      chosenLabel:chosenLabel
     };
   }
   componentDidMount() {
@@ -99,11 +109,16 @@ export default class DatetimeRangePickerControl extends React.PureComponent {
   }
   getLabel() {
     let label;
-    const start = this.state.startDate.format('YYYY年MM月DD日');
-    const end = this.state.endDate.format('YYYY年MM月DD日');
-    label = start + ' - ' + end;
-    if (start === end) {
-      label = start;
+    if (this.state.chosenLabel !== '自定义'){
+      label=this.state.chosenLabel;
+    }
+    else {
+      const start = this.state.startDate.format('YYYY年MM月DD日');
+      const end = this.state.endDate.format('YYYY年MM月DD日');
+      label = start + ' - ' + end;
+      if (start === end) {
+        label = start;
+      }
     }
   return label;
   }
@@ -111,6 +126,7 @@ export default class DatetimeRangePickerControl extends React.PureComponent {
     this.setState({
       startDate: picker.startDate,
       endDate: picker.endDate,
+      chosenLabel:picker.chosenLabel
     });
     const label = this.getLabel();
     this.onChange(label);

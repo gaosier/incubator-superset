@@ -346,5 +346,6 @@ class TableColumnFilter(SupersetFilter):
     def apply(self, query, func):  # noqa
         if self.has_all_datasource_access():
             return query
+        admin_user_list=utils.get_admin_id_list(db)
         from sqlalchemy import or_
-        return query.filter(or_(self.model.created_by==g.user,self.model.created_by_fk==1,self.model.created_by_fk==None))
+        return query.filter(or_(self.model.created_by==g.user,self.model.created_by_fk.in_(admin_user_list),self.model.created_by_fk==None))

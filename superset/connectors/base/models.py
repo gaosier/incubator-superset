@@ -6,7 +6,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import foreign, relationship
 from sqlalchemy.ext.declarative import declared_attr
 
-from superset import utils
+from superset import utils,db
 from superset.models.core import Slice
 from superset.models.helpers import AuditMixinNullable, ImportMixin
 from flask_babel import lazy_gettext as _
@@ -141,13 +141,15 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         :return:
         """
         slice_users=getattr(self,'slice_users',None)
+        admin_user_list = utils.get_admin_id_list(db)
         if slice_users:
-            return [i for i in self.columns if (i.created_by in slice_users) or (i.created_by_fk in [1,None])],\
-                    [i for i in self.metrics if (i.created_by in slice_users) or (i.created_by_fk in [1, None])]
+            return [i for i in self.columns if (i.created_by in slice_users) or (i.created_by_fk in admin_user_list)],\
+                    [i for i in self.metrics if (i.created_by in slice_users) or (i.created_by_fk in admin_user_list)]
         else:
             from flask import g
-            return [i for i in self.columns if i.created_by_fk in [g.user.id,1,None]],\
-                    [i for i in self.metrics if i.created_by_fk in [g.user.id,1,None]]
+            admin_user_list.append(g.user.id)
+            return [i for i in self.columns if i.created_by_fk in admin_user_list],\
+                    [i for i in self.metrics if i.created_by_fk in admin_user_list]
     @property
     def data(self):
         """Data representation of the datasource sent to the frontend"""

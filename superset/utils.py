@@ -43,7 +43,7 @@ from pydruid.utils.having import Having
 from sqlalchemy import event, exc, select
 from sqlalchemy.types import TypeDecorator, TEXT
 from flask_babel import lazy_gettext as _
-
+import calendar
 logging.getLogger('MARKDOWN').setLevel(logging.INFO)
 
 PY3K = sys.version_info >= (3, 0)
@@ -738,4 +738,25 @@ def time_grain_convert(frm_date, time_grain_sqla):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年第{1}周'.format(frm_date.year, frm_date.strftime('%W'))
 
+def get_admin_id_list(db):
+    """
+    获取所有admin用户的id
+    :return:
+    """
+    result = db.session.execute("select user_id from ab_user_role WHERE role_id=1")
+    admin_user_list = []
+    for i in result:
+        admin_user_list.append(i[0])
+    return admin_user_list
 
+def get_month_date(year, mon,month_type=0):
+    if not month_type:
+        days = calendar.monthrange(year, mon)[1]
+        return datetime(year, mon,1),datetime(year, mon,days)
+    else:
+        if mon-1==0:
+            mon=12
+            year-=1
+        else:mon-=1
+        days = calendar.monthrange(year, mon)[1]
+        return datetime(year, mon, 1), datetime(year, mon, days)

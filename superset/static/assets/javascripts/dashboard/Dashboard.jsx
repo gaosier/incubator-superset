@@ -56,9 +56,12 @@ function renderAlert() {
   render(
     <div className="container-fluid">
       <Alert bsStyle="warning">
-        <strong>{t('You have unsaved changes.')}</strong> {t('Click the')} &nbsp;
+        {/*<strong>{t('You have unsaved changes.')}</strong> {t('Click the')} &nbsp;*/}
+        {/*<i className="fa fa-save" />&nbsp;*/}
+        {/*{t('button on the top right to save your changes.')}*/}
+        <strong>{"您尚未保存修改"}</strong> {"请点击右侧"} &nbsp;
         <i className="fa fa-save" />&nbsp;
-        {t('button on the top right to save your changes.')}
+        {"按钮"}
       </Alert>
     </div>,
     document.getElementById('alert-container'),
@@ -166,7 +169,8 @@ export function dashboardContainer(dashboard, datasources, userid) {
       } else {
         refresh
         .removeClass('danger')
-        .attr('title', t('Click to force refresh'))
+        // .attr('title', t('Click to force refresh'))
+        .attr('title', "点击刷新")
         .tooltip('fixTitle');
       }
     },

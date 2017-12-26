@@ -51,7 +51,8 @@ class Controls extends React.PureComponent {
     return (
       <ButtonGroup>
         <Button
-          tooltip={t('Force refresh the whole dashboard')}
+          // tooltip={t('Force refresh the whole dashboard')}
+          tooltip={"点击刷新整个面板"}
           onClick={this.refresh.bind(this)}
         >
           <i className="fa fa-refresh" />
@@ -68,10 +69,10 @@ class Controls extends React.PureComponent {
             <i className="fa fa-clock-o" />
           }
         />
-        <CodeModal
-          codeCallback={dashboard.readFilters.bind(dashboard)}
-          triggerNode={<i className="fa fa-filter" />}
-        />
+        {/*<CodeModal*/}
+          {/*codeCallback={dashboard.readFilters.bind(dashboard)}*/}
+          {/*triggerNode={<i className="fa fa-filter" />}*/}
+        {/*/>*/}
         <CssEditor
           dashboard={dashboard}
           triggerNode={
@@ -82,6 +83,7 @@ class Controls extends React.PureComponent {
           onChange={this.changeCss.bind(this)}
         />
         <Button
+            tooltip={t('点击发送邮件')}
           onClick={() => { window.location = emailLink; }}
         >
           <i className="fa fa-envelope" />
@@ -91,7 +93,8 @@ class Controls extends React.PureComponent {
           onClick={() => {
             window.location = `/dashboardmodelview/edit/${dashboard.id}`;
           }}
-          tooltip={t('Edit this dashboard\'s properties')}
+          // tooltip={t("Edit this dashboard's properties")}
+          tooltip={"点击编辑看板的属性"}
         >
           <i className="fa fa-edit" />
         </Button>

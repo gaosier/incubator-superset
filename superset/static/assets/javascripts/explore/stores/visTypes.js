@@ -254,7 +254,7 @@ export const visTypes = {
     controlOverrides: {
       x_axis_format: {
         choices: D3_TIME_FORMAT_OPTIONS,
-        default: 'smart_date'
+        default: '%Y-%m-%d %H:%M:%S'
       },
       groupby:{
         validators: [],

@@ -157,7 +157,10 @@ class DashboardFilter(SupersetFilter):
             .query(Slice.id)
             .filter(Slice.perm.in_(datasource_perms))
         )
-        query = query.filter(
+        from sqlalchemy import or_
+        sub_qry_1 = db.session.query(Dash.id).filter(Dash.owners.contains(g.user))
+        sub_qry_2 = db.session.query(Dash.id).filter(Dash.show_users.contains(g.user))
+        query = query.filter(or_(Dash.id.in_(sub_qry_1),Dash.id.in_(sub_qry_2))).filter(
             Dash.id.in_(
                 db.session.query(Dash.id)
                 .distinct()
@@ -454,7 +457,7 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
 
     list_columns = ['dashboard_link', 'creator', 'modified']
     edit_columns = [
-        'dashboard_title', 'slug', 'slices', 'owners', 'position_json', 'css',
+        'dashboard_title', 'slug', 'slices', 'owners','show_users', 'position_json', 'css',
         'json_metadata']
     show_columns = edit_columns + ['table_names']
     search_columns = ('dashboard_title', 'slug', 'owners')
@@ -1745,6 +1748,10 @@ class Superset(BaseSupersetView):
             qry = qry.filter_by(slug=dashboard_id)
 
         dash = qry.one()
+        if not self.all_datasource_access():
+            if not (g.user in dash.owners or g.user in dash.show_users):
+                flash('请访问您具有权限的看板','danger')
+                return redirect('dashboardmodelview/list/')
         datasources = set()
         for slc in dash.slices:
             datasource = slc.datasource

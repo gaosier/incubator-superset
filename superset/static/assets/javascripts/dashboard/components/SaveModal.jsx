@@ -106,6 +106,7 @@ class SaveModal extends React.PureComponent {
       <ModalTrigger
         ref={(modal) => { this.modal = modal; }}
         triggerNode={this.props.triggerNode}
+        tooltip={"保存"}
         modalTitle={t('Save Dashboard')}
         modalBody={
           <FormGroup>

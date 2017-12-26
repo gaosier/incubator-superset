@@ -22,10 +22,12 @@ function SliceCell({ expandedSlices, removeSlice, slice }) {
           </div>
           <div className="col-md-12 chart-controls">
             <div className="pull-right">
-              <a title={t('Move chart')} data-toggle="tooltip">
+              {/*<a title={t('Move chart')} data-toggle="tooltip">*/}
+              <a title={"移动图标位置"} data-toggle="tooltip">
                 <i className="fa fa-arrows drag" />
               </a>
-              <a className="refresh" title={t('Force refresh data')} data-toggle="tooltip">
+              {/*<a className="refresh" title={t('Force refresh data')} data-toggle="tooltip">*/}
+              <a className="refresh" title={"点击刷新数据"} data-toggle="tooltip">
                 <i className="fa fa-repeat" />
               </a>
               {slice.description &&
@@ -39,21 +41,24 @@ function SliceCell({ expandedSlices, removeSlice, slice }) {
               }
               <a
                 href={slice.edit_url}
-                title={t('Edit chart')}
+                // title={t('Edit chart')}
+                title={"编辑切片"}
                 data-toggle="tooltip"
               >
                 <i className="fa fa-pencil" />
               </a>
-              <a href={getExploreUrl(slice.form_data, 'csv')} title={t('Export CSV')} data-toggle="tooltip">
+              {/*<a href={getExploreUrl(slice.form_data, 'csv')} title={t('Export CSV')} data-toggle="tooltip">*/}
+              <a href={getExploreUrl(slice.form_data, 'xlsx')} title={"导出数据"} data-toggle="tooltip">
                 <i className="fa fa-table" />
               </a>
-              <a href={getExploreUrl(slice.form_data)} title={t('Explore chart')} data-toggle="tooltip">
+              {/*<a href={getExploreUrl(slice.form_data)} title={t('Explore chart')} data-toggle="tooltip">*/}
+              <a href={getExploreUrl(slice.form_data)} title={"跳转至切片"} data-toggle="tooltip">
                 <i className="fa fa-share" />
               </a>
               <a
                  className="exportPNG"
                  onClick={() => { exportSlice(slice, 'png'); }}
-                 title="Export PNG"
+                 title="下载图片"
                  data-toggle="tooltip"
                  style={{ display: hasSvg(slice) ? 'inline' : 'none' }}
                >
@@ -61,7 +66,8 @@ function SliceCell({ expandedSlices, removeSlice, slice }) {
                </a>
               <a
                 className="remove-chart"
-                title={t('Remove chart from dashboard')}
+                // title={t('Remove chart from dashboard')}
+                title={"将图表移除看板"}
                 data-toggle="tooltip"
               >
                 <i

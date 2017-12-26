@@ -34,6 +34,7 @@ class RefreshIntervalModal extends React.PureComponent {
     return (
       <ModalTrigger
         triggerNode={this.props.triggerNode}
+        tooltip={"点击设置刷新时间"}
         isButton
         modalTitle={t('Refresh Interval')}
         modalBody={

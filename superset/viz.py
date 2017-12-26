@@ -161,20 +161,34 @@ class BaseViz(object):
         extra_filters = self.form_data.get('extra_filters', [])
         return {f['col']: f['val'] for f in extra_filters}
 
+    def map_time(self):
+        today=datetime.strptime(datetime.now().strftime("%Y%m%d"), "%Y%m%d")
+        str_time={
+        '今天': [today,today],
+        '昨天': [today-timedelta(days=1),today-timedelta(days=1)],
+        '最近7天': [today-timedelta(days=6), today],
+        '最近30天': [today-timedelta(days=29), today],
+        '本月': utils.get_month_date(today.year,today.month),
+        '上月': utils.get_month_date(today.year,today.month,month_type=1)}
+        return str_time
+
     def _parse_time_peroid(self, time_period):
-        try:
-            if '-' in time_period:
-                since,until = [item.strip() for item in time_period.split('-')]
-            else:
-                since,until = time_period,time_period
-            since = datetime.strptime(since, '%Y年%m月%d日')
-            until = datetime.strptime(until, '%Y年%m月%d日')
-            until += timedelta(days=1) + timedelta(seconds=-1)
-        except Exception as ex:
-            logging.error('时间控件格式不正确,{0}'.format(ex))
-            return None, None
+        time_map_dict=self.map_time()
+        if time_period in time_map_dict:
+            since,until=time_map_dict[time_period]
         else:
-            return since,until
+            try:
+                if '-' in time_period:
+                    since,until = [item.strip() for item in time_period.split('-')]
+                else:
+                    since,until = time_period,time_period
+                since = datetime.strptime(since, '%Y年%m月%d日')
+                until = datetime.strptime(until, '%Y年%m月%d日')
+            except Exception as ex:
+                logging.error('时间控件格式不正确,{0}'.format(ex))
+                return None, None
+        until += timedelta(days=1) + timedelta(seconds=-1)
+        return since,until
 
     def query_obj(self):
         """Building a query object"""
@@ -980,15 +994,15 @@ class NVD3TimeSeriesViz(NVD3Viz):
         rule = fd.get("resample_rule")
         df.index = pd.to_datetime(df.index)
         if how and rule:
-            # df = df.resample(rule, how=how, fill_method=fm)
-            if how=='sum':
-                df = df.resample(rule, fill_method=fm).sum()
-            elif how=='mean':
-                df = df.resample(rule,fill_method=fm).mean()
-            elif how=='median':
-                df = df.resample(rule, fill_method=fm).median()
-            else:
-                df.resample(rule, how=how, fill_method=fm)
+            df = df.resample(rule, how=how, fill_method=fm)
+            # if how=='sum':
+            #     df = df.resample(rule, fill_method=fm).sum()
+            # elif how=='mean':
+            #     df = df.resample(rule,fill_method=fm).mean()
+            # elif how=='median':
+            #     df = df.resample(rule, fill_method=fm).median()
+            # else:
+            #     df.resample(rule, how=how, fill_method=fm)
             if not fm:
                 df = df.fillna(0)
 

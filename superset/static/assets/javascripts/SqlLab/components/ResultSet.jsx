@@ -105,7 +105,7 @@ export default class ResultSet extends React.PureComponent {
           <div className="clearfix">
             <div className="pull-left">
               <ButtonGroup>
-                {visualizeButton}
+                {/*{visualizeButton}*/}
                 {xlsxButton}
                 {csvButton}
               </ButtonGroup>

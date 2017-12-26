@@ -78,6 +78,7 @@ class CssEditor extends React.PureComponent {
       <ModalTrigger
         triggerNode={this.props.triggerNode}
         modalTitle={t('CSS')}
+        tooltip={"点击改变看板的css样式"}
         isButton
         modalBody={
           <div>

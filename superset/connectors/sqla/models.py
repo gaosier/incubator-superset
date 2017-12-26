@@ -712,6 +712,7 @@ class SqlaTable(Model, BaseDatasource):
                 dbcol.min = dbcol.is_num
                 dbcol.is_dttm = dbcol.is_time
                 dbcol.order_number=count*100
+                count+=1
                 if comment_info_dict:
                     dbcol.verbose_name=comment_info_dict[dbcol.column_name]
             db.session.merge(self)
