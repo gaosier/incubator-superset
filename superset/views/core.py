@@ -2483,3 +2483,42 @@ def caravel(url):  # noqa
 
 
 # ---------------------------------------------------------------------
+class JingYouModelView(SupersetModelView):
+    datamodel = SQLAInterface(models.JingYouUser)
+    datamodel.add_integrity_error_message='用户名重复'
+    list_title = '用户列表'
+    show_title = '用户信息'
+    add_title = '添加用户'
+    edit_title = '编辑用户'
+    list_columns = ['uname', 'password','ip','port','updated']
+    add_columns = [ 'uname', 'password','ua', 'cookies','ip','port']
+    search_columns = ('uname','ip','port')
+    show_columns = [
+        'uname', 'password',
+        'ua', 'cookies','ip','port','updated','status']
+    edit_columns = [ 'password','cookies','ip','port']
+    description_columns={
+        'status':"1表示未发生变化，2表示已发生变化"
+    }
+    label_columns={
+        'uname':"用户名",
+        'password':"密码",
+        'ua':"浏览器ua",
+        'cookies':'浏览器cookie',
+        'ip':'外网ip',
+        'port':'端口',
+        'updated':'更新时间',
+        'status':'状态'
+    }
+    def pre_update(self,obj):
+        sql="select cookies from jingyou_user WHERE uname = '%s'"%(obj.uname)
+        item = db.session.execute(sql).first()
+        if item[0] !=obj.cookies:
+            obj.status=2
+appbuilder.add_view(
+    JingYouModelView,
+    "Jing You User",
+    label="菁优用户",
+    icon="fa-table",
+    category="",
+    category_icon='',)

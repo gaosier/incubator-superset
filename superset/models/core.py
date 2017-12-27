@@ -24,7 +24,7 @@ from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 
 from sqlalchemy import (
-    Column, Integer, String, ForeignKey, Text, Boolean,
+    Column, Integer, String, ForeignKey, Text, Boolean,SmallInteger,
     DateTime, Date, Table,
     create_engine, MetaData, select
 )
@@ -905,3 +905,18 @@ class DatasourceAccessRequest(Model, AuditMixinNullable):
                 href = "{} Role".format(r.name)
             action_list = action_list + '<li>' + href + '</li>'
         return '<ul>' + action_list + '</ul>'
+
+
+class JingYouUser(Model):
+    __tablename__ = 'jingyou_user'  # {connector_name}_column
+
+    uname = Column(String(64), primary_key=True,nullable=False)
+    password = Column(String(64),nullable=True)
+    ua = Column(Text)
+    cookies = Column(Text)
+    ip = Column(String(64),nullable=True)
+    port = Column(SmallInteger, nullable=True)
+    updated = Column(
+        DateTime, default=datetime.now,
+        onupdate=datetime.now, nullable=True)
+    status = Column(SmallInteger, default=1,nullable=False)
