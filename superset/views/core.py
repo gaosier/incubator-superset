@@ -384,7 +384,7 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
         'modified': _("Last Modified"),
         'owners': _("Owners"),
         'params': _("Parameters"),
-        'slice_link': _("Slice"),
+        'slice_link': _("Name"),
         'slice_name': _("Name"),
         'table': _("Table"),
         'viz_type': _("Visualization Type"),
@@ -2490,13 +2490,13 @@ class JingYouModelView(SupersetModelView):
     show_title = '用户信息'
     add_title = '添加用户'
     edit_title = '编辑用户'
-    list_columns = ['uname', 'password','ip','port','updated']
+    list_columns = ['uname', 'password','ip','port','updated','status']
     add_columns = [ 'uname', 'password','ua', 'cookies','ip','port']
     search_columns = ('uname','ip','port')
     show_columns = [
         'uname', 'password',
         'ua', 'cookies','ip','port','updated','status']
-    edit_columns = [ 'password','cookies','ip','port']
+    edit_columns = [ 'password','ua','cookies','ip','port']
     description_columns={
         'status':"1表示未发生变化，2表示已发生变化"
     }
@@ -2522,3 +2522,94 @@ appbuilder.add_view(
     icon="fa-table",
     category="",
     category_icon='',)
+
+class MProjectView(SupersetModelView):
+    datamodel = SQLAInterface(models.MProject)
+    list_title = '项目列表'
+    show_title = '项目信息'
+    add_title = '添加项目'
+    edit_title = '编辑项目'
+    add_columns = ['id','name','name_type','full_id','describe','pm_owner','tech_owner','status']
+    list_columns = ['id','project_link','project_type_link']
+    edit_columns = ['id','name','full_id','describe','pm_owner','tech_owner']
+    search_columns = ['id','name','name_type']
+    order_columns=['id',]
+    label_columns = {
+        'id': "项目id",
+        'name': "项目名称",
+        'name_type': "项目分类",
+        'full_id': '全称',
+        'describe': '描述',
+        'pm_owner': '产品负责人',
+        'tech_owner': '技术负责人',
+        'status': '状态(1启用2禁用)',
+        'project_link':'项目名称',
+        'project_type_link':'项目分类'
+    }
+
+appbuilder.add_view(
+    MProjectView,
+    "M Project View",
+    label="埋点管理",
+    icon="fa-envelope",
+    category="",
+    category_icon='',)
+from flask_appbuilder.models.sqla.filters import BaseFilter
+class MPageFilter(BaseFilter):
+    def apply(self, query, func):  # noqa
+        return query
+
+class MPageView(SupersetModelView):
+    datamodel = SQLAInterface(models.MPage)
+    list_title = '页面列表'
+    show_title = '页面详情'
+    add_title = '添加页面信息'
+    edit_title = '编辑页面信息'
+    add_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','describe','up1','pp1','del_status','m_process','version']
+    list_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url_link']
+    search_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url']
+    edit_columns = add_columns
+    base_filters = [['id', MPageFilter, lambda: []]]
+    order_columns = ['page_id',]
+    description_columns = {
+        'status': "1表示未修改，2表示已修改",
+        'del_status':"1正常,2删除",
+        'm_process':'1未开始,2开发中,3测试中,4已上线'
+    }
+    label_columns = {
+        'page_id': "页面id",
+        'm_project': "所属项目名称",
+        'menu1': "一级菜单",
+        'menu2': '二级菜单',
+        'menu3': '三级菜单',
+        'menu4': '四级菜单',
+        'name': '页面名称',
+        'url': '页面地址',
+        'url_link': '页面地址',
+        'describe': '页面描述',
+        'status':'状态',
+        'del_status':'是否删除',
+        'up1': '用户扩展属性',
+        'pp1':'页面扩展属性',
+        'm_process':'进度',
+        'version':'版本号'
+    }
+    def pre_update(self,obj):
+        columns_name=[]
+        for i in obj.__table__.columns:
+            tab,col=str(i).split(".")
+            if col not in ('update_time','create_time'):
+                columns_name.append(col)
+        sql1="select %s from m_page WHERE id = '%s'"%(','.join(columns_name),obj.id)
+        item1 = db.session.execute(sql1).first()
+        for ind,col in enumerate(columns_name):
+                if getattr(obj,col) != item1[ind]:
+                    obj.status=2
+                    return None
+        sql2="select mproject_id from mpage_mproject WHERE mpage_id = %s"%(obj.id)
+        item2 =sorted([i[0] for i in db.session.execute(sql2)])
+        new_mproject_id=sorted([i.id for i in obj.m_project])
+        if item2 != new_mproject_id:
+            obj.status=2
+
+appbuilder.add_view_no_menu(MPageView)

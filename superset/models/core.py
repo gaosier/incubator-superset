@@ -24,7 +24,7 @@ from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 
 from sqlalchemy import (
-    Column, Integer, String, ForeignKey, Text, Boolean,SmallInteger,
+    Column, Integer, String, ForeignKey, Text, Boolean,SmallInteger,UniqueConstraint,
     DateTime, Date, Table,
     create_engine, MetaData, select
 )
@@ -920,3 +920,92 @@ class JingYouUser(Model):
         DateTime, default=datetime.now,
         onupdate=datetime.now, nullable=True)
     status = Column(SmallInteger, default=1,nullable=False)
+
+class MProject(Model):
+    __tablename__='m_project'
+    id=Column(String(32),primary_key=True,nullable=False)
+    name=Column(String(64),nullable=True)
+    full_id=Column(String(64),nullable=True)
+    describe=Column(String(255),nullable=True)
+    pm_owner=Column(String(64),nullable=True)
+    tech_owner=Column(String(64),nullable=True)
+    status = Column(SmallInteger, default=1, nullable=False)
+    create_time = Column(DateTime, default=datetime.now, nullable=True)
+    update_time = Column(
+        DateTime, default=datetime.now,
+        onupdate=datetime.now, nullable=True)
+    name_type=Column(String(64),nullable=True)
+    ## m_page=relationship('MPage',back_populates="m_project")
+    def __repr__(self):
+        return self.name
+
+    def base_link(self,params=None):
+        if not params:
+            params='_flt_0_m_project=%s'%self.id
+            name = escape(self.name)
+        else:
+            name=escape(self.name_type)
+        url = (
+            "/mpageview/list/?{params}".format(params=params))
+        return Markup('<a href="{url}">{name}</a>'.format(**locals()))
+
+    @property
+    def project_link(self):
+        return self.base_link()
+
+    @property
+    def project_type_link(self):
+        mproject_list=db.session.query(MProject).filter_by(name_type=self.name_type)
+        params=''
+        for i in mproject_list:
+            params+='_flt_0_m_project=%s&'%i.id
+        return self.base_link(params=params)
+
+
+mpage_mproject = Table(
+    'mpage_mproject', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('mproject_id', String(32), ForeignKey('m_project.id')),
+    Column('mpage_id', Integer, ForeignKey('m_page.id')),
+)
+
+class MPage(Model):
+    __tablename__='m_page'
+
+    id=Column(Integer, primary_key=True,nullable=False)
+    page_id=Column(String(64),nullable=False)
+    m_project = relationship(
+        'MProject', secondary=mpage_mproject)
+    menu1=Column(String(64),nullable=True)
+    menu2=Column(String(64),nullable=True)
+    menu3=Column(String(64),nullable=True)
+    menu4=Column(String(64),nullable=True)
+    name=Column(String(64),nullable=False)
+    status = Column(SmallInteger, default=1, nullable=False)
+    del_status = Column(SmallInteger, default=1, nullable=False)
+    url = Column(String(2048), nullable=True)
+    describe = Column(String(255), nullable=True)
+    up1 = Column(String(64), nullable=True)
+    up2 = Column(String(64), nullable=True)
+    up3 = Column(String(64), nullable=True)
+    up4 = Column(String(64), nullable=True)
+    up5 = Column(String(64), nullable=True)
+    pp1 = Column(String(64), nullable=True)
+    pp2 = Column(String(64), nullable=True)
+    pp3 = Column(String(64), nullable=True)
+    pp4 = Column(String(64), nullable=True)
+    pp5 = Column(String(64), nullable=True)
+    tag = Column(String(255), nullable=True)
+    m_process = Column(Integer, default=1, nullable=False)
+    version = Column(SmallInteger, default=1, nullable=False)
+    create_time = Column(DateTime, default=datetime.now, nullable=True)
+    update_time = Column(
+        DateTime, default=datetime.now,
+        onupdate=datetime.now, nullable=True)
+
+    @property
+    def url_link(self):
+        return Markup('<a href="{url}">{url}</a>'.format(url=self.url))
+    # __table_args__ = (
+    #     UniqueConstraint('page_id','project_id'),
+    # )
