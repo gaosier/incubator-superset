@@ -916,20 +916,34 @@ class JingYouUser(Model):
     cookies = Column(Text)
     ip = Column(String(64),nullable=True)
     port = Column(SmallInteger, nullable=True)
+    comment=Column(String(255),nullable=True)
     updated = Column(
         DateTime, default=datetime.now,
         onupdate=datetime.now, nullable=True)
     status = Column(SmallInteger, default=1,nullable=False)
+    subject_product=Column(String(255),nullable=True)
+
+    @property
+    def get_status(self):
+        str_btn = ''
+        if self.status == 1:
+            str_btn = '<button type="button" class="btn btn-primary btn-xs">正常</button>'
+        elif self.status == 2:
+            str_btn = '<button type="button" class="btn btn-xs">修复中</button>'
+        elif self.status == 3:
+            str_btn = '<button type="button" class="btn btn-danger btn-xs">异常</button>'
+        return str_btn
+
 
 class MProject(Model):
     __tablename__='m_project'
     id=Column(String(32),primary_key=True,nullable=False)
     name=Column(String(64),nullable=True)
     full_id=Column(String(64),nullable=True)
-    describe=Column(String(255),nullable=True)
+    describe=Column('m_describe',String(255),nullable=True)
     pm_owner=Column(String(64),nullable=True)
     tech_owner=Column(String(64),nullable=True)
-    status = Column(SmallInteger, default=1, nullable=False)
+    status = Column(Boolean, default=False)
     create_time = Column(DateTime, default=datetime.now, nullable=True)
     update_time = Column(
         DateTime, default=datetime.now,
@@ -938,7 +952,14 @@ class MProject(Model):
     ## m_page=relationship('MPage',back_populates="m_project")
     def __repr__(self):
         return self.name
-
+    @property
+    def page_or_element_button(self):
+        params = '_flt_0_m_project=%s' % self.id
+        url1 = "/mpageview/list/?{params}".format(params=params)
+        return Markup("<center>\
+        <div class='btn-group btn-group-xs' style='display: flex;'>\
+        <a href={url1} class='btn btn-sm btn-default' data-toggle='tooltip' rel='tooltip' title='' data-original-title='该项目的页面埋点'>页面埋点</a>\
+        </div></center>".format(url1=url1))
     def base_link(self,params=None):
         if not params:
             params='_flt_0_m_project=%s'%self.id
@@ -948,6 +969,15 @@ class MProject(Model):
         url = (
             "/mpageview/list/?{params}".format(params=params))
         return Markup('<a href="{url}">{name}</a>'.format(**locals()))
+
+    @property
+    def get_status(self):
+        str_btn = ''
+        if not self.status :
+            str_btn = '<button type="button" class="btn btn-primary btn-xs">正常</button>'
+        else:
+            str_btn = '<button type="button" class="btn btn-danger btn-xs">禁用</button>'
+        return str_btn
 
     @property
     def project_link(self):
@@ -961,12 +991,34 @@ class MProject(Model):
             params+='_flt_0_m_project=%s&'%i.id
         return self.base_link(params=params)
 
+    @property
+    def element_link(self):
+        return Markup('<a href="{url}">{url}</a>'.format(url='/melementview/list/'))
+
 
 mpage_mproject = Table(
     'mpage_mproject', metadata,
     Column('id', Integer, primary_key=True),
     Column('mproject_id', String(32), ForeignKey('m_project.id')),
     Column('mpage_id', Integer, ForeignKey('m_page.id')),
+)
+class MpageMproject(Model):
+    __tablename__ = 'mpage_mproject'
+
+    id=Column(Integer, primary_key=True,nullable=False)
+    mproject_id=Column(String(32),ForeignKey('m_project.id'),nullable=False)
+    mpage_id=Column(Integer,ForeignKey('m_page.id'),nullable=False,)
+    mpage=relationship('MPage')
+    mproject=relationship('MProject')
+
+    def __repr__(self):
+        return '%s-%s'%(self.mproject.name,self.mpage.page_id)
+
+melement_mpage_mproject=Table(
+    'melement_mpage_mproject', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('melement_id', Integer, ForeignKey('m_element.id')),
+    Column('mpage_mproject_id', Integer, ForeignKey('mpage_mproject.id')),
 )
 
 class MPage(Model):
@@ -981,10 +1033,10 @@ class MPage(Model):
     menu3=Column(String(64),nullable=True)
     menu4=Column(String(64),nullable=True)
     name=Column(String(64),nullable=False)
-    status = Column(SmallInteger, default=1, nullable=False)
-    del_status = Column(SmallInteger, default=1, nullable=False)
+    status = Column(Boolean, default=False)
+    del_status = Column(Boolean, default=False)
     url = Column(String(2048), nullable=True)
-    describe = Column(String(255), nullable=True)
+    m_describe = Column(String(255), nullable=True)
     up1 = Column(String(64), nullable=True)
     up2 = Column(String(64), nullable=True)
     up3 = Column(String(64), nullable=True)
@@ -1004,8 +1056,105 @@ class MPage(Model):
         onupdate=datetime.now, nullable=True)
 
     @property
-    def url_link(self):
-        return Markup('<a href="{url}">{url}</a>'.format(url=self.url))
+    def element_link(self):
+        url = self.melementview_url()
+        if not url:
+            return ''
+        else:
+            return Markup("<center>\
+            <div class='btn-group btn-group-xs' style='display: flex;'>\
+                <a href={url1} class='btn btn-sm btn-default' data-toggle='tooltip' rel='tooltip' title='' data-original-title='该页面的点击埋点'>点击行为</a>\
+                        </div></center>".format(url1=url))
+
+    def melementview_url(self):
+        mpage_mproject_list = db.session.query(MpageMproject).filter_by(mpage_id=self.id)
+        url = '/melementview/list/?'
+        flag=False
+        for i in mpage_mproject_list:
+            url += '_flt_0_mpage_mproject=%s&' % i.id
+            if not flag:
+                if len(db.session.query(MElement).filter(MElement.mpage_mproject.contains(i)).all())!= 0:
+                    flag=True
+        if flag:
+            return url
+        else:
+            return None
+
+    @property
+    def get_del_status(self):
+        if self.del_status == False:
+            str_btn = '<button type="button" class="btn btn-primary btn-xs">正常</button>'
+        else:
+            str_btn = '<button type="button" class="btn btn-danger btn-xs">已删除</button>'
+        return str_btn
     # __table_args__ = (
     #     UniqueConstraint('page_id','project_id'),
     # )
+    @property
+    def get_status(self):
+        if not self.status:
+            str_btn = '<button type="button" class="btn btn-default btn-xs">未修改</button>'
+        else:
+            str_btn = '<button type="button" class="btn btn-info btn-xs">已修改</button>'
+        return str_btn
+
+    @property
+    def mproject_name(self):
+        st = ''
+        for i in self.m_project:
+            st+='<div>%s</div>'%(str(i))
+        return st
+
+class MElement(Model):
+    __tablename__ = 'm_element'
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    element_id = Column(String(64), nullable=False)
+    mpage_mproject = relationship(
+        'MpageMproject', secondary=melement_mpage_mproject)
+    name = Column(String(64), nullable=False)
+    status = Column(Boolean, default=False)
+    del_status = Column(Boolean, default=False)
+    pp1 = Column(String(64), nullable=True)
+    pp2 = Column(String(64), nullable=True)
+    pp3 = Column(String(64), nullable=True)
+    pp4 = Column(String(64), nullable=True)
+    pp5 = Column(String(64), nullable=True)
+    tag = Column(String(255), nullable=True)
+    m_process = Column(Integer, default=1, nullable=False)
+    version = Column(SmallInteger, default=1, nullable=False)
+    create_time = Column(DateTime, default=datetime.now, nullable=True)
+    update_time = Column(
+        DateTime, default=datetime.now,
+        onupdate=datetime.now, nullable=True)
+
+    @property
+    def mproject(self):
+        return [ i.mproject_id for i in self.mpage_mproject]
+
+    @property
+    def mpage(self):
+        return [ i.mpage.page_id for i in self.mpage_mproject]
+
+    @property
+    def get_status(self):
+        if not self.status:
+            str_btn = '<button type="button" class="btn btn-default btn-xs">未修改</button>'
+        else:
+            str_btn = '<button type="button" class="btn btn-info btn-xs">已修改</button>'
+        return str_btn
+
+    @property
+    def get_del_status(self):
+        if self.del_status == False:
+            str_btn = '<button type="button" class="btn btn-primary btn-xs">正常</button>'
+        else:
+            str_btn = '<button type="button" class="btn btn-danger btn-xs">已删除</button>'
+        return str_btn
+
+    @property
+    def mpage_mproject_name(self):
+        st=''
+        for i in self.mpage_mproject:
+            st+='<div>%s</div>'%(str(i))
+        return st

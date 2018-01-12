@@ -9,9 +9,11 @@ from flask_babel import lazy_gettext as _
 from flask_babel import get_locale
 
 from flask_appbuilder import BaseView
-from flask_appbuilder import ModelView
+#from flask_appbuilder import ModelView
+from superset.fab.views import SupersetModelView as ModelView
 from flask_appbuilder.widgets import ListWidget
 from flask_appbuilder.actions import action
+from flask_appbuilder.urltools import get_order_args,get_page_args,get_page_size_args
 from flask_appbuilder.models.sqla.filters import BaseFilter
 from superset.translations.utils import get_language_pack
 
@@ -202,6 +204,18 @@ class BaseSupersetView(BaseView):
             'language_pack': get_language_pack(locale),
         }
 
+from flask import request
+import re
+def get_filter_args(filters):
+    filters.clear_filters()
+    print('-------1111')
+    for arg, vl in request.args.lists():
+        re_match = re.findall('_flt_(\d)_(.*)', arg)
+        if len(vl) == 1:
+            vl = request.args.get(arg)
+        if re_match:
+            filters.add_filter_index(re_match[0][1], int(re_match[0][0]), vl) 
+    print('-------')
 
 class SupersetModelView(ModelView):
     page_size = 100
