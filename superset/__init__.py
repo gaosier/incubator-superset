@@ -11,7 +11,8 @@ import json
 import os
 
 from flask import Flask, redirect
-from flask_appbuilder import SQLA, AppBuilder, IndexView
+#from flask_appbuilder import SQLA, AppBuilder, IndexView
+from flask_appbuilder import SQLA,  IndexView
 from flask_appbuilder.baseviews import expose
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
@@ -20,6 +21,7 @@ import wrapcache
 
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset import utils, config  # noqa
+from superset.fab.base import SupersetAppBuilder as AppBuilder
 
 
 APP_DIR = os.path.dirname(__file__)

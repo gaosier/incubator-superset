@@ -5,7 +5,7 @@ from past.builtins import basestring
 
 from flask import Markup, flash, redirect
 from flask_appbuilder import CompactCRUDMixin, expose
-from flask_appbuilder.models.sqla.interface import SQLAInterface
+from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
 import sqlalchemy as sa
 
 from flask_babel import lazy_gettext as _

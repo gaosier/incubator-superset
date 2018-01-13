@@ -2591,7 +2591,7 @@ class MPageView(SupersetModelView):
     add_title = '添加页面信息'
     edit_title = '编辑页面信息'
     add_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','up1','pp1','del_status','m_process','version']
-    list_columns = ['page_id','menu1','menu2','menu3','mproject_name','name','get_del_status','element_link','update_time']
+    list_columns = ['page_id','menu1','menu2','menu3','mproject_name','name','update_time','get_del_status','melement_url_btn']
     search_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url']
     show_columns = add_columns + ['status', 'create_time', 'update_time']
     edit_columns = add_columns
@@ -2605,7 +2605,7 @@ class MPageView(SupersetModelView):
     label_columns = {
         'page_id': "页面id",
         'mproject_name': "所属项目名称",
-        'mproject': "所属项目名称",
+        'm_project': "所属项目名称",
         'menu1': "一级菜单",
         'menu2': '二级菜单',
         'menu3': '三级菜单',
@@ -2622,9 +2622,10 @@ class MPageView(SupersetModelView):
         'pp1':'页面扩展属性',
         'm_process':'进度',
         'version':'版本号',
-        'element_link':'点击埋点链接',
+        'melement_url_btn':'点击埋点链接',
         'update_time':'更新时间'
     }
+    post_update_flag=False
     def pre_update(self,obj):
         columns_name=[]
         for i in obj.__table__.columns:
@@ -2636,12 +2637,30 @@ class MPageView(SupersetModelView):
         for ind,col in enumerate(columns_name):
                 if getattr(obj,col) != item1[ind]:
                     obj.status=True
-                    return None
+                    break
         sql2="select mproject_id from mpage_mproject WHERE mpage_id = %s"%(obj.id)
         item2 =sorted([i[0] for i in db.session.execute(sql2)])
         new_mproject_id=sorted([i.id for i in obj.m_project])
         if item2 != new_mproject_id:
+            self.post_update_flag=True
             obj.status=True
+
+    def post_update(self,obj):
+        if self.post_update_flag:
+            mpage_mproject_list = db.session.query(models.MpageMproject).filter_by(mpage_id=obj.id)
+            url = '/melementview/list/?'
+            flag = False
+            for i in mpage_mproject_list:
+                url += '_flt_0_mpage_mproject=%s&' % i.id
+                if not flag:
+                    if len(db.session.query(models.MElement).filter(models.MElement.mpage_mproject.contains(i)).all()) != 0:
+                        flag=True
+            if flag:
+                obj.melement_url=url
+            else:
+                obj.melement_url = None
+            db.session.commit()
+            self.post_update_flag=False
 
 appbuilder.add_view_no_menu(MPageView)
 
@@ -2692,5 +2711,20 @@ class MElementView(SupersetModelView):
         new_item_id=sorted([i.id for i in obj.mpage_mproject])
         if item2 != new_item_id:
             obj.status=True
+
+    def post_add(self,obj):
+        for i in obj.mpage_mproject:
+            page_obj=db.session.query(models.MPage).filter_by(id=i.mpage_id).first()
+            if not page_obj.melement_url:
+                page_obj.melement_url = '/melementview/list/?_flt_0_mpage_mproject=%s&' % i.id
+                db.session.commit()
+            else:
+                if i.id in page_obj.melement_url:
+                    pass
+                else:
+                    page_obj.melement_url+='_flt_0_mpage_mproject=%s&'%i.id
+                    db.session.commit()
+
+
 
 appbuilder.add_view_no_menu(MElementView)

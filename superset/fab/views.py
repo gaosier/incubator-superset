@@ -24,30 +24,39 @@ class SupersetModelView(MV):
             order_column, order_direction = self.base_order
         joined_filters = filters.get_joined_filters(self._base_filters)
         count, lst = self.datamodel.query(joined_filters, order_column, order_direction, page=page, page_size=page_size)
-        pk_column = self.datamodel.get_pk_column()
-        bst = [] 
-        for row in lst: 
-            try: 
-                keys = row.keys()
-            except:
-                break
-            entity = {} 
-            name = self.datamodel.obj.__tablename__ + '_' + pk_column.name
-            for key in keys:
-                pos = key.find(self.datamodel.obj.__tablename__)
-                key1 = key[pos:]
-                if name == key1:
-                    pk_name = key
+        try:
+            pk_column = self.datamodel.get_pk_column()
+            bst = [] 
+            for row in lst: 
+                try: 
+                    keys = row.keys()
+                except:
                     break
-            value = getattr(row, pk_name)
-            entity[pk_column.name] = value
-            bst.append(DictObject(entity))
-        lst = bst if len(bst) !=0 else lst
-        pks = self.datamodel.get_keys(lst)
+                entity = {} 
+                name = self.datamodel.obj.__tablename__ + '_' + pk_column.name
+                for key in keys:
+                    pos = key.find(self.datamodel.obj.__tablename__)
+                    key1 = key[pos:]
+                    if name == key1:
+                        pk_name = key
+                        break
+                value = getattr(row, pk_name)
+                entity[pk_column.name] = value
+                bst.append(DictObject(entity))
+            lst = bst if len(bst) !=0 else lst
+            pks = self.datamodel.get_keys(lst)
 
-        # serialize composite pks
-        pks = [self._serialize_pk_if_composite(pk) for pk in pks]
-        lst = self.datamodel.session.query(self.datamodel.obj).filter(pk_column.in_(pks))
+            # serialize composite pks
+            pks = [self._serialize_pk_if_composite(pk) for pk in pks]
+            #from datetime import datetime
+            #d1 = datetime.now()
+            lst = self.datamodel.session.query(self.datamodel.obj).filter(pk_column.in_(pks))
+            #d2 = datetime.now()
+            #print(d2-d1)
+        except:
+            pks = self.datamodel.get_keys(lst)
+            # serialize composite pks
+            pks = [self._serialize_pk_if_composite(pk) for pk in pks]
 
         widgets['list'] = self.list_widget(label_columns=self.label_columns,
                                            include_columns=self.list_columns,

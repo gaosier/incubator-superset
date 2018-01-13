@@ -960,6 +960,7 @@ class MProject(Model):
         <div class='btn-group btn-group-xs' style='display: flex;'>\
         <a href={url1} class='btn btn-sm btn-default' data-toggle='tooltip' rel='tooltip' title='' data-original-title='该项目的页面埋点'>页面埋点</a>\
         </div></center>".format(url1=url1))
+
     def base_link(self,params=None):
         if not params:
             params='_flt_0_m_project=%s'%self.id
@@ -974,9 +975,9 @@ class MProject(Model):
     def get_status(self):
         str_btn = ''
         if not self.status :
-            str_btn = '<button type="button" class="btn btn-primary btn-xs">正常</button>'
+            str_btn = '<a type="button" class="btn btn-primary disabled btn-xs">正常</a>'
         else:
-            str_btn = '<button type="button" class="btn btn-danger btn-xs">禁用</button>'
+            str_btn = '<a type="button" class="btn btn-danger disabled btn-xs">禁用</a>'
         return str_btn
 
     @property
@@ -1054,38 +1055,45 @@ class MPage(Model):
     update_time = Column(
         DateTime, default=datetime.now,
         onupdate=datetime.now, nullable=True)
+    melement_url = Column(String(2048), nullable=True)
 
+    # @property
+    # def element_link(self):
+    #     url = self.melementview_url()
+    #     if not url:
+    #         return ''
+    #     else:
+    #         return url
     @property
-    def element_link(self):
-        url = self.melementview_url()
+    def melement_url_btn(self):
+        url=self.melement_url
         if not url:
             return ''
-        else:
-            return Markup("<center>\
+        return Markup("<center>\
             <div class='btn-group btn-group-xs' style='display: flex;'>\
                 <a href={url1} class='btn btn-sm btn-default' data-toggle='tooltip' rel='tooltip' title='' data-original-title='该页面的点击埋点'>点击行为</a>\
                         </div></center>".format(url1=url))
 
-    def melementview_url(self):
-        mpage_mproject_list = db.session.query(MpageMproject).filter_by(mpage_id=self.id)
-        url = '/melementview/list/?'
-        flag=False
-        for i in mpage_mproject_list:
-            url += '_flt_0_mpage_mproject=%s&' % i.id
-            if not flag:
-                if len(db.session.query(MElement).filter(MElement.mpage_mproject.contains(i)).all())!= 0:
-                    flag=True
-        if flag:
-            return url
-        else:
-            return None
+    # def melementview_url(self):
+    #     mpage_mproject_list = db.session.query(MpageMproject).filter_by(mpage_id=self.id)
+    #     url = '/melementview/list/?'
+    #     flag=False
+    #     for i in mpage_mproject_list:
+    #         url += '_flt_0_mpage_mproject=%s&' % i.id
+    #         if not flag:
+    #             if len(db.session.query(MElement).filter(MElement.mpage_mproject.contains(i)).all())!= 0:
+    #                 flag=True
+    #     if flag:
+    #         return url
+    #     else:
+    #         return None
 
     @property
     def get_del_status(self):
         if self.del_status == False:
-            str_btn = '<button type="button" class="btn btn-primary btn-xs">正常</button>'
+            str_btn = '<a type="button" class="btn btn-primary btn-xs disabled">正常</a>'
         else:
-            str_btn = '<button type="button" class="btn btn-danger btn-xs">已删除</button>'
+            str_btn = '<a class="btn btn-danger btn-xs disabled">已删除</a>'
         return str_btn
     # __table_args__ = (
     #     UniqueConstraint('page_id','project_id'),
@@ -1147,9 +1155,9 @@ class MElement(Model):
     @property
     def get_del_status(self):
         if self.del_status == False:
-            str_btn = '<button type="button" class="btn btn-primary btn-xs">正常</button>'
+            str_btn = '<a type="button" class="btn btn-primary btn-xs disabled">正常</a>'
         else:
-            str_btn = '<button type="button" class="btn btn-danger btn-xs">已删除</button>'
+            str_btn = '<a type="button" class="btn btn-danger btn-xs disabled">已删除</a>'
         return str_btn
 
     @property
