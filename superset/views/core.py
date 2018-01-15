@@ -2590,11 +2590,11 @@ class MPageView(SupersetModelView):
     show_title = '页面详情'
     add_title = '添加页面信息'
     edit_title = '编辑页面信息'
-    add_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','del_status','m_process','up1','up2','up3','up4','up5',
-                   'pp1','pp2','pp3','pp4','pp5','version']
+    add_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','del_status','up1',
+                   'pp1','pp2','pp3','pp4','pp5','m_process','version']
     list_columns = ['page_id','menu1','menu2','menu3','mproject_name','name','update_time','get_del_status','melement_url_btn']
     search_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','del_status']
-    edit_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','del_status','up1','up2','up3','up4','up5',
+    edit_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','del_status','up1',
                    'pp1','pp2','pp3','pp4','pp5','m_process']
     show_columns = edit_columns + ['status', 'create_time', 'update_time']
     base_filters = [['id', MPageFilter, lambda: []]]
@@ -2620,16 +2620,16 @@ class MPageView(SupersetModelView):
         'get_status':'状态',
         'del_status':'是否删除',
         'get_del_status':'是否删除',
-        'up1': '用户扩展属性1',
-        'up2': '用户扩展属性2',
-        'up3': '用户扩展属性3',
-        'up4': '用户扩展属性4',
-        'up5': '用户扩展属性5',
-        'pp1':'页面扩展属性1',
-        'pp2':'页面扩展属性2',
-        'pp3':'页面扩展属性3',
-        'pp4':'页面扩展属性4',
-        'pp5':'页面扩展属性5',
+        'up1': '用户扩展属性(up1)',
+        'up2': '用户扩展属性2(up2)',
+        'up3': '用户扩展属性3(up3)',
+        'up4': '用户扩展属性4(up4)',
+        'up5': '用户扩展属性5(up5)',
+        'pp1':'页面扩展属性1(pp1)',
+        'pp2':'页面扩展属性2(pp2)',
+        'pp3':'页面扩展属性3(pp3)',
+        'pp4':'页面扩展属性4(pp4)',
+        'pp5':'页面扩展属性5(pp5)',
         'm_process':'进度',
         'version':'版本号',
         'melement_url_btn':'点击埋点链接',
