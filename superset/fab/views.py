@@ -54,9 +54,10 @@ class SupersetModelView(MV):
             #d2 = datetime.now()
             #print(d2-d1)
         except:
-            pks = self.datamodel.get_keys(lst)
-            # serialize composite pks
-            pks = [self._serialize_pk_if_composite(pk) for pk in pks]
+            pass
+        pks = self.datamodel.get_keys(lst)
+        # serialize composite pks
+        pks = [self._serialize_pk_if_composite(pk) for pk in pks]
 
         widgets['list'] = self.list_widget(label_columns=self.label_columns,
                                            include_columns=self.list_columns,

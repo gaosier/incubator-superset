@@ -1040,7 +1040,7 @@ class NVD3TimeSeriesViz(NVD3Viz):
                 df = df / df.shift(num_period_compare)
 
             df = df[num_period_compare:]
-
+        df = df.fillna(0)
         chart_data = self.to_series(df)
 
         time_compare = fd.get('time_compare')
