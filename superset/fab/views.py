@@ -50,7 +50,10 @@ class SupersetModelView(MV):
             pks = [self._serialize_pk_if_composite(pk) for pk in pks]
             #from datetime import datetime
             #d1 = datetime.now()
-            lst = self.datamodel.session.query(self.datamodel.obj).filter(pk_column.in_(pks))
+            if order_direction == 'asc':
+                lst = self.datamodel.session.query(self.datamodel.obj).filter(pk_column.in_(pks)).order_by(self._get_attr(order_column).asc())
+            else:
+                lst = self.datamodel.session.query(self.datamodel.obj).filter(pk_column.in_(pks)).order_by(self._get_attr(order_column).desc())
             #d2 = datetime.now()
             #print(d2-d1)
         except:

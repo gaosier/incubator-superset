@@ -1068,7 +1068,10 @@ class MPage(Model):
     def melement_url_btn(self):
         url=self.melement_url
         if not url:
-            return ''
+            return Markup("<center>\
+                        <div class='btn-group btn-group-xs' style='display: flex;'>\
+                            <a href={url1} class='btn btn-sm btn-default' data-toggle='tooltip' rel='tooltip' title='' data-original-title='该页面的点击埋点'>添加</a>\
+                                    </div></center>".format(url1='/melementview/add'))
         return Markup("<center>\
             <div class='btn-group btn-group-xs' style='display: flex;'>\
                 <a href={url1} class='btn btn-sm btn-default' data-toggle='tooltip' rel='tooltip' title='' data-original-title='该页面的点击埋点'>点击行为</a>\

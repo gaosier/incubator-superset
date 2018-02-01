@@ -2531,10 +2531,10 @@ class MProjectView(SupersetModelView):
     show_title = '项目信息'
     add_title = '添加项目'
     edit_title = '编辑项目'
-    add_columns = ['id','name','name_type','full_id','describe','pm_owner','tech_owner','status']
-    show_columns = ['id','name','name_type','full_id','describe','pm_owner','tech_owner','status']
+    add_columns = ['id','name','name_type','full_id','describe','status']
+    show_columns = ['id','name','name_type','full_id','describe','status']
     list_columns = ['id','name','project_type_link','get_status','page_or_element_button']
-    edit_columns = ['id','name','full_id','describe','pm_owner','tech_owner']
+    edit_columns = ['id','name','full_id','describe','status']
     search_columns = ['id','name','name_type']
     order_columns=['id',]
     label_columns = {
@@ -2548,6 +2548,7 @@ class MProjectView(SupersetModelView):
         'project_link':'项目名称',
         'project_type_link':'项目分类',
         'get_status': '状态',
+        'status': '状态(勾选表示禁用)',
         'page_or_element_button':'操作'
     }
 
@@ -2591,11 +2592,11 @@ class MPageView(SupersetModelView):
     add_title = '添加页面信息'
     edit_title = '编辑页面信息'
     add_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','del_status','up1',
-                   'pp1','pp2','pp3','pp4','pp5','m_process','version']
+                   'pp1','pp2','pp3','pp4','pp5']
     list_columns = ['page_id','menu1','menu2','menu3','mproject_name','name','update_time','get_del_status','melement_url_btn']
     search_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','del_status']
     edit_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','del_status','up1',
-                   'pp1','pp2','pp3','pp4','pp5','m_process']
+                   'pp1','pp2','pp3','pp4','pp5']
     show_columns = edit_columns + ['status', 'create_time', 'update_time']
     base_filters = [['id', MPageFilter, lambda: []]]
     order_columns = ['page_id',]
@@ -2680,7 +2681,7 @@ class MElementView(SupersetModelView):
     show_title = '点击详情'
     add_title = '添加点击信息'
     edit_title = '编辑点击信息'
-    add_columns=['element_id','mpage_mproject','name','del_status','pp1','pp2','pp3','pp4','pp5','tag','m_process','version']
+    add_columns=['element_id','mpage_mproject','name','del_status','pp1','pp2','pp3','pp4','pp5']
     list_columns=['element_id','mpage_mproject_name','name','get_del_status','update_time']
     search_columns=['element_id','mpage_mproject','name','del_status']
     edit_columns = add_columns
