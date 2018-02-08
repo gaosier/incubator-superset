@@ -87,11 +87,25 @@ function tableVis(slice, payload) {
         html = val;
       };
       if (c === fd.granularity_sqla){
-        let new_val=new Date(val);
+          let new_val;
+          if(typeof (val) === 'string'&& val.indexOf("-") === -1){
+              new_val= new Date(val.substr(0,4), val.substr(4,2)-1, val.substr(6,2),0,0,0);
+          }
+          else{
+              new_val=new Date(val);
+          }
         html = tsFormatter(new_val.getTime())
       }
       else if (typeof (val) === 'string') {
-        html = `<span class="like-pre">${val}</span>`;
+          var reg =/^\d{4}-\d{2}-\d{2}T/;
+          if(reg.test(val)){
+              let new_val=new Date(val);
+              html = tsFormatter(new_val.getTime())
+          }
+          else {
+              html = `<span class="like-pre">${val}</span>`;
+          }
+
       }
       if (isMetric) {
         const format_ = slice.datasource.column_formats[c] || fd.number_format || '.3s';

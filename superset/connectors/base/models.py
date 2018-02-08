@@ -147,9 +147,12 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
                     [i for i in self.metrics if (i.created_by in slice_users) or (i.created_by_fk in admin_user_list)]
         else:
             from flask import g
-            admin_user_list.append(g.user.id)
-            return [i for i in self.columns if i.created_by_fk in admin_user_list],\
-                    [i for i in self.metrics if i.created_by_fk in admin_user_list]
+            if any( [r.name in ['Admin',] for r in g.user.roles]):
+                return [i for i in self.columns ], [i for i in self.metrics ]
+            else:
+                admin_user_list.append(g.user.id)
+                return [i for i in self.columns if i.created_by_fk in admin_user_list],\
+                        [i for i in self.metrics if i.created_by_fk in admin_user_list]
     @property
     def data(self):
         """Data representation of the datasource sent to the frontend"""

@@ -12,6 +12,16 @@ export function UTC(dttm) {
     dttm.getUTCSeconds(),
   );
 }
+export function ZH_TIME(dttm) {
+  return new Date(
+    dttm.getFullYear(),
+    dttm.getMonth(),
+    dttm.getDate(),
+    dttm.getHours(),
+    dttm.getMinutes(),
+    dttm.getSeconds(),
+  );
+}
 export const tickMultiFormat = d3.time.format.multi([
   [
     '.%L',

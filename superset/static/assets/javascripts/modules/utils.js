@@ -2,7 +2,7 @@
 import d3 from 'd3';
 import $ from 'jquery';
 
-import { formatDate, UTC } from './dates';
+import { formatDate, UTC,ZH_TIME } from './dates';
 import { t } from '../locales';
 
 export function d3FormatPreset(format) {
@@ -22,7 +22,8 @@ export const d3TimeFormatPreset = function (format) {
   }
   const f = d3.time.format(effFormat);
   return function (dttm) {
-    const d = UTC(new Date(dttm));
+    // const d = UTC(new Date(dttm));
+    const d = ZH_TIME(new Date(dttm));
     return f(d);
   };
 };
