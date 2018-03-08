@@ -16,7 +16,8 @@ const operatorsArr = [
   { val: '>',label:'大于', type: 'string', havingOnly: true },
   { val: '<',label:'小于', type: 'string', havingOnly: true },
   { val: 'regex', type: 'string', datasourceTypes: ['druid'] },
-  { val: 'LIKE',label:'正则(like)', type: 'string', datasourceTypes: ['table'] },
+  { val: 'LIKE',label:'模糊匹配', type: 'string', datasourceTypes: ['table'] },
+  { val: 'RLIKE',label:'正则(rlike)', type: 'string', datasourceTypes: ['table'] },
 ];
 const operators = {};
 operatorsArr.forEach((op) => {

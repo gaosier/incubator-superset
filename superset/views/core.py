@@ -1111,7 +1111,7 @@ class Superset(BaseSupersetView):
                 datasource_id,
                 datasource_type)
         if slc:
-            datasource.slice_users=slc.owners
+            datasource.slice_users=[slc.created_by_fk,]
         else:
             datasource.slice_users=None
         form_data['datasource'] = str(datasource_id) + '__' + datasource_type

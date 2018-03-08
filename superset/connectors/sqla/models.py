@@ -358,6 +358,7 @@ class SqlaTable(Model, BaseDatasource):
         )
 
         df = pd.read_sql_query(sql=sql, con=engine)
+        df=df.dropna()
         return [row[0] for row in df.to_records(index=False)]
 
     def get_template_processor(self, **kwargs):

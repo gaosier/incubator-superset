@@ -1026,7 +1026,7 @@ class NVD3TimeSeriesViz(NVD3Viz):
             elif rolling_type == 'sum':
                 df = df.rolling(int(rolling_periods), min_periods=0).sum()
         elif rolling_type == 'cumsum':
-            df = df.cumsum()
+            df = df.fillna(0).cumsum()
 
         num_period_compare = fd.get("num_period_compare")
         if num_period_compare:

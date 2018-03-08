@@ -140,11 +140,11 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         处理在有先或者没有切片id时，度量和指标显示的下拉框的值
         :return:
         """
-        slice_users=getattr(self,'slice_users',None)
+        slice_user_id=getattr(self,'slice_users',None)
         admin_user_list = utils.get_admin_id_list(db)
-        if slice_users:
-            return [i for i in self.columns if (i.created_by in slice_users) or (i.created_by_fk in admin_user_list)],\
-                    [i for i in self.metrics if (i.created_by in slice_users) or (i.created_by_fk in admin_user_list)]
+        if slice_user_id:
+            return [i for i in self.columns if (i.created_by_fk in slice_user_id) or (i.created_by_fk in admin_user_list)],\
+                    [i for i in self.metrics if (i.created_by_fk in slice_user_id) or (i.created_by_fk in admin_user_list)]
         else:
             from flask import g
             if any( [r.name in ['Admin',] for r in g.user.roles]):
