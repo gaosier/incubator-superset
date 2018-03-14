@@ -4,7 +4,16 @@ import $ from 'jquery';
 
 import { formatDate, UTC,ZH_TIME } from './dates';
 import { t } from '../locales';
+const siFormatter = d3.format('.3s');
 
+export function defaultNumberFormatter(n) {
+  let si = siFormatter(n);
+  // Removing trailing `.00` if any
+  if (si.slice(-1) < 'A') {
+    si = parseFloat(si).toString();
+  }
+  return si;
+}
 export function d3FormatPreset(format) {
   // like d3.format, but with support for presets like 'smart_date'
   if (format === 'smart_date') {

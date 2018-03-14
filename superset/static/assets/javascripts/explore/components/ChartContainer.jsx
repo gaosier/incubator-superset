@@ -15,6 +15,7 @@ import { getExploreUrl } from '../exploreUtils';
 import { getFormDataFromControls } from '../stores/store';
 import CachedLabel from '../../components/CachedLabel';
 import { t } from '../../locales';
+import RowCountLabel from './RowCountLabel';
 
 const CHART_STATUS_MAP = {
   failed: 'danger',
@@ -299,6 +300,12 @@ class ChartContainer extends React.PureComponent {
               }
 
               <div className="pull-right">
+                {this.props.chartStatus === 'success' && this.props.queryResponse &&
+            <RowCountLabel
+              rowcount={queryResponse.row_queried}
+              limit={this.props.formData.row_limit}
+            />
+          }
                 {this.props.chartStatus === 'success' &&
                 this.props.queryResponse &&
                 this.props.queryResponse.is_cached &&

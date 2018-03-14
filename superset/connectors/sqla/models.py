@@ -10,7 +10,7 @@ from sqlalchemy import (
     DateTime,INTEGER
 )
 import sqlalchemy as sa
-from sqlalchemy import asc, and_, desc, select
+from sqlalchemy import asc, and_, desc, select,tuple_,or_
 from sqlalchemy.sql.expression import TextAsFrom
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.sql import table, literal_column, text, column
@@ -80,6 +80,15 @@ class TableColumn(Model, BaseColumn):
             if end_dttm:
                 l.append(col <= text(self.dttm_sql_literal(end_dttm)))
         return and_(*l)
+
+    def get_period_time_filter(self,start_dttm, end_dttm):
+        """
+        用以同期对比时间条件的返回
+        """
+        real_time=self.get_time_filter(start_dttm, end_dttm)
+        from dateutil.relativedelta import relativedelta
+        compare_time=self.get_time_filter(start_dttm-relativedelta(years=1),end_dttm-relativedelta(years=1))
+        return tuple_(or_(tuple_(real_time),tuple_(compare_time)))
 
     def get_timestamp_expression(self, time_grain):
         """Getting the time component of the query"""
@@ -489,7 +498,11 @@ class SqlaTable(Model, BaseDatasource):
                     self.main_dttm_col != dttm_col.column_name:
                 time_filters.append(cols[self.main_dttm_col].
                                     get_time_filter(from_dttm, to_dttm))
-            time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+            if not form_data.get('period_compare'):
+                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+            else :
+                from dateutil.relativedelta import relativedelta
+                time_filters.append(dttm_col.get_period_time_filter(from_dttm-relativedelta(years=1), to_dttm-relativedelta(years=1)))
 
         select_exprs += metrics_exprs
         qry = sa.select(select_exprs)

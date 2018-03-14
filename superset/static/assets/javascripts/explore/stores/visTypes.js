@@ -31,6 +31,7 @@ export const sections = {
     controlSetRows: [
       ['granularity_sqla', 'time_grain_sqla'],
       ['time_period'],
+      ['period_compare']
     ],
   },
   sqlClause: {
@@ -209,7 +210,7 @@ export const visTypes = {
         label: t('Pivot Options'),
         controlSetRows: [
           ['pandas_aggfunc', 'number_format'],
-          ['pivot_margins', 'combine_metric'],
+          ['pivot_margins', 'combine_metric','pivot_group_sum'],
         ],
       },
     ],

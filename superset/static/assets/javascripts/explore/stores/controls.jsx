@@ -259,7 +259,18 @@ export const controls = {
     description: t('Whether to include the time granularity as defined in the time section'),
     default: false,
   },
-
+  period_compare:{
+    type: 'CheckboxControl',
+    label: t('Period Compare'),
+    description: t('time period compare'),
+    default: false,
+  },
+  pivot_group_sum:{
+    type: 'CheckboxControl',
+    label: t('Pivot Group Sum'),
+    description: t('pivot group sum'),
+    default: false,
+  },
   include_time_2: {
     type: 'CheckboxControl',
     label: t('Include Time'),

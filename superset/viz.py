@@ -335,8 +335,8 @@ class BaseViz(object):
             try:
                 df = self.get_df()
                 if not self.error_message:
-                    row_queried=len(df.index)
                     data = self.get_data(df)
+                row_queried = len(df.index) if df is not None else 0
             except Exception as e:
                 logging.exception(e)
                 if not self.error_message:
@@ -520,19 +520,24 @@ class PivotTableViz(BaseViz):
             margins=self.form_data.get('pivot_margins'),
         )
         # Display metrics side by side with each column
-        a = df.index
+        import pandas as pd
         from pandas.core.indexes.multi import MultiIndex
+        if len(groupby[0])>1 and self.form_data.get('pivot_group_sum'): ##判断是否需要分别对分类进行求和
+            df = pd.concat([df.reset_index(), df.groupby(groupby[0]).sum().reset_index()],ignore_index=True)
+            df = df.fillna('').pivot_table(index=groupby)
+        a = df.index
         if type(df.columns) == MultiIndex:
             df=df.reindex(index=a,columns=df[self.form_data.get('metrics')].columns)
         else:
             df=df.reindex(index=a,columns=self.form_data.get('metrics'))
         if self.form_data.get('combine_metric'):
             df = df.stack(0).unstack()
-            if type(df.columns)==MultiIndex:
-                values = list(df.columns.levels[0])
-                values.remove('All')
-                values.append('All')
-                df = df.reindex(index=a,columns=df[values].columns)
+            if self.form_data.get('pivot_margins'):
+                if type(df.columns)==MultiIndex:
+                    values = list(df.columns.levels[0])
+                    values.remove('All')
+                    values.append('All')
+                    df = df.reindex(index=a,columns=df[values].columns)
             # from pandas.core.indexes.frozen import FrozenNDArray
         if is_xlsx:
             return df
