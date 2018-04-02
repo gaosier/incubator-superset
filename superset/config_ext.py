@@ -2,6 +2,8 @@
 import os
 import wrapcache
 from werkzeug.contrib.cache import RedisCache
+
+from superset.config import DATA_DIR
 SQLALCHEMY_DATABASE_URI = os.environ['KINGKONG_DB']
 
 class CeleryConfig(object):
@@ -15,3 +17,7 @@ class CeleryConfig(object):
 CELERY_CONFIG = CeleryConfig
 RESULTS_BACKEND = RedisCache(
             host='localhost', port=6379, key_prefix='superset_results')
+
+SQLLAB_DATA_DIR = os.path.join(DATA_DIR, 'sqllab')
+if not os.path.exists(SQLLAB_DATA_DIR):
+    os.makedirs(SQLLAB_DATA_DIR)
