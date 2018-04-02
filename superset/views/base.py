@@ -24,6 +24,7 @@ from superset import appbuilder, conf, db, sm, sql_parse, utils
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.connectors.sqla.models import SqlaTable
 from superset.translations.utils import get_language_pack
+from superset.fab.views import SupersetModelView as ModelView
 
 FRONTEND_CONF_KEYS = (
     'SUPERSET_WEBSERVER_TIMEOUT',

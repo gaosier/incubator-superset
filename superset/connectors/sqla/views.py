@@ -20,6 +20,7 @@ from superset.views.base import (
     DatasourceFilter, DeleteMixin, get_datasource_exist_error_mgs,
     ListWidgetWithCheckboxes, SupersetModelView, YamlExportMixin,
 )
+from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
 from . import models
 
 

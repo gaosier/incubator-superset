@@ -47,6 +47,7 @@ from superset.sql_parse import SupersetQuery
 from superset.utils import (
     has_access, merge_extra_filters, merge_request_params, QueryStatus,
 )
+from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
 from .base import (
     api, BaseSupersetView, CsvResponse, DeleteMixin,
     generate_download_headers, get_error_msg, get_user_roles,

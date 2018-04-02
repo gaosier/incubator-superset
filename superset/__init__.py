@@ -20,6 +20,7 @@ from werkzeug.contrib.fixers import ProxyFix
 
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset import utils, config  # noqa
+from superset.fab.base import SupersetAppBuilder as AppBuilder
 
 APP_DIR = os.path.dirname(__file__)
 CONFIG_MODULE = os.environ.get('SUPERSET_CONFIG', 'superset.config')
