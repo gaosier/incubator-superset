@@ -482,6 +482,25 @@ class MySQLEngineSpec(BaseEngineSpec):
               'INTERVAL DAYOFWEEK(DATE_SUB({col}, INTERVAL 1 DAY)) - 1 DAY))'),
     )
 
+    hybrid_time_grains = (
+        Grain('Time Column', _('Time Column'), '{col}'),
+        Grain("second", _('second'), "concat(date({col}),' ',`hour`({col}),"
+            "':', `MINUTE`({col}),':',`SECOND`({col}))"),
+        Grain("minute", _('minute'), "concat(date({col}),' ',`hour`({col}),':',`MINUTE`(send_time_fstr),':00')"),
+        Grain("hour", _('hour'), "concat(date({col}),' ',`hour`({col}),':00:00')"),
+        Grain('day', _('day'), 'DATE({col})'),
+        Grain("week", _('week'), "DATE(subdate(DATE({col}), "
+              "DAYOFWEEK(DATE({col})) - 1))"),
+        Grain("month", _('month'), "DATE(subdate(DATE({col}), "
+              "DAYOFMONTH(DATE({col})) - 1))"),
+        Grain("quarter", _('quarter'), "DATE(CONCAT(YEAR(DATE({col})),'-',QUARTER(DATE({col}))*3-2,'-01'))"),
+        Grain("year", _('year'), "DATE(subdate(DATE({col}), "
+              "DAYOFYEAR(DATE({col})) - 1))"),
+        Grain("week_start_monday", _('week_start_monday'),
+              "DATE(subdate(DATE({col}), cast(IF(DAYOFWEEK(DATE({col}))=1,"
+              "7,DAYOFWEEK(DATE({col}))-1) AS INT) - 1))"),
+    )
+
     @classmethod
     def convert_dttm(cls, target_type, dttm):
         if target_type.upper() in ('DATETIME', 'DATE'):

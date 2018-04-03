@@ -32,6 +32,7 @@ from superset.models.core import Database
 from superset.models.helpers import QueryResult
 from superset.models.helpers import set_perm
 from superset.utils import DTTM_ALIAS, QueryStatus
+from superset.utils_ext import time_grain_convert
 
 
 class AnnotationDatasource(BaseDatasource):
@@ -679,6 +680,11 @@ class SqlaTable(Model, BaseDatasource):
         return or_(*groups)
 
     def query(self, query_obj):
+        def format_time_grain(index, time_grain_sqla=None):
+            if index.name == '__timestamp':
+                index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla))
+            return index
+        time_grain_sqla = query_obj["extras"].get('time_grain_sqla',None)
         qry_start_dttm = datetime.now()
         sql = self.get_query_str(query_obj)
         status = QueryStatus.SUCCESS
@@ -691,6 +697,9 @@ class SqlaTable(Model, BaseDatasource):
             logging.exception(e)
             error_message = (
                 self.database.db_engine_spec.extract_error_message(e))
+        if query_obj.get('viz_type')!='line':
+            if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
+                df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
 
         # if this is a main query with prequeries, combine them together
         if not query_obj['is_prequery']:

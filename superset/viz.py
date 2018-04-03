@@ -153,15 +153,16 @@ class BaseViz(object):
         if df is None or df.empty:
             return pd.DataFrame()
         else:
-            if DTTM_ALIAS in df.columns:
-                if timestamp_format in ('epoch_s', 'epoch_ms'):
-                    df[DTTM_ALIAS] = pd.to_datetime(df[DTTM_ALIAS], utc=False)
-                else:
-                    df[DTTM_ALIAS] = pd.to_datetime(
-                        df[DTTM_ALIAS], utc=False, format=timestamp_format)
-                if self.datasource.offset:
-                    df[DTTM_ALIAS] += timedelta(hours=self.datasource.offset)
-                df[DTTM_ALIAS] += self.time_shift
+            #时间分组格式化，去掉
+#            if DTTM_ALIAS in df.columns:
+#                if timestamp_format in ('epoch_s', 'epoch_ms'):
+#                    df[DTTM_ALIAS] = pd.to_datetime(df[DTTM_ALIAS], utc=False)
+#                else:
+#                    df[DTTM_ALIAS] = pd.to_datetime(
+#                        df[DTTM_ALIAS], utc=False, format=timestamp_format)
+#                if self.datasource.offset:
+#                    df[DTTM_ALIAS] += timedelta(hours=self.datasource.offset)
+#                df[DTTM_ALIAS] += self.time_shift
             df.replace([np.inf, -np.inf], np.nan)
             fillna = self.get_fillna_for_columns(df.columns)
             df = df.fillna(fillna)
