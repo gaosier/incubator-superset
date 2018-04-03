@@ -363,13 +363,22 @@ class SqlaTable(Model, BaseDatasource):
                 return col
 
     @property
+    def my_dttm_cols(self):
+        l = [c for c in self.columns if c.is_dttm]
+        li=[(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in l]
+        if self.main_dttm_col and self.main_dttm_col not in [c.column_name for c in l]:
+            li.append((self.main_dttm_col,self.main_dttm_col))
+        return list(sorted(li))
+
+    @property
     def data(self):
         d = super(SqlaTable, self).data
         if self.type == 'table':
             grains = self.database.grains() or []
             if grains:
                 grains = [(g.name, g.name) for g in grains]
-            d['granularity_sqla'] = utils.choicify(self.dttm_cols)
+            #d['granularity_sqla'] = utils.choicify(self.dttm_cols)
+            d['granularity_sqla'] =self.my_dttm_cols
             d['time_grain_sqla'] = grains
         return d
 
@@ -666,7 +675,14 @@ class SqlaTable(Model, BaseDatasource):
                 qry = qry.where(top_groups)
 
         return qry.select_from(tbl)
-
+		
+    def init_table(self, table):
+        import re
+        if re.match('^mysql:', str(self.database.get_sqla_engine().url)):
+            sql = 'select column_name,column_comment from information_schema.columns WHERE TABLE_NAME ="%s" ' % str(
+                table)
+            return {k: (v or k) for (k, v) in self.database.get_sqla_engine().execute(sql).fetchall()}
+			
     def _get_top_groups(self, df, dimensions):
         cols = {col.column_name: col for col in self.columns}
         groups = []
@@ -730,6 +746,8 @@ class SqlaTable(Model, BaseDatasource):
         metrics = []
         any_date_col = None
         db_dialect = self.database.get_dialect()
+        #获取mysql的comment信息
+        comment_info_dict=self.init_table(table)
         dbcols = (
             db.session.query(TableColumn)
             .filter(TableColumn.table == self)
@@ -751,8 +769,10 @@ class SqlaTable(Model, BaseDatasource):
                 dbcol.groupby = dbcol.is_string
                 dbcol.filterable = dbcol.is_string
                 dbcol.sum = dbcol.is_num
-                dbcol.avg = dbcol.is_num
+                #dbcol.avg = dbcol.is_num
                 dbcol.is_dttm = dbcol.is_time
+                if comment_info_dict:
+                    dbcol.verbose_name=comment_info_dict[dbcol.column_name]
             else:
                 dbcol.type = datatype
             self.columns.append(dbcol)

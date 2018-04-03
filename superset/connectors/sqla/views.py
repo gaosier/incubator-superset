@@ -20,6 +20,7 @@ from superset.views.base import (
     DatasourceFilter, DeleteMixin, get_datasource_exist_error_mgs,
     ListWidgetWithCheckboxes, SupersetModelView, YamlExportMixin,
 )
+from superset.utils_ext import metric_format
 from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
 from . import models
 
@@ -37,12 +38,12 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     edit_columns = [
         'column_name', 'verbose_name', 'description',
         'type', 'groupby', 'filterable',
-        'table', 'count_distinct', 'sum', 'min', 'max', 'expression',
+        'table', 'count_distinct', 'sum', 'avg','min', 'max', 'expression',
         'is_dttm', 'python_date_format', 'database_expression']
     add_columns = edit_columns
     list_columns = [
         'column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
-        'sum', 'min', 'max', 'is_dttm']
+        'sum', 'avg','min', 'max', 'is_dttm']
     page_size = 500
     description_columns = {
         'is_dttm': _(
@@ -88,6 +89,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'table': _('Table'),
         'count_distinct': _('Count Distinct'),
         'sum': _('Sum'),
+		'avg':_("Avg"),
         'min': _('Min'),
         'max': _('Max'),
         'expression': _('Expression'),
@@ -96,8 +98,50 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'database_expression': _('Database Expression'),
         'type': _('Type'),
     }
+    def post_delete(self, item):
+        """
+            #删除时，同时删除metric表内的相关信息
+        """
+        dic=self.metric_name_dic(item)
+        Metric_dict = db.session.query(models.SqlMetric).filter(models.SqlMetric.table_id == item.table_id,
+                                                                models.SqlMetric.metric_name.in_(list(dic))).all()
+        for m in Metric_dict:
+            db.session.delete(m)
+        db.session.commit()
 
+    def post_add(self, item):
+        dic=self.metric_name_dic(item)
+        for n in dic:
+            if dic[n]['flag']:
+                args = metric_format(dic[n]['value'], item)
+                db.session.add(models.SqlMetric(**args))
+                db.session.commit()
 
+    def metric_name_dic(self,item):
+        return {'sum__' + item.column_name: {'flag': item.sum, 'value': 'sum'},
+               'avg__' + item.column_name: {'flag': item.avg, 'value': 'avg'},
+               'max__' + item.column_name: {'flag': item.max, 'value': 'max'},
+               'min__' + item.column_name: {'flag': item.min, 'value': 'min'},
+               'count_distinct__' + item.column_name: {'flag': item.count_distinct, 'value': 'count_distinct'}}
+
+    def post_update(self, item):
+        """
+            #编辑后 影响metric表的数据
+        """
+        dic = self.metric_name_dic(item)
+        Metric_dict = db.session.query(models.SqlMetric).filter(models.SqlMetric.table_id == item.table_id,
+                                                                models.SqlMetric.metric_name.in_(list(dic))).all()
+        metric_in = set({})
+        for m in Metric_dict:
+            metric_in.add(m.metric_name)
+            if not dic[m.metric_name]['flag']:
+                db.session.delete(m)
+                db.session.commit()
+        for n in list(set(dic) - metric_in):
+            if dic[n]['flag']:
+                args = metric_format(dic[n]['value'], item)
+                db.session.add(models.SqlMetric(**args))
+                db.session.commit()
 appbuilder.add_view_no_menu(TableColumnInlineView)
 
 

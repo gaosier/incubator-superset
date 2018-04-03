@@ -1,5 +1,6 @@
 #-*-coding:utf-8-*-
 from datetime import datetime
+from flask_babel import lazy_gettext as _
 
 def time_grain_convert(frm_date, time_grain_sqla):
     '''切片时间分组，格式化中文
@@ -54,3 +55,21 @@ def time_grain_convert(frm_date, time_grain_sqla):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年第{1}周'.format(frm_date.year, frm_date.strftime('%W'))
 
+def metric_format(value, item):
+    """
+        #格式化生成sql_metric表对象时参数
+    """
+    table_name = str(item.table.table_name)
+    if value == 'count_distinct':
+        expression = 'COUNT(DISTINCT %s)'%(item.expression) if item.expression else 'COUNT(DISTINCT %s.%s)' % (table_name, item.column_name)
+        verbose_name='%s(%s)'%(item.verbose_name or item.column_name,_('Count Distinct'))
+    else:
+        expression = "%s(%s)" % (value.upper(),item.expression)if item.expression else "%s(%s.%s)" % (value.upper(), table_name, item.column_name)
+        verbose_name='%s(%s)'%(item.verbose_name or item.column_name , _(value.capitalize()))
+    return {
+        'metric_name': '%s__%s' % (value, item.column_name),
+        'verbose_name': verbose_name,
+        'metric_type': value,
+        'expression': expression,
+        'table_id': item.table_id
+    }
