@@ -139,7 +139,7 @@ class BaseViz(object):
                 timestamp_format = dttm_col.python_date_format
 
         # The datasource here can be different backend but the interface is common
-        self.results = self.datasource.query(query_obj)
+        self.results = self.datasource.query(query_obj, self.viz_type)
         self.query = self.results.query
         self.status = self.results.status
         self.error_message = self.results.error_message
@@ -154,15 +154,16 @@ class BaseViz(object):
             return pd.DataFrame()
         else:
             #时间分组格式化，去掉
-#            if DTTM_ALIAS in df.columns:
-#                if timestamp_format in ('epoch_s', 'epoch_ms'):
-#                    df[DTTM_ALIAS] = pd.to_datetime(df[DTTM_ALIAS], utc=False)
-#                else:
-#                    df[DTTM_ALIAS] = pd.to_datetime(
-#                        df[DTTM_ALIAS], utc=False, format=timestamp_format)
-#                if self.datasource.offset:
-#                    df[DTTM_ALIAS] += timedelta(hours=self.datasource.offset)
-#                df[DTTM_ALIAS] += self.time_shift
+            if self.viz_type == "line":
+                if DTTM_ALIAS in df.columns:
+                    if timestamp_format in ('epoch_s', 'epoch_ms'):
+                        df[DTTM_ALIAS] = pd.to_datetime(df[DTTM_ALIAS], utc=False)
+                    else:
+                        df[DTTM_ALIAS] = pd.to_datetime(
+                            df[DTTM_ALIAS], utc=False, format=timestamp_format)
+                    if self.datasource.offset:
+                        df[DTTM_ALIAS] += timedelta(hours=self.datasource.offset)
+                    df[DTTM_ALIAS] += self.time_shift
             df.replace([np.inf, -np.inf], np.nan)
             fillna = self.get_fillna_for_columns(df.columns)
             df = df.fillna(fillna)

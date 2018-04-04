@@ -695,7 +695,7 @@ class SqlaTable(Model, BaseDatasource):
 
         return or_(*groups)
 
-    def query(self, query_obj):
+    def query(self, query_obj, viz_type=None):
         def format_time_grain(index, time_grain_sqla=None):
             if index.name == '__timestamp':
                 index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla))
@@ -713,7 +713,7 @@ class SqlaTable(Model, BaseDatasource):
             logging.exception(e)
             error_message = (
                 self.database.db_engine_spec.extract_error_message(e))
-        if query_obj.get('viz_type')!='line':
+        if viz_type != 'line':
             if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
                 df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
 
