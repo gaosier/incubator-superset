@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  formatSelectOptionsForRange,
-  formatSelectOptions,
-  mainMetric,
-} from '../../modules/utils';
+import { formatSelectOptionsForRange, formatSelectOptions } from '../../modules/utils';
 import * as v from '../validators';
 import { colorPrimary, ALL_COLOR_SCHEMES, spectrums } from '../../modules/colors';
 import { defaultViewport } from '../../modules/geo';
@@ -16,6 +12,7 @@ const D3_FORMAT_DOCS = 'D3 format syntax: https://github.com/d3/d3-format';
 
 // input choices & options
 const D3_FORMAT_OPTIONS = [
+  ['.', '. | 12345'],
   ['.1s', '.1s | 12k'],
   ['.3s', '.3s | 12.3k'],
   ['.3%', '.3% | 1234543.210%'],
@@ -25,9 +22,9 @@ const D3_FORMAT_OPTIONS = [
   ['$,.2f', '$,.2f | $12,345.43'],
 ];
 
-const ROW_LIMIT_OPTIONS = [10, 50, 100, 250, 500, 1000, 5000, 10000, 50000];
+const ROW_LIMIT_OPTIONS = [10, 50, 100, 250, 500, 1000, 5000, 10000, 50000,100000];
 
-const SERIES_LIMITS = [0, 5, 10, 25, 50, 100, 500];
+const SERIES_LIMITS = [0, 5, 10, 25, 50, 100, 500,1000];
 
 export const D3_TIME_FORMAT_OPTIONS = [
   ['smart_date', 'Adaptative formating'],
@@ -86,7 +83,6 @@ const jsFunctionInfo = (
     </a>.
   </div>
 );
-
 function jsFunctionControl(label, description, extraDescr = null, height = 100, defaultText = '') {
   return {
     type: 'TextAreaControl',
@@ -136,10 +132,7 @@ export const controls = {
     valueKey: 'metric_name',
     optionRenderer: m => <MetricOption metric={m} showType />,
     valueRenderer: m => <MetricOption metric={m} />,
-    default: (c) => {
-      const metric = mainMetric(c.options);
-      return metric ? [metric] : null;
-    },
+    default: c => c.options && c.options.length > 0 ? [c.options[0].metric_name] : null,
     mapStateToProps: state => ({
       options: (state.datasource) ? state.datasource.metrics : [],
     }),
@@ -226,7 +219,7 @@ export const controls = {
     validators: [v.nonEmpty],
     optionRenderer: m => <MetricOption metric={m} showType />,
     valueRenderer: m => <MetricOption metric={m} />,
-    default: c => mainMetric(c.options),
+    default: c => c.options && c.options.length > 0 ? c.options[0].metric_name : null,
     valueKey: 'metric_name',
     mapStateToProps: state => ({
       options: (state.datasource) ? state.datasource.metrics : [],

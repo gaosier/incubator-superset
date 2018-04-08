@@ -31,17 +31,6 @@ class QuerySearch extends React.PureComponent {
       queriesArray: [],
       queriesLoading: true,
     };
-    this.userMutator = this.userMutator.bind(this);
-    this.changeUser = this.changeUser.bind(this);
-    this.dbMutator = this.dbMutator.bind(this);
-    this.onChange = this.onChange.bind(this);
-    this.changeSearch = this.changeSearch.bind(this);
-    this.changeFrom = this.changeFrom.bind(this);
-    this.changeTo = this.changeTo.bind(this);
-    this.changeStatus = this.changeStatus.bind(this);
-    this.refreshQueries = this.refreshQueries.bind(this);
-    this.onUserClicked = this.onUserClicked.bind(this);
-    this.onDbClicked = this.onDbClicked.bind(this);
   }
   componentDidMount() {
     this.refreshQueries();
@@ -101,16 +90,10 @@ class QuerySearch extends React.PureComponent {
   changeSearch(event) {
     this.setState({ searchText: event.target.value });
   }
-  userLabel(user) {
-    if (user.first_name && user.last_name) {
-      return user.first_name + ' ' + user.last_name;
-    }
-    return user.username;
-  }
   userMutator(data) {
     const options = [];
     for (let i = 0; i < data.pks.length; i++) {
-      options.push({ value: data.pks[i], label: this.userLabel(data.result[i]) });
+      options.push({ value: data.pks[i], label: data.result[i].username });
     }
     return options;
   }
@@ -152,21 +135,21 @@ class QuerySearch extends React.PureComponent {
               dataEndpoint="/users/api/read"
               mutator={this.userMutator}
               value={this.state.userId}
-              onChange={this.changeUser}
+              onChange={this.changeUser.bind(this)}
             />
           </div>
           <div className="col-sm-2">
             <AsyncSelect
-              onChange={this.onChange}
+              onChange={this.onChange.bind(this)}
               dataEndpoint="/databaseasync/api/read?_flt_0_expose_in_sqllab=1"
               value={this.state.databaseId}
-              mutator={this.dbMutator}
+              mutator={this.dbMutator.bind(this)}
             />
           </div>
           <div className="col-sm-4">
             <input
               type="text"
-              onChange={this.changeSearch}
+              onChange={this.changeSearch.bind(this)}
               className="form-control input-sm"
               placeholder={t('Search Results')}
             />
@@ -179,7 +162,7 @@ class QuerySearch extends React.PureComponent {
                 .slice(1, TIME_OPTIONS.length).map(xt => ({ value: xt, label: xt }))}
               value={this.state.from}
               autosize={false}
-              onChange={this.changeFrom}
+              onChange={this.changeFrom.bind(this)}
             />
 
             <Select
@@ -188,7 +171,7 @@ class QuerySearch extends React.PureComponent {
               options={TIME_OPTIONS.map(xt => ({ value: xt, label: xt }))}
               value={this.state.to}
               autosize={false}
-              onChange={this.changeTo}
+              onChange={this.changeTo.bind(this)}
             />
 
             <Select
@@ -198,10 +181,10 @@ class QuerySearch extends React.PureComponent {
               value={this.state.status}
               isLoading={false}
               autosize={false}
-              onChange={this.changeStatus}
+              onChange={this.changeStatus.bind(this)}
             />
 
-            <Button bsSize="small" bsStyle="success" onClick={this.refreshQueries}>
+            <Button bsSize="small" bsStyle="success" onClick={this.refreshQueries.bind(this)}>
               {t('Search')}
             </Button>
           </div>
@@ -220,8 +203,8 @@ class QuerySearch extends React.PureComponent {
                     'state', 'db', 'user', 'time',
                     'progress', 'rows', 'sql', 'querylink',
                   ]}
-                  onUserClicked={this.onUserClicked}
-                  onDbClicked={this.onDbClicked}
+                  onUserClicked={this.onUserClicked.bind(this)}
+                  onDbClicked={this.onDbClicked.bind(this)}
                   queries={this.state.queriesArray}
                   actions={this.props.actions}
                 />

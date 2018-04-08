@@ -177,7 +177,9 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'database': self.database.data,  # pylint: disable=no-member
             'edit_url': self.url,
             'filter_select': self.filter_select_enabled,
-            'filterable_cols': utils.choicify(self.filterable_column_names),
+            #'filterable_cols': utils.choicify(self.filterable_column_names),
+            'filterable_cols': list(sorted([(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
+                                            for i in self.columns if i.filterable])),
             'gb_cols': utils.choicify(self.groupby_column_names),
             'id': self.id,
             'metrics_combo': self.metrics_combo,

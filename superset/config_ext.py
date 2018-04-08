@@ -5,6 +5,7 @@ from werkzeug.contrib.cache import RedisCache
 
 from superset.config import DATA_DIR
 SQLALCHEMY_DATABASE_URI = os.environ['KINGKONG_DB']
+APP_ICON = "/static/assets/images/logo.png" 
 
 class CeleryConfig(object):
     BROKER_URL = 'redis://localhost:6379/1'
