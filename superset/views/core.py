@@ -14,7 +14,7 @@ import traceback
 from urllib import parse
 
 from flask import (
-    flash, g, Markup, redirect, render_template, request, Response, url_for,
+    flash, g, Markup, redirect, render_template, request, Response, url_for,send_file
 )
 from flask_appbuilder import expose, SimpleFormView
 from flask_appbuilder.actions import action
@@ -1073,8 +1073,20 @@ class Superset(BaseSupersetView):
             status=200,
             mimetype='application/json')
 
+    def get_xlsx_file(self,viz_obj):
+        dfa = viz_obj.get_df()
+        # 先特殊处理pivot_table的下载
+        viz_type = self.get_form_data()[0].get('viz_type', 'table')
+        if viz_type == 'pivot_table':
+            dfa = viz_obj.get_data(dfa, is_xlsx=True)
+        filename = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time())) + u'.xlsx'
+        filepath = os.path.join(app.config.get('SQLLAB_DATA_DIR'), filename)
+        dfa.to_excel(filepath, index=True, encoding='utf-8', engine='xlsxwriter')
+        return send_file(filepath, as_attachment=True,
+                         attachment_filename=parse.quote(filename))
+
     def generate_json(self, datasource_type, datasource_id, form_data,
-                      csv=False, query=False, force=False):
+                      csv=False, query=False, force=False,xlsx=False):
         try:
             viz_obj = self.get_viz(
                 datasource_type=datasource_type,
@@ -1097,6 +1109,8 @@ class Superset(BaseSupersetView):
                 status=200,
                 headers=generate_download_headers('csv'),
                 mimetype='application/csv')
+        if xlsx:
+            return self.get_xlsx_file(viz_obj)
 
         if query:
             return self.get_query_string_response(viz_obj)
@@ -1170,6 +1184,7 @@ class Superset(BaseSupersetView):
         try:
             csv = request.args.get('csv') == 'true'
             query = request.args.get('query') == 'true'
+            xlsx=request.args.get('xlsx') == 'true'
             force = request.args.get('force') == 'true'
             form_data = self.get_form_data()[0]
             datasource_id, datasource_type = self.datasource_info(
@@ -1184,7 +1199,7 @@ class Superset(BaseSupersetView):
                                   form_data=form_data,
                                   csv=csv,
                                   query=query,
-                                  force=force)
+                                  force=force,xlsx=xlsx)
 
     @log_this
     @has_access
