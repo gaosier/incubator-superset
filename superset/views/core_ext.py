@@ -14,12 +14,13 @@ from flask import (
     abort, url_for,send_from_directory,send_file)
 
 from superset import (
-    app, appbuilder, cache, db, results_backend, security, sm, sql_lab, utils,
+    app, appbuilder, cache, db, results_backend, security, sql_lab, utils,
     viz,
 )
 from superset.utils import (
-    has_access, merge_extra_filters, merge_request_params, QueryStatus,
+    merge_extra_filters, merge_request_params, QueryStatus,
 )
+from flask_appbuilder.security.decorators import has_access, has_access_api
 import superset.models.core as models
 from superset.models.sql_lab import Query
 import xlsxwriter
