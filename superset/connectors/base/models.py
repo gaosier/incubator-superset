@@ -15,6 +15,7 @@ from sqlalchemy.orm import foreign, relationship
 from superset import utils
 from superset.models.core import Slice
 from superset.models.helpers import AuditMixinNullable, ImportMixin
+from flask_babel import lazy_gettext as _
 
 
 class BaseDatasource(AuditMixinNullable, ImportMixin):
@@ -154,9 +155,11 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
     def data(self):
         """Data representation of the datasource sent to the frontend"""
         order_by_choices = []
-        for s in sorted(self.column_names):
-            order_by_choices.append((json.dumps([s, True]), s + ' [asc]'))
-            order_by_choices.append((json.dumps([s, False]), s + ' [desc]'))
+        # for s in sorted(self.column_names):
+        for s in sorted(self.columns,key=lambda x:x.column_name):
+            a= s.verbose_name if s.verbose_name else s.column_name
+            order_by_choices.append((json.dumps([s.column_name, True]), a + '(%s)'%(_('asc'))))
+            order_by_choices.append((json.dumps([s.column_name, False]), a + '(%s)'%(_('desc'))))
 
         verbose_map = {'__timestamp': 'Time'}
         verbose_map.update({
@@ -168,12 +171,15 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             for o in self.columns
         })
         return {
-            'all_cols': utils.choicify(self.column_names),
+            #'all_cols': utils.choicify(self.column_names),
+			'all_cols': list(sorted([(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in self.columns])),
             'column_formats': self.column_formats,
             'database': self.database.data,  # pylint: disable=no-member
             'edit_url': self.url,
             'filter_select': self.filter_select_enabled,
-            'filterable_cols': utils.choicify(self.filterable_column_names),
+            # 'filterable_cols': utils.choicify(self.filterable_column_names),
+            'filterable_cols': list(sorted([(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
+                                            for i in self.columns if i.filterable])),
             'gb_cols': utils.choicify(self.groupby_column_names),
             'id': self.id,
             'metrics_combo': self.metrics_combo,

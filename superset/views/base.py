@@ -22,6 +22,7 @@ import yaml
 
 from superset import conf, security_manager, utils
 from superset.translations.utils import get_language_pack
+from superset.fab.views import SupersetModelView as ModelView
 
 FRONTEND_CONF_KEYS = (
     'SUPERSET_WEBSERVER_TIMEOUT',

@@ -9,6 +9,7 @@ from flask import flash, Markup, redirect
 from flask_appbuilder import CompactCRUDMixin, expose
 from flask_appbuilder.actions import action
 from flask_appbuilder.models.sqla.interface import SQLAInterface
+from flask_appbuilder.views import GeneralView,ModelView,MasterDetailView
 from flask_appbuilder.security.decorators import has_access
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
@@ -20,7 +21,9 @@ from superset.views.base import (
     DatasourceFilter, DeleteMixin, get_datasource_exist_error_mgs,
     ListWidgetWithCheckboxes, SupersetModelView, YamlExportMixin,
 )
-from . import models
+from superset.utils_ext import metric_format
+from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
+from . import models,models_ext
 
 
 class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
@@ -36,12 +39,12 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     edit_columns = [
         'column_name', 'verbose_name', 'description',
         'type', 'groupby', 'filterable',
-        'table', 'count_distinct', 'sum', 'min', 'max', 'expression',
+        'table', 'count_distinct', 'sum', 'avg','min', 'max', 'expression',
         'is_dttm', 'python_date_format', 'database_expression']
     add_columns = edit_columns
     list_columns = [
         'column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
-        'sum', 'min', 'max', 'is_dttm']
+        'sum', 'avg','min', 'max', 'is_dttm']
     page_size = 500
     description_columns = {
         'is_dttm': _(
@@ -87,6 +90,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'table': _('Table'),
         'count_distinct': _('Count Distinct'),
         'sum': _('Sum'),
+		'avg':_("Avg"),
         'min': _('Min'),
         'max': _('Max'),
         'expression': _('Expression'),
@@ -95,8 +99,50 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'database_expression': _('Database Expression'),
         'type': _('Type'),
     }
+    def post_delete(self, item):
+        """
+            #删除时，同时删除metric表内的相关信息
+        """
+        dic=self.metric_name_dic(item)
+        Metric_dict = db.session.query(models.SqlMetric).filter(models.SqlMetric.table_id == item.table_id,
+                                                                models.SqlMetric.metric_name.in_(list(dic))).all()
+        for m in Metric_dict:
+            db.session.delete(m)
+        db.session.commit()
 
+    def post_add(self, item):
+        dic=self.metric_name_dic(item)
+        for n in dic:
+            if dic[n]['flag']:
+                args = metric_format(dic[n]['value'], item)
+                db.session.add(models.SqlMetric(**args))
+                db.session.commit()
 
+    def metric_name_dic(self,item):
+        return {'sum__' + item.column_name: {'flag': item.sum, 'value': 'sum'},
+               'avg__' + item.column_name: {'flag': item.avg, 'value': 'avg'},
+               'max__' + item.column_name: {'flag': item.max, 'value': 'max'},
+               'min__' + item.column_name: {'flag': item.min, 'value': 'min'},
+               'count_distinct__' + item.column_name: {'flag': item.count_distinct, 'value': 'count_distinct'}}
+
+    def post_update(self, item):
+        """
+            #编辑后 影响metric表的数据
+        """
+        dic = self.metric_name_dic(item)
+        Metric_dict = db.session.query(models.SqlMetric).filter(models.SqlMetric.table_id == item.table_id,
+                                                                models.SqlMetric.metric_name.in_(list(dic))).all()
+        metric_in = set({})
+        for m in Metric_dict:
+            metric_in.add(m.metric_name)
+            if not dic[m.metric_name]['flag']:
+                db.session.delete(m)
+                db.session.commit()
+        for n in list(set(dic) - metric_in):
+            if dic[n]['flag']:
+                args = metric_format(dic[n]['value'], item)
+                db.session.add(models.SqlMetric(**args))
+                db.session.commit()
 appbuilder.add_view_no_menu(TableColumnInlineView)
 
 
@@ -166,12 +212,12 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'link', 'database',
         'changed_by_', 'modified']
     order_columns = ['modified']
-    add_columns = ['database', 'schema', 'table_name']
+    add_columns = ['database', 'table_name', 'verbose_name', 'group']
     edit_columns = [
         'table_name', 'sql', 'filter_select_enabled', 'slices',
-        'fetch_values_predicate', 'database', 'schema',
+        'fetch_values_predicate', 'database', 'schema','verbose_name',
         'description', 'owner',
-        'main_dttm_col', 'default_endpoint', 'offset', 'cache_timeout']
+        'main_dttm_col', 'default_endpoint', 'offset', 'cache_timeout', 'group']
     show_columns = edit_columns + ['perm']
     related_views = [TableColumnInlineView, SqlMetricInlineView]
     base_order = ('changed_on', 'desc')
@@ -231,6 +277,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'owner': _('Owner'),
         'main_dttm_col': _('Main Datetime Column'),
         'description': _('Description'),
+        'group': _('Group Name')
     }
 
     def pre_add(self, table):
@@ -267,6 +314,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
     def post_update(self, table):
         self.post_add(table, flash_message=False)
 
+
     def _delete(self, pk):
         DeleteMixin._delete(self, pk)
 
@@ -295,6 +343,27 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         flash(msg, 'info')
         return redirect('/tablemodelview/list/')
 
+    def _get_list_widget(self, filters,
+                         actions=None,
+                         order_column='',
+                         order_direction='',
+                         page=None,
+                         page_size=None,
+                         widgets=None,
+                         **args):
+        group_id = filters.get_filter_value('group')
+        if group_id is not None:
+            group_name = models_ext.SqlTableGroup.get_name(group_id)
+            self.list_title = group_name
+        return super(TableModelView, self)._get_list_widget(filters,
+                         actions=None,
+                         order_column='',
+                         order_direction='',
+                         page=None,
+                         page_size=None,
+                         widgets=None,
+                         **args)
+
 
 appbuilder.add_view(
     TableModelView,
@@ -306,3 +375,4 @@ appbuilder.add_view(
 )
 
 appbuilder.add_separator('Sources')
+

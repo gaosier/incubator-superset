@@ -14,7 +14,7 @@ import traceback
 from urllib import parse
 
 from flask import (
-    flash, g, Markup, redirect, render_template, request, Response, url_for,
+    flash, g, Markup, redirect, render_template, request, Response, url_for,send_file
 )
 from flask_appbuilder import expose, SimpleFormView
 from flask_appbuilder.actions import action
@@ -37,7 +37,7 @@ from superset import (
     viz,
 )
 from superset.connectors.connector_registry import ConnectorRegistry
-from superset.connectors.sqla.models import AnnotationDatasource, SqlaTable
+from superset.connectors.sqla.models import AnnotationDatasource, SqlaTable,SqlMetric
 from superset.exceptions import SupersetException, SupersetSecurityException
 from superset.forms import CsvToDatabaseForm
 from superset.jinja_context import get_template_processor
@@ -48,6 +48,8 @@ from superset.sql_parse import SupersetQuery
 from superset.utils import (
     merge_extra_filters, merge_request_params, QueryStatus,
 )
+from superset.utils_ext import metric_format
+from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
 from .base import (
     api, BaseSupersetView, CsvResponse, DeleteMixin,
     generate_download_headers, get_error_msg, get_user_roles,
@@ -1070,8 +1072,20 @@ class Superset(BaseSupersetView):
             status=200,
             mimetype='application/json')
 
+    def get_xlsx_file(self,viz_obj):
+        dfa = viz_obj.get_df()
+        # 先特殊处理pivot_table的下载
+        viz_type = self.get_form_data()[0].get('viz_type', 'table')
+        if viz_type == 'pivot_table':
+            dfa = viz_obj.get_data(dfa, is_xlsx=True)
+        filename = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time())) + u'.xlsx'
+        filepath = os.path.join(app.config.get('SQLLAB_DATA_DIR'), filename)
+        dfa.to_excel(filepath, index=True, encoding='utf-8', engine='xlsxwriter')
+        return send_file(filepath, as_attachment=True,
+                         attachment_filename=parse.quote(filename))
+
     def generate_json(self, datasource_type, datasource_id, form_data,
-                      csv=False, query=False, force=False):
+                      csv=False, query=False, force=False,xlsx=False):
         try:
             viz_obj = self.get_viz(
                 datasource_type=datasource_type,
@@ -1094,6 +1108,8 @@ class Superset(BaseSupersetView):
                 status=200,
                 headers=generate_download_headers('csv'),
                 mimetype='application/csv')
+        if xlsx:
+            return self.get_xlsx_file(viz_obj)
 
         if query:
             return self.get_query_string_response(viz_obj)
@@ -1167,6 +1183,7 @@ class Superset(BaseSupersetView):
         try:
             csv = request.args.get('csv') == 'true'
             query = request.args.get('query') == 'true'
+            xlsx=request.args.get('xlsx') == 'true'
             force = request.args.get('force') == 'true'
             form_data = self.get_form_data()[0]
             datasource_id, datasource_type = self.datasource_info(
@@ -1181,7 +1198,7 @@ class Superset(BaseSupersetView):
                                   form_data=form_data,
                                   csv=csv,
                                   query=query,
-                                  force=force)
+                                  force=force,xlsx=xlsx)
 
     @log_this
     @has_access
@@ -1462,15 +1479,33 @@ class Superset(BaseSupersetView):
                 ConnectorRegistry.sources['druid'].column_class,
         }
         model = modelview_to_model[model_view]
-        col = db.session.query(model).filter_by(id=id_).first()
-        checked = value == 'true'
-        if col:
-            setattr(col, attr, checked)
-            if checked:
-                metrics = col.get_metrics().values()
-                col.datasource.add_missing_metrics(metrics)
-            db.session.commit()
-        return json_success('OK')
+        obj = db.session.query(model).filter_by(id=id_).first()
+        if obj:
+            if check_ownership(obj,False):
+                setattr(obj, attr, value == 'true')
+                if attr in ['max','min','avg','sum','count_distinct']:
+                    if value=='true':
+                        arg=metric_format(attr,obj)
+                        db.session.add(SqlMetric(**arg))
+                    else:
+                        metric_name = attr + '__' + obj.column_name
+                        roles=(i.name for i in g.user.roles)
+                        if 'Admin' in roles:
+                            metric_obj=db.session.query(SqlMetric).filter(SqlMetric.table_id == obj.table_id,
+                                                              SqlMetric.metric_name == metric_name).first()
+                        else:
+                            metric_obj = db.session.query(SqlMetric).filter(SqlMetric.table_id == obj.table_id,
+                                                            SqlMetric.metric_name == metric_name,SqlMetric.created_by==g.user).first()
+                        if metric_obj:
+                            db.session.delete(metric_obj)
+                db.session.commit()
+            else:
+                from flask import make_response,jsonify
+                response = make_response(jsonify({'message': str('您无权限修改不属于您的字段'),
+                                                  'severity': 'danger'}), 401)
+                response.headers['Content-Type'] = "application/json"
+                return response
+        return json_success("OK")
 
     @api
     @has_access_api

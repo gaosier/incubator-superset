@@ -32,6 +32,8 @@ from superset.models.core import Database
 from superset.models.helpers import QueryResult
 from superset.models.helpers import set_perm
 from superset.utils import DTTM_ALIAS, QueryStatus
+from superset.utils_ext import time_grain_convert
+from .models_ext import SqlTableGroup
 
 
 class AnnotationDatasource(BaseDatasource):
@@ -172,30 +174,35 @@ class TableColumn(Model, BaseColumn):
         if self.sum:
             metrics.append(M(
                 metric_name='sum__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Sum')),
                 metric_type='sum',
                 expression='SUM({})'.format(quoted),
             ))
         if self.avg:
             metrics.append(M(
                 metric_name='avg__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Avg')),
                 metric_type='avg',
                 expression='AVG({})'.format(quoted),
             ))
         if self.max:
             metrics.append(M(
                 metric_name='max__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Max')),
                 metric_type='max',
                 expression='MAX({})'.format(quoted),
             ))
         if self.min:
             metrics.append(M(
                 metric_name='min__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Min')),
                 metric_type='min',
                 expression='MIN({})'.format(quoted),
             ))
         if self.count_distinct:
             metrics.append(M(
                 metric_name='count_distinct__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Count Distinct')),
                 metric_type='count_distinct',
                 expression='COUNT(DISTINCT {})'.format(quoted),
             ))
@@ -268,6 +275,9 @@ class SqlaTable(Model, BaseDatasource):
         foreign_keys=[database_id])
     schema = Column(String(255))
     sql = Column(Text)
+    group_id = Column(Integer, ForeignKey('tables_group.id'), nullable=False)
+    group = relationship("SqlTableGroup")
+    verbose_name = Column(String(1024), nullable=True)
 
     baselink = 'tablemodelview'
 
@@ -318,7 +328,7 @@ class SqlaTable(Model, BaseDatasource):
     def name(self):
         if not self.schema:
             return self.table_name
-        return '{}.{}'.format(self.schema, self.table_name)
+        return '{}.{}'.format(self.schema, self.table_name or self.table_name)
 
     @property
     def full_name(self):
@@ -371,13 +381,22 @@ class SqlaTable(Model, BaseDatasource):
                 return col
 
     @property
+    def my_dttm_cols(self):
+        l = [c for c in self.columns if c.is_dttm]
+        li=[(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in l]
+        if self.main_dttm_col and self.main_dttm_col not in [c.column_name for c in l]:
+            li.append((self.main_dttm_col,self.main_dttm_col))
+        return list(sorted(li))
+
+    @property
     def data(self):
         d = super(SqlaTable, self).data
         if self.type == 'table':
             grains = self.database.grains() or []
             if grains:
                 grains = [(g.duration, g.name) for g in grains]
-            d['granularity_sqla'] = utils.choicify(self.dttm_cols)
+            #d['granularity_sqla'] = utils.choicify(self.dttm_cols)
+            d['granularity_sqla'] =self.my_dttm_cols
             d['time_grain_sqla'] = grains
         return d
 
@@ -616,6 +635,31 @@ class SqlaTable(Model, BaseDatasource):
             if having:
                 having = template_processor.process_template(having)
                 having_clause_and += [sa.text('({})'.format(having))]
+            having_druid=extras.get("having_druid")
+            if having_druid:
+                for met in having_druid:
+                    if not all([met.get(s) for s in ['col', 'op', 'val']]):
+                        continue
+                    col = met['col']
+                    op = met['op']
+                    eq = met['val']
+                    met_obj = metrics_dict.get(col)
+                    if met_obj:
+                        eq=utils.string_to_num(eq.strip())
+                        if op == '==':
+                            having_clause_and.append(met_obj.sqla_col == eq)
+                        elif op == '!=':
+                            having_clause_and.append(met_obj.sqla_col != eq)
+                        elif op == '>':
+                            having_clause_and.append(met_obj.sqla_col > eq)
+                        elif op == '<':
+                            having_clause_and.append(met_obj.sqla_col < eq)
+                        elif op == '>=':
+                            having_clause_and.append(met_obj.sqla_col >= eq)
+                        elif op == '<=':
+                            having_clause_and.append(met_obj.sqla_col <= eq)
+
+
         if granularity:
             qry = qry.where(and_(*(time_filters + where_clause_and)))
         else:
@@ -687,7 +731,14 @@ class SqlaTable(Model, BaseDatasource):
                 qry = qry.where(top_groups)
 
         return qry.select_from(tbl)
-
+		
+    def init_table(self, table):
+        import re
+        if re.match('^mysql:', str(self.database.get_sqla_engine().url)):
+            sql = 'select column_name,column_comment from information_schema.columns WHERE TABLE_NAME ="%s" ' % str(
+                table)
+            return {k: (v or k) for (k, v) in self.database.get_sqla_engine().execute(sql).fetchall()}
+			
     def _get_top_groups(self, df, dimensions):
         cols = {col.column_name: col for col in self.columns}
         groups = []
@@ -700,7 +751,12 @@ class SqlaTable(Model, BaseDatasource):
 
         return or_(*groups)
 
-    def query(self, query_obj):
+    def query(self, query_obj, viz_type=None):
+        def format_time_grain(index, time_grain_sqla=None):
+            if index.name == '__timestamp':
+                index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla))
+            return index
+        time_grain_sqla = query_obj["extras"].get('time_grain_sqla',None)
         qry_start_dttm = datetime.now()
         sql = self.get_query_str(query_obj)
         status = QueryStatus.SUCCESS
@@ -713,6 +769,9 @@ class SqlaTable(Model, BaseDatasource):
             logging.exception(e)
             error_message = (
                 self.database.db_engine_spec.extract_error_message(e))
+        if viz_type != 'line':
+            if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
+                df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
 
         # if this is a main query with prequeries, combine them together
         if not query_obj['is_prequery']:
@@ -743,6 +802,8 @@ class SqlaTable(Model, BaseDatasource):
         metrics = []
         any_date_col = None
         db_dialect = self.database.get_dialect()
+        #获取mysql的comment信息
+        comment_info_dict=self.init_table(table)
         dbcols = (
             db.session.query(TableColumn)
             .filter(TableColumn.table == self)
@@ -764,8 +825,10 @@ class SqlaTable(Model, BaseDatasource):
                 dbcol.groupby = dbcol.is_string
                 dbcol.filterable = dbcol.is_string
                 dbcol.sum = dbcol.is_num
-                dbcol.avg = dbcol.is_num
+                #dbcol.avg = dbcol.is_num
                 dbcol.is_dttm = dbcol.is_time
+                if comment_info_dict:
+                    dbcol.verbose_name=comment_info_dict[dbcol.column_name]
             else:
                 dbcol.type = datatype
             self.columns.append(dbcol)

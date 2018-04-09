@@ -30,7 +30,7 @@ fi
 #sudo kill -9 $upid
 
 pkill -9 -f 'celery worker'
-celery --workdir=/data/usr/local/superset/$vv/superset -A superset.celery  worker -l INFO -D -f /data/usr/local/superset/$vv/superset/celery.log --pidfile=/data/usr/local/superset/$vv/superset/celery.pid
+celery --workdir=/data/usr/local/superset/$vv/superset -A superset.sql_lab.celery_app  worker -l INFO -D -f /data/usr/local/superset/$vv/superset/celery.log --pidfile=/data/usr/local/superset/$vv/superset/celery.pid
 
 sudo sed -i "s/\/v[0-9\.]*/\/$vv/g" /etc/nginx/conf.d/python.conf
 sudo service nginx restart

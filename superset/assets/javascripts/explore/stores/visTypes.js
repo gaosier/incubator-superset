@@ -96,6 +96,51 @@ export const sections = {
 };
 
 export const visTypes = {
+    table: {
+    label: t('Table View'),
+    controlPanelSections: [
+      {
+        label: t('GROUP BY'),
+        description: t('Use this section if you want a query that aggregates'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby'],
+          ['metrics'],
+          ['percent_metrics'],
+          ['timeseries_limit_metric', 'row_limit'],
+          ['include_time', 'order_desc'],
+        ],
+      },
+      {
+        label: t('NOT GROUPED BY'),
+        description: t('Use this section if you want to query atomic rows'),
+        controlSetRows: [
+          ['all_columns'],
+          ['order_by_cols'],
+          ['row_limit', null],
+        ],
+      },
+      {
+        label: t('Options'),
+        expanded: true,
+        controlSetRows: [
+          ['table_timestamp_format'],
+          ['page_length', null],
+          ['include_search', 'table_filter'],
+          ['align_pn', 'color_pn'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      metrics: {
+        validators: [],
+      },
+      time_grain_sqla: {
+        default: null,
+      },
+    },
+  },
+
   dist_bar: {
     label: t('Distribution - Bar Chart'),
     showOnExplore: true,
@@ -145,6 +190,7 @@ export const visTypes = {
         controlSetRows: [
           ['metrics'],
           ['groupby'],
+          ['row_limit'],
           ['limit'],
         ],
       },
@@ -159,6 +205,32 @@ export const visTypes = {
         ],
       },
     ],
+  },
+
+  pivot_table: {
+    label: t('Pivot Table'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby', 'columns'],
+          ['metrics'],
+	  ['row_limit'],
+        ],
+      },
+      {
+        label: t('Pivot Options'),
+        controlSetRows: [
+          ['pandas_aggfunc', 'pivot_margins'],
+          ['number_format', 'combine_metric'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      groupby: { includeTime: true },
+      columns: { includeTime: true },
+    },
   },
 
   line: {
@@ -745,52 +817,6 @@ export const visTypes = {
       },
     },
   },
-
-  table: {
-    label: t('Table View'),
-    controlPanelSections: [
-      {
-        label: t('GROUP BY'),
-        description: t('Use this section if you want a query that aggregates'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metrics'],
-          ['percent_metrics'],
-          ['timeseries_limit_metric', 'row_limit'],
-          ['include_time', 'order_desc'],
-        ],
-      },
-      {
-        label: t('NOT GROUPED BY'),
-        description: t('Use this section if you want to query atomic rows'),
-        controlSetRows: [
-          ['all_columns'],
-          ['order_by_cols'],
-          ['row_limit', null],
-        ],
-      },
-      {
-        label: t('Options'),
-        expanded: true,
-        controlSetRows: [
-          ['table_timestamp_format'],
-          ['page_length', null],
-          ['include_search', 'table_filter'],
-          ['align_pn', 'color_pn'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      metrics: {
-        validators: [],
-      },
-      time_grain_sqla: {
-        default: null,
-      },
-    },
-  },
-
   time_table: {
     label: t('Time Series Table'),
     controlPanelSections: [
@@ -829,31 +855,6 @@ export const visTypes = {
         ],
       },
     ],
-  },
-
-  pivot_table: {
-    label: t('Pivot Table'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby', 'columns'],
-          ['metrics'],
-        ],
-      },
-      {
-        label: t('Pivot Options'),
-        controlSetRows: [
-          ['pandas_aggfunc', 'pivot_margins'],
-          ['number_format', 'combine_metric'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      groupby: { includeTime: true },
-      columns: { includeTime: true },
-    },
   },
 
   separator: {
@@ -1650,8 +1651,10 @@ export function sectionsToRender(vizType, datasourceType) {
   return [].concat(
     sections.datasourceAndVizType,
     datasourceType === 'table' ? sections.sqlaTimeSeries : sections.druidTimeSeries,
-    viz.controlPanelSections,
-    datasourceType === 'table' ? sections.sqlClause : [],
     datasourceType === 'table' ? sections.filters[0] : sections.filters,
+    viz.controlPanelSections,
+    datasourceType === 'table' ? sections.filters[1] : [],
+    datasourceType === 'table' ? sections.sqlClause : [],
+    //datasourceType === 'table' ? sections.filters[0] : sections.filters,
   );
 }

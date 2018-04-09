@@ -6,16 +6,17 @@ import SelectControl from './SelectControl';
 import { t } from '../../../locales';
 
 const operatorsArr = [
-  { val: 'in', type: 'array', useSelect: true, multi: true },
-  { val: 'not in', type: 'array', useSelect: true, multi: true },
-  { val: '==', type: 'string', useSelect: true, multi: false, havingOnly: true },
-  { val: '!=', type: 'string', useSelect: true, multi: false, havingOnly: true },
-  { val: '>=', type: 'string', havingOnly: true },
-  { val: '<=', type: 'string', havingOnly: true },
-  { val: '>', type: 'string', havingOnly: true },
-  { val: '<', type: 'string', havingOnly: true },
+  { val: 'in',label:'在', type: 'array', useSelect: true, multi: true },
+  { val: 'not in',label:'不在',type: 'array', useSelect: true, multi: true },
+  { val: '==',label:'等于', type: 'string', useSelect: true, multi: false, havingOnly: true },
+  { val: '!=', label:'不等于',type: 'string', useSelect: true, multi: false, havingOnly: true },
+  { val: '>=',label:'大于等于', type: 'string', havingOnly: true },
+  { val: '<=',label:'小于等于', type: 'string', havingOnly: true },
+  { val: '>',label:'大于', type: 'string', havingOnly: true },
+  { val: '<',label:'小于', type: 'string', havingOnly: true },
   { val: 'regex', type: 'string', datasourceTypes: ['druid'] },
-  { val: 'LIKE', type: 'string', datasourceTypes: ['table'] },
+  { val: 'LIKE',label:'模糊匹配', type: 'string', datasourceTypes: ['table'] },
+  { val: 'RLIKE',label:'正则(rlike)', type: 'string', datasourceTypes: ['table'] },
 ];
 const operators = {};
 operatorsArr.forEach((op) => {
@@ -125,7 +126,7 @@ export default class Filter extends React.Component {
       }
       return (!o.datasourceTypes || o.datasourceTypes.indexOf(datasource.type) >= 0);
     })
-    .map(o => ({ value: o.val, label: o.val }));
+    .map(o => ({ value: o.val, label: o.label }));
     let colChoices;
     if (datasource) {
       if (this.props.having) {
