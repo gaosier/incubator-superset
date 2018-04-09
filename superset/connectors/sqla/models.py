@@ -33,6 +33,7 @@ from superset.models.helpers import QueryResult
 from superset.models.helpers import set_perm
 from superset.utils import DTTM_ALIAS, QueryStatus
 from superset.utils_ext import time_grain_convert
+from .models_ext import SqlTableGroup
 
 
 class AnnotationDatasource(BaseDatasource):
@@ -269,6 +270,8 @@ class SqlaTable(Model, BaseDatasource):
         foreign_keys=[database_id])
     schema = Column(String(255))
     sql = Column(Text)
+    group_id = Column(Integer, ForeignKey('tables_group.id'), nullable=False)
+    group = relationship("SqlTableGroup")
 
     baselink = 'tablemodelview'
 

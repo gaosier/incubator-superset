@@ -9,6 +9,7 @@ from flask import flash, Markup, redirect
 from flask_appbuilder import CompactCRUDMixin, expose
 from flask_appbuilder.actions import action
 from flask_appbuilder.models.sqla.interface import SQLAInterface
+from flask_appbuilder.views import GeneralView,ModelView,MasterDetailView
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
 from past.builtins import basestring
@@ -22,7 +23,7 @@ from superset.views.base import (
 )
 from superset.utils_ext import metric_format
 from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
-from . import models
+from . import models,models_ext
 
 
 class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
@@ -211,12 +212,12 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'link', 'database',
         'changed_by_', 'modified']
     order_columns = ['modified']
-    add_columns = ['database', 'schema', 'table_name']
+    add_columns = ['database', 'schema', 'table_name', 'group']
     edit_columns = [
         'table_name', 'sql', 'filter_select_enabled', 'slices',
         'fetch_values_predicate', 'database', 'schema',
         'description', 'owner',
-        'main_dttm_col', 'default_endpoint', 'offset', 'cache_timeout']
+        'main_dttm_col', 'default_endpoint', 'offset', 'cache_timeout', 'group']
     show_columns = edit_columns + ['perm']
     related_views = [TableColumnInlineView, SqlMetricInlineView]
     base_order = ('changed_on', 'desc')
@@ -276,6 +277,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'owner': _('Owner'),
         'main_dttm_col': _('Main Datetime Column'),
         'description': _('Description'),
+        'group': _('Group Name')
     }
 
     def pre_add(self, table):
@@ -312,6 +314,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
     def post_update(self, table):
         self.post_add(table, flash_message=False)
 
+
     def _delete(self, pk):
         DeleteMixin._delete(self, pk)
 
@@ -340,6 +343,27 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         flash(msg, 'info')
         return redirect('/tablemodelview/list/')
 
+    def _get_list_widget(self, filters,
+                         actions=None,
+                         order_column='',
+                         order_direction='',
+                         page=None,
+                         page_size=None,
+                         widgets=None,
+                         **args):
+        group_id = filters.get_filter_value('group')
+        if group_id is not None:
+            group_name = models_ext.SqlTableGroup.get_name(group_id)
+            self.list_title = group_name
+        return super(TableModelView, self)._get_list_widget(filters,
+                         actions=None,
+                         order_column='',
+                         order_direction='',
+                         page=None,
+                         page_size=None,
+                         widgets=None,
+                         **args)
+
 
 appbuilder.add_view(
     TableModelView,
@@ -351,3 +375,4 @@ appbuilder.add_view(
 )
 
 appbuilder.add_separator('Sources')
+
