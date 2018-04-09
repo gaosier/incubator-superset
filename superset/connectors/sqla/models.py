@@ -174,30 +174,35 @@ class TableColumn(Model, BaseColumn):
         if self.sum:
             metrics.append(M(
                 metric_name='sum__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Sum')),
                 metric_type='sum',
                 expression='SUM({})'.format(quoted),
             ))
         if self.avg:
             metrics.append(M(
                 metric_name='avg__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Avg')),
                 metric_type='avg',
                 expression='AVG({})'.format(quoted),
             ))
         if self.max:
             metrics.append(M(
                 metric_name='max__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Max')),
                 metric_type='max',
                 expression='MAX({})'.format(quoted),
             ))
         if self.min:
             metrics.append(M(
                 metric_name='min__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Min')),
                 metric_type='min',
                 expression='MIN({})'.format(quoted),
             ))
         if self.count_distinct:
             metrics.append(M(
                 metric_name='count_distinct__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Count Distinct')),
                 metric_type='count_distinct',
                 expression='COUNT(DISTINCT {})'.format(quoted),
             ))
@@ -272,6 +277,7 @@ class SqlaTable(Model, BaseDatasource):
     sql = Column(Text)
     group_id = Column(Integer, ForeignKey('tables_group.id'), nullable=False)
     group = relationship("SqlTableGroup")
+    verbose_name = Column(String(1024), nullable=True)
 
     baselink = 'tablemodelview'
 
@@ -313,7 +319,7 @@ class SqlaTable(Model, BaseDatasource):
     def name(self):
         if not self.schema:
             return self.table_name
-        return '{}.{}'.format(self.schema, self.table_name)
+        return '{}.{}'.format(self.schema, self.table_name or self.table_name)
 
     @property
     def full_name(self):
@@ -607,6 +613,31 @@ class SqlaTable(Model, BaseDatasource):
             if having:
                 having = template_processor.process_template(having)
                 having_clause_and += [sa.text('({})'.format(having))]
+            having_druid=extras.get("having_druid")
+            if having_druid:
+                for met in having_druid:
+                    if not all([met.get(s) for s in ['col', 'op', 'val']]):
+                        continue
+                    col = met['col']
+                    op = met['op']
+                    eq = met['val']
+                    met_obj = metrics_dict.get(col)
+                    if met_obj:
+                        eq=utils.string_to_num(eq.strip())
+                        if op == '==':
+                            having_clause_and.append(met_obj.sqla_col == eq)
+                        elif op == '!=':
+                            having_clause_and.append(met_obj.sqla_col != eq)
+                        elif op == '>':
+                            having_clause_and.append(met_obj.sqla_col > eq)
+                        elif op == '<':
+                            having_clause_and.append(met_obj.sqla_col < eq)
+                        elif op == '>=':
+                            having_clause_and.append(met_obj.sqla_col >= eq)
+                        elif op == '<=':
+                            having_clause_and.append(met_obj.sqla_col <= eq)
+
+
         if granularity:
             qry = qry.where(and_(*(time_filters + where_clause_and)))
         else:
