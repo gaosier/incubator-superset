@@ -73,3 +73,14 @@ def metric_format(value, item):
         'expression': expression,
         'table_id': item.table_id
     }
+
+def get_admin_id_list(db):
+    """
+    获取所有admin用户的id
+    :return:
+    """
+    result = db.session.execute("select user_id from ab_user_role WHERE role_id=1")
+    admin_user_list = []
+    for i in result:
+        admin_user_list.append(i[0])
+    return admin_user_list

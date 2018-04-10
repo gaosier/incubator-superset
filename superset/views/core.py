@@ -154,7 +154,10 @@ class SliceFilter(SupersetFilter):
             return query
         perms = self.get_view_menus('datasource_access')
         # TODO(bogdan): add `schema_access` support here
-        return query.filter(self.model.perm.in_(perms))
+        from sqlalchemy import or_
+        sub_qry_1=db.session.query(models.Slice.id).filter(models.Slice.owners.contains(g.user))
+        sub_qry_2=db.session.query(models.Slice.id).filter(models.Slice.show_users.contains(g.user))
+        return query.filter(self.model.perm.in_(perms)).filter(or_(models.Slice.id.in_(sub_qry_1),models.Slice.id.in_(sub_qry_2)))
 
 
 class DashboardFilter(SupersetFilter):
@@ -427,13 +430,13 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
         'datasource_link': _('Datasource'),
     }
     search_columns = (
-        'slice_name', 'description', 'viz_type', 'datasource_name', 'owners',
+        'slice_name', 'description', 'viz_type', 'datasource_name', 'owners','show_users'
     )
     list_columns = [
         'slice_link', 'viz_type', 'datasource_link', 'creator', 'modified']
     order_columns = ['viz_type', 'datasource_link', 'modified']
     edit_columns = [
-        'slice_name', 'description', 'viz_type', 'owners', 'dashboards',
+        'slice_name', 'description', 'viz_type', 'owners','show_users', 'dashboards',
         'params', 'cache_timeout']
     base_order = ('changed_on', 'desc')
     description_columns = {
@@ -460,6 +463,7 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
         'description': _('Description'),
         'modified': _('Last Modified'),
         'owners': _('Owners'),
+        'show_users': _('Show Users'),
         'params': _('Parameters'),
         'slice_link': _('Chart'),
         'slice_name': _('Name'),
@@ -536,10 +540,10 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
     list_columns = ['dashboard_link', 'creator', 'modified']
     order_columns = ['modified']
     edit_columns = [
-        'dashboard_title', 'slug', 'slices', 'owners', 'position_json', 'css',
+        'dashboard_title', 'slug', 'slices', 'owners','show_users', 'position_json', 'css',
         'json_metadata']
     show_columns = edit_columns + ['table_names']
-    search_columns = ('dashboard_title', 'slug', 'owners')
+    search_columns = ('dashboard_title', 'slug', 'owners','show_users')
     add_columns = edit_columns
     base_order = ('changed_on', 'desc')
     description_columns = {
@@ -1313,7 +1317,10 @@ class Superset(BaseSupersetView):
                 datasource_id,
                 datasource_type,
                 datasource.name)
-
+        if slc:
+            datasource.slice_users = slc.owners
+        else:
+            datasource.slice_users = None
         standalone = request.args.get('standalone') == 'true'
         bootstrap_data = {
             'can_add': slice_add_perm,
@@ -1477,6 +1484,8 @@ class Superset(BaseSupersetView):
                 ConnectorRegistry.sources['table'].column_class,
             'DruidColumnInlineView':
                 ConnectorRegistry.sources['druid'].column_class,
+            'MyTableColumnInlineView':
+                ConnectorRegistry.sources['table'].column_class,
         }
         model = modelview_to_model[model_view]
         obj = db.session.query(model).filter_by(id=id_).first()
@@ -2069,6 +2078,10 @@ class Superset(BaseSupersetView):
             qry = qry.filter_by(slug=dashboard_id)
 
         dash = qry.one()
+        if not security_manager.all_datasource_access():
+            if not (g.user in dash.owners or g.user in dash.show_users):
+                flash('请访问您具有权限的看板','danger')
+                return redirect('dashboardmodelview/list/')
         datasources = set()
         for slc in dash.slices:
             datasource = slc.datasource

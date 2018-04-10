@@ -8,14 +8,14 @@ import time
 import traceback
 from urllib import parse
 from urllib.parse import quote
-
+import pandas as pd
 from flask import (
      g, request, redirect, flash, Response, render_template, Markup,
     abort, url_for,send_from_directory,send_file)
 
 from superset import (
     app, appbuilder, cache, db, results_backend, security, sql_lab, utils,
-    viz,
+    viz,utils_ext
 )
 from superset.utils import (
     merge_extra_filters, merge_request_params, QueryStatus,
@@ -84,5 +84,16 @@ class SupersetExt(BaseSupersetView):
 
 
 appbuilder.add_view_no_menu(SupersetExt)
+
+class TableColumnFilter(SupersetFilter):
+    """
+    用于过滤是用户和admin账户创建的列和指标
+    """
+    def apply(self, query, func):  # noqa
+        if self.has_all_datasource_access():
+            return query
+        admin_user_list=utils_ext.get_admin_id_list(db)
+        from sqlalchemy import or_
+        return query.filter(or_(self.model.created_by==g.user,self.model.created_by_fk.in_(admin_user_list),self.model.created_by_fk==None))
 
 
