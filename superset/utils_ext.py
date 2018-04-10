@@ -5,36 +5,36 @@ from flask_babel import lazy_gettext as _
 def time_grain_convert(frm_date, time_grain_sqla):
     '''切片时间分组，格式化中文
     '''
-    if time_grain_sqla=='Time Column':
+    if time_grain_sqla is None:
         if type(frm_date) == type(''):
             return frm_date
         else:
             return frm_date.strftime('%Y-%m-%d %H:%M:%S.%f')
-    elif time_grain_sqla=='second':
+    elif time_grain_sqla=='PT1S':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d %H:%M:%S')
         return frm_date.strftime('%Y年%m月%d日%H时%M分%S秒')
-    elif time_grain_sqla=='minute':
+    elif time_grain_sqla=='PT1M':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d %H:%M:%S')
         return frm_date.strftime('%Y年%m月%d日%H时%M分')
-    elif time_grain_sqla=='hour':
+    elif time_grain_sqla=='PT1H':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d %H:%M:%S')
         return frm_date.strftime('%Y年%m月%d日%H时')
-    elif time_grain_sqla=='day':
+    elif time_grain_sqla=='P1D':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年{1}月{1}日'.format(frm_date.year, frm_date.month,frm_date.day)
-    elif time_grain_sqla=='week':
+    elif time_grain_sqla=='P1W':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年第{1}周'.format(frm_date.year,frm_date.strftime('%U'))
-    elif time_grain_sqla=='month':
+    elif time_grain_sqla=='P1M':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年{1}月'.format(frm_date.year, frm_date.month)
-    elif time_grain_sqla=='quarter':
+    elif time_grain_sqla=='P0.25Y':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         if frm_date.month <=3:
@@ -46,11 +46,11 @@ def time_grain_convert(frm_date, time_grain_sqla):
         else:
             quarter = 4
         return '{0}年{1}季度'.format(frm_date.year, quarter)
-    elif time_grain_sqla=='year':
+    elif time_grain_sqla=='P1Y':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年'.format(frm_date.year)
-    elif time_grain_sqla=='week_start_monday':
+    elif time_grain_sqla=='P1W':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年第{1}周'.format(frm_date.year, frm_date.strftime('%W'))

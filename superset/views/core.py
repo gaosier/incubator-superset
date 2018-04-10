@@ -203,7 +203,7 @@ class DatabaseView(SupersetModelView, DeleteMixin, YamlExportMixin):  # noqa
         'database_name', 'sqlalchemy_uri', 'cache_timeout', 'extra',
         'expose_in_sqllab', 'allow_run_sync', 'allow_run_async',
         'allow_ctas', 'allow_dml', 'force_ctas_schema', 'impersonate_user',
-        'allow_multi_schema_metadata_fetch',
+        'allow_multi_schema_metadata_fetch', 'is_hybrid',
     ]
     search_exclude_columns = (
         'password', 'tables', 'created_by', 'changed_by', 'queries',

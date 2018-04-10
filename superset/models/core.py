@@ -799,7 +799,7 @@ class Database(Model, AuditMixinNullable, ImportMixin):
 
     def grains_dict(self):
         if self.is_hybrid:
-            return {grain.name: grain for grain in self.hybrid_grains()}
+            return {grain.duration: grain for grain in self.hybrid_grains()}
         else:
             return {grain.duration: grain for grain in self.grains()}
         
