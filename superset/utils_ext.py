@@ -25,7 +25,7 @@ def time_grain_convert(frm_date, time_grain_sqla):
     elif time_grain_sqla=='P1D':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
-        return '{0}年{1}月{1}日'.format(frm_date.year, frm_date.month,frm_date.day)
+        return '{0}年{1}月{2}日'.format(frm_date.year, frm_date.month,frm_date.day)
     elif time_grain_sqla=='P1W':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')

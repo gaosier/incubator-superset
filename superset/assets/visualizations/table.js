@@ -39,7 +39,6 @@ function tableVis(slice, payload) {
       mins[metrics[i]] = d3.min(col(metrics[i]));
     }
   }
-
   const tsFormatter = d3TimeFormatPreset(fd.table_timestamp_format);
 
   const div = d3.select(slice.selector);
@@ -84,16 +83,31 @@ function tableVis(slice, payload) {
       let html;
       const isMetric = metrics.indexOf(c) >= 0;
       if (c === '__timestamp') {
-        html = tsFormatter(val);
+        html = val;
+      };
+      if (c === fd.granularity_sqla){
+          let new_val;
+          if(typeof (val) === 'string'&& val.indexOf("-") === -1){
+              new_val= new Date(val.substr(0,4), val.substr(4,2)-1, val.substr(6,2),0,0,0);
+          }
+          else{
+              new_val=new Date(val);
+          }
+        html = tsFormatter(new_val.getTime())
       }
-      if (typeof (val) === 'string') {
-        html = `<span class="like-pre">${val}</span>`;
+      else if (typeof (val) === 'string') {
+          var reg =/^\d{4}-\d{2}-\d{2}T/;
+          if(reg.test(val)){
+              let new_val=new Date(val);
+              html = tsFormatter(new_val.getTime())
+          }
+          else {
+              html = `<span class="like-pre">${val}</span>`;
+          }
+
       }
       if (isMetric) {
         html = slice.d3format(c, val);
-      }
-      if (c[0] === '%') {
-        html = d3.format('.3p')(val);
       }
       return {
         col: c,

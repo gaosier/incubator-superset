@@ -117,3 +117,14 @@ export const epochTimeXYearsAgo = function (y) {
     .utc()
     .valueOf();
 };
+
+export function ZH_TIME(dttm) {
+  return new Date(
+    dttm.getFullYear(),
+    dttm.getMonth(),
+    dttm.getDate(),
+    dttm.getHours(),
+    dttm.getMinutes(),
+    dttm.getSeconds(),
+  );
+}
