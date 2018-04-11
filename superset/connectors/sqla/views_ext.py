@@ -9,6 +9,7 @@ from .views import TableModelView,TableColumnInlineView,SqlMetricInlineView
 from superset.views.core_ext import TableColumnFilter
 from superset.views.core import check_ownership
 
+
 class MyTableColumnInlineView(TableColumnInlineView):
     edit_columns = [
         'column_name', 'verbose_name', 'description',
@@ -72,5 +73,4 @@ appbuilder.add_view(
     icon='fa-table',
     href='/tablegroupview/list/1',
 )
-appbuilder.add_separator("Sources")
 
