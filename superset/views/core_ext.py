@@ -22,11 +22,12 @@ from superset.utils import (
 )
 from flask_appbuilder.security.decorators import has_access, has_access_api
 import superset.models.core as models
+from superset.models.core_ext import MPage,MpageMproject,MElement,JingYouUser,MProject
 from superset.models.sql_lab import Query
 import xlsxwriter
-
+from .core import get_datasource_access_error_msg
 from flask_appbuilder import expose, SimpleFormView
-
+from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
 from .base import (
     api, BaseSupersetView, CsvResponse, DeleteMixin,
     generate_download_headers, get_error_msg, get_user_roles,
@@ -97,3 +98,241 @@ class TableColumnFilter(SupersetFilter):
         return query.filter(or_(self.model.created_by==g.user,self.model.created_by_fk.in_(admin_user_list),self.model.created_by_fk==None))
 
 
+class JingYouModelView(SupersetModelView):
+    datamodel = SQLAInterface(JingYouUser)
+    datamodel.add_integrity_error_message='用户名重复'
+    list_title = '用户列表'
+    show_title = '用户信息'
+    add_title = '添加用户'
+    edit_title = '编辑用户'
+    list_columns = ['uname', 'password','ip','port','updated','subject_product','get_status','comment']
+    add_columns = [ 'uname', 'password','ua', 'cookies','ip','port','comment']
+    search_columns = ('uname','ip','port')
+    show_columns = [
+        'uname', 'password',
+        'ua', 'cookies','ip','port','updated','status']
+    edit_columns = [ 'password','ua','cookies','ip','port','comment']
+    description_columns={
+        'status':"1表示未发生变化，2表示已发生变化"
+    }
+    label_columns={
+        'uname':"用户名",
+        'password':"密码",
+        'ua':"浏览器ua",
+        'cookies':'浏览器cookie',
+        'ip':'外网ip',
+        'port':'端口',
+        'updated':'更新时间',
+        'get_status':'状态',
+        'comment':"备注",
+        'subject_product': '学科'
+    }
+    def pre_update(self,obj):
+        sql="select cookies from jingyou_user WHERE uname = '%s'"%(obj.uname)
+        item = db.session.execute(sql).first()
+        if item[0] !=obj.cookies:
+            obj.status=2
+appbuilder.add_view(
+    JingYouModelView,
+    "Jing You User",
+    label="菁优用户",
+    icon="fa-table",
+    category="",
+    category_icon='',)
+
+class MProjectView(SupersetModelView):
+    datamodel = SQLAInterface(MProject)
+    list_title = '项目列表'
+    show_title = '项目信息'
+    add_title = '添加项目'
+    edit_title = '编辑项目'
+    add_columns = ['id','name','name_type','full_id','describe','status']
+    show_columns = ['id','name','name_type','full_id','describe','status']
+    list_columns = ['id','name','project_type_link','get_status','page_or_element_button']
+    edit_columns = ['id','name','full_id','describe','status']
+    search_columns = ['id','name','name_type']
+    order_columns=['id',]
+    label_columns = {
+        'id': "项目id",
+        'name': "项目名称",
+        'name_type': "项目分类",
+        'full_id': '全称',
+        'describe': '描述',
+        'pm_owner': '产品负责人',
+        'tech_owner': '技术负责人',
+        'project_link':'项目名称',
+        'project_type_link':'项目分类',
+        'get_status': '状态',
+        'status': '状态(勾选表示禁用)',
+        'page_or_element_button':'操作'
+    }
+
+appbuilder.add_view(
+    MProjectView,
+    "M Project View",
+    label="埋点管理",
+    icon="fa-envelope",
+    category="",
+    category_icon='',)
+from flask_appbuilder.models.sqla.filters import BaseFilter
+class MPageFilter(BaseFilter):
+    def apply(self, query, func):  # noqa
+        return query
+
+
+#from flask_appbuilder.models.sqla.filters import FilterRelationManyToManyEqual
+
+class MPageView(SupersetModelView):
+    datamodel = SQLAInterface(MPage)
+    list_title = '页面列表'
+    show_title = '页面详情'
+    add_title = '添加页面信息'
+    edit_title = '编辑页面信息'
+    add_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','del_status','up1',
+                   'pp1','pp2','pp3','pp4','pp5']
+    list_columns = ['page_id','menu1','menu2','menu3','mproject_name','name','update_time','get_del_status','melement_url_btn']
+    search_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','del_status']
+    edit_columns = ['page_id','m_project','menu1','menu2','menu3','menu4','name','url','m_describe','del_status','up1',
+                   'pp1','pp2','pp3','pp4','pp5']
+    show_columns = edit_columns + ['status', 'create_time', 'update_time']
+    base_filters = [['id', MPageFilter, lambda: []]]
+    order_columns = ['page_id',]
+    description_columns = {
+        'status': "1表示未修改，2表示已修改",
+        'del_status':"勾选表示已删除",
+        'm_process':'1未开始,2开发中,3测试中,4已上线'
+    }
+    label_columns = {
+        'page_id': "页面id",
+        'mproject_name': "所属项目名称",
+        'm_project': "所属项目名称",
+        'menu1': "一级菜单",
+        'menu2': '二级菜单',
+        'menu3': '三级菜单',
+        'menu4': '四级菜单',
+        'name': '页面名称',
+        'url': '页面地址',
+        'url_link': '页面地址',
+        'm_describe': '页面描述',
+        'status':'状态',
+        'get_status':'状态',
+        'del_status':'是否删除',
+        'get_del_status':'是否删除',
+        'up1': '用户扩展属性(up1)',
+        'up2': '用户扩展属性2(up2)',
+        'up3': '用户扩展属性3(up3)',
+        'up4': '用户扩展属性4(up4)',
+        'up5': '用户扩展属性5(up5)',
+        'pp1':'页面扩展属性1(pp1)',
+        'pp2':'页面扩展属性2(pp2)',
+        'pp3':'页面扩展属性3(pp3)',
+        'pp4':'页面扩展属性4(pp4)',
+        'pp5':'页面扩展属性5(pp5)',
+        'm_process':'进度',
+        'version':'版本号',
+        'melement_url_btn':'点击埋点链接',
+        'update_time':'更新时间'
+    }
+    post_update_flag=False
+    def pre_update(self,obj):
+        columns_name=[]
+        for i in obj.__table__.columns:
+            tab,col=str(i).split(".")
+            if col not in ('update_time','create_time'):
+                columns_name.append(col)
+        sql1="select `%s` from m_page WHERE id = %s"%('`,`'.join(columns_name),obj.id)
+        item1 = db.session.execute(sql1).first()
+        for ind,col in enumerate(columns_name):
+                if getattr(obj,col) != item1[ind]:
+                    obj.status=True
+                    break
+        sql2="select mproject_id from mpage_mproject WHERE mpage_id = %s"%(obj.id)
+        item2 =sorted([i[0] for i in db.session.execute(sql2)])
+        new_mproject_id=sorted([i.id for i in obj.m_project])
+        if item2 != new_mproject_id:
+            self.post_update_flag=True
+            obj.status=True
+
+    def post_update(self,obj):
+        if self.post_update_flag:
+            mpage_mproject_list = db.session.query(models.MpageMproject).filter_by(mpage_id=obj.id)
+            url = '/melementview/list/?'
+            flag = False
+            for i in mpage_mproject_list:
+                url += '_flt_0_mpage_mproject=%s&' % i.id
+                if not flag:
+                    if len(db.session.query(models.MElement).filter(models.MElement.mpage_mproject.contains(i)).all()) != 0:
+                        flag=True
+            if flag:
+                obj.melement_url=url
+            else:
+                obj.melement_url = None
+            db.session.commit()
+            self.post_update_flag=False
+
+appbuilder.add_view_no_menu(MPageView)
+
+class MElementView(SupersetModelView):
+    datamodel = SQLAInterface(MElement)
+    list_title = '点击列表'
+    show_title = '点击详情'
+    add_title = '添加点击信息'
+    edit_title = '编辑点击信息'
+    add_columns=['element_id','mpage_mproject','name','del_status','pp1','pp2','pp3','pp4','pp5']
+    list_columns=['element_id','mpage_mproject_name','name','get_del_status','update_time']
+    search_columns=['element_id','mpage_mproject','name','del_status']
+    edit_columns = add_columns
+    show_columns = add_columns+['status','create_time','update_time']
+    description_columns = {
+        'status': "1表示未修改，2表示已修改",
+        'del_status': "勾选表示删除",
+        'm_process': '1未开始,2开发中,3测试中,4已上线',
+         'pp1': '增加点击行为的一些扩展属性',
+    }
+    label_columns = {
+        'element_id': "按钮id",
+        'mpage_mproject': "所属项目及页面",
+        'mpage_mproject_name': "所属项目及页面",
+        'name': '按钮名称',
+        'status': '状态',
+        'get_status': '状态',
+        'del_status': '是否删除',
+        'm_process': '进度',
+        'version': '版本号',
+        'get_del_status':'是否删除',
+        'update_time': '更新时间'
+    }
+    def pre_update(self,obj):
+        columns_name=[]
+        for i in obj.__table__.columns:
+            tab,col=str(i).split(".")
+            if col not in ('update_time','create_time'):
+                columns_name.append(col)
+        sql1="select `%s` from m_element WHERE id = %s"%('`,`'.join(columns_name),obj.id)
+        item1 = db.session.execute(sql1).first()
+        for ind,col in enumerate(columns_name):
+                if getattr(obj,col) != item1[ind]:
+                    obj.status=True
+                    return None
+        sql2="select mpage_mproject_id from melement_mproject_mproject WHERE melement_id = %s"%(obj.id)
+        item2 =sorted([i[0] for i in db.session.execute(sql2)])
+        new_item_id=sorted([i.id for i in obj.mpage_mproject])
+        if item2 != new_item_id:
+            obj.status=True
+
+    def post_add(self,obj):
+        for i in obj.mpage_mproject:
+            page_obj=db.session.query(MPage).filter_by(id=i.mpage_id).first()
+            if not page_obj.melement_url:
+                page_obj.melement_url = '/melementview/list/?_flt_0_mpage_mproject=%s&' % i.id
+                db.session.commit()
+            else:
+                if i.id in page_obj.melement_url:
+                    pass
+                else:
+                    page_obj.melement_url+='_flt_0_mpage_mproject=%s&'%i.id
+                    db.session.commit()
+
+
+
+appbuilder.add_view_no_menu(MElementView)

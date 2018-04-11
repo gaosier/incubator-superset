@@ -170,19 +170,35 @@ export const controls = {
     description: t('The type of visualization to display'),
   },
 
+  // metrics: {
+  //   type: 'MetricsControl',
+  //   multi: true,
+  //   label: t('Metrics'),
+  //   validators: [v.nonEmpty],
+  //   default: (c) => {
+  //     const metric = mainMetric(c.options);
+  //     return metric ? [metric] : null;
+  //   },
+  //   mapStateToProps: state => ({
+  //     columns: state.datasource ? state.datasource.columns : [],
+  //     savedMetrics: state.datasource ? state.datasource.metrics : [],
+  //     datasourceType: state.datasource && state.datasource.type,
+  //   }),
+  //   description: t('One or many metrics to display'),
+  // },
   metrics: {
-    type: 'MetricsControl',
+    type: 'SelectControl',
     multi: true,
     label: t('Metrics'),
-    validators: [v.nonEmpty],
-    default: (c) => {
-      const metric = mainMetric(c.options);
-      return metric ? [metric] : null;
-    },
+    // validators: [v.nonEmpty],
+    validators: [],
+    valueKey: 'metric_name',
+    labelKey: 'verbose_name',
+    optionRenderer: m => <MetricOption metric={m} />,
+    valueRenderer: m => <MetricOption metric={m} />,
+    default: c => c.options && c.options.length > 0 ? [c.options[0].metric_name] : [],
     mapStateToProps: state => ({
-      columns: state.datasource ? state.datasource.columns : [],
-      savedMetrics: state.datasource ? state.datasource.metrics : [],
-      datasourceType: state.datasource && state.datasource.type,
+      options: (state.datasource) ? state.datasource.metrics : [],
     }),
     description: t('One or many metrics to display'),
   },
