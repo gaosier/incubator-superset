@@ -237,6 +237,16 @@ export const controls = {
       choices: (state.datasource) ? state.datasource.order_by_choices : [],
     }),
   },
+  order_by_metric: {
+    type: 'SelectControl',
+    multi: true,
+    label: t('Ordering'),
+    default: [],
+    description: t('One or many metrics to display'),
+    mapStateToProps: state => ({
+      choices: (state.datasource) ? state.datasource.order_by_metric : [],
+    }),
+  },
   color_picker: {
     label: t('Fixed Color'),
     description: t('Use this to define a static color for all circles'),
@@ -413,6 +423,13 @@ export const controls = {
     type: 'CheckboxControl',
     label: t('Include Time'),
     description: t('Whether to include the time granularity as defined in the time section'),
+    default: false,
+  },
+
+  pivot_group_sum:{
+    type: 'CheckboxControl',
+    label: t('Pivot Group Sum'),
+    description: t('pivot group sum'),
     default: false,
   },
 

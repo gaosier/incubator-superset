@@ -87,6 +87,7 @@ class TableColumn(Model, BaseColumn):
     expression = Column(Text, default='')
     python_date_format = Column(String(255))
     database_expression = Column(String(255))
+    is_memcached = Column(Boolean, default=False)
     order_number = Column(INTEGER, default=0)
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
@@ -506,8 +507,10 @@ class SqlaTable(Model, BaseDatasource):
         orderby = orderby or []
 
         # For backward compatibility
-        if granularity not in self.dttm_cols:
-            granularity = self.main_dttm_col
+        # 如果是时间序列，则设置一个默认时间字段,否则为可选项
+        if is_timeseries:
+            if granularity not in self.dttm_cols:
+                granularity = self.main_dttm_col
 
         # Database spec supports join-free timeslot grouping
         time_groupby_inline = db_engine_spec.time_groupby_inline
@@ -626,6 +629,8 @@ class SqlaTable(Model, BaseDatasource):
                         where_clause_and.append(col_obj.sqla_col <= eq)
                     elif op == 'LIKE':
                         where_clause_and.append(col_obj.sqla_col.like(eq))
+                    elif op == 'RLIKE':
+                        where_clause_and.append(col_obj.sqla_col.op('rlike')(eq))
         if extras:
             where = extras.get('where')
             if where:
@@ -666,13 +671,26 @@ class SqlaTable(Model, BaseDatasource):
             qry = qry.where(and_(*where_clause_and))
         qry = qry.having(and_(*having_clause_and))
 
-        if not orderby and not columns:
-            orderby = [(main_metric_expr, not order_desc)]
-
-        for col, ascending in orderby:
-            direction = asc if ascending else desc
-            qry = qry.order_by(direction(col))
-
+        # if not orderby and not columns:
+        #     orderby = [(main_metric_expr, not order_desc)]
+        #
+        # for col, ascending in orderby:
+        #     direction = asc if ascending else desc
+        #     qry = qry.order_by(direction(col))
+        if groupby or metrics_exprs:
+            # if not orderby:
+            #     qry = qry.order_by(desc(main_metric_expr))
+            if orderby:
+                # group_sort_name={i.name:i.name for i in select_exprs}
+                for col, ascending in orderby:
+                    # if group_sort_name.get(col):
+                    direction = asc if ascending else desc
+                    qry = qry.order_by(direction(col))
+        else:
+            if orderby:
+                for col, ascending in orderby:
+                    direction = asc if ascending else desc
+                    qry = qry.order_by(direction(cols.get(col).sqla_col))
         if row_limit:
             qry = qry.limit(row_limit)
 
@@ -810,7 +828,7 @@ class SqlaTable(Model, BaseDatasource):
             .filter(or_(TableColumn.column_name == col.name
                         for col in table.columns)))
         dbcols = {dbcol.column_name: dbcol for dbcol in dbcols}
-
+        count=0
         for col in table.columns:
             try:
                 datatype = col.type.compile(dialect=db_dialect).upper()
@@ -827,6 +845,8 @@ class SqlaTable(Model, BaseDatasource):
                 dbcol.sum = dbcol.is_num
                 #dbcol.avg = dbcol.is_num
                 dbcol.is_dttm = dbcol.is_time
+                dbcol.order_number=count*100
+                count+=1
                 if comment_info_dict:
                     dbcol.verbose_name=comment_info_dict[dbcol.column_name]
             else:

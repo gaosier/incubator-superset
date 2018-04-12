@@ -58,8 +58,8 @@ class BaseViz(object):
             raise Exception(_('Viz is missing a datasource'))
         self.datasource = datasource
         self.request = request
-        self.viz_type = form_data.get('viz_type')
-        self.form_data = form_data
+        self.viz_type = form_data.get("viz_type")
+        self.form_data = self.deal_form_data(form_data) 
 
         self.query = ''
         self.token = self.form_data.get(
@@ -87,6 +87,43 @@ class BaseViz(object):
         self._any_cache_key = None
         self._any_cached_dttm = None
         self._extra_chart_data = None
+
+    def reorder_columns(self, columns,type=1):
+        fd = self.form_data
+        if type==1:
+            if fd.get('include_time'):
+                columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
+        else:
+            if fd.get('include_time_2'):
+                columns.insert(fd.get('include_time_2') - 1, DTTM_ALIAS)
+        return columns
+
+    def deal_form_data(self,form_data):
+        if self.viz_type in ['table','pie','dist_bar','pivot_table','line']:
+            groupby=form_data.get("groupby") or []
+            columns = form_data.get("columns") or []
+            if DTTM_ALIAS in groupby:
+                form_data['include_time']=groupby.index(DTTM_ALIAS)+1
+                form_data['groupby'].remove(DTTM_ALIAS)
+            if DTTM_ALIAS in columns:
+                form_data['include_time_2'] = columns.index(DTTM_ALIAS)+1
+                form_data['columns'].remove(DTTM_ALIAS)
+        return form_data
+
+    def filter_groupby_orderby(self,order_by_metric,metrics,groupby):
+        """
+        用以过滤聚合排序的有效排序字段
+        :param order_by_metric: 所选择的排序字段
+        :param metrics: 所选择的指标
+        :param groupby: 所选择的分类
+        :return: 过滤完成的有效排序字段
+        """
+        li = []
+        for t in order_by_metric:
+            tmp = json.loads(t)
+            if tmp[0] in metrics or tmp[0] in groupby:
+                li.append(tmp)
+        return li
 
     @staticmethod
     def handle_js_int_overflow(data):
@@ -128,6 +165,19 @@ class BaseViz(object):
             if col.is_string:
                 return ' NULL'
         return self.default_fillna
+
+    def should_be_timeseries(self):
+        fd = self.form_data
+        # TODO handle datasource-type-specific code in datasource
+        conditions_met = (
+            (fd.get('granularity') and fd.get('granularity') != 'all') or
+            (fd.get('granularity_sqla') and fd.get('time_grain_sqla'))
+        )
+        if (fd.get('include_time') or fd.get('include_time_2')) and not conditions_met:
+            raise Exception(_(
+                "Pick a granularity in the Time section or "
+                "uncheck 'Include Time'"))
+        return fd.get('include_time') or fd.get('include_time_2')
 
     def get_fillna_for_columns(self, columns=None):
         """Returns a dict or scalar that can be passed to DataFrame.fillna"""
@@ -184,7 +234,7 @@ class BaseViz(object):
                         df[DTTM_ALIAS] += timedelta(hours=self.datasource.offset)
                     df[DTTM_ALIAS] += self.time_shift
 
-            self.df_metrics_to_num(df, query_obj.get('metrics') or [])
+            #self.df_metrics_to_num(df, query_obj.get('metrics') or []) 先注释掉，防止不是数字形式的指标
 
             df.replace([np.inf, -np.inf], np.nan)
             fillna = self.get_fillna_for_columns(df.columns)
@@ -472,8 +522,7 @@ class TableViz(BaseViz):
     def query_obj(self):
         d = super(TableViz, self).query_obj()
         fd = self.form_data
-
-        if fd.get('all_columns') and (fd.get('groupby') or fd.get('metrics')):
+        if (fd.get('all_columns') or fd.get('order_by_cols')) and (fd.get('groupby') or fd.get('metrics') or fd.get('order_by_metric')):
             raise Exception(_(
                 'Choose either fields to [Group By] and [Metrics] or '
                 '[Columns], not both'))
@@ -488,6 +537,10 @@ class TableViz(BaseViz):
             if sort_by not in d['metrics']:
                 d['metrics'] += [sort_by]
             d['orderby'] = [(sort_by, not fd.get('order_desc', True))]
+        else:
+            #为了不影响源代码，这里处理聚合排序,并将无效排序字段去除
+            order_by_metric = fd.get('order_by_metric') or []
+            d['orderby']=self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
 
         # Add all percent metrics that are not already in the list
         if 'percent_metrics' in fd:
@@ -501,6 +554,7 @@ class TableViz(BaseViz):
 
     def get_data(self, df):
         fd = self.form_data
+        print(fd,4444444444)
         if (
                 not self.should_be_timeseries() and
                 df is not None and
@@ -529,7 +583,12 @@ class TableViz(BaseViz):
                 percent_metrics,
             ):
                 del df[m]
-
+        #处理时间分组的位置，按照下拉框选择的顺序
+        columns = df.columns.tolist()
+        if fd.get('include_time'):
+            columns.remove(DTTM_ALIAS)
+            columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
+        df=df[columns]
         data = self.handle_js_int_overflow(
             dict(
                 records=df.to_dict(orient='records'),
@@ -598,38 +657,89 @@ class PivotTableViz(BaseViz):
 
     def query_obj(self):
         d = super(PivotTableViz, self).query_obj()
+        fd=self.form_data
         groupby = self.form_data.get('groupby')
         columns = self.form_data.get('columns')
         metrics = self.form_data.get('metrics')
+        order_by_metric = self.form_data.get('order_by_metric') or []
+        d['orderby'] = self.filter_groupby_orderby(order_by_metric, d['metrics'], d['groupby'])
         if not columns:
             columns = []
         if not groupby:
             groupby = []
-        if not groupby:
-            raise Exception(_("Please choose at least one 'Group by' field "))
+        if not groupby and not fd.get('include_time') :
+            raise Exception(_("Please choose at least one \"Group by\" field "))
         if not metrics:
             raise Exception(_('Please choose at least one metric'))
         if (
                 any(v in groupby for v in columns) or
                 any(v in columns for v in groupby)):
-            raise Exception(_("Group By' and 'Columns' can't overlap"))
+            raise Exception(_("'Group By' and 'Columns' can't overlap"))
+        if fd.get('include_time') and fd.get('include_time_2'):
+            raise Exception(_("You can only choose one include_time"))
+        d['is_timeseries'] = self.should_be_timeseries()
         return d
 
-    def get_data(self, df):
+    def get_data(self, df,is_xlsx=False):
         if (
                 self.form_data.get('granularity') == 'all' and
                 DTTM_ALIAS in df):
             del df[DTTM_ALIAS]
+        fd = self.form_data
+        columns = self.reorder_columns(fd.get('columns') or [],type=2)
+        groupby=self.reorder_columns(self.groupby)
         df = df.pivot_table(
-            index=self.form_data.get('groupby'),
-            columns=self.form_data.get('columns'),
+            # index=self.form_data.get('groupby'),
+            index=groupby,
+            # columns=self.form_data.get('columns'),
+            columns=columns,
             values=self.form_data.get('metrics'),
             aggfunc=self.form_data.get('pandas_aggfunc'),
             margins=self.form_data.get('pivot_margins'),
         )
         # Display metrics side by side with each column
+        import pandas as pd
+        from pandas.core.indexes.multi import MultiIndex
+        if len(groupby)>1 and self.form_data.get('pivot_group_sum'): ##判断是否需要分别对分类进行求和
+            if self.form_data.get('pivot_margins'):
+                m=df.groupby(groupby[0]).sum().drop(['All']).reset_index()
+            else:
+                m = df.groupby(groupby[0]).sum().reset_index()
+            for i in range(1,len(groupby)):
+                if i ==1 :
+                    m[groupby[i]] = '总计'
+                else:
+                    m[groupby[i]] = ''
+            m = m.set_index(groupby)
+            new_df=''
+            for i,j in enumerate(m.index):
+                if i==0:
+                    new_df=pd.concat([df.ix[[j[0]]],m.ix[[j[0]]]])
+                else:
+                    new_df=pd.concat([new_df,df.ix[[j[0]]],m.ix[[j[0]]]])
+            if self.form_data.get('pivot_margins'):
+                new_df=pd.concat([new_df,df.ix[["All"]]])
+            df=new_df
+        a = df.index
+        if type(df.columns) == MultiIndex:
+            df=df.reindex(index=a,columns=df[self.form_data.get('metrics')].columns)
+        else:
+            df=df.reindex(index=a,columns=self.form_data.get('metrics'))
         if self.form_data.get('combine_metric'):
             df = df.stack(0).unstack()
+            if self.form_data.get('pivot_margins'):
+                if type(df.columns)==MultiIndex:
+                    values = list(df.columns.levels[0])
+                    values.remove('All')
+                    values.append('All')
+                    df = df.reindex(index=a,columns=df[values].columns)
+            # from pandas.core.indexes.frozen import FrozenNDArray
+        if is_xlsx:
+            return df
+        # if type(df.index) == MultiIndex:  #控制df的索引名称不展示
+        #     df.index.names=[None for i in range(len(df.index.names))]
+        # else :
+        #     df.index.name=None
         return dict(
             columns=list(df.columns),
             html=df.to_html(
@@ -1158,6 +1268,7 @@ class NVD3TimeSeriesViz(NVD3Viz):
                 df = df / df.shift(num_period_compare)
 
             df = df[num_period_compare:]
+        df=df.fillna(0)
         return df
 
     def run_extra_queries(self):
@@ -1343,12 +1454,35 @@ class DistributionPieViz(NVD3Viz):
     verbose_name = _('Distribution - NVD3 - Pie Chart')
     is_timeseries = False
 
+    def query_obj(self):
+        d = super(NVD3Viz, self).query_obj()  # noqa
+        fd = self.form_data
+        order_by_metric = fd.get('order_by_metric') or []
+        d['orderby'] = self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
+        # print(type(self)==DistributionBarViz,type(self)==DistributionPieViz)
+        if self.viz_type =='pie':
+        #     if len(self.form_data.get("groupby")) !=1:
+        #         # raise Exception(_("请选择维度且个数为一"))
+        #         raise Exception(_("Please choose groupby which should be only one"))
+            if len(self.form_data.get("metrics")) !=1:
+                # raise Exception(_("指标个数只能为一"))
+                raise Exception(_("The number of metric should be only one"))
+        d['is_timeseries'] = self.should_be_timeseries()
+        return d
+
     def get_data(self, df):
+        index=self.reorder_columns(self.groupby)
         df = df.pivot_table(
-            index=self.groupby,
+            index=index,
             values=[self.metrics[0]])
         df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
         df = df.reset_index()
+        if len(index)>1: #分组多选时，将其进行拼接
+            se=df[index[0]].astype('str')
+            for i in index[1:]:
+                se = se + '/' + df[i].astype('str')
+            df.insert(0,'new_x',se)
+            df=df.drop(index,axis=1)
         df.columns = ['x', 'y']
         return df.to_dict(orient='records')
 
@@ -1396,19 +1530,27 @@ class DistributionBarViz(DistributionPieViz):
             raise Exception(
                 _("Can't have overlap between Series and Breakdowns"))
         if not fd.get('metrics'):
-            raise Exception(_('Pick at least one metric'))
-        if not fd.get('groupby'):
-            raise Exception(_('Pick at least one field for [Series]'))
+            raise Exception(_("Pick at least one metric"))
+        if not fd.get('groupby') and not fd.get('include_time'):
+            raise Exception(_("Pick at least one field for [Series]"))
+        if fd.get('include_time') and fd.get('include_time_2'):
+            raise Exception(_("You can only choose one include_time"))
         return d
 
     def get_data(self, df):
         fd = self.form_data
 
-        row = df.groupby(self.groupby).sum()[self.metrics[0]].copy()
-        row.sort_values(ascending=False, inplace=True)
         columns = fd.get('columns') or []
+        index = self.groupby
+        if not self.should_be_timeseries() and DTTM_ALIAS in df:
+            del df[DTTM_ALIAS]
+        else:
+            index=self.reorder_columns(index)
+            columns=self.reorder_columns(columns,type=2)
+        row = df.groupby(self.groupby).sum()[self.metrics[0]].copy()
+        # row.sort_values(ascending=False, inplace=True)
         pt = df.pivot_table(
-            index=self.groupby,
+            index=index,
             columns=columns,
             values=self.metrics)
         if fd.get('contribution'):

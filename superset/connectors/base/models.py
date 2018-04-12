@@ -197,10 +197,11 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             o.column_name: o.verbose_name or o.column_name
             for o in filterd_columns
         })
-        verbose_map.update({'__timestamp': 'Time'})
+        verbose_map.update({'__timestamp': '时间分组'})
         gb_cols=[(i.column_name, i.verbose_name if i.verbose_name else i.column_name) \
          for i in sorted(filterd_columns, key=lambda x: x.order_number) if i.groupby]
         columns=[o.data for o in filterd_columns]
+        columns.append({'column_name': '__timestamp', 'verbose_name': '时间分组', 'groupby': True})
         return {
             # 'all_cols': utils.choicify(self.column_names),
             'all_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.is_active],

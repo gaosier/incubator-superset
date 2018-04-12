@@ -62,8 +62,11 @@ export const sections = {
       controlSetRows: [
         ['metrics'],
         ['groupby'],
-        ['limit', 'timeseries_limit_metric'],
-        ['order_desc', 'contribution'],
+        // ['limit', 'timeseries_limit_metric'], #注意此处注释掉，是否对其他图表有影响，因为很多类都是继承NVD3TimeSeries
+        ['order_by_metric'],
+        ['limit','row_limit'],
+        // ['order_desc', 'contribution'],
+        ['contribution'],
       ],
     },
     {
@@ -107,8 +110,10 @@ export const visTypes = {
           ['groupby'],
           ['metrics'],
           ['percent_metrics'],
-          ['timeseries_limit_metric', 'row_limit'],
-          ['include_time', 'order_desc'],
+          ['order_by_metric'],
+          // ['timeseries_limit_metric'],
+          ['row_limit'],
+          // ['include_time', 'order_desc'],
         ],
       },
       {
@@ -152,6 +157,8 @@ export const visTypes = {
           ['metrics'],
           ['groupby'],
           ['columns'],
+          ['order_by_metric'],
+          // ['limit'],
           ['row_limit'],
           ['contribution'],
         ],
@@ -190,8 +197,9 @@ export const visTypes = {
         controlSetRows: [
           ['metrics'],
           ['groupby'],
+          ['order_by_metric'],
           ['row_limit'],
-          ['limit'],
+          // ['limit'],
         ],
       },
       {
@@ -216,14 +224,16 @@ export const visTypes = {
         controlSetRows: [
           ['groupby', 'columns'],
           ['metrics'],
-	  ['row_limit'],
+          ['order_by_metric'],
+          ['row_limit'],
+          // ['limit'],
         ],
       },
       {
         label: t('Pivot Options'),
         controlSetRows: [
-          ['pandas_aggfunc', 'pivot_margins'],
-          ['number_format', 'combine_metric'],
+          ['pandas_aggfunc', 'number_format'],
+          ['pivot_margins', 'combine_metric','pivot_group_sum'],
         ],
       },
     ],
