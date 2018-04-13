@@ -34,7 +34,7 @@ from superset.models.helpers import set_perm
 from superset.utils import DTTM_ALIAS, QueryStatus
 from superset.utils_ext import time_grain_convert
 from .models_ext import SqlTableGroup
-
+from superset.config_ext import SUPERSET_MEMCACHED
 
 class AnnotationDatasource(BaseDatasource):
     """ Dummy object so we can query annotations using 'Viz' objects just like
@@ -406,6 +406,20 @@ class SqlaTable(Model, BaseDatasource):
         sample values for the given column.
         """
         cols = {col.column_name: col for col in self.columns}
+        try:
+            if cols[column_name].is_memcached:
+                import bmemcached
+                import json
+                mc = bmemcached.Client(SUPERSET_MEMCACHED['servers'], SUPERSET_MEMCACHED['username'],SUPERSET_MEMCACHED['password'])
+                key='superset-%s-%s' % (self.table_name, column_name)
+                if mc.get(key):
+                    num_li=mc.get(key)
+                    li=[]
+                    for i in num_li:
+                        li.extend(mc.get('%s-%s'%(key,i)))
+                    return li
+        except Exception as e:
+            pass
         target_col = cols[column_name]
         tp = self.get_template_processor()
         db_engine_spec = self.database.db_engine_spec
@@ -428,6 +442,7 @@ class SqlaTable(Model, BaseDatasource):
         )
 
         df = pd.read_sql_query(sql=sql, con=engine)
+        df=df.dropna()
         return [row[0] for row in df.to_records(index=False)]
 
     def get_template_processor(self, **kwargs):

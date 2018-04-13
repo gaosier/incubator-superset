@@ -1252,7 +1252,7 @@ class NVD3TimeSeriesViz(NVD3Viz):
             elif rolling_type == 'sum':
                 df = pd.rolling_sum(**kwargs)
         elif rolling_type == 'cumsum':
-            df = df.cumsum()
+            df = df.fillna(0).cumsum()
         if min_periods:
             df = df[min_periods:]
 

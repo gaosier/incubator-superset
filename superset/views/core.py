@@ -1318,7 +1318,7 @@ class Superset(BaseSupersetView):
                 datasource_type,
                 datasource.name)
         if slc:
-            datasource.slice_users = slc.owners
+            datasource.slice_users=[slc.created_by_fk,]
         else:
             datasource.slice_users = None
         standalone = request.args.get('standalone') == 'true'

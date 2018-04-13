@@ -1,7 +1,8 @@
 #-*-coding:utf-8-*-
 import os
-import wrapcache
+# import wrapcache
 from werkzeug.contrib.cache import RedisCache
+from superset.custom_user.sec import MySecurityManager
 
 from superset.config import DATA_DIR
 SQLALCHEMY_DATABASE_URI = os.environ['KINGKONG_DB']
@@ -22,3 +23,10 @@ RESULTS_BACKEND = RedisCache(
 SQLLAB_DATA_DIR = os.path.join(DATA_DIR, 'sqllab')
 if not os.path.exists(SQLLAB_DATA_DIR):
     os.makedirs(SQLLAB_DATA_DIR)
+
+CUSTOM_SECURITY_MANAGER = MySecurityManager
+SUPERSET_MEMCACHED={
+    'servers':('f8ed3954cee74f46.m.cnbjalinu17pub001.ocs.aliyuncs.com:11211'),
+    'username':'f8ed3954cee74f46',
+    'password':'Gaosi2012'
+}
