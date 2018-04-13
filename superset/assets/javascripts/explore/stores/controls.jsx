@@ -99,7 +99,7 @@ const groupByControl = {
   type: 'SelectControl',
   multi: true,
   label: t('Group by'),
-  default: [],
+  default: c => c.options && c.options.length > 0 ? [c.options[0].column_name] : [],
   includeTime: false,
   description: t('One or many controls to group by'),
   optionRenderer: c => <ColumnOption column={c} showType />,
@@ -622,6 +622,7 @@ export const controls = {
     valueKey: 'column_name',
     mapStateToProps: state => ({
       options: (state.datasource) ? state.datasource.columns : [],
+      choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 

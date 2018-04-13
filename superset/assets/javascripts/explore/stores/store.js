@@ -39,6 +39,9 @@ export function getControlsState(state, form_data) {
   * */
 
   // Getting a list of active control names for the current viz
+  if(state.datasource.is_new_datasource){
+    form_data={viz_type:form_data.viz_type,datasource:form_data.datasource,slice_id:form_data.slice_id};
+  }
   const formData = Object.assign({}, form_data);
   const vizType = formData.viz_type || 'table';
 
@@ -77,8 +80,24 @@ export function getControlsState(state, form_data) {
     if (typeof control.default === 'function') {
       control.default = control.default(control);
     }
+    //改变视图时 不全选
+    if(vizType ==='table'){
+        if(k==='all_columns'){
+          if(form_data.groupby !==undefined&&form_data.groupby.length>0 ||  form_data.metrics!==undefined &&form_data.metrics.length>0){
+          control.default=[]
+        }
+      }
+    }
+    if(vizType==='pie'){
+      if(k==='metrics'){
+        if(formData.metrics!== undefined && formData.metrics.length>1){
+          formData.metrics=[formData.metrics[0]]
+        }
+    }
+    }
     control.validationErrors = [];
-    control.value = formData[k] !== undefined ? formData[k] : control.default;
+    //control.value = formData[k] !== undefined ? formData[k] : control.default;
+    control.value =((formData[k] instanceof Array) && formData[k].length>0) || (!(formData[k] instanceof Array) && formData[k] !== undefined )? formData[k] : control.default;
     controlsState[k] = control;
   });
   if (viz.onInit) {

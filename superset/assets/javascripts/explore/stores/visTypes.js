@@ -139,6 +139,15 @@ export const visTypes = {
     controlOverrides: {
       metrics: {
         validators: [],
+        default:[],
+      },
+      groupby:{
+        validators: [],
+        default:[],
+      },
+      all_columns:{
+        default: c => c.choices && c.choices.length > 0 ? c.choices.map(a => a[0]): [],
+        button : 'True',
       },
       time_grain_sqla: {
         default: null,
