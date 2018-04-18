@@ -209,7 +209,9 @@ class SqlaTable(Model, BaseDatasource):
         foreign_keys=[database_id])
     schema = Column(String(255))
     sql = Column(Text)
-    verbose_name = Column(String(1024),nullable=True)
+    group_id = Column(Integer, ForeignKey('tables_group.id'), nullable=False)
+    group = relationship("SqlTableGroup")
+    verbose_name = Column(String(1024), nullable=True)
 
     baselink = "tablemodelview"
     export_fields = (
@@ -502,7 +504,7 @@ class SqlaTable(Model, BaseDatasource):
                 time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
             else :
                 from dateutil.relativedelta import relativedelta
-                time_filters.append(dttm_col.get_period_time_filter(from_dttm-relativedelta(years=1), to_dttm-relativedelta(years=1)))
+                time_filters.append(dttm_col.get_period_time_filter(from_dttm, to_dttm))
 
         select_exprs += metrics_exprs
         qry = sa.select(select_exprs)
@@ -557,6 +559,8 @@ class SqlaTable(Model, BaseDatasource):
                         where_clause_and.append(col_obj.sqla_col <= eq)
                     elif op == 'LIKE':
                         where_clause_and.append(col_obj.sqla_col.like(eq))
+                    elif op == 'RLIKE':
+                        where_clause_and.append(col_obj.sqla_col.op('rlike')(eq))
         if extras:
             where = extras.get('where')
             if where:
@@ -831,3 +835,15 @@ class SqlaTable(Model, BaseDatasource):
 
 sa.event.listen(SqlaTable, 'after_insert', set_perm)
 sa.event.listen(SqlaTable, 'after_update', set_perm)
+
+class SqlTableGroup(Model):
+    __tablename__ = 'tables_group'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), unique = True, nullable=False)
+
+    def __repr__(self):
+        return self.name
+
+    def get_name(group_id):
+        entity = db.session.query(SqlTableGroup).get(group_id)
+        return entity.name

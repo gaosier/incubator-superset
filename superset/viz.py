@@ -522,9 +522,26 @@ class PivotTableViz(BaseViz):
         # Display metrics side by side with each column
         import pandas as pd
         from pandas.core.indexes.multi import MultiIndex
-        if len(groupby[0])>1 and self.form_data.get('pivot_group_sum'): ##判断是否需要分别对分类进行求和
-            df = pd.concat([df.reset_index(), df.groupby(groupby[0]).sum().reset_index()],ignore_index=True)
-            df = df.fillna('').pivot_table(index=groupby)
+        if len(groupby)>1 and self.form_data.get('pivot_group_sum'): ##判断是否需要分别对分类进行求和
+            if self.form_data.get('pivot_margins'):
+                m=df.groupby(groupby[0]).sum().drop(['All']).reset_index()
+            else:
+                m = df.groupby(groupby[0]).sum().reset_index()
+            for i in range(1,len(groupby)):
+                if i ==1 :
+                    m[groupby[i]] = '总计'
+                else:
+                    m[groupby[i]] = ''
+            m = m.set_index(groupby)
+            new_df=''
+            for i,j in enumerate(m.index):
+                if i==0:
+                    new_df=pd.concat([df.ix[[j[0]]],m.ix[[j[0]]]])
+                else:
+                    new_df=pd.concat([new_df,df.ix[[j[0]]],m.ix[[j[0]]]])
+            if self.form_data.get('pivot_margins'):
+                new_df=pd.concat([new_df,df.ix[["All"]]])
+            df=new_df
         a = df.index
         if type(df.columns) == MultiIndex:
             df=df.reindex(index=a,columns=df[self.form_data.get('metrics')].columns)
@@ -541,6 +558,10 @@ class PivotTableViz(BaseViz):
             # from pandas.core.indexes.frozen import FrozenNDArray
         if is_xlsx:
             return df
+        # if type(df.index) == MultiIndex:  #控制df的索引名称不展示
+        #     df.index.names=[None for i in range(len(df.index.names))]
+        # else :
+        #     df.index.name=None
         return dict(
             columns=list(df.columns),
             html=df.to_html(

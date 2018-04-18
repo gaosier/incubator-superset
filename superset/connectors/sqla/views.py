@@ -21,6 +21,7 @@ from superset.views.base import (
 from superset.utils import metric_format
 from . import models
 from superset.views.core import check_ownership
+from flask_appbuilder.views import GeneralView,ModelView,MasterDetailView
 
 class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     datamodel = SQLAInterface(models.TableColumn)
@@ -217,7 +218,7 @@ class TableModelView(DatasourceModelView, DeleteMixin):  # noqa
         'main_dttm_col', 'default_endpoint', 'offset', 'cache_timeout']
     show_columns = edit_columns + ['perm']
     related_views = [TableColumnInlineView, SqlMetricInlineView]
-    base_order = ('changed_on', 'desc')
+    base_order = ('verbose_name', 'desc')
     search_columns = (
         # 'database', 'schema', 'table_name', 'owner',
         'database', 'schema', 'verbose_name', 'owner',
@@ -370,10 +371,28 @@ class MyTableModelView(TableModelView):
     def pre_update(self, obj):
         check_ownership(obj)
 
+appbuilder.add_view_no_menu(MyTableModelView)
+# appbuilder.add_view(
+#     MyTableModelView,
+#     "My Tables",
+#     label="自定义数据集",
+#     icon="fa-table",
+#     category="",
+#     category_icon='',)
+
+
+class TableGroupView(MasterDetailView):
+    list_title = '数据分类'
+    datamodel = SQLAInterface(models.SqlTableGroup)
+    related_views = [MyTableModelView]
+
+
 appbuilder.add_view(
-    MyTableModelView,
-    "My Tables",
-    label="自定义数据集",
-    icon="fa-table",
-    category="",
-    category_icon='',)
+    TableGroupView,
+    'TableGroups',
+    #label=__('TableGroups'),
+    label='数据中心',
+    category='',
+    icon='fa-table',
+    href='/tablegroupview/list/1',
+)
