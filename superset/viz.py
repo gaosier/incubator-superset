@@ -554,7 +554,6 @@ class TableViz(BaseViz):
 
     def get_data(self, df):
         fd = self.form_data
-        print(fd,4444444444)
         if (
                 not self.should_be_timeseries() and
                 df is not None and

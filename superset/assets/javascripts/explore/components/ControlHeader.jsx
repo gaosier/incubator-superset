@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { ControlLabel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import InfoTooltipWithTrigger from '../../components/InfoTooltipWithTrigger';
 import { t } from '../../locales';
+import { Button } from 'react-bootstrap';
 
 const propTypes = {
   label: PropTypes.string,
@@ -15,6 +16,11 @@ const propTypes = {
   hovered: PropTypes.bool,
   tooltipOnClick: PropTypes.func,
   warning: PropTypes.string,
+  clickfunc: PropTypes.func,
+  opts: PropTypes.array,
+  store: PropTypes.store,
+  sorttext: PropTypes.string,
+  button: PropTypes.string,
 };
 
 const defaultProps = {
@@ -59,6 +65,56 @@ export default class ControlHeader extends React.Component {
       return null;
     }
     const labelClass = (this.props.validationErrors.length > 0) ? 'text-danger' : '';
+    const opts=this.props.opts;
+    const clickFunc=this.props.clickfunc;
+    const buttStyle={
+        padding:1
+    };
+    const store=this.props.store;
+    class SortButton extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = { text: props.text};
+        }
+        sortClick() {
+            if(this.state.text==='排序'){
+                store.dispatch({
+                      type: 'start_sort',
+                  });
+            }
+            else{
+                store.dispatch({
+                      type: 'end_sort',
+                  });
+            }
+        }
+        render(){
+                return(
+            <div className="pull-left">
+             <Button
+                bsSize="small"
+                onClick={this.sortClick.bind(this)}
+                style={buttStyle}
+              >
+                {this.state.text}
+              </Button>
+            </div>)
+            }
+    }
+    const sortOptions=this.props.can_sort?(
+        <SortButton text={this.props.sorttext}/>
+    ):(null);
+    const selectAll=this.props.button ?(
+        <div className="pull-left">
+         <Button
+            bsSize="small"
+            onClick={clickFunc.bind(this,opts)}
+            style={buttStyle}
+          >
+            {t('Select all')}
+          </Button>
+        </div>
+    ):(null);
     return (
       <div
         className="ControlHeader"
@@ -106,6 +162,8 @@ export default class ControlHeader extends React.Component {
             }
             {this.renderOptionalIcons()}
           </ControlLabel>
+          {selectAll}
+          {sortOptions}
         </div>
         {this.props.rightNode &&
           <div className="pull-right">

@@ -98,6 +98,7 @@ const sortAxisChoices = [
 const groupByControl = {
   type: 'SelectControl',
   multi: true,
+  can_sort:true,//用于排序
   label: t('Group by'),
   default: c => c.options && c.options.length > 0 ? [c.options[0].column_name] : [],
   includeTime: false,
@@ -105,6 +106,7 @@ const groupByControl = {
   optionRenderer: c => <ColumnOption column={c} showType />,
   valueRenderer: c => <ColumnOption column={c} />,
   valueKey: 'column_name',
+  labelKey: 'verbose_name',//很重要，用于拖动排序的key值
   mapStateToProps: (state, control) => {
     const newState = {};
     if (state.datasource) {
@@ -208,6 +210,7 @@ export const controls = {
     multi: true,
     label: t('Percentage Metrics'),
     valueKey: 'metric_name',
+    labelKey: 'verbose_name',//很重要，用于拖动排序的key值
     optionRenderer: m => <MetricOption metric={m} showType />,
     valueRenderer: m => <MetricOption metric={m} />,
     mapStateToProps: state => ({
@@ -289,6 +292,7 @@ export const controls = {
     type: 'MetricsControl',
     multi: false,
     label: t('Metric'),
+    labelKey: 'verbose_name',//很重要，用于拖动排序的key值
     clearable: false,
     validators: [v.nonEmpty],
     default: c => mainMetric(c.options),
@@ -307,6 +311,7 @@ export const controls = {
     clearable: true,
     description: t('Choose a metric for right axis'),
     valueKey: 'metric_name',
+    labelKey: 'verbose_name',//很重要，用于拖动排序的key值
     optionRenderer: m => <MetricOption metric={m} showType />,
     valueRenderer: m => <MetricOption metric={m} />,
     mapStateToProps: state => ({
@@ -614,6 +619,9 @@ export const controls = {
   all_columns: {
     type: 'SelectControl',
     multi: true,
+    //多选框排序配置
+    can_sort:true,
+    labelKey: 'verbose_name',//用于拖动排序的key
     label: t('Columns'),
     default: [],
     description: t('Columns to display'),
