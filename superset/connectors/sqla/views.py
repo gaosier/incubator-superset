@@ -382,7 +382,7 @@ appbuilder.add_view_no_menu(MyTableModelView)
 
 
 class TableGroupView(MasterDetailView):
-    list_title = '数据分类'
+    list_title = '数据中心分类'
     datamodel = SQLAInterface(models.SqlTableGroup)
     related_views = [MyTableModelView]
 

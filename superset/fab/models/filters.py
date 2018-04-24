@@ -46,3 +46,12 @@ class SupersetFilters(Filters):
         retfilters.filters = self.filters + filters.filters
         retfilters.values = self.values + filters.values
         return retfilters
+
+    def add_filter_index(self, column_name, filter_instance_index, value):
+        """
+        重写该方法是为了解决当分类与releated_view联合使用出现的bug
+        """
+        try:
+            self._add_filter(self._all_filters[column_name][filter_instance_index], value)
+        except:
+            pass
