@@ -1076,12 +1076,70 @@ class Superset(BaseSupersetView):
             status=200,
             mimetype='application/json')
 
-    def get_xlsx_file(self,viz_obj):
+    def get_columns_verbose_names(self, viz_obj):
+        """
+        获取列的别名
+        """
+        verbose_map = {}
+        columns_info = viz_obj.datasource.data
+        group_by_cols = columns_info.get('gb_cols')
+        metrics = columns_info.get('metrics_combo')
+        verbose_map.update({item[0]: item[1] for item in group_by_cols})
+        verbose_map.update({item[0]: item[1] for item in metrics})
+        return verbose_map
+
+    def deal_with_df(self, viz_obj, df):
+        """
+        处理df, 表头汉化
+        """
+        def change_en_to_zh(cols, verbose_map):
+            if isinstance(cols, list):
+                for col in cols:
+                    if col in verbose_map:
+                        i = cols.index(col)
+                        cols[i] = verbose_map.get(col)
+            else:
+                cols = verbose_map.get(cols)
+            return cols
+
+        verbose_map = self.get_columns_verbose_names(viz_obj)
+        if viz_obj.viz_type == 'pivot_table':
+            if df.index.__class__.__name__ == 'Index':
+                name = df.index.name
+                df.index.name = change_en_to_zh(name, verbose_map)
+            else:
+                names = list(df.index.names)
+                new_names = change_en_to_zh(names, verbose_map)
+                df.index = df.index.set_names(new_names)
+
+            if df.columns.__class__.__name__ == 'Index':
+                columns = df.columns.tolist()
+                columns = change_en_to_zh(columns, verbose_map)
+                df.columns = df.columns.__class__(columns, dtype='object')
+            else:
+                old = list(df.columns.levels)
+                levels = df.columns.levels[0]
+                _cols = levels.tolist()
+                _cols = change_en_to_zh(_cols, verbose_map)
+                _levels = levels.__class__(_cols, dtype='object')
+                old[0] = _levels
+                df.columns = df.columns.set_levels(old)
+
+                old_names = list(df.columns.names)
+                new_names = change_en_to_zh(old_names, verbose_map)
+                df.columns = df.columns.set_names(new_names)
+        else:
+            columns = df.columns.tolist()
+            columns = change_en_to_zh(columns, verbose_map)
+            df.columns = df.columns.__class__(columns, dtype='object')
+        return df
+
+    def get_xlsx_file(self, viz_obj):
         dfa = viz_obj.get_df()
         # 先特殊处理pivot_table的下载
-        viz_type = self.get_form_data()[0].get('viz_type', 'table')
-        if viz_type == 'pivot_table':
+        if viz_obj.viz_type == 'pivot_table':
             dfa = viz_obj.get_data(dfa, is_xlsx=True)
+        dfa = self.deal_with_df(viz_obj, dfa)
         filename = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time())) + u'.xlsx'
         filepath = os.path.join(app.config.get('SQLLAB_DATA_DIR'), filename)
         dfa.to_excel(filepath, index=True, encoding='utf-8', engine='xlsxwriter')
