@@ -970,6 +970,7 @@ class Superset(BaseSupersetView):
     def get_form_data(self, slice_id=None):
         form_data = {}
         post_data = request.form.get('form_data')
+        print("post_data: %s" % post_data)
         request_args_data = request.args.get('form_data')
         # Supporting POST
         if post_data:
@@ -1008,8 +1009,15 @@ class Superset(BaseSupersetView):
             slc = db.session.query(models.Slice).filter_by(id=slice_id).first()
             slice_form_data = slc.form_data.copy()
             # allow form_data in request override slice from_data
-            slice_form_data.update(form_data)
-            form_data = slice_form_data
+            if form_data.get('viz_type'):
+                if slice_form_data.get('viz_type') == form_data.get('viz_type'):
+                    slice_form_data.update(form_data)
+                    form_data = slice_form_data
+                else:
+                    form_data = form_data
+            else:
+                slice_form_data.update(form_data)
+                form_data = slice_form_data
 
         return form_data, slc
 
@@ -1248,6 +1256,7 @@ class Superset(BaseSupersetView):
             xlsx=request.args.get('xlsx') == 'true'
             force = request.args.get('force') == 'true'
             form_data = self.get_form_data()[0]
+            print("explore_json      form_data: %s" % form_data)
             datasource_id, datasource_type = self.datasource_info(
                 datasource_id, datasource_type, form_data)
         except Exception as e:
@@ -1313,6 +1322,7 @@ class Superset(BaseSupersetView):
     def explore(self, datasource_type=None, datasource_id=None):
         user_id = g.user.get_id() if g.user else None
         form_data, slc = self.get_form_data()
+        print("first  explore: form_data: %s" % form_data)
 
         datasource_id, datasource_type = self.datasource_info(
             datasource_id, datasource_type, form_data)
@@ -1380,6 +1390,7 @@ class Superset(BaseSupersetView):
         else:
             datasource.slice_users = None
         standalone = request.args.get('standalone') == 'true'
+        print('expolre:  from_data: %s' % form_data)
         bootstrap_data = {
             'can_add': slice_add_perm,
             'can_download': slice_download_perm,
