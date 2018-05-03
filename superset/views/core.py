@@ -965,12 +965,10 @@ class Superset(BaseSupersetView):
         """
         获取列的别名
         """
-        verbose_map = {}
         columns_info = viz_obj.datasource.data
-        group_by_cols = columns_info.get('gb_cols')
-        metrics = columns_info.get('metrics_combo')
-        verbose_map.update({item[0]: item[1] for item in group_by_cols})
-        verbose_map.update({item[0]: item[1] for item in metrics})
+        verbose_map = columns_info.get('verbose_map')
+        all_columns = columns_info.get('all_cols')
+        verbose_map.update({item[0]: item[1] for item in all_columns})
         return verbose_map
 
     def deal_with_df(self, viz_obj, df):
