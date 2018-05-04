@@ -629,8 +629,8 @@ export const controls = {
     valueRenderer: c => <ColumnOption column={c} />,
     valueKey: 'column_name',
     mapStateToProps: state => ({
-      options: (state.datasource) ? state.datasource.columns : [],
-      choices: (state.datasource) ? state.datasource.all_cols : [],
+        options: (state.datasource) ? state.datasource.all_cols_1 : [],
+        // choices: (state.datasource) ? state.datasource.all_cols : [],
     }),
   },
 
@@ -976,7 +976,7 @@ export const controls = {
     freeForm: true,
     label: t('Row limit'),
     validators: [v.integer],
-    default: 10000,
+    default: 100,
     choices: formatSelectOptions(ROW_LIMIT_OPTIONS),
   },
 

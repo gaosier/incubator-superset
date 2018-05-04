@@ -146,12 +146,9 @@ export const visTypes = {
         default:[],
       },
       all_columns:{
-        default: c => c.choices && c.choices.length > 0 ? c.choices.map(a => a[0]): [],
+        default: c => c.options && c.options.length > 0 ? c.options.map(a => a.column_name): [],
         button : 'True',
       },
-      all_columns:{
-        button : 'True',
-    },
       time_grain_sqla: {
         default: null,
       },

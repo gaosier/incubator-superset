@@ -202,6 +202,12 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
          for i in sorted(filterd_columns, key=lambda x: x.order_number) if i.groupby]
         columns=[o.data for o in filterd_columns]
         columns.append({'column_name': '__timestamp', 'verbose_name': '时间分组', 'groupby': True})
+        all_cols_1 = []
+        for col in sorted(filterd_columns,key=lambda x:x.order_number):
+            if col.is_active:
+                all_cols_1.append({"column_name": col.column_name, "expression": col.expression, "type": col.type,
+                                   "is_dttm": col.is_dttm})
+
         return {
             # 'all_cols': utils.choicify(self.column_names),
             'all_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.is_active],
@@ -228,6 +234,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'metrics': [o.data for o in filterd_metrics],
             'columns': columns,
             'verbose_map': verbose_map,
+            'all_cols_1': all_cols_1
         }
 
     def get_query_str(self, query_obj):

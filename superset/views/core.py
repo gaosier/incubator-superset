@@ -1375,7 +1375,6 @@ class Superset(BaseSupersetView):
         else:
             datasource.slice_users = None
         standalone = request.args.get('standalone') == 'true'
-        print('datasource.data: %s' % datasource.data)
         bootstrap_data = {
             'can_add': slice_add_perm,
             'can_download': slice_download_perm,
@@ -2633,7 +2632,9 @@ class Superset(BaseSupersetView):
         # Check permission for datasource
         if not security_manager.datasource_access(datasource):
             return json_error_response(DATASOURCE_ACCESS_ERR)
-        return json_success(json.dumps(datasource.data))
+        data = datasource.data
+        data['is_new_datasource'] = True
+        return json_success(json.dumps(data))
 
     @expose('/queries/<last_updated_ms>')
     def queries(self, last_updated_ms):
