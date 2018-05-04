@@ -961,15 +961,6 @@ class Superset(BaseSupersetView):
             endpoint += '&standalone=true'
         return redirect(endpoint)
 
-    def get_columns_verbose_names(self, viz_obj):
-        """
-        获取列的别名
-        """
-        columns_info = viz_obj.datasource.data
-        verbose_map = columns_info.get('verbose_map')
-        all_columns = columns_info.get('all_cols')
-        verbose_map.update({item[0]: item[1] for item in all_columns})
-        return verbose_map
 
     def deal_with_df(self, viz_obj, df):
         """
@@ -985,7 +976,7 @@ class Superset(BaseSupersetView):
                 cols = verbose_map.get(cols)
             return cols
 
-        verbose_map = self.get_columns_verbose_names(viz_obj)
+        verbose_map = viz_obj.datasource.data.get('verbose_map')
         if viz_obj.viz_type == 'pivot_table':
             if df.index.__class__.__name__ == 'Index':
                 name = df.index.name
