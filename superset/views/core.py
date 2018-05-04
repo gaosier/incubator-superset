@@ -1083,18 +1083,6 @@ class Superset(BaseSupersetView):
             status=200,
             mimetype='application/json')
 
-    def get_columns_verbose_names(self, viz_obj):
-        """
-        获取列的别名
-        """
-        verbose_map = {}
-        columns_info = viz_obj.datasource.data
-        group_by_cols = columns_info.get('gb_cols')
-        metrics = columns_info.get('metrics_combo')
-        verbose_map.update({item[0]: item[1] for item in group_by_cols})
-        verbose_map.update({item[0]: item[1] for item in metrics})
-        return verbose_map
-
     def deal_with_df(self, viz_obj, df):
         """
         处理df, 表头汉化
@@ -1109,7 +1097,7 @@ class Superset(BaseSupersetView):
                 cols = verbose_map.get(cols)
             return cols
 
-        verbose_map = self.get_columns_verbose_names(viz_obj)
+        verbose_map = viz_obj.datasource.data.get('verbose_map')
         if viz_obj.viz_type == 'pivot_table':
             if df.index.__class__.__name__ == 'Index':
                 name = df.index.name
@@ -1387,6 +1375,7 @@ class Superset(BaseSupersetView):
         else:
             datasource.slice_users = None
         standalone = request.args.get('standalone') == 'true'
+        print('datasource.data: %s' % datasource.data)
         bootstrap_data = {
             'can_add': slice_add_perm,
             'can_download': slice_download_perm,
