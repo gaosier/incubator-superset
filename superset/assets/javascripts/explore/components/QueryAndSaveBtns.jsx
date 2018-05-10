@@ -4,6 +4,7 @@ import { ButtonGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import classnames from 'classnames';
 
 import Button from '../../components/Button';
+import { t } from '../../locales';
 
 const propTypes = {
   canAdd: PropTypes.string.isRequired,
@@ -40,7 +41,7 @@ export default function QueryAndSaveBtns(
       onClick={onStop}
       bsStyle="warning"
     >
-      <i className="fa fa-stop-circle-o" /> Stop
+      <i className="fa fa-stop-circle-o" /> {t('Stop')}
     </Button>
   ) : (
     <Button
@@ -49,7 +50,7 @@ export default function QueryAndSaveBtns(
       bsStyle={qryButtonStyle}
       disabled={!!errorMessage}
     >
-      <i className="fa fa-bolt" /> Run Query
+      <i className="fa fa-bolt" /> {t('Run Query')}
     </Button>
   );
 
@@ -64,7 +65,7 @@ export default function QueryAndSaveBtns(
           disabled={saveButtonDisabled}
           onClick={onSave}
         >
-          <i className="fa fa-plus-circle" /> Save
+          <i className="fa fa-plus-circle" /> {t('Save')}
         </Button>
       </ButtonGroup>
       {errorMessage &&

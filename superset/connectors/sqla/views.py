@@ -278,7 +278,8 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'owner': _('Owner'),
         'main_dttm_col': _('Main Datetime Column'),
         'description': _('Description'),
-        'group': _('Group Name')
+        'group': _('Group Name'),
+        'verbose_name': _('Verbose Name')
     }
 
     def pre_add(self, table):

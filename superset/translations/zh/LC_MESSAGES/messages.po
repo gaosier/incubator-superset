@@ -1023,7 +1023,7 @@ msgstr "主日期列"
 
 #: superset/connectors/sqla/views.py:281
 msgid "Group Name"
-msgstr ""
+msgstr "组名"
 
 #: superset/connectors/sqla/views.py:296
 msgid ""
