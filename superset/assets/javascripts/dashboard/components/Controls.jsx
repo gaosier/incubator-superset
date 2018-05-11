@@ -126,7 +126,7 @@ class Controls extends React.PureComponent {
     }
     return (
       <span>
-        <DropdownButton title="Actions" bsSize="small" id="bg-nested-dropdown" pullRight>
+        <DropdownButton title={t('Actions')} bsSize="small" id="bg-nested-dropdown" pullRight>
           <ActionMenuItem
             text={t('Force Refresh')}
             tooltip={t('Force refresh the whole dashboard')}

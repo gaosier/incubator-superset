@@ -1179,7 +1179,7 @@ msgstr "CTAS 模式"
 #: superset/views/core.py:280 superset/views/core.py:460
 #: superset/views/core.py:578 superset/views/core.py:645
 msgid "Creator"
-msgstr "作者"
+msgstr "创建者"
 
 #: superset/views/core.py:282
 msgid "SQLAlchemy URI"
@@ -1264,7 +1264,7 @@ msgstr "看板"
 
 #: superset/views/core.py:464
 msgid "Last Modified"
-msgstr "最后修改"
+msgstr "最后修改时间"
 
 #: superset/views/core.py:465 superset/views/core.py:577
 msgid "Owners"
@@ -1353,7 +1353,7 @@ msgstr "我的报表"
 #: superset/views/core.py:579 superset/views/core.py:646
 #: superset/views/sql_lab.py:62
 msgid "Modified"
-msgstr "已修改"
+msgstr "修改时间"
 
 #: superset/views/core.py:580
 msgid "Position JSON"
@@ -3363,4 +3363,7 @@ msgstr "这个 JSON 对象描述了部件在看板中的位置。它是动态生
 
 msgid "Cannot find User %(name)s, please ask your admin to create one."
 msgstr "找不到用户 %(name)s，请您让管理员创建一个。"
+
+msgid "List Log"
+msgstr "日志列表"
 

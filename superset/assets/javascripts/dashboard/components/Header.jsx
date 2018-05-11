@@ -57,7 +57,7 @@ class Header extends React.PureComponent {
     if (!this.props.dashboard.dash_save_perm) {
       return null;
     }
-    const btnText = this.props.editMode ? 'Switch to View Mode' : 'Edit Dashboard';
+    const btnText = this.props.editMode ? t('Switch to View Mode') : t('Edit Dashboard');
     return (
       <Button
         bsStyle="default"
