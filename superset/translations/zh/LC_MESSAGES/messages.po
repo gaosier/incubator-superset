@@ -3367,3 +3367,50 @@ msgstr "找不到用户 %(name)s，请您让管理员创建一个。"
 msgid "List Log"
 msgstr "日志列表"
 
+msgid "List Annotation Layer"
+msgstr "注解层列表"
+
+msgid "Add Annotation Layer"
+msgstr "添加注解层"
+
+msgid "Edit Annotation Layer"
+msgstr "编辑注解层"
+
+msgid "Show Annotation Layer"
+msgstr "注解层详情"
+
+msgid "List Annotation"
+msgstr "注解列表"
+
+msgid "Add Annotation"
+msgstr "添加注解"
+
+msgid "Edit Annotation"
+msgstr "编辑注解"
+
+msgid "Show Annotation"
+msgstr "注解详情"
+
+msgid "Descr"
+msgstr "描述"
+
+msgid "Layer"
+msgstr "注解层"
+
+msgid "Short Descr"
+msgstr "简短描述"
+
+msgid "Long Descr"
+msgstr "详细描述"
+
+msgid "Start Dttm"
+msgstr "开始时间"
+
+msgid "End Dttm"
+msgstr "结束时间"
+
+
+
+
+
+
