@@ -328,8 +328,8 @@ class SqlaTable(Model, BaseDatasource):
     @property
     def name(self):
         if not self.schema:
-            return self.table_name
-        return '{}.{}'.format(self.schema, self.table_name or self.table_name)
+            return self.verbose_name or self.table_name
+        return '{}.{}'.format(self.schema, self.verbose_name or self.table_name)
 
     @property
     def full_name(self):

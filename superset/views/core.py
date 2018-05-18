@@ -285,6 +285,7 @@ class DatabaseView(SupersetModelView, DeleteMixin, YamlExportMixin):  # noqa
         'allow_run_sync': _('Allow Run Sync'),
         'allow_run_async': _('Allow Run Async'),
         'impersonate_user': _('Impersonate the logged on user'),
+        'allow_multi_schema_metadata_fetch': _('Allow Multi Schema Metadata Fetch'),
     }
 
     def pre_add(self, db):
