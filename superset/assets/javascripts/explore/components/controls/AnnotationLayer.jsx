@@ -531,12 +531,12 @@ export default class AnnotationLayer extends React.PureComponent {
             <PopoverSection
               isSelected
               onSelect={() => {}}
-              title="Layer Configuration"
+              title={t('Layer Configuration')}
               info="Configure the basics of your Annotation Layer."
             >
               <TextControl
                 name="annotation-layer-name"
-                label="Name"
+                label={t('Name')}
                 placeholder=""
                 value={name}
                 onChange={v => this.setState({ name: v })}
@@ -544,14 +544,14 @@ export default class AnnotationLayer extends React.PureComponent {
               />
               <CheckboxControl
                 name="annotation-layer-hide"
-                label="Hide Layer"
+                label={t('Hide Layer')}
                 value={!show}
                 onChange={v => this.setState({ show: !v })}
               />
               <SelectControl
                 hovered
-                description="Choose the Annotation Layer Type"
-                label="Annotation Layer Type"
+                description={t('Choose the Annotation Layer Type')}
+                label={t('Annotation Layer Type')}
                 name="annotation-layer-type"
                 options={getSupportedAnnotationTypes(this.props.vizType).map(
                     x => ({ value: x, label: getAnnotationTypeLabel(x) }))}

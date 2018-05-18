@@ -68,7 +68,7 @@ appbuilder.add_view(
     TableGroupView,
     'TableGroups',
     #label=__('TableGroups'),
-    label='自定义数据集',
+    label='数据中心',
     category='',
     icon='fa-table',
     href='/tablegroupview/list/1',

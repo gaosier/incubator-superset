@@ -15,7 +15,7 @@ from flask import (
 
 from superset import (
     app, appbuilder, cache, db, results_backend, security, sql_lab, utils,
-    viz,utils_ext
+    viz, utils_ext, security_manager
 )
 from superset.utils import (
     merge_extra_filters, merge_request_params, QueryStatus,
@@ -53,7 +53,7 @@ class SupersetExt(BaseSupersetView):
             .one()
         )
 
-        rejected_tables = self.rejected_datasources(
+        rejected_tables = security_manager.rejected_datasources(
             query.sql, query.database, query.schema)
         if rejected_tables:
             flash(get_datasource_access_error_msg('{}'.format(rejected_tables)))
