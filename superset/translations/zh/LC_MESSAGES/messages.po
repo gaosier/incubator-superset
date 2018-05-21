@@ -157,11 +157,11 @@ msgstr "CSV文件使用的分隔符(空格用\\s+)"
 
 #: superset/forms.py:74
 msgid "Table Exists"
-msgstr "表存在"
+msgstr "表是否存在"
 
 #: superset/forms.py:75
 msgid "If table exists do one of the following: Fail (do nothing), Replace (drop and recreate table) or Append (insert data)."
-msgstr "如果表存在下列操作之一：失败（不执行任何操作）、替换（删除和重新创建表）或追加（插入数据"
+msgstr "如果表存在下列操作之一：失败（不执行任何操作）、替换（删除和重新创建表）或追加（插入数据)"
 
 #: superset/forms.py:80
 msgid "Fail"
@@ -173,7 +173,7 @@ msgstr "替换"
 
 #: superset/forms.py:81
 msgid "Append"
-msgstr "添加"
+msgstr "追加"
 
 #: superset/connectors/sqla/views.py:272 superset/forms.py:84
 msgid "Schema"
@@ -1151,14 +1151,14 @@ msgid ""
 "Hive and hive.server2.enable.doAs is enabled, will run the queries as "
 "service account, but impersonate the currently logged on user via "
 "hive.server2.proxy.user property."
-msgstr ""
+msgstr "如果需要,SQL工具箱中的所有查询都将作为当前登录用户执行并且这些用户必须具有运行它们的权限.启用HIVE和HIVE.Serv2,将运行查询为服务帐户,但是通过hive.server2.proxy.user属性来模拟当前登录的用户"
 
 #: superset/views/core.py:269
 msgid ""
 "Allow SQL Lab to fetch a list of all tables and all views across all "
 "database schemas. For large data warehouse with thousands of tables, this"
 " can be expensive and put strain on the system."
-msgstr ""
+msgstr "允许SQL工具箱跨数据库获取所有表和所有视图.但是对于拥有很多表的大型数据仓库来说,这可能很耗时,并对系统增加了压力"
 
 #: superset/views/core.py:275
 msgid "Expose in SQL Lab"
@@ -1199,7 +1199,7 @@ msgstr "允许异步运行"
 
 #: superset/views/core.py:287
 msgid "Impersonate the logged on user"
-msgstr ""
+msgstr "是否需要用户登录"
 
 #: superset/views/core.py:338
 msgid "CSV to Database configuration"
@@ -1260,7 +1260,7 @@ msgstr "切片数据过期时间（秒）"
 
 #: superset/views/core.py:461
 msgid "Dashboards"
-msgstr "看板"
+msgstr "我的看板"
 
 #: superset/views/core.py:464
 msgid "Last Modified"
@@ -1272,7 +1272,7 @@ msgstr "所有者"
 
 #: superset/views/core.py:466
 msgid "Show Users"
-msgstr "用户详情"
+msgstr "共享用户"
 
 #: superset/views/core.py:467
 msgid "Parameters"
@@ -1292,19 +1292,19 @@ msgstr "图表类型"
 
 #: superset/views/core.py:535
 msgid "List Dashboards"
-msgstr "仪表盘列表"
+msgstr "看板列表"
 
 #: superset/views/core.py:536
 msgid "Show Dashboard"
-msgstr "显示仪表盘"
+msgstr "显示看板"
 
 #: superset/views/core.py:537
 msgid "Add Dashboard"
-msgstr "添加仪表盘"
+msgstr "添加看板"
 
 #: superset/views/core.py:538
 msgid "Edit Dashboard"
-msgstr "编辑仪表盘"
+msgstr "编辑看板"
 
 #: superset/views/core.py:550
 msgid ""
@@ -1377,7 +1377,7 @@ msgstr "操作"
 
 #: superset/views/core.py:672
 msgid "dttm"
-msgstr "DTTM"
+msgstr "操作时间"
 
 #: superset/views/core.py:1303 superset/views/core.py:1308
 #: superset/views/core.py:1419 superset/views/core.py:1433
@@ -3260,7 +3260,7 @@ msgid "This endpoint requires the datasource %(name)s, database or `all_datasour
 msgstr "此端点需要数据源 %(name)s、数据库或“all_datasource_access”权限"
 
 msgid "Import Dashboards"
-msgstr "导入仪表盘"
+msgstr "导入看板"
 
 msgid "Access requests"
 msgstr "访问请求"
@@ -3408,6 +3408,15 @@ msgstr "开始时间"
 
 msgid "End Dttm"
 msgstr "结束时间"
+
+msgid "Is Hybrid"
+msgstr "是否是海量数据库"
+
+msgid "Allow Multi Schema Metadata Fetch"
+msgstr "允许多模式元数据获取"
+
+msgid "Show users is a list of users who cannot alter the dashboard."
+msgstr "共享用户是一组没有修改看板权限的用户."
 
 
 

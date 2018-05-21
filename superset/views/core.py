@@ -286,6 +286,7 @@ class DatabaseView(SupersetModelView, DeleteMixin, YamlExportMixin):  # noqa
         'allow_run_async': _('Allow Run Async'),
         'impersonate_user': _('Impersonate the logged on user'),
         'allow_multi_schema_metadata_fetch': _('Allow Multi Schema Metadata Fetch'),
+        'is_hybrid': _('Is Hybrid'),
     }
 
     def pre_add(self, db):
@@ -454,6 +455,8 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
         ),
         'cache_timeout': _(
             'Duration (in seconds) of the caching timeout for this slice.'),
+        'owners': _('Owners is a list of users who can alter the dashboard.'),
+        'show_users': _('Show users is a list of users who cannot alter the dashboard.')
     }
     base_filters = [['id', SliceFilter, lambda: []]]
     label_columns = {
@@ -564,6 +567,7 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
             'is exposed here for reference and for power users who may '
             'want to alter specific parameters.'),
         'owners': _('Owners is a list of users who can alter the dashboard.'),
+        'show_users': _('Show users is a list of users who cannot alter the dashboard.')
     }
     base_filters = [['slice', DashboardFilter, lambda: []]]
     add_form_query_rel_fields = {
@@ -582,6 +586,7 @@ class DashboardModelView(SupersetModelView, DeleteMixin):  # noqa
         'css': _('CSS'),
         'json_metadata': _('JSON Metadata'),
         'table_names': _('Underlying Tables'),
+        'show_users': _('Show Users')
     }
 
     def pre_add(self, obj):
