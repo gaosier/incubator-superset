@@ -130,7 +130,7 @@ export const visTypes = {
         expanded: true,
         controlSetRows: [
           ['table_timestamp_format'],
-          ['page_length', null],
+          ['page_length', 'number_format'],
           ['include_search', 'table_filter'],
           ['align_pn', 'color_pn'],
         ],

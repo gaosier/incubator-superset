@@ -2,7 +2,7 @@ import d3 from 'd3';
 import dt from 'datatables.net-bs';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
 
-import { fixDataTableBodyHeight, d3TimeFormatPreset } from '../javascripts/modules/utils';
+import { fixDataTableBodyHeight, d3TimeFormatPreset, d3format } from '../javascripts/modules/utils';
 import './table.css';
 
 const $ = require('jquery');
@@ -107,7 +107,8 @@ function tableVis(slice, payload) {
 
       }
       if (isMetric) {
-        html = slice.d3format(c, val);
+        const format_ = slice.datasource.column_formats[c] || fd.number_format || '.3s';
+        html = d3format(format_, val);
       }
       return {
         col: c,
