@@ -192,6 +192,8 @@ export const visTypes = {
       columns: {
         label: t('Breakdowns'),
         description: t('Defines how each series is broken down'),
+        validators: [],
+        default:[],
       },
     },
   },
@@ -248,7 +250,7 @@ export const visTypes = {
     ],
     controlOverrides: {
       groupby: { includeTime: true },
-      columns: { includeTime: true },
+      columns: { includeTime: true, default:[]},
     },
   },
 
