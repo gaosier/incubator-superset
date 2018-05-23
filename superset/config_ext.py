@@ -30,3 +30,5 @@ SUPERSET_MEMCACHED={
     'username':'f8ed3954cee74f46',
     'password':'Gaosi2012'
 }
+
+BABEL_DEFAULT_LOCALE = 'zh'
