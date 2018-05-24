@@ -52,7 +52,8 @@ module.exports = function (slice, payload) {
       scrollY: `${height}px`,
       scrollCollapse: true,
       scrollX: true,
-      "order": []
+      "order": [],
+      autoFill: true
     });
     table.draw();
     //table.column('-1').order('desc').draw();
