@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-11-17 14:38+0800\n"
+"POT-Creation-Date: 2018-04-18 18:15+0800\n"
 "PO-Revision-Date: 2016-05-02 08:49-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -16,545 +16,785 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.5.1\n"
+"Generated-By: Babel 2.5.3\n"
 
-#: superset/db_engine_specs.py:239 superset/db_engine_specs.py:270
-#: superset/db_engine_specs.py:314 superset/db_engine_specs.py:362
-#: superset/db_engine_specs.py:385 superset/db_engine_specs.py:437
-#: superset/db_engine_specs.py:895 superset/db_engine_specs.py:931
-#: superset/db_engine_specs.py:963 superset/db_engine_specs.py:1009
-#: superset/db_engine_specs.py:1046 superset/db_engine_specs.py:1072
+#: superset/db_engine_specs.py:290 superset/db_engine_specs.py:349
+#: superset/db_engine_specs.py:369 superset/db_engine_specs.py:421
+#: superset/db_engine_specs.py:474 superset/db_engine_specs.py:505
+#: superset/db_engine_specs.py:557 superset/db_engine_specs.py:1107
+#: superset/db_engine_specs.py:1149 superset/db_engine_specs.py:1204
+#: superset/db_engine_specs.py:1249 superset/db_engine_specs.py:1282
 msgid "Time Column"
-msgstr ""
+msgstr "Columna de Tiempo"
 
-#: superset/db_engine_specs.py:240 superset/db_engine_specs.py:271
-#: superset/db_engine_specs.py:363 superset/db_engine_specs.py:386
-#: superset/db_engine_specs.py:438 superset/db_engine_specs.py:896
-#: superset/db_engine_specs.py:964 superset/db_engine_specs.py:1047
+#: superset/db_engine_specs.py:291 superset/db_engine_specs.py:370
+#: superset/db_engine_specs.py:475 superset/db_engine_specs.py:506
+#: superset/db_engine_specs.py:558 superset/db_engine_specs.py:1108
+#: superset/db_engine_specs.py:1150 superset/db_engine_specs.py:1250
 msgid "second"
-msgstr ""
+msgstr "segundo"
 
-#: superset/db_engine_specs.py:241 superset/db_engine_specs.py:274
-#: superset/db_engine_specs.py:366 superset/db_engine_specs.py:388
-#: superset/db_engine_specs.py:440 superset/db_engine_specs.py:898
-#: superset/db_engine_specs.py:932 superset/db_engine_specs.py:966
-#: superset/db_engine_specs.py:1010 superset/db_engine_specs.py:1048
-#: superset/db_engine_specs.py:1073
+#: superset/db_engine_specs.py:293 superset/db_engine_specs.py:350
+#: superset/db_engine_specs.py:374 superset/db_engine_specs.py:479
+#: superset/db_engine_specs.py:508 superset/db_engine_specs.py:561
+#: superset/db_engine_specs.py:1111 superset/db_engine_specs.py:1153
+#: superset/db_engine_specs.py:1205 superset/db_engine_specs.py:1251
+#: superset/db_engine_specs.py:1283
 msgid "minute"
-msgstr ""
+msgstr "minuto"
 
-#: superset/db_engine_specs.py:242 superset/db_engine_specs.py:278
-#: superset/db_engine_specs.py:368 superset/db_engine_specs.py:389
-#: superset/db_engine_specs.py:442 superset/db_engine_specs.py:904
-#: superset/db_engine_specs.py:934 superset/db_engine_specs.py:968
-#: superset/db_engine_specs.py:1016 superset/db_engine_specs.py:1049
-#: superset/db_engine_specs.py:1074
+#: superset/db_engine_specs.py:295 superset/db_engine_specs.py:351
+#: superset/db_engine_specs.py:379 superset/db_engine_specs.py:422
+#: superset/db_engine_specs.py:482 superset/db_engine_specs.py:509
+#: superset/db_engine_specs.py:564 superset/db_engine_specs.py:1120
+#: superset/db_engine_specs.py:1156 superset/db_engine_specs.py:1214
+#: superset/db_engine_specs.py:1252 superset/db_engine_specs.py:1284
 msgid "hour"
-msgstr ""
+msgstr "hora"
 
-#: superset/db_engine_specs.py:243 superset/db_engine_specs.py:283
-#: superset/db_engine_specs.py:315 superset/db_engine_specs.py:370
-#: superset/db_engine_specs.py:390 superset/db_engine_specs.py:444
-#: superset/db_engine_specs.py:906 superset/db_engine_specs.py:936
-#: superset/db_engine_specs.py:970 superset/db_engine_specs.py:1018
-#: superset/db_engine_specs.py:1050 superset/db_engine_specs.py:1075
+#: superset/db_engine_specs.py:297 superset/db_engine_specs.py:352
+#: superset/db_engine_specs.py:385 superset/db_engine_specs.py:425
+#: superset/db_engine_specs.py:485 superset/db_engine_specs.py:510
+#: superset/db_engine_specs.py:567 superset/db_engine_specs.py:1123
+#: superset/db_engine_specs.py:1159 superset/db_engine_specs.py:1217
+#: superset/db_engine_specs.py:1253 superset/db_engine_specs.py:1285
 msgid "day"
-msgstr ""
+msgstr "día"
 
-#: superset/db_engine_specs.py:244 superset/db_engine_specs.py:289
-#: superset/db_engine_specs.py:316 superset/db_engine_specs.py:371
-#: superset/db_engine_specs.py:391 superset/db_engine_specs.py:446
-#: superset/db_engine_specs.py:908 superset/db_engine_specs.py:938
-#: superset/db_engine_specs.py:972 superset/db_engine_specs.py:1051
-#: superset/db_engine_specs.py:1076
+#: superset/db_engine_specs.py:299 superset/db_engine_specs.py:353
+#: superset/db_engine_specs.py:392 superset/db_engine_specs.py:426
+#: superset/db_engine_specs.py:486 superset/db_engine_specs.py:511
+#: superset/db_engine_specs.py:570 superset/db_engine_specs.py:1126
+#: superset/db_engine_specs.py:1162 superset/db_engine_specs.py:1254
+#: superset/db_engine_specs.py:1286
 msgid "week"
-msgstr ""
+msgstr "semana"
 
-#: superset/db_engine_specs.py:245 superset/db_engine_specs.py:291
-#: superset/db_engine_specs.py:318 superset/db_engine_specs.py:373
-#: superset/db_engine_specs.py:393 superset/db_engine_specs.py:448
-#: superset/db_engine_specs.py:910 superset/db_engine_specs.py:940
-#: superset/db_engine_specs.py:974 superset/db_engine_specs.py:1020
-#: superset/db_engine_specs.py:1052 superset/db_engine_specs.py:1077
+#: superset/db_engine_specs.py:301 superset/db_engine_specs.py:354
+#: superset/db_engine_specs.py:395 superset/db_engine_specs.py:429
+#: superset/db_engine_specs.py:489 superset/db_engine_specs.py:513
+#: superset/db_engine_specs.py:573 superset/db_engine_specs.py:1129
+#: superset/db_engine_specs.py:1165 superset/db_engine_specs.py:1220
+#: superset/db_engine_specs.py:1255 superset/db_engine_specs.py:1287
 msgid "month"
-msgstr ""
+msgstr "mes"
 
-#: superset/db_engine_specs.py:246 superset/db_engine_specs.py:293
-#: superset/db_engine_specs.py:375 superset/db_engine_specs.py:395
-#: superset/db_engine_specs.py:450 superset/db_engine_specs.py:912
-#: superset/db_engine_specs.py:942 superset/db_engine_specs.py:976
-#: superset/db_engine_specs.py:1022 superset/db_engine_specs.py:1053
-#: superset/db_engine_specs.py:1078
+#: superset/db_engine_specs.py:303 superset/db_engine_specs.py:355
+#: superset/db_engine_specs.py:398 superset/db_engine_specs.py:492
+#: superset/db_engine_specs.py:515 superset/db_engine_specs.py:576
+#: superset/db_engine_specs.py:1132 superset/db_engine_specs.py:1168
+#: superset/db_engine_specs.py:1223 superset/db_engine_specs.py:1256
+#: superset/db_engine_specs.py:1288
 msgid "quarter"
-msgstr ""
+msgstr "trimestre"
 
-#: superset/db_engine_specs.py:247 superset/db_engine_specs.py:297
-#: superset/db_engine_specs.py:377 superset/db_engine_specs.py:396
-#: superset/db_engine_specs.py:914 superset/db_engine_specs.py:944
-#: superset/db_engine_specs.py:1024 superset/db_engine_specs.py:1054
-#: superset/db_engine_specs.py:1079
+#: superset/db_engine_specs.py:305 superset/db_engine_specs.py:356
+#: superset/db_engine_specs.py:403 superset/db_engine_specs.py:495
+#: superset/db_engine_specs.py:516 superset/db_engine_specs.py:587
+#: superset/db_engine_specs.py:1135 superset/db_engine_specs.py:1226
+#: superset/db_engine_specs.py:1258 superset/db_engine_specs.py:1289
 msgid "year"
-msgstr ""
+msgstr "año"
 
-#: superset/db_engine_specs.py:379 superset/db_engine_specs.py:398
+#: superset/db_engine_specs.py:498 superset/db_engine_specs.py:518
 msgid "week_start_monday"
-msgstr ""
+msgstr "semana_empieza_lunes"
 
-#: superset/db_engine_specs.py:452 superset/db_engine_specs.py:978
+#: superset/db_engine_specs.py:579 superset/db_engine_specs.py:1171
 msgid "week_ending_saturday"
-msgstr ""
+msgstr "semana_termina_sábado"
 
-#: superset/db_engine_specs.py:455 superset/db_engine_specs.py:981
+#: superset/db_engine_specs.py:583 superset/db_engine_specs.py:1175
 msgid "week_start_sunday"
-msgstr ""
+msgstr "semana_empieza_domingo"
 
-#: superset/db_engine_specs.py:900 superset/db_engine_specs.py:1012
+#: superset/db_engine_specs.py:1114 superset/db_engine_specs.py:1208
 msgid "5 minute"
-msgstr ""
+msgstr "5 minutos"
 
-#: superset/db_engine_specs.py:902
+#: superset/db_engine_specs.py:1117
 msgid "half hour"
-msgstr ""
+msgstr "media hora"
 
-#: superset/db_engine_specs.py:1014
+#: superset/db_engine_specs.py:1211
 msgid "10 minute"
+msgstr "10 minutos"
+
+#: superset/connectors/sqla/views.py:276 superset/forms.py:55
+msgid "Table Name"
+msgstr "Nombre Tabla"
+
+#: superset/forms.py:56
+msgid "Name of table to be created from csv data."
 msgstr ""
 
-#: superset/connectors/druid/views.py:48 superset/connectors/sqla/models.py:736
-#: superset/connectors/sqla/views.py:87 superset/utils.py:675
+#: superset/forms.py:60
+msgid "CSV File"
+msgstr ""
+
+#: superset/forms.py:61
+msgid "Select a CSV file to be uploaded to a database."
+msgstr ""
+
+#: superset/forms.py:63
+msgid "CSV Files Only!"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:269 superset/forms.py:65
+#: superset/views/core.py:279 superset/views/sql_lab.py:23
+#: superset/views/sql_lab.py:60
+msgid "Database"
+msgstr "Base de datos"
+
+#: superset/forms.py:69
+msgid "Delimiter"
+msgstr ""
+
+#: superset/forms.py:70
+msgid "Delimiter used by CSV file (for whitespace use \\s+)."
+msgstr ""
+
+#: superset/forms.py:74
+msgid "Table Exists"
+msgstr ""
+
+#: superset/forms.py:75
+msgid ""
+"If table exists do one of the following: Fail (do nothing), Replace (drop"
+" and recreate table) or Append (insert data)."
+msgstr ""
+
+#: superset/forms.py:80
+msgid "Fail"
+msgstr ""
+
+#: superset/forms.py:80
+msgid "Replace"
+msgstr ""
+
+#: superset/forms.py:81
+msgid "Append"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:272 superset/forms.py:84
+msgid "Schema"
+msgstr "Esquema"
+
+#: superset/forms.py:85
+msgid "Specify a schema (if database flavour supports this)."
+msgstr ""
+
+#: superset/forms.py:90
+msgid "Header Row"
+msgstr ""
+
+#: superset/forms.py:91
+msgid ""
+"Row containing the headers to use as column names (0 is first line of "
+"data). Leave empty if there is no header row."
+msgstr ""
+
+#: superset/forms.py:99
+msgid "Index Column"
+msgstr ""
+
+#: superset/forms.py:100
+msgid ""
+"Column to use as the row labels of the dataframe. Leave empty if no index"
+" column."
+msgstr ""
+
+#: superset/forms.py:107
+msgid "Mangle Duplicate Columns"
+msgstr ""
+
+#: superset/forms.py:108
+msgid "Specify duplicate columns as \"X.0, X.1\"."
+msgstr ""
+
+#: superset/forms.py:110
+msgid "Skip Initial Space"
+msgstr ""
+
+#: superset/forms.py:111
+msgid "Skip spaces after delimiter."
+msgstr ""
+
+#: superset/forms.py:113
+msgid "Skip Rows"
+msgstr ""
+
+#: superset/forms.py:114
+msgid "Number of rows to skip at start of file."
+msgstr ""
+
+#: superset/forms.py:119
+msgid "Rows to Read"
+msgstr ""
+
+#: superset/forms.py:120
+msgid "Number of rows of file to read."
+msgstr ""
+
+#: superset/forms.py:125
+msgid "Skip Blank Lines"
+msgstr ""
+
+#: superset/forms.py:126
+msgid "Skip blank lines rather than interpreting them as NaN values."
+msgstr ""
+
+#: superset/forms.py:130
+msgid "Parse Dates"
+msgstr ""
+
+#: superset/forms.py:131
+msgid "A comma separated list of columns that should be parsed as dates."
+msgstr ""
+
+#: superset/forms.py:136
+msgid "Infer Datetime Format"
+msgstr ""
+
+#: superset/forms.py:137
+msgid "Use Pandas to interpret the datetime format automatically."
+msgstr ""
+
+#: superset/forms.py:141
+msgid "Decimal Character"
+msgstr ""
+
+#: superset/forms.py:142
+msgid "Character to interpret as decimal point."
+msgstr ""
+
+#: superset/forms.py:147
+msgid "Dataframe Index"
+msgstr ""
+
+#: superset/forms.py:148
+msgid "Write dataframe index as a column."
+msgstr ""
+
+#: superset/forms.py:150
+msgid "Column Label(s)"
+msgstr ""
+
+#: superset/forms.py:151
+msgid ""
+"Column label for index column(s). If None is given and Dataframe Index is"
+" True, Index Names are used."
+msgstr ""
+
+#: superset/connectors/druid/views.py:54 superset/connectors/sqla/models.py:206
+#: superset/connectors/sqla/views.py:91 superset/utils_ext.py:65
 msgid "Count Distinct"
-msgstr ""
+msgstr "Contar Distintos"
 
-#: superset/viz.py:49
+#: superset/viz.py:58
 msgid "Viz is missing a datasource"
-msgstr ""
+msgstr "Falta una fuente de datos"
 
-#: superset/viz.py:93
-msgid "No data."
-msgstr ""
-
-#: superset/viz.py:178
-msgid "From date cannot be larger than to date"
-msgstr ""
-
-#: superset/viz.py:345
-msgid "Table View"
-msgstr ""
-
-#: superset/viz.py:357
+#: superset/viz.py:177 superset/viz.py:517
 msgid "Pick a granularity in the Time section or uncheck 'Include Time'"
-msgstr ""
+msgstr "Elige una granularidad en la sección de tiempo o desmarca 'Incluir tiempo'"
 
-#: superset/viz.py:366
+#: superset/viz.py:299
+msgid "From date cannot be larger than to date"
+msgstr "La fecha de inicio no puede ser superior a la de fin"
+
+#: superset/viz.py:505
+msgid "Table View"
+msgstr "Vista de Tabla"
+
+#: superset/viz.py:526
 msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
 msgstr ""
 
-#: superset/viz.py:402
-msgid "Pivot Table"
+#: superset/viz.py:612
+msgid "Time Table View"
 msgstr ""
 
-#: superset/viz.py:419
-msgid "Please choose at least one \"Group by\" field "
-msgstr ""
-
-#: superset/viz.py:421
-msgid "Please choose at least one metric"
-msgstr ""
-
-#: superset/viz.py:425
-msgid "'Group By' and 'Columns' can't overlap"
-msgstr ""
-
-#: superset/viz.py:470
-msgid "Markup"
-msgstr ""
-
-#: superset/viz.py:489
-msgid "Separator"
-msgstr ""
-
-#: superset/viz.py:501
-msgid "Word Cloud"
-msgstr ""
-
-#: superset/viz.py:524
-msgid "Treemap"
-msgstr ""
-
-#: superset/viz.py:550
-msgid "Calendar Heatmap"
-msgstr ""
-
-#: superset/viz.py:607
-msgid "Box Plot"
-msgstr ""
-
-#: superset/viz.py:697
-msgid "Bubble Chart"
-msgstr ""
-
-#: superset/viz.py:721
-msgid "Pick a metric for x, y and size"
-msgstr ""
-
-#: superset/viz.py:747
-msgid "Bullet Chart"
-msgstr ""
-
-#: superset/viz.py:773
-msgid "Pick a metric to display"
-msgstr ""
-
-#: superset/viz.py:796
-msgid "Big Number with Trendline"
-msgstr ""
-
-#: superset/viz.py:804 superset/viz.py:833
-msgid "Pick a metric!"
-msgstr ""
-
-#: superset/viz.py:825
-msgid "Big Number"
-msgstr ""
-
-#: superset/viz.py:852
-msgid "Time Series - Line Chart"
-msgstr ""
-
-#: superset/viz.py:899 superset/viz.py:1036
-msgid "Pick a time granularity for your time series"
-msgstr ""
-
-#: superset/viz.py:979
-msgid "Time Series - Dual Axis Line Chart"
-msgstr ""
-
-#: superset/viz.py:989
-msgid "Pick a metric for left axis!"
-msgstr ""
-
-#: superset/viz.py:991
-msgid "Pick a metric for right axis!"
-msgstr ""
-
-#: superset/viz.py:993
-msgid "Please choose different metrics on left and right axis"
-msgstr ""
-
-#: superset/viz.py:1054
-msgid "Time Series - Bar Chart"
-msgstr ""
-
-#: superset/viz.py:1062
-msgid "Time Series - Percent Change"
-msgstr ""
-
-#: superset/viz.py:1070
-msgid "Time Series - Stacked"
-msgstr ""
-
-#: superset/viz.py:1079
-msgid "Distribution - NVD3 - Pie Chart"
-msgstr ""
-
-#: superset/viz.py:1091
-msgid "Please choose groupby which should be only one"
-msgstr ""
-
-#: superset/viz.py:1094
-msgid "The number of metric should be only one"
-msgstr ""
-
-#: superset/viz.py:1111
-msgid "Histogram"
-msgstr ""
-
-#: superset/viz.py:1121
-msgid "Must have one numeric column specified"
-msgstr ""
-
-#: superset/viz.py:1136
-msgid "Distribution - Bar Chart"
-msgstr ""
-
-#: superset/viz.py:1147
-msgid "Can't have overlap between Series and Breakdowns"
-msgstr ""
-
-#: superset/viz.py:1149
+#: superset/viz.py:621 superset/viz.py:1532
 msgid "Pick at least one metric"
 msgstr ""
 
-#: superset/viz.py:1151
+#: superset/viz.py:624
+msgid "When using 'Group By' you are limited to use a single metric"
+msgstr ""
+
+#: superset/viz.py:653
+msgid "Pivot Table"
+msgstr "Tabla Dinámica"
+
+#: superset/viz.py:670
+msgid "Please choose at least one \"Group by\" field "
+msgstr ""
+
+#: superset/viz.py:672
+msgid "Please choose at least one metric"
+msgstr ""
+
+#: superset/viz.py:676
+msgid "'Group By' and 'Columns' can't overlap"
+msgstr ""
+
+#: superset/viz.py:678 superset/viz.py:1536
+msgid "You can only choose one include_time"
+msgstr ""
+
+#: superset/viz.py:757
+msgid "Markup"
+msgstr "Texto con Formato"
+
+#: superset/viz.py:779
+msgid "Separator"
+msgstr "Separador"
+
+#: superset/viz.py:791
+msgid "Word Cloud"
+msgstr "Nube de Etiquetas"
+
+#: superset/viz.py:814
+msgid "Treemap"
+msgstr "Mapa de Arbol"
+
+#: superset/viz.py:840
+msgid "Calendar Heatmap"
+msgstr "Mapa de Calor del Calendario"
+
+#: superset/viz.py:898
+msgid "Box Plot"
+msgstr "Diagrama de Caja"
+
+#: superset/viz.py:987
+msgid "Bubble Chart"
+msgstr "Gráfico de Burbujas"
+
+#: superset/viz.py:1011
+msgid "Pick a metric for x, y and size"
+msgstr "Elige una métrica y tamaño para x, y "
+
+#: superset/viz.py:1037
+msgid "Bullet Chart"
+msgstr "Grafico de Puntos"
+
+#: superset/viz.py:1063
+msgid "Pick a metric to display"
+msgstr "Elige una métrica para mostrar"
+
+#: superset/viz.py:1086
+msgid "Big Number with Trendline"
+msgstr "Número Grande con Línea de Tendencia"
+
+#: superset/viz.py:1094 superset/viz.py:1123
+msgid "Pick a metric!"
+msgstr "Elige una métrica!"
+
+#: superset/viz.py:1115
+msgid "Big Number"
+msgstr "Número Grande"
+
+#: superset/viz.py:1142
+msgid "Time Series - Line Chart"
+msgstr "Serie Temporal - Gráfico de Líneas"
+
+#: superset/viz.py:1205 superset/viz.py:1369
+msgid "Pick a time granularity for your time series"
+msgstr ""
+
+#: superset/viz.py:1283
+msgid ""
+"`Since` and `Until` time bounds should be specified when using the `Time "
+"Shift` feature."
+msgstr ""
+
+#: superset/viz.py:1312
+msgid "Time Series - Dual Axis Line Chart"
+msgstr ""
+
+#: superset/viz.py:1322
+msgid "Pick a metric for left axis!"
+msgstr ""
+
+#: superset/viz.py:1324
+msgid "Pick a metric for right axis!"
+msgstr ""
+
+#: superset/viz.py:1326
+msgid "Please choose different metrics on left and right axis"
+msgstr ""
+
+#: superset/viz.py:1387
+msgid "Time Series - Bar Chart"
+msgstr ""
+
+#: superset/viz.py:1396
+msgid "Time Series - Period Pivot"
+msgstr ""
+
+#: superset/viz.py:1436
+msgid "Time Series - Percent Change"
+msgstr ""
+
+#: superset/viz.py:1444
+msgid "Time Series - Stacked"
+msgstr ""
+
+#: superset/viz.py:1453
+msgid "Distribution - NVD3 - Pie Chart"
+msgstr ""
+
+#: superset/viz.py:1468
+msgid "The number of metric should be only one"
+msgstr ""
+
+#: superset/viz.py:1494
+msgid "Histogram"
+msgstr "Histograma"
+
+#: superset/viz.py:1504
+msgid "Must have one numeric column specified"
+msgstr ""
+
+#: superset/viz.py:1519
+msgid "Distribution - Bar Chart"
+msgstr ""
+
+#: superset/viz.py:1530
+msgid "Can't have overlap between Series and Breakdowns"
+msgstr ""
+
+#: superset/viz.py:1534
 msgid "Pick at least one field for [Series]"
 msgstr ""
 
-#: superset/viz.py:1204
+#: superset/viz.py:1595
 msgid "Sunburst"
 msgstr ""
 
-#: superset/viz.py:1237
+#: superset/viz.py:1626
 msgid "Sankey"
 msgstr ""
 
-#: superset/viz.py:1244
+#: superset/viz.py:1633
 msgid "Pick exactly 2 columns as [Source / Target]"
 msgstr ""
 
-#: superset/viz.py:1275
+#: superset/viz.py:1664
 msgid ""
 "There's a loop in your Sankey, please provide a tree. Here's a faulty "
 "link: {}"
 msgstr ""
 
-#: superset/viz.py:1286 superset/viz.py:1307
+#: superset/viz.py:1675 superset/viz.py:1696
 msgid "Directed Force Layout"
 msgstr ""
 
-#: superset/viz.py:1293
+#: superset/viz.py:1682
 msgid "Pick exactly 2 columns to 'Group By'"
 msgstr ""
 
-#: superset/viz.py:1340
+#: superset/viz.py:1729
 msgid "Country Map"
-msgstr ""
+msgstr "Mapa de País"
 
-#: superset/viz.py:1369
+#: superset/viz.py:1757
 msgid "World Map"
-msgstr ""
+msgstr "Mapa Mundial"
 
-#: superset/viz.py:1419
+#: superset/viz.py:1807
 msgid "Filters"
-msgstr ""
+msgstr "Filtros"
 
-#: superset/viz.py:1427
+#: superset/viz.py:1828
 msgid "Pick at least one filter field"
-msgstr ""
+msgstr "Elige al menos un campo de filtro"
 
-#: superset/viz.py:1454
+#: superset/viz.py:1853
 msgid "iFrame"
-msgstr ""
+msgstr "iFrame"
 
-#: superset/viz.py:1471
+#: superset/viz.py:1873
 msgid "Parallel Coordinates"
-msgstr ""
+msgstr "Coordenadas Paralelas"
 
-#: superset/viz.py:1496
+#: superset/viz.py:1898
 msgid "Heatmap"
-msgstr ""
+msgstr "Mapa de Calor"
 
-#: superset/viz.py:1547
+#: superset/viz.py:1957
 msgid "Horizon Charts"
-msgstr ""
+msgstr "Gráficos de Horizontes"
 
-#: superset/viz.py:1558
+#: superset/viz.py:1968
 msgid "Mapbox"
-msgstr ""
+msgstr "Caja de Mapa"
 
-#: superset/viz.py:1573
+#: superset/viz.py:1983
 msgid "Must have a [Group By] column to have 'count' as the [Label]"
 msgstr ""
 
-#: superset/viz.py:1586
+#: superset/viz.py:1996
 msgid "Choice of [Label] must be present in [Group By]"
 msgstr ""
 
-#: superset/viz.py:1591
+#: superset/viz.py:2001
 msgid "Choice of [Point Radius] must be present in [Group By]"
 msgstr ""
 
-#: superset/viz.py:1596
+#: superset/viz.py:2006
 msgid "[Longitude] and [Latitude] columns must be present in [Group By]"
 msgstr ""
 
-#: superset/viz.py:1661
-msgid "Event flow"
+#: superset/viz.py:2075
+msgid "Deck.gl - Multiple Layers"
 msgstr ""
 
-#: superset/connectors/base/models.py:143
-#: superset/connectors/base/models.py:146
-#: superset/connectors/base/models.py:150
+#: superset/viz.py:2111 superset/viz.py:2124
+msgid "Bad spatial key"
+msgstr ""
+
+#: superset/viz.py:2205
+msgid "Deck.gl - Scatter plot"
+msgstr ""
+
+#: superset/viz.py:2247
+msgid "Deck.gl - Screen Grid"
+msgstr ""
+
+#: superset/viz.py:2262
+msgid "Deck.gl - 3D Grid"
+msgstr ""
+
+#: superset/viz.py:2277
+msgid "Deck.gl - Paths"
+msgstr ""
+
+#: superset/viz.py:2310
+msgid "Deck.gl - Polygon"
+msgstr ""
+
+#: superset/viz.py:2318
+msgid "Deck.gl - 3D HEX"
+msgstr ""
+
+#: superset/viz.py:2333
+msgid "Deck.gl - GeoJSON"
+msgstr ""
+
+#: superset/viz.py:2352
+msgid "Deck.gl - Arc"
+msgstr ""
+
+#: superset/viz.py:2376
+msgid "Event flow"
+msgstr "Flujo de Evento"
+
+#: superset/viz.py:2407
+msgid "Time Series - Paired t-test"
+msgstr "Serie Temportal - Prueba-T Pareada"
+
+#: superset/viz.py:2465
+msgid "Time Series - Nightingale Rose Chart"
+msgstr ""
+
+#: superset/viz.py:2495
+msgid "Partition Diagram"
+msgstr ""
+
+#: superset/connectors/base/models.py:183
+#: superset/connectors/base/models.py:186
+#: superset/connectors/base/models.py:190
 msgid "asc"
 msgstr ""
 
-#: superset/connectors/base/models.py:144
-#: superset/connectors/base/models.py:147
-#: superset/connectors/base/models.py:151
+#: superset/connectors/base/models.py:184
+#: superset/connectors/base/models.py:187
+#: superset/connectors/base/models.py:191
 msgid "desc"
 msgstr ""
 
-#: superset/connectors/druid/models.py:975
+#: superset/connectors/druid/models.py:1010
+msgid "Metric(s) {} must be aggregations."
+msgstr ""
+
+#: superset/connectors/druid/models.py:1288
 msgid "No data was returned."
 msgstr ""
 
-#: superset/connectors/druid/views.py:28
+#: superset/connectors/druid/views.py:32
 msgid "List Druid Column"
-msgstr ""
+msgstr "Mostrar Columnas Druid"
 
-#: superset/connectors/druid/views.py:29
+#: superset/connectors/druid/views.py:33
 msgid "Show Druid Column"
-msgstr ""
+msgstr "Mostrar Columna Druid"
 
-#: superset/connectors/druid/views.py:30
+#: superset/connectors/druid/views.py:34
 msgid "Add Druid Column"
-msgstr ""
+msgstr "Añadir Columna Druid"
 
-#: superset/connectors/druid/views.py:31
+#: superset/connectors/druid/views.py:35
 msgid "Edit Druid Column"
-msgstr ""
+msgstr "Editar Columna Druid"
 
-#: superset/connectors/druid/views.py:43 superset/connectors/sqla/views.py:81
+#: superset/connectors/druid/views.py:49 superset/connectors/sqla/views.py:85
 msgid "Column"
-msgstr ""
+msgstr "Columna"
 
-#: superset/connectors/druid/views.py:44 superset/connectors/druid/views.py:109
-#: superset/connectors/sqla/views.py:96 superset/connectors/sqla/views.py:182
+#: superset/connectors/druid/views.py:50 superset/connectors/druid/views.py:135
+#: superset/connectors/sqla/views.py:100 superset/connectors/sqla/views.py:184
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
-#: superset/connectors/druid/views.py:45 superset/views/core.py:320
-#: superset/views/core.py:344 superset/views/core.py:375
+#: superset/connectors/druid/views.py:51 superset/views/core.py:406
+#: superset/views/core.py:430 superset/views/core.py:462
 msgid "Datasource"
-msgstr ""
+msgstr "Fuente de datos"
 
-#: superset/connectors/druid/views.py:46 superset/connectors/sqla/views.py:84
+#: superset/connectors/druid/views.py:52 superset/connectors/sqla/views.py:88
 msgid "Groupable"
-msgstr ""
+msgstr "Agrupable"
 
-#: superset/connectors/druid/views.py:47 superset/connectors/sqla/views.py:85
+#: superset/connectors/druid/views.py:53 superset/connectors/sqla/views.py:89
 msgid "Filterable"
-msgstr ""
+msgstr "Filtrable"
 
-#: superset/connectors/druid/views.py:49 superset/connectors/sqla/models.py:708
-#: superset/connectors/sqla/views.py:88
+#: superset/connectors/druid/views.py:55 superset/connectors/sqla/models.py:178
+#: superset/connectors/sqla/views.py:92
 msgid "Sum"
-msgstr ""
+msgstr "Suma"
 
-#: superset/connectors/druid/views.py:50 superset/connectors/sqla/models.py:729
-#: superset/connectors/sqla/views.py:90
+#: superset/connectors/druid/views.py:56 superset/connectors/sqla/models.py:199
+#: superset/connectors/sqla/views.py:94
 msgid "Min"
-msgstr ""
+msgstr "Mín"
 
-#: superset/connectors/druid/views.py:51 superset/connectors/sqla/models.py:722
-#: superset/connectors/sqla/views.py:91
+#: superset/connectors/druid/views.py:57 superset/connectors/sqla/models.py:192
+#: superset/connectors/sqla/views.py:95
 msgid "Max"
-msgstr ""
+msgstr "Máx"
 
-#: superset/connectors/druid/views.py:54 superset/connectors/sqla/views.py:50
+#: superset/connectors/druid/views.py:60 superset/connectors/sqla/views.py:54
 msgid ""
 "Whether this column is exposed in the `Filters` section of the explore "
 "view."
 msgstr ""
 
-#: superset/connectors/druid/views.py:80
+#: superset/connectors/druid/views.py:106
 msgid "List Druid Metric"
-msgstr ""
+msgstr "Mostrar Métricas Druid"
 
-#: superset/connectors/druid/views.py:81
+#: superset/connectors/druid/views.py:107
 msgid "Show Druid Metric"
-msgstr ""
+msgstr "Mostrar Métrica Druid"
 
-#: superset/connectors/druid/views.py:82
+#: superset/connectors/druid/views.py:108
 msgid "Add Druid Metric"
-msgstr ""
+msgstr "Añadir Métricas Druid"
 
-#: superset/connectors/druid/views.py:83
+#: superset/connectors/druid/views.py:109
 msgid "Edit Druid Metric"
-msgstr ""
+msgstr "Editar Métricas Druid"
 
-#: superset/connectors/druid/views.py:100 superset/connectors/sqla/views.py:164
+#: superset/connectors/druid/views.py:126 superset/connectors/sqla/views.py:166
 msgid ""
 "Whether the access to this metric is restricted to certain roles. Only "
 "roles with the permission 'metric access on XXX (the name of this "
 "metric)' are allowed to access this metric"
 msgstr ""
 
-#: superset/connectors/druid/views.py:106 superset/connectors/sqla/views.py:179
+#: superset/connectors/druid/views.py:132 superset/connectors/sqla/views.py:181
 msgid "Metric"
-msgstr ""
+msgstr "Métrica"
 
-#: superset/connectors/druid/views.py:107
-#: superset/connectors/druid/views.py:227 superset/connectors/sqla/views.py:83
-#: superset/connectors/sqla/views.py:180 superset/connectors/sqla/views.py:277
-#: superset/views/core.py:376 superset/views/sql_lab.py:56
+#: superset/connectors/druid/views.py:133
+#: superset/connectors/druid/views.py:257 superset/connectors/sqla/views.py:87
+#: superset/connectors/sqla/views.py:182 superset/connectors/sqla/views.py:280
+#: superset/views/core.py:463 superset/views/sql_lab.py:61
 msgid "Description"
 msgstr ""
 
-#: superset/connectors/druid/views.py:108 superset/connectors/sqla/views.py:82
-#: superset/connectors/sqla/views.py:181 superset/connectors/sqla/views.py:278
+#: superset/connectors/druid/views.py:134 superset/connectors/sqla/views.py:86
+#: superset/connectors/sqla/views.py:183
 msgid "Verbose Name"
-msgstr ""
+msgstr "Nombre detallado"
 
-#: superset/connectors/druid/views.py:110 superset/views/core.py:561
+#: superset/connectors/druid/views.py:136 superset/views/core.py:673
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
-#: superset/connectors/druid/views.py:111
+#: superset/connectors/druid/views.py:137
 msgid "Druid Datasource"
-msgstr ""
+msgstr "Fuente de datos Druid"
 
-#: superset/connectors/druid/views.py:128
+#: superset/connectors/druid/views.py:138 superset/connectors/sqla/views.py:189
+msgid "Warning Message"
+msgstr "Mensaje de Aviso"
+
+#: superset/connectors/druid/views.py:156
 msgid "List Druid Cluster"
 msgstr ""
 
-#: superset/connectors/druid/views.py:129
+#: superset/connectors/druid/views.py:157
 msgid "Show Druid Cluster"
 msgstr ""
 
-#: superset/connectors/druid/views.py:130
+#: superset/connectors/druid/views.py:158
 msgid "Add Druid Cluster"
 msgstr ""
 
-#: superset/connectors/druid/views.py:131
+#: superset/connectors/druid/views.py:159
 msgid "Edit Druid Cluster"
 msgstr ""
 
-#: superset/connectors/druid/views.py:142
-#: superset/connectors/druid/views.py:226
+#: superset/connectors/druid/views.py:170
+#: superset/connectors/druid/views.py:256
 msgid "Cluster"
-msgstr ""
+msgstr "Cluster"
 
-#: superset/connectors/druid/views.py:143
+#: superset/connectors/druid/views.py:171
 msgid "Coordinator Host"
 msgstr ""
 
-#: superset/connectors/druid/views.py:144
+#: superset/connectors/druid/views.py:172
 msgid "Coordinator Port"
 msgstr ""
 
-#: superset/connectors/druid/views.py:145
+#: superset/connectors/druid/views.py:173
 msgid "Coordinator Endpoint"
 msgstr ""
 
-#: superset/connectors/druid/views.py:146
+#: superset/connectors/druid/views.py:174
 msgid "Broker Host"
 msgstr ""
 
-#: superset/connectors/druid/views.py:147
+#: superset/connectors/druid/views.py:175
 msgid "Broker Port"
 msgstr ""
 
-#: superset/connectors/druid/views.py:148
+#: superset/connectors/druid/views.py:176
 msgid "Broker Endpoint"
 msgstr ""
 
-#: superset/connectors/druid/views.py:173
+#: superset/connectors/druid/views.py:203
 msgid "List Druid Datasource"
-msgstr ""
+msgstr "Mostrar Fuentes de Datos Druid"
 
-#: superset/connectors/druid/views.py:174
+#: superset/connectors/druid/views.py:204
 msgid "Show Druid Datasource"
-msgstr ""
+msgstr "Mostrar Fuente de Datos Druid"
 
-#: superset/connectors/druid/views.py:175
+#: superset/connectors/druid/views.py:205
 msgid "Add Druid Datasource"
-msgstr ""
+msgstr "Añadir Fuente de Datos Druid"
 
-#: superset/connectors/druid/views.py:176
+#: superset/connectors/druid/views.py:206
 msgid "Edit Druid Datasource"
-msgstr ""
+msgstr "Editar Fuente de Datos Druid"
 
-#: superset/connectors/druid/views.py:195 superset/connectors/sqla/views.py:226
+#: superset/connectors/druid/views.py:225 superset/connectors/sqla/views.py:229
 msgid ""
 "The list of slices associated with this table. By altering this "
 "datasource, you may change how these associated slices behave. Also note "
@@ -563,11 +803,11 @@ msgid ""
 "datasource for a slice, overwrite the slice from the 'explore view'"
 msgstr ""
 
-#: superset/connectors/druid/views.py:203 superset/connectors/sqla/views.py:234
+#: superset/connectors/druid/views.py:233 superset/connectors/sqla/views.py:237
 msgid "Timezone offset (in hours) for this datasource"
 msgstr ""
 
-#: superset/connectors/druid/views.py:207
+#: superset/connectors/druid/views.py:237
 msgid ""
 "Time expression to use as a predicate when retrieving distinct values to "
 "populate the filter component. Only applies when `Enable Filter Select` "
@@ -575,279 +815,271 @@ msgid ""
 "filter will be populated based on the distinct value over the past week"
 msgstr ""
 
-#: superset/connectors/druid/views.py:214 superset/connectors/sqla/views.py:256
+#: superset/connectors/druid/views.py:244 superset/connectors/sqla/views.py:259
 msgid ""
 "Whether to populate the filter's dropdown in the explore view's filter "
 "section with a list of distinct values fetched from the backend on the "
 "fly"
 msgstr ""
 
-#: superset/connectors/druid/views.py:218
+#: superset/connectors/druid/views.py:248
 msgid ""
 "Redirects to this endpoint when clicking on the datasource from the "
 "datasource list"
 msgstr ""
 
-#: superset/connectors/druid/views.py:224 superset/connectors/sqla/views.py:263
-msgid "Associated Slices"
+#: superset/connectors/druid/views.py:254 superset/connectors/sqla/views.py:266
+msgid "Associated Charts"
 msgstr ""
 
-#: superset/connectors/druid/views.py:225
+#: superset/connectors/druid/views.py:255
 msgid "Data Source"
-msgstr ""
+msgstr "Fuente de Datos"
 
-#: superset/connectors/druid/views.py:228 superset/connectors/sqla/views.py:275
+#: superset/connectors/druid/views.py:258 superset/connectors/sqla/views.py:278
 msgid "Owner"
-msgstr ""
+msgstr "Propietario"
 
-#: superset/connectors/druid/views.py:229
+#: superset/connectors/druid/views.py:259
 msgid "Is Hidden"
-msgstr ""
+msgstr "Está Escondida"
 
-#: superset/connectors/druid/views.py:230 superset/connectors/sqla/views.py:268
+#: superset/connectors/druid/views.py:260 superset/connectors/sqla/views.py:271
 msgid "Enable Filter Select"
 msgstr ""
 
-#: superset/connectors/druid/views.py:231 superset/connectors/sqla/views.py:270
+#: superset/connectors/druid/views.py:261 superset/connectors/sqla/views.py:273
 msgid "Default Endpoint"
 msgstr ""
 
-#: superset/connectors/druid/views.py:232
+#: superset/connectors/druid/views.py:262
 msgid "Time Offset"
 msgstr ""
 
-#: superset/connectors/druid/views.py:233 superset/connectors/sqla/views.py:272
-#: superset/views/core.py:253 superset/views/core.py:372
+#: superset/connectors/druid/views.py:263 superset/connectors/sqla/views.py:275
+#: superset/views/core.py:283 superset/views/core.py:459
 msgid "Cache Timeout"
 msgstr ""
 
-#: superset/connectors/sqla/models.py:422
+#: superset/connectors/sqla/models.py:185 superset/connectors/sqla/views.py:93
+msgid "Avg"
+msgstr ""
+
+#: superset/connectors/sqla/models.py:537
 msgid ""
 "Datetime column not provided as part table configuration and is required "
 "by this type of chart"
 msgstr ""
 
-#: superset/connectors/sqla/models.py:427
+#: superset/connectors/sqla/models.py:541
+msgid "Empty query?"
+msgstr "¿Consulta vacía?"
+
+#: superset/connectors/sqla/models.py:549
 msgid "Metric '{}' is not valid"
 msgstr ""
 
-#: superset/connectors/sqla/models.py:660
+#: superset/connectors/sqla/models.py:830
 msgid ""
-"Table doesn't seem to exist in the specified database, couldn't fetch "
-"column information"
+"Table [{}] doesn't seem to exist in the specified database, couldn't "
+"fetch column information"
 msgstr ""
 
-#: superset/connectors/sqla/models.py:715 superset/connectors/sqla/views.py:89
-msgid "Avg"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:28
+#: superset/connectors/sqla/views.py:32
 msgid "List Columns"
-msgstr ""
+msgstr "Mostrar Columnas"
 
-#: superset/connectors/sqla/views.py:29
+#: superset/connectors/sqla/views.py:33
 msgid "Show Column"
-msgstr ""
+msgstr "Mostrar Columna"
 
-#: superset/connectors/sqla/views.py:30
+#: superset/connectors/sqla/views.py:34
 msgid "Add Column"
-msgstr ""
+msgstr "Añadir Columna"
 
-#: superset/connectors/sqla/views.py:31
+#: superset/connectors/sqla/views.py:35
 msgid "Edit Column"
-msgstr ""
+msgstr "Editar Columna"
 
-#: superset/connectors/sqla/views.py:46
+#: superset/connectors/sqla/views.py:50
 msgid ""
 "Whether to make this column available as a [Time Granularity] option, "
 "column has to be DATETIME or DATETIME-like"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:53
+#: superset/connectors/sqla/views.py:57
 msgid ""
 "The data type that was inferred by the database. It may be necessary to "
 "input a type manually for expression-defined columns in some cases. In "
 "most case users should not need to alter this."
 msgstr ""
 
-#: superset/connectors/sqla/views.py:86 superset/connectors/sqla/views.py:184
-#: superset/connectors/sqla/views.py:264 superset/views/core.py:382
+#: superset/connectors/sqla/views.py:90 superset/connectors/sqla/views.py:186
+#: superset/connectors/sqla/views.py:267 superset/views/core.py:470
 msgid "Table"
-msgstr ""
+msgstr "Tabla"
 
-#: superset/connectors/sqla/views.py:92
+#: superset/connectors/sqla/views.py:96
 msgid "Expression"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:93
-msgid "Is temporal"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:94
-msgid "Datetime Format"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:95
-msgid "Database Expression"
-msgstr ""
+msgstr "Expresión"
 
 #: superset/connectors/sqla/views.py:97
-msgid "Is Partition"
-msgstr ""
+msgid "Is temporal"
+msgstr "Es temporal"
 
 #: superset/connectors/sqla/views.py:98
+msgid "Datetime Format"
+msgstr "Formato FechaHora"
+
+#: superset/connectors/sqla/views.py:99
+msgid "Database Expression"
+msgstr "Expresión de Base de Datos"
+
+#: superset/connectors/sqla/views.py:101
 msgid "Is Memcached"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:99
-msgid "Partition Expression"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:151
-msgid "List Metrics"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:152
-msgid "Show Metric"
-msgstr ""
-
 #: superset/connectors/sqla/views.py:153
-msgid "Add Metric"
-msgstr ""
+msgid "List Metrics"
+msgstr "Mostrar Métricas"
 
 #: superset/connectors/sqla/views.py:154
-msgid "Edit Metric"
-msgstr ""
+msgid "Show Metric"
+msgstr "Mostrar Métrica"
 
-#: superset/connectors/sqla/views.py:183
-msgid "SQL Expression"
-msgstr ""
+#: superset/connectors/sqla/views.py:155
+msgid "Add Metric"
+msgstr "Añadir Métrica"
+
+#: superset/connectors/sqla/views.py:156
+msgid "Edit Metric"
+msgstr "Editar Métrica"
 
 #: superset/connectors/sqla/views.py:185
+msgid "SQL Expression"
+msgstr "Expresión SQL"
+
+#: superset/connectors/sqla/views.py:187
 msgid "D3 Format"
-msgstr ""
+msgstr "Formato D3"
 
-#: superset/connectors/sqla/views.py:186
+#: superset/connectors/sqla/views.py:188
 msgid "Is Restricted"
-msgstr ""
+msgstr "Está Restringido"
 
-#: superset/connectors/sqla/views.py:203
+#: superset/connectors/sqla/views.py:207
 msgid "List Tables"
-msgstr ""
+msgstr "Mostrar Tablas"
 
-#: superset/connectors/sqla/views.py:204
+#: superset/connectors/sqla/views.py:208
 msgid "Show Table"
-msgstr ""
+msgstr "Mostrar Tabla"
 
-#: superset/connectors/sqla/views.py:205
+#: superset/connectors/sqla/views.py:209
 msgid "Add Table"
-msgstr ""
+msgstr "Añadir Tabla"
 
-#: superset/connectors/sqla/views.py:206
+#: superset/connectors/sqla/views.py:210
 msgid "Edit Table"
-msgstr ""
+msgstr "Esitar Tabla"
 
-#: superset/connectors/sqla/views.py:235
+#: superset/connectors/sqla/views.py:238
 msgid "Name of the table that exists in the source database"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:237
+#: superset/connectors/sqla/views.py:240
 msgid "Schema, as used only in some databases like Postgres, Redshift and DB2"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:243
+#: superset/connectors/sqla/views.py:246
 msgid ""
 "This fields acts a Superset view, meaning that Superset will run a query "
 "against this string as a subquery."
 msgstr ""
 
-#: superset/connectors/sqla/views.py:247
+#: superset/connectors/sqla/views.py:250
 msgid ""
 "Predicate applied when fetching distinct value to populate the filter "
 "control component. Supports jinja template syntax. Applies only when "
 "`Enable Filter Select` is on."
 msgstr ""
 
-#: superset/connectors/sqla/views.py:253
+#: superset/connectors/sqla/views.py:256
 msgid "Redirects to this endpoint when clicking on the table from the table list"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:265
+#: superset/connectors/sqla/views.py:268
 msgid "Changed By"
-msgstr ""
+msgstr "Cambiado por"
 
-#: superset/connectors/sqla/views.py:266 superset/views/core.py:249
-#: superset/views/sql_lab.py:19 superset/views/sql_lab.py:55
-msgid "Database"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:267 superset/views/core.py:251
+#: superset/connectors/sqla/views.py:270 superset/views/core.py:281
 msgid "Last Changed"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:269
-msgid "Schema"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:271
+#: superset/connectors/sqla/views.py:274
 msgid "Offset"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:273
-msgid "Table Name"
-msgstr ""
-
-#: superset/connectors/sqla/views.py:274
+#: superset/connectors/sqla/views.py:277
 msgid "Fetch Values Predicate"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:276
+#: superset/connectors/sqla/views.py:279
 msgid "Main Datetime Column"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:299
+#: superset/connectors/sqla/views.py:281
+msgid "Group Name"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:296
 msgid ""
 "Table [{}] could not be found, please double check your database "
 "connection, schema, and table name"
 msgstr ""
 
-#: superset/connectors/sqla/views.py:312
+#: superset/connectors/sqla/views.py:309
 msgid ""
 "The table was created. As part of this two phase configuration process, "
 "you should now click the edit button by the new table to configure it."
 msgstr ""
 
+#: superset/connectors/sqla/views.py:343
+#, python-format
+msgid "Metadata refreshed for the following table(s): %(tables)s"
+msgstr ""
+
 #: superset/templates/appbuilder/navbar_right.html:41
 msgid "Profile"
-msgstr ""
+msgstr "Perfil"
 
 #: superset/templates/appbuilder/navbar_right.html:42
 msgid "Logout"
-msgstr ""
+msgstr "Salir"
 
 #: superset/templates/appbuilder/navbar_right.html:47
 msgid "Login"
-msgstr ""
+msgstr "Acceder"
 
 #: superset/templates/appbuilder/general/widgets/base_list.html:37
 msgid "Record Count"
-msgstr ""
+msgstr "Número de Registros"
 
 #: superset/templates/appbuilder/general/widgets/base_list.html:46
 msgid "No records found"
-msgstr ""
+msgstr "No se encontrarón registros"
 
 #: superset/templates/appbuilder/general/widgets/search.html:6
 msgid "Add Filter"
-msgstr ""
+msgstr "Añadir Filtro"
 
 #: superset/templates/superset/import_dashboards.html:11
 msgid "Import"
-msgstr ""
+msgstr "Importar"
 
 #: superset/templates/superset/request_access.html:2
 msgid "No Access!"
-msgstr ""
+msgstr "Sin Acceso!"
 
 #: superset/templates/superset/request_access.html:7
 #, python-format
@@ -856,156 +1088,172 @@ msgstr ""
 
 #: superset/templates/superset/request_access.html:13
 msgid "Request Permissions"
-msgstr ""
+msgstr "Solicitar Permisos"
 
 #: superset/templates/superset/request_access.html:16
 msgid "Cancel"
-msgstr ""
-
-#: superset/templates/superset/welcome.html:3
-msgid "Welcome!"
-msgstr ""
-
-#: superset/templates/superset/welcome.html:13 superset/views/core.py:374
-msgid "Dashboards"
-msgstr ""
+msgstr "Cancelar"
 
 #: superset/templates/superset/models/database/macros.html:4
 msgid "Test Connection"
-msgstr ""
+msgstr "Probar Conexión"
 
-#: superset/views/base.py:222
+#: superset/views/base.py:123
 msgid "json isn't valid"
-msgstr ""
+msgstr "no es json válido"
 
-#: superset/views/core.py:179
+#: superset/views/core.py:193
 msgid "List Databases"
-msgstr ""
+msgstr "Mostrar Bases de Datos"
 
-#: superset/views/core.py:180
+#: superset/views/core.py:194
 msgid "Show Database"
-msgstr ""
+msgstr "Mostrar Base de Datos"
 
-#: superset/views/core.py:181
+#: superset/views/core.py:195
 msgid "Add Database"
-msgstr ""
+msgstr "Añadir Base de Datos"
 
-#: superset/views/core.py:182
+#: superset/views/core.py:196
 msgid "Edit Database"
-msgstr ""
+msgstr "Editar Base de Datos"
 
-#: superset/views/core.py:217
+#: superset/views/core.py:237
 msgid "Expose this DB in SQL Lab"
-msgstr ""
+msgstr "Mostrar esta base de datos en el laboratorio SQL"
 
-#: superset/views/core.py:218
+#: superset/views/core.py:238
 msgid ""
 "Allow users to run synchronous queries, this is the default and should "
 "work well for queries that can be executed within a web request scope "
 "(<~1 minute)"
 msgstr ""
 
-#: superset/views/core.py:222
+#: superset/views/core.py:242
 msgid ""
 "Allow users to run queries, against an async backend. This assumes that "
 "you have a Celery worker setup as well as a results backend."
 msgstr ""
 
-#: superset/views/core.py:226
+#: superset/views/core.py:246
 msgid "Allow CREATE TABLE AS option in SQL Lab"
 msgstr ""
 
-#: superset/views/core.py:227
+#: superset/views/core.py:247
 msgid ""
 "Allow users to run non-SELECT statements (UPDATE, DELETE, CREATE, ...) in"
 " SQL Lab"
 msgstr ""
 
-#: superset/views/core.py:231
+#: superset/views/core.py:251
 msgid ""
 "When allowing CREATE TABLE AS option in SQL Lab, this option forces the "
 "table to be created in this schema"
 msgstr ""
 
-#: superset/views/core.py:245
+#: superset/views/core.py:263
+msgid ""
+"If Presto, all the queries in SQL Lab are going to be executed as the "
+"currently logged on user who must have permission to run them.<br/>If "
+"Hive and hive.server2.enable.doAs is enabled, will run the queries as "
+"service account, but impersonate the currently logged on user via "
+"hive.server2.proxy.user property."
+msgstr ""
+
+#: superset/views/core.py:269
+msgid ""
+"Allow SQL Lab to fetch a list of all tables and all views across all "
+"database schemas. For large data warehouse with thousands of tables, this"
+" can be expensive and put strain on the system."
+msgstr ""
+
+#: superset/views/core.py:275
 msgid "Expose in SQL Lab"
-msgstr ""
+msgstr "Mostrar en el laboratorio SQL"
 
-#: superset/views/core.py:246
+#: superset/views/core.py:276
 msgid "Allow CREATE TABLE AS"
-msgstr ""
+msgstr "Permitir CREATE TABLE AS"
 
-#: superset/views/core.py:247
+#: superset/views/core.py:277
 msgid "Allow DML"
-msgstr ""
+msgstr "Permitir DML"
 
-#: superset/views/core.py:248
+#: superset/views/core.py:278
 msgid "CTAS Schema"
-msgstr ""
+msgstr "Esquema CTAS"
 
-#: superset/views/core.py:250 superset/views/core.py:373
-#: superset/views/core.py:481 superset/views/core.py:545
+#: superset/views/core.py:280 superset/views/core.py:460
+#: superset/views/core.py:578 superset/views/core.py:645
 msgid "Creator"
-msgstr ""
+msgstr "Creador"
 
-#: superset/views/core.py:252
+#: superset/views/core.py:282
 msgid "SQLAlchemy URI"
 msgstr ""
 
-#: superset/views/core.py:254
+#: superset/views/core.py:284
 msgid "Extra"
-msgstr ""
+msgstr "Extra"
 
-#: superset/views/core.py:255
+#: superset/views/core.py:285
 msgid "Allow Run Sync"
 msgstr ""
 
-#: superset/views/core.py:256
+#: superset/views/core.py:286
 msgid "Allow Run Async"
 msgstr ""
 
-#: superset/views/core.py:257
-msgid "Is Hybrid"
-msgstr ""
-
-#: superset/views/core.py:317 superset/views/core.py:558
-#: superset/views/sql_lab.py:18 superset/views/sql_lab.py:54
-msgid "User"
-msgstr ""
-
-#: superset/views/core.py:318
-msgid "User Roles"
-msgstr ""
-
-#: superset/views/core.py:319
-msgid "Database URL"
-msgstr ""
-
-#: superset/views/core.py:321
-msgid "Roles to grant"
-msgstr ""
-
-#: superset/views/core.py:322
-msgid "Created On"
-msgstr ""
-
-#: superset/views/core.py:337
-msgid "List Slices"
+#: superset/views/core.py:287
+msgid "Impersonate the logged on user"
 msgstr ""
 
 #: superset/views/core.py:338
-msgid "Show Slice"
+msgid "CSV to Database configuration"
 msgstr ""
 
-#: superset/views/core.py:339
-msgid "Add Slice"
+#: superset/views/core.py:377
+msgid "CSV file \"{0}\" uploaded to table \"{1}\" in database \"{2}\""
 msgstr ""
 
-#: superset/views/core.py:340
-msgid "Edit Slice"
+#: superset/views/core.py:403 superset/views/core.py:670
+#: superset/views/sql_lab.py:22 superset/views/sql_lab.py:59
+msgid "User"
+msgstr "Usuario"
+
+#: superset/views/core.py:404
+msgid "User Roles"
+msgstr "Roles de Usuario"
+
+#: superset/views/core.py:405
+msgid "Database URL"
+msgstr "URL de la Base de datos"
+
+#: superset/views/core.py:407
+msgid "Roles to grant"
 msgstr ""
 
-#: superset/views/core.py:361
+#: superset/views/core.py:408
+msgid "Created On"
+msgstr "Creado el"
+
+#: superset/views/core.py:423
+msgid "List Charts"
+msgstr ""
+
+#: superset/views/core.py:424
+msgid "Show Chart"
+msgstr ""
+
+#: superset/views/core.py:425
+msgid "Add Chart"
+msgstr ""
+
+#: superset/views/core.py:426
+msgid "Edit Chart"
+msgstr ""
+
+#: superset/views/core.py:448
 msgid ""
 "These parameters are generated dynamically when clicking the save or "
 "overwrite button in the explore view. This JSON object is exposed here "
@@ -1013,285 +1261,890 @@ msgid ""
 "parameters."
 msgstr ""
 
-#: superset/views/core.py:366
+#: superset/views/core.py:454
 msgid "Duration (in seconds) of the caching timeout for this slice."
 msgstr ""
 
-#: superset/views/core.py:377
+#: superset/views/core.py:461
+msgid "Dashboards"
+msgstr "Cuadros de Mando"
+
+#: superset/views/core.py:464
 msgid "Last Modified"
 msgstr ""
 
-#: superset/views/core.py:378 superset/views/core.py:480
+#: superset/views/core.py:465 superset/views/core.py:577
 msgid "Owners"
+msgstr "Propietarios"
+
+#: superset/views/core.py:466
+msgid "Show Users"
 msgstr ""
 
-#: superset/views/core.py:379
+#: superset/views/core.py:467
 msgid "Parameters"
+msgstr "Parámetros"
+
+#: superset/views/core.py:468 superset/views/core.py:515
+msgid "Chart"
 msgstr ""
 
-#: superset/views/core.py:380 superset/views/core.py:422
-msgid "Slice"
-msgstr ""
-
-#: superset/views/core.py:381
+#: superset/views/core.py:469
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
-#: superset/views/core.py:383
+#: superset/views/core.py:471
 msgid "Visualization Type"
-msgstr ""
+msgstr "Tipo de Visualización"
 
-#: superset/views/core.py:439
+#: superset/views/core.py:535
 msgid "List Dashboards"
-msgstr ""
+msgstr "Mostrar Cuadros de Mando"
 
-#: superset/views/core.py:440
+#: superset/views/core.py:536
 msgid "Show Dashboard"
-msgstr ""
+msgstr "Mostrar Cuadro de Mando"
 
-#: superset/views/core.py:441
+#: superset/views/core.py:537
 msgid "Add Dashboard"
-msgstr ""
+msgstr "Añadir Cuadro de Mando"
 
-#: superset/views/core.py:442
+#: superset/views/core.py:538
 msgid "Edit Dashboard"
-msgstr ""
+msgstr "Editar Cuadro de Mando"
 
-#: superset/views/core.py:453
+#: superset/views/core.py:550
 msgid ""
 "This json object describes the positioning of the widgets in the "
 "dashboard. It is dynamically generated when adjusting the widgets size "
 "and positions by using drag & drop in the dashboard view"
 msgstr ""
 
-#: superset/views/core.py:458
+#: superset/views/core.py:555
 msgid ""
 "The css for individual dashboards can be altered here, or in the "
 "dashboard view where changes are immediately visible"
 msgstr ""
 
-#: superset/views/core.py:462
+#: superset/views/core.py:559
 msgid "To get a readable URL for your dashboard"
 msgstr ""
 
-#: superset/views/core.py:463
+#: superset/views/core.py:560
 msgid ""
 "This JSON object is generated dynamically when clicking the save or "
 "overwrite button in the dashboard view. It is exposed here for reference "
 "and for power users who may want to alter specific parameters."
 msgstr ""
 
-#: superset/views/core.py:468
+#: superset/views/core.py:565
 msgid "Owners is a list of users who can alter the dashboard."
 msgstr ""
 
-#: superset/views/core.py:476 superset/views/core.py:543
+#: superset/views/core.py:573 superset/views/core.py:643
 msgid "Dashboard"
-msgstr ""
+msgstr "Cuadro de Mando"
 
-#: superset/views/core.py:477 superset/views/core.py:544
+#: superset/views/core.py:574 superset/views/core.py:644
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
-#: superset/views/core.py:478
+#: superset/views/core.py:575
 msgid "Slug"
 msgstr ""
 
-#: superset/views/core.py:479
-msgid "Slices"
+#: superset/views/core.py:576
+msgid "Charts"
 msgstr ""
 
-#: superset/views/core.py:482 superset/views/core.py:546
-#: superset/views/sql_lab.py:57
+#: superset/views/core.py:579 superset/views/core.py:646
+#: superset/views/sql_lab.py:62
 msgid "Modified"
-msgstr ""
+msgstr "Modificado"
 
-#: superset/views/core.py:483
+#: superset/views/core.py:580
 msgid "Position JSON"
 msgstr ""
 
-#: superset/views/core.py:484
+#: superset/views/core.py:581
 msgid "CSS"
-msgstr ""
+msgstr "CSS"
 
-#: superset/views/core.py:485
+#: superset/views/core.py:582
 msgid "JSON Metadata"
-msgstr ""
+msgstr "Metadatos JSON"
 
-#: superset/views/core.py:486
+#: superset/views/core.py:583
 msgid "Underlying Tables"
 msgstr ""
 
-#: superset/views/core.py:559
+#: superset/views/core.py:671
 msgid "Action"
-msgstr ""
+msgstr "Acción"
 
-#: superset/views/core.py:560
+#: superset/views/core.py:672
 msgid "dttm"
+msgstr "dttm"
+
+#: superset/views/core.py:1303 superset/views/core.py:1308
+#: superset/views/core.py:1419 superset/views/core.py:1433
+msgid "You don't have the rights to "
 msgstr ""
 
-#: superset/views/core.py:2065
+#: superset/views/core.py:1303 superset/views/core.py:1419
+msgid "alter this "
+msgstr ""
+
+#: superset/views/core.py:1303 superset/views/core.py:1308
+msgid "chart"
+msgstr ""
+
+#: superset/views/core.py:1308 superset/views/core.py:1433
+msgid "create a "
+msgstr ""
+
+#: superset/views/core.py:1420 superset/views/core.py:1433
+msgid "dashboard"
+msgstr ""
+
+#: superset/views/core.py:2460
 msgid "Query record was not created as expected."
-msgstr ""
+msgstr "El registro de consulta no se creó como se esperaba."
 
-#: superset/views/core.py:2377
+#: superset/views/core.py:2742
 msgid "Template Name"
-msgstr ""
+msgstr "Nombre Plantilla"
 
-#: superset/views/core.py:2398
+#: superset/views/core.py:2765
 msgid "SQL Editor"
-msgstr ""
+msgstr "Editor SQL"
 
-#: superset/views/core.py:2407
+#: superset/views/core.py:2775
 msgid "Query Search"
-msgstr ""
+msgstr "Consulta de Búsqueda"
 
-#: superset/views/sql_lab.py:20
+#: superset/views/sql_lab.py:24
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
-#: superset/views/sql_lab.py:21
+#: superset/views/sql_lab.py:25
 msgid "Start Time"
-msgstr ""
+msgstr "Hora Inicio"
 
-#: superset/views/sql_lab.py:22 superset/views/sql_lab.py:58
+#: superset/views/sql_lab.py:26 superset/views/sql_lab.py:63
 msgid "End Time"
-msgstr ""
+msgstr "Hora Fin"
 
-#: superset/views/sql_lab.py:37
+#: superset/views/sql_lab.py:42
 msgid "List Saved Query"
-msgstr ""
+msgstr "Mostrar Consultas Guardadas"
 
-#: superset/views/sql_lab.py:38
+#: superset/views/sql_lab.py:43
 msgid "Show Saved Query"
-msgstr ""
+msgstr "Mostrar Consulta Guardada"
 
-#: superset/views/sql_lab.py:39
+#: superset/views/sql_lab.py:44
 msgid "Add Saved Query"
-msgstr ""
+msgstr "Añadir Consulta Guardada"
 
-#: superset/views/sql_lab.py:40
+#: superset/views/sql_lab.py:45
 msgid "Edit Saved Query"
-msgstr ""
+msgstr "Editar Consulta Guardada"
 
-#: superset/views/sql_lab.py:53
+#: superset/views/sql_lab.py:58
 msgid "Label"
-msgstr ""
+msgstr "Etiqueta"
 
-#: superset/views/sql_lab.py:59
+#: superset/views/sql_lab.py:64
 msgid "Pop Tab Link"
 msgstr ""
 
-#: superset/views/sql_lab.py:60
+#: superset/views/sql_lab.py:65
 msgid "Changed on"
-msgstr ""
+msgstr "Cambiado el"
 
-#~ msgid "Databases"
+#~ msgid ""
+#~ "All the queries in Sql Lab are "
+#~ "going to be executed on behalf of"
+#~ " currently authorized user."
 #~ msgstr ""
 
-#~ msgid "Sources"
+#~ msgid "Impersonate queries to the database"
 #~ msgstr ""
 
-#~ msgid "Tables"
+#~ msgid "[Superset] Access to the datasource %(name)s was granted"
+#~ msgstr "Se ha otorgado Acceso [Superset] a la fuente de datos %(name)"
+
+#~ msgid "Your query was saved"
+#~ msgstr "Tu consulta fue guardada"
+
+#~ msgid "Your query could not be saved"
+#~ msgstr "Tu consulta no pudo ser guardada"
+
+#~ msgid "Failed at retrieving results from the results backend"
 #~ msgstr ""
 
-#~ msgid "Druid Clusters"
+#~ msgid "Could not connect to server"
 #~ msgstr ""
 
-#~ msgid "Action Log"
+#~ msgid "Your session timed out, please refresh your page and try again."
 #~ msgstr ""
 
-#~ msgid "Security"
+#~ msgid "Query was stopped."
+#~ msgstr "La consulta ha sido detenida."
+
+#~ msgid "Failed at stopping query."
+#~ msgstr "No se ha podido detener la consulta."
+
+#~ msgid "Error occurred while fetching table metadata"
 #~ msgstr ""
 
-#~ msgid "Druid Datasources"
+#~ msgid "shared query"
+#~ msgstr "consulta compartida"
+
+#~ msgid "The query couldn't be loaded"
 #~ msgstr ""
 
-#~ msgid "CSS Templates"
+#~ msgid "An error occurred while creating the data source"
 #~ msgstr ""
 
-#~ msgid "Documentation"
+#~ msgid "Pick a chart type!"
+#~ msgstr "Elige un tipo de gráfico!"
+
+#~ msgid "To use this chart type you need at least one column flagged as a date"
 #~ msgstr ""
 
-#~ msgid "Standalone version, use to embed anywhere"
+#~ msgid "To use this chart type you need at least one dimension"
 #~ msgstr ""
 
-#~ msgid "Overwrite"
+#~ msgid "To use this chart type you need at least one aggregation function"
 #~ msgstr ""
 
-#~ msgid "Save as"
+#~ msgid "Untitled Query"
+#~ msgstr "Consulta sin Nombre"
+
+#~ msgid "Copy of %s"
+#~ msgstr "Copia de %s"
+
+#~ msgid "share query"
+#~ msgstr "compartir consulta"
+
+#~ msgid "copy URL to clipboard"
+#~ msgstr "copiar URL al portapapeles"
+
+#~ msgid "Raw SQL"
+#~ msgstr "SQL Directo"
+
+#~ msgid "Source SQL"
+#~ msgstr "Fuente SQL"
+
+#~ msgid "SQL"
+#~ msgstr "SQL"
+
+#~ msgid "No query history yet..."
+#~ msgstr "No hay histórico de consultas"
+
+#~ msgid "It seems you don't have access to any database"
+#~ msgstr ""
+
+#~ msgid "Search Results"
+#~ msgstr "Buscar Resultados"
+
+#~ msgid "[From]-"
+#~ msgstr ""
+
+#~ msgid "[To]-"
+#~ msgstr ""
+
+#~ msgid "[Query Status]"
+#~ msgstr ""
+
+#~ msgid "Search"
+#~ msgstr "Buscar"
+
+#~ msgid "Open in SQL Editor"
+#~ msgstr "Abrir en el Editor SQL"
+
+#~ msgid "view results"
+#~ msgstr "ver resultados"
+
+#~ msgid "Data preview"
+#~ msgstr "Previsualización de Datos"
+
+#~ msgid "Visualize the data out of this query"
+#~ msgstr ""
+
+#~ msgid "Overwrite text in editor with a query on this table"
+#~ msgstr ""
+
+#~ msgid "Run query in a new tab"
+#~ msgstr "Ejecutar consulta en otra pestaña"
+
+#~ msgid "Remove query from log"
+#~ msgstr "Eliminar consulta del historial"
+
+#~ msgid ".CSV"
+#~ msgstr ".CSV"
+
+#~ msgid "Visualize"
+#~ msgstr "Visualizar"
+
+#~ msgid "was created"
+#~ msgstr ""
+
+#~ msgid "Query in a new tab"
+#~ msgstr "Consultar en otra pestaña"
+
+#~ msgid "Fetch data preview"
+#~ msgstr ""
+
+#~ msgid "Track Job"
+#~ msgstr ""
+
+#~ msgid "Loading..."
+#~ msgstr "Cargando..."
+
+#~ msgid "Run Selected Query"
+#~ msgstr ""
+
+#~ msgid "Run Query"
+#~ msgstr "Ejecutar consulta"
+
+#~ msgid "Run query asynchronously"
+#~ msgstr ""
+
+#~ msgid "Stop"
+#~ msgstr "Detener"
+
+#~ msgid "Undefined"
+#~ msgstr "Indefinido"
+
+#~ msgid "Label for your query"
+#~ msgstr ""
+
+#~ msgid "Write a description for your query"
+#~ msgstr ""
+
+#~ msgid "Save"
+#~ msgstr "Guardar"
+
+#~ msgid "Save Query"
+#~ msgstr "Guardar Consulta"
+
+#~ msgid "Run a query to display results here"
+#~ msgstr ""
+
+#~ msgid "Preview for %s"
+#~ msgstr ""
+
+#~ msgid "Results"
+#~ msgstr "Resultados"
+
+#~ msgid "Query History"
+#~ msgstr "Historial de la Consulta"
+
+#~ msgid "Create table as with query results"
+#~ msgstr ""
+
+#~ msgid "new table name"
+#~ msgstr "nuevo nombre de tabla"
+
+#~ msgid "Error while fetching table list"
+#~ msgstr "Error recuperando la lista de tablas"
+
+#~ msgid "Error while fetching schema list"
+#~ msgstr "Error recuperando la lista de esquemas"
+
+#~ msgid "Error while fetching database list"
+#~ msgstr "Error recuperando la lista de bases de datos"
+
+#~ msgid "Database:"
+#~ msgstr "Base de datos:"
+
+#~ msgid "Select a database"
+#~ msgstr "Selecciona una base de datos"
+
+#~ msgid "Select a schema (%s)"
+#~ msgstr ""
+
+#~ msgid "Schema:"
+#~ msgstr "Esquema:"
+
+#~ msgid "Add a table (%s)"
+#~ msgstr ""
+
+#~ msgid "Type to search ..."
+#~ msgstr ""
+
+#~ msgid "Reset State"
+#~ msgstr ""
+
+#~ msgid "Enter a new title for the tab"
+#~ msgstr ""
+
+#~ msgid "Untitled Query %s"
+#~ msgstr ""
+
+#~ msgid "close tab"
+#~ msgstr "cerrar pestaña"
+
+#~ msgid "rename tab"
+#~ msgstr "renombrar pestaña"
+
+#~ msgid "expand tool bar"
+#~ msgstr "expandir la barra de herramientas"
+
+#~ msgid "hide tool bar"
+#~ msgstr "esconder la barra de herramientas"
+
+#~ msgid "Copy partition query to clipboard"
+#~ msgstr ""
+
+#~ msgid "latest partition:"
+#~ msgstr ""
+
+#~ msgid "Keys for table"
+#~ msgstr ""
+
+#~ msgid "View keys & indexes (%s)"
+#~ msgstr ""
+
+#~ msgid "Sort columns alphabetically"
+#~ msgstr ""
+
+#~ msgid "Original table column order"
+#~ msgstr ""
+
+#~ msgid "Copy SELECT statement to clipboard"
+#~ msgstr ""
+
+#~ msgid "Remove table preview"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "%s is not right as a column "
+#~ "name, please alias it (as in "
+#~ "SELECT count(*) "
+#~ msgstr ""
+
+#~ msgid "AS my_alias"
+#~ msgstr ""
+
+#~ msgid "using only alphanumeric characters and underscores"
+#~ msgstr ""
+
+#~ msgid "Creating a data source and popping a new tab"
+#~ msgstr ""
+
+#~ msgid "No results available for this query"
+#~ msgstr ""
+
+#~ msgid "Chart Type"
+#~ msgstr "Tipo Gráfico"
+
+#~ msgid "[Chart Type]"
+#~ msgstr ""
+
+#~ msgid "Datasource Name"
+#~ msgstr "Nombre de la Fuente de Datos"
+
+#~ msgid "datasource name"
+#~ msgstr "nombre de la fuente de datos"
+
+#~ msgid "Create a new slice"
+#~ msgstr ""
+
+#~ msgid "Choose a datasource"
+#~ msgstr ""
+
+#~ msgid "Choose a visualization type"
+#~ msgstr ""
+
+#~ msgid "Create new slice"
+#~ msgstr ""
+
+#~ msgid "Select ..."
+#~ msgstr "Selecciona ..."
+
+#~ msgid "Loaded data cached"
+#~ msgstr ""
+
+#~ msgid "Loaded from cache"
+#~ msgstr ""
+
+#~ msgid "Click to force-refresh"
+#~ msgstr ""
+
+#~ msgid "Copy to clipboard"
+#~ msgstr "Copiar al portapapeles"
+
+#~ msgid "Not successful"
+#~ msgstr "Sin éxito"
+
+#~ msgid "Sorry, your browser does not support copying. Use Ctrl / Cmd + C!"
+#~ msgstr ""
+
+#~ msgid "Copied!"
+#~ msgstr "Copiado!"
+
+#~ msgid "click to edit title"
+#~ msgstr ""
+
+#~ msgid "You don't have the rights to alter this title."
+#~ msgstr ""
+
+#~ msgid "Click to favorite/unfavorite"
+#~ msgstr ""
+
+#~ msgid "You have unsaved changes."
+#~ msgstr ""
+
+#~ msgid "Click the"
+#~ msgstr ""
+
+#~ msgid "button on the top right to save your changes."
+#~ msgstr ""
+
+#~ msgid "Served from data cached %s . Click to force refresh."
+#~ msgstr ""
+
+#~ msgid "Click to force refresh"
+#~ msgstr ""
+
+#~ msgid "Error"
+#~ msgstr "Error"
+
+#~ msgid "Sorry, there was an error adding slices to this dashboard: %s"
+#~ msgstr ""
+
+#~ msgid "Active Dashboard Filters"
+#~ msgstr ""
+
+#~ msgid "Checkout this dashboard: %s"
+#~ msgstr ""
+
+#~ msgid "Force refresh the whole dashboard"
+#~ msgstr ""
+
+#~ msgid "Edit this dashboard's properties"
+#~ msgstr ""
+
+#~ msgid "Load a template"
+#~ msgstr "Cargar una plantilla"
+
+#~ msgid "Load a CSS template"
+#~ msgstr "Cargar una plantilla CSS"
+
+#~ msgid "Live CSS Editor"
+#~ msgstr "Editor CSS"
+
+#~ msgid "Don't refresh"
+#~ msgstr "No Actualizar"
+
+#~ msgid "10 seconds"
+#~ msgstr "10 segundos"
+
+#~ msgid "30 seconds"
+#~ msgstr "30 segundos"
+
+#~ msgid "1 minute"
+#~ msgstr "1 minuto"
+
+#~ msgid "5 minutes"
+#~ msgstr "5 minutos"
+
+#~ msgid "Refresh Interval"
+#~ msgstr "Intérvalo Actualización"
+
+#~ msgid "Choose the refresh frequency for this dashboard"
+#~ msgstr ""
+
+#~ msgid "This dashboard was saved successfully."
+#~ msgstr ""
+
+#~ msgid "Sorry, there was an error saving this dashboard: "
+#~ msgstr ""
+
+#~ msgid "You must pick a name for the new dashboard"
+#~ msgstr ""
+
+#~ msgid "Save Dashboard"
+#~ msgstr ""
+
+#~ msgid "Overwrite Dashboard [%s]"
+#~ msgstr ""
+
+#~ msgid "Save as:"
+#~ msgstr "Guardar como:"
+
+#~ msgid "[dashboard name]"
 #~ msgstr ""
 
 #~ msgid "Viz"
+#~ msgstr "Viz"
+
+#~ msgid "Add Slices"
+#~ msgstr "Añadir Segmentos"
+
+#~ msgid "Add a new slice to the dashboard"
+#~ msgstr ""
+
+#~ msgid "Add Slices to Dashboard"
+#~ msgstr ""
+
+#~ msgid "Move chart"
+#~ msgstr "Mover gráfico"
+
+#~ msgid "Force refresh data"
+#~ msgstr ""
+
+#~ msgid "Toggle chart description"
+#~ msgstr ""
+
+#~ msgid "Edit chart"
+#~ msgstr "Editar gráfico"
+
+#~ msgid "Export CSV"
+#~ msgstr "Exportar CSV"
+
+#~ msgid "Explore chart"
+#~ msgstr "Explorar gráfico"
+
+#~ msgid "Remove chart from dashboard"
+#~ msgstr ""
+
+#~ msgid "is expected to be a number"
+#~ msgstr ""
+
+#~ msgid "is expected to be an integer"
+#~ msgstr ""
+
+#~ msgid "cannot be empty"
+#~ msgstr ""
+
+#~ msgid "%s - untitled"
+#~ msgstr ""
+
+#~ msgid "Edit slice properties"
+#~ msgstr ""
+
+#~ msgid "description"
+#~ msgstr "descripción"
+
+#~ msgid "bolt"
+#~ msgstr "tornillo"
+
+#~ msgid "Changing this control takes effect instantly"
+#~ msgstr ""
+
+#~ msgid "Error..."
+#~ msgstr "Error..."
+
+#~ msgid "Query"
+#~ msgstr "Consulta"
+
+#~ msgid "Height"
+#~ msgstr "Altura"
+
+#~ msgid "Width"
+#~ msgstr "Anchura"
+
+#~ msgid "Export to .json"
+#~ msgstr "Exportar a .json"
+
+#~ msgid "Export to .csv format"
+#~ msgstr "Exportar a .csv"
+
+#~ msgid "Please enter a slice name"
+#~ msgstr ""
+
+#~ msgid "Please select a dashboard"
+#~ msgstr ""
+
+#~ msgid "Please enter a dashboard name"
+#~ msgstr ""
+
+#~ msgid "Save A Slice"
+#~ msgstr "Guardar un Segmento"
+
+#~ msgid "Overwrite slice %s"
+#~ msgstr ""
+
+#~ msgid "Save as"
+#~ msgstr "Guardar como"
+
+#~ msgid "[slice name]"
+#~ msgstr ""
+
+#~ msgid "Do not add to a dashboard"
+#~ msgstr "No añadir a un cuadro de mando"
+
+#~ msgid "Add slice to existing dashboard"
+#~ msgstr "Añadir a un cuadro de mando existente"
+
+#~ msgid "Add to new dashboard"
+#~ msgstr "Añadir a un nuevo cuadro de mando"
+
+#~ msgid "Save & go to dashboard"
+#~ msgstr "Guardar e ir al cuadro de mando"
+
+#~ msgid "Check out this slice: %s"
+#~ msgstr ""
+
+#~ msgid "`Min` value should be numeric or empty"
+#~ msgstr "El valor `Mín` debe ser numérico o vacío"
+
+#~ msgid "`Max` value should be numeric or empty"
+#~ msgstr "El valor `Máx` debe ser numérico o vacío"
+
+#~ msgid "Something went wrong while fetching the datasource list"
+#~ msgstr ""
+
+#~ msgid "Click to point to another datasource"
+#~ msgstr ""
+
+#~ msgid "Edit the datasource's configuration"
+#~ msgstr ""
+
+#~ msgid "Select a datasource"
+#~ msgstr "Selecciona una fuente de datos"
+
+#~ msgid "Search / Filter"
+#~ msgstr "Buscar / Filtrar"
+
+#~ msgid "Filter value"
+#~ msgstr "Valor del Filtro"
+
+#~ msgid "Select metric"
+#~ msgstr "Selecciona la métrica"
+
+#~ msgid "Select column"
+#~ msgstr "Selecciona la columna"
+
+#~ msgid "Select operator"
+#~ msgstr "Selecciona el operador"
+
+#~ msgid "Error while fetching data"
+#~ msgstr "Error recuperando datos"
+
+#~ msgid "Select %s"
+#~ msgstr ""
+
+#~ msgid "textarea"
+#~ msgstr "área de texto"
+
+#~ msgid "Edit"
+#~ msgstr "Editar"
+
+#~ msgid "in modal"
+#~ msgstr ""
+
+#~ msgid "Select a visualization type"
+#~ msgstr "Selecciona un tipo de visualización"
+
+#~ msgid "Updating chart was stopped"
+#~ msgstr "La actualización del gráfico ha sido detenida"
+
+#~ msgid "An error occurred while rendering the visualization: %s"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Perhaps your data has grown, your "
+#~ "database is under unusual load, or "
+#~ "you are simply querying a data "
+#~ "source that is to large to be "
+#~ "processed within the timeout range. If"
+#~ " that is the case, we recommend "
+#~ "that you summarize your data further."
+#~ msgstr ""
+
+#~ msgid "Network error."
+#~ msgstr "Error de red."
+
+#~ msgid ""
+#~ "A reference to the [Time] configuration,"
+#~ " taking granularity into account"
+#~ msgstr ""
+
+#~ msgid "Group by"
+#~ msgstr "Agrupar por"
+
+#~ msgid "One or many controls to group by"
 #~ msgstr ""
 
 #~ msgid "The type of visualization to display"
 #~ msgstr ""
 
 #~ msgid "Metrics"
-#~ msgstr ""
+#~ msgstr "Métricas"
 
 #~ msgid "One or many metrics to display"
+#~ msgstr ""
+
+#~ msgid "Percentage Metrics"
+#~ msgstr ""
+
+#~ msgid "Metrics for which percentage of total are to be displayed"
+#~ msgstr ""
+
+#~ msgid "Y Axis Bounds"
+#~ msgstr "Límites del Eje Y"
+
+#~ msgid ""
+#~ "Bounds for the Y axis. When left"
+#~ " empty, the bounds are dynamically "
+#~ "defined based on the min/max of "
+#~ "the data. Note that this feature "
+#~ "will only expand the axis range. "
+#~ "It won't narrow the data's extent."
 #~ msgstr ""
 
 #~ msgid "Ordering"
 #~ msgstr ""
 
+#~ msgid "Annotation Layers"
+#~ msgstr "Capas de Anotación"
+
+#~ msgid "Annotation layers to overlay on the visualization"
+#~ msgstr ""
+
+#~ msgid "Select a annotation layer"
+#~ msgstr "Selecciona una capa de anotación"
+
+#~ msgid "Error while fetching annotation layers"
+#~ msgstr ""
+
 #~ msgid "Choose the metric"
+#~ msgstr "Elige la métrica"
+
+#~ msgid "Right Axis Metric"
 #~ msgstr ""
 
-#~ msgid "Chart Style"
+#~ msgid "Choose a metric for right axis"
 #~ msgstr ""
 
-#~ msgid "stack"
+#~ msgid "Stacked Style"
 #~ msgstr ""
 
-#~ msgid "stream"
+#~ msgid "Sort X Axis"
 #~ msgstr ""
 
-#~ msgid "expand"
+#~ msgid "Sort Y Axis"
 #~ msgstr ""
 
-#~ msgid "Color Scheme"
-#~ msgstr ""
-
-#~ msgid "fire"
-#~ msgstr ""
-
-#~ msgid "blue_white_yellow"
-#~ msgstr ""
-
-#~ msgid "white_black"
-#~ msgstr ""
-
-#~ msgid "black_white"
+#~ msgid "Linear Color Scheme"
 #~ msgstr ""
 
 #~ msgid "Normalize Across"
 #~ msgstr ""
 
-#~ msgid "heatmap"
-#~ msgstr ""
-
-#~ msgid "x"
-#~ msgstr ""
-
-#~ msgid "y"
-#~ msgstr ""
-
 #~ msgid ""
+#~ "Color will be rendered based on a"
+#~ " ratio of the cell against the "
+#~ "sum of across this criteria"
 #~ msgstr ""
 
-#~ msgid "Color Scale"
-#~ msgstr ""
-
-#~ msgid "series"
-#~ msgstr ""
-
-#~ msgid "overall"
-#~ msgstr ""
-
-#~ msgid "change"
+#~ msgid "Horizon Color Scale"
 #~ msgstr ""
 
 #~ msgid "Defines how the color are attributed."
@@ -1300,31 +2153,94 @@ msgstr ""
 #~ msgid "Rendering"
 #~ msgstr ""
 
-#~ msgid "pixelated (Sharp)"
-#~ msgstr ""
-
-#~ msgid "auto (Smooth)"
+#~ msgid ""
+#~ "image-rendering CSS attribute of the "
+#~ "canvas object that defines how the "
+#~ "browser scales up the image"
 #~ msgstr ""
 
 #~ msgid "XScale Interval"
-#~ msgstr ""
+#~ msgstr "Intervalo Escala X"
 
-#~ msgid "Number of step to take between ticks when printing the x scale"
+#~ msgid "Number of steps to take between ticks when displaying the X scale"
 #~ msgstr ""
 
 #~ msgid "YScale Interval"
+#~ msgstr "Intervalo Escala Y"
+
+#~ msgid "Number of steps to take between ticks when displaying the Y scale"
 #~ msgstr ""
 
-#~ msgid "Number of step to take between ticks when printing the y scale"
+#~ msgid "Include Time"
+#~ msgstr "Incluir Tiempo"
+
+#~ msgid "Whether to include the time granularity as defined in the time section"
+#~ msgstr ""
+
+#~ msgid "Show percentage"
+#~ msgstr ""
+
+#~ msgid "Whether to include the percentage in the tooltip"
 #~ msgstr ""
 
 #~ msgid "Stacked Bars"
 #~ msgstr ""
 
+#~ msgid "Show totals"
+#~ msgstr "Mostrar Totales"
+
+#~ msgid "Display total row/column"
+#~ msgstr ""
+
+#~ msgid "Show Markers"
+#~ msgstr "Mostrar Marcadores"
+
+#~ msgid "Show data points as circle markers on the lines"
+#~ msgstr ""
+
+#~ msgid "Bar Values"
+#~ msgstr ""
+
+#~ msgid "Show the value on top of the bar"
+#~ msgstr ""
+
+#~ msgid "Sort Bars"
+#~ msgstr ""
+
+#~ msgid "Sort bars by x labels."
+#~ msgstr ""
+
+#~ msgid "Combine Metrics"
+#~ msgstr "Combinar Métricas"
+
+#~ msgid ""
+#~ "Display metrics side by side within "
+#~ "each column, as opposed to each "
+#~ "column being displayed side by side "
+#~ "for each metric."
+#~ msgstr ""
+
 #~ msgid "Extra Controls"
 #~ msgstr ""
 
+#~ msgid ""
+#~ "Whether to show extra controls or "
+#~ "not. Extra controls include things like"
+#~ " making mulitBar charts stacked or "
+#~ "side by side."
+#~ msgstr ""
+
 #~ msgid "Reduce X ticks"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Reduces the number of X axis ticks"
+#~ " to be rendered. If true, the x"
+#~ " axis wont overflow and labels may"
+#~ " be missing. If false, a minimum "
+#~ "width will be applied to columns "
+#~ "and the width may overflow into an"
+#~ " horizontal scroll."
 #~ msgstr ""
 
 #~ msgid "Include Series"
@@ -1339,97 +2255,76 @@ msgstr ""
 #~ msgid "A metric to use for color"
 #~ msgstr ""
 
+#~ msgid "Country Name"
+#~ msgstr "Nombre País"
+
+#~ msgid "The name of country that Superset should display"
+#~ msgstr ""
+
 #~ msgid "Country Field Type"
-#~ msgstr ""
+#~ msgstr "Tipo de Campo de País"
 
-#~ msgid "Full name"
-#~ msgstr ""
-
-#~ msgid "code International Olympic Committee (cioc)"
-#~ msgstr ""
-
-#~ msgid "code ISO 3166-1 alpha-2 (cca2)"
-#~ msgstr ""
-
-#~ msgid "code ISO 3166-1 alpha-3 (cca3)"
-#~ msgstr ""
-
-#~ msgid "Group by"
-#~ msgstr ""
-
-#~ msgid "One or many fields to group by"
+#~ msgid ""
+#~ "The country code standard that Superset"
+#~ " should expect to find in the "
+#~ "[country] column"
 #~ msgstr ""
 
 #~ msgid "Columns"
-#~ msgstr ""
+#~ msgstr "Columnas"
 
-#~ msgid "One or many fields to pivot as columns"
+#~ msgid "One or many controls to pivot as columns"
 #~ msgstr ""
 
 #~ msgid "Columns to display"
 #~ msgstr ""
 
-#~ msgid "X"
-#~ msgstr ""
-
-#~ msgid "Y"
-#~ msgstr ""
-
 #~ msgid "Origin"
-#~ msgstr ""
+#~ msgstr "Origen"
 
-#~ msgid "default"
-#~ msgstr ""
-
-#~ msgid "now"
+#~ msgid ""
+#~ "Defines the origin where time buckets"
+#~ " start, accepts natural dates as in"
+#~ " `now`, `sunday` or `1970-01-01`"
 #~ msgstr ""
 
 #~ msgid "Bottom Margin"
 #~ msgstr ""
 
-#~ msgid "Bottom marging, in pixels, allowing for more room for axis labels"
+#~ msgid "Bottom margin, in pixels, allowing for more room for axis labels"
+#~ msgstr ""
+
+#~ msgid "Left Margin"
+#~ msgstr "Margen Izquierdo"
+
+#~ msgid "Left margin, in pixels, allowing for more room for axis labels"
 #~ msgstr ""
 
 #~ msgid "Time Granularity"
-#~ msgstr ""
+#~ msgstr "Granularidad de Tiempo"
 
-#~ msgid "all"
-#~ msgstr ""
-
-#~ msgid "5 seconds"
-#~ msgstr ""
-
-#~ msgid "30 seconds"
-#~ msgstr ""
-
-#~ msgid "1 minute"
-#~ msgstr ""
-
-#~ msgid "5 minutes"
-#~ msgstr ""
-
-#~ msgid "1 hour"
-#~ msgstr ""
-
-#~ msgid "6 hour"
-#~ msgstr ""
-
-#~ msgid "1 day"
-#~ msgstr ""
-
-#~ msgid "7 days"
+#~ msgid ""
+#~ "The time granularity for the "
+#~ "visualization. Note that you can type"
+#~ " and use simple natural language as"
+#~ " in `10 seconds`, `1 day` or "
+#~ "`56 weeks`"
 #~ msgstr ""
 
 #~ msgid "Domain"
-#~ msgstr ""
+#~ msgstr "Dominio"
 
 #~ msgid "The time unit used for the grouping of blocks"
 #~ msgstr ""
 
 #~ msgid "Subdomain"
-#~ msgstr ""
+#~ msgstr "Subdominio"
 
-#~ msgid "min"
+#~ msgid ""
+#~ "The time unit for each block. "
+#~ "Should be a smaller unit than "
+#~ "domain_granularity. Should be larger or "
+#~ "equal to Time Grain"
 #~ msgstr ""
 
 #~ msgid "Link Length"
@@ -1444,25 +2339,29 @@ msgstr ""
 #~ msgid "Charge in the force layout"
 #~ msgstr ""
 
+#~ msgid ""
+#~ "The time column for the visualization."
+#~ " Note that you can define arbitrary"
+#~ " expression that return a DATETIME "
+#~ "column in the table or. Also note"
+#~ " that the filter below is applied "
+#~ "against this column or expression"
+#~ msgstr ""
+
+#~ msgid "Time Grain"
+#~ msgstr "Granularidad Temporal"
+
+#~ msgid ""
+#~ "The time granularity for the "
+#~ "visualization. This applies a date "
+#~ "transformation to alter your time column"
+#~ " and defines a new time granularity."
+#~ " The options here are defined on "
+#~ "a per database engine basis in the"
+#~ " Superset source code."
+#~ msgstr ""
+
 #~ msgid "Resample Rule"
-#~ msgstr ""
-
-#~ msgid "1T"
-#~ msgstr ""
-
-#~ msgid "1H"
-#~ msgstr ""
-
-#~ msgid "1D"
-#~ msgstr ""
-
-#~ msgid "7D"
-#~ msgstr ""
-
-#~ msgid "1M"
-#~ msgstr ""
-
-#~ msgid "1AS"
 #~ msgstr ""
 
 #~ msgid "Pandas resample rule"
@@ -1471,56 +2370,23 @@ msgstr ""
 #~ msgid "Resample How"
 #~ msgstr ""
 
-#~ msgid "mean"
-#~ msgstr ""
-
-#~ msgid "sum"
-#~ msgstr ""
-
-#~ msgid "median"
-#~ msgstr ""
-
 #~ msgid "Pandas resample how"
 #~ msgstr ""
 
 #~ msgid "Resample Fill Method"
 #~ msgstr ""
 
-#~ msgid "ffill"
-#~ msgstr ""
-
-#~ msgid "bfill"
-#~ msgstr ""
-
 #~ msgid "Pandas resample fill method"
 #~ msgstr ""
 
 #~ msgid "Since"
-#~ msgstr ""
-
-#~ msgid "1 hour ago"
-#~ msgstr ""
-
-#~ msgid "12 hours ago"
-#~ msgstr ""
-
-#~ msgid "1 day ago"
-#~ msgstr ""
+#~ msgstr "desde"
 
 #~ msgid "7 days ago"
-#~ msgstr ""
-
-#~ msgid "28 days ago"
-#~ msgstr ""
-
-#~ msgid "90 days ago"
-#~ msgstr ""
-
-#~ msgid "1 year ago"
-#~ msgstr ""
+#~ msgstr "Hace 7 días"
 
 #~ msgid "Until"
-#~ msgstr ""
+#~ msgstr "Hasta"
 
 #~ msgid "Max Bubble Size"
 #~ msgstr ""
@@ -1531,29 +2397,17 @@ msgstr ""
 #~ msgid "Determines how whiskers and outliers are calculated."
 #~ msgstr ""
 
-#~ msgid "Tukey"
-#~ msgstr ""
-
-#~ msgid "Min/max (no outliers)"
-#~ msgstr ""
-
-#~ msgid "2/98 percentiles"
-#~ msgstr ""
-
-#~ msgid "9/91 percentiles"
-#~ msgstr ""
-
 #~ msgid "Ratio"
-#~ msgstr ""
+#~ msgstr "Proporción"
 
 #~ msgid "Target aspect ratio for treemap tiles."
 #~ msgstr ""
 
 #~ msgid "Number format"
-#~ msgstr ""
+#~ msgstr "Formato numérico"
 
 #~ msgid "Row limit"
-#~ msgstr ""
+#~ msgstr "Límite filas"
 
 #~ msgid "Series limit"
 #~ msgstr ""
@@ -1561,49 +2415,120 @@ msgstr ""
 #~ msgid "Limits the number of time series that get displayed"
 #~ msgstr ""
 
+#~ msgid "Sort By"
+#~ msgstr "Ordenar por"
+
+#~ msgid "Metric used to define the top series"
+#~ msgstr ""
+
+#~ msgid "Sort Descending"
+#~ msgstr ""
+
+#~ msgid "Whether to sort descending or ascending"
+#~ msgstr ""
+
 #~ msgid "Rolling"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Defines a rolling window function to "
+#~ "apply, works along with the [Periods]"
+#~ " text box"
 #~ msgstr ""
 
 #~ msgid "Periods"
 #~ msgstr ""
 
+#~ msgid ""
+#~ "Defines the size of the rolling "
+#~ "window function, relative to the time"
+#~ " granularity selected"
+#~ msgstr ""
+
+#~ msgid "Min Periods"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The minimum number of rolling periods"
+#~ " required to show a value. For "
+#~ "instance if you do a cumulative "
+#~ "sum on 7 days you may want "
+#~ "your \"Min Period\" to be 7, so"
+#~ " that all data points shown are "
+#~ "the total of 7 periods. This will"
+#~ " hide the \"ramp up\" taking place"
+#~ " over the first 7 periods"
+#~ msgstr ""
+
 #~ msgid "Series"
+#~ msgstr "Series"
+
+#~ msgid ""
+#~ "Defines the grouping of entities. Each"
+#~ " series is shown as a specific "
+#~ "color on the chart and has a "
+#~ "legend toggle"
 #~ msgstr ""
 
 #~ msgid "Entity"
-#~ msgstr ""
+#~ msgstr "Entidad"
 
-#~ msgid "This define the element to be plotted on the chart"
+#~ msgid "This defines the element to be plotted on the chart"
 #~ msgstr ""
 
 #~ msgid "X Axis"
-#~ msgstr ""
+#~ msgstr "Eje X"
 
 #~ msgid "Metric assigned to the [X] axis"
 #~ msgstr ""
 
 #~ msgid "Y Axis"
-#~ msgstr ""
+#~ msgstr "Eje Y"
 
 #~ msgid "Metric assigned to the [Y] axis"
 #~ msgstr ""
 
 #~ msgid "Bubble Size"
-#~ msgstr ""
+#~ msgstr "Tamaño burbuja"
 
 #~ msgid "URL"
+#~ msgstr "URL"
+
+#~ msgid ""
+#~ "The URL, this control is templated, "
+#~ "so you can integrate {{ width }}"
+#~ " and/or {{ height }} in your "
+#~ "URL string."
 #~ msgstr ""
 
 #~ msgid "X Axis Label"
-#~ msgstr ""
+#~ msgstr "Etiqueta Eje X"
 
 #~ msgid "Y Axis Label"
-#~ msgstr ""
+#~ msgstr "Etiqueta Eje Y"
 
 #~ msgid "Custom WHERE clause"
+#~ msgstr "Cláusula WHERE personalizada"
+
+#~ msgid ""
+#~ "The text in this box gets included"
+#~ " in your query's WHERE clause, as "
+#~ "an AND to other criteria. You can"
+#~ " include complex expression, parenthesis "
+#~ "and anything else supported by the "
+#~ "backend it is directed towards."
 #~ msgstr ""
 
 #~ msgid "Custom HAVING clause"
+#~ msgstr "Cláusula HAVING personalizada"
+
+#~ msgid ""
+#~ "The text in this box gets included"
+#~ " in your query's HAVING clause, as"
+#~ " an AND to other criteria. You "
+#~ "can include complex expression, parenthesis"
+#~ " and anything else supported by the"
+#~ " backend it is directed towards."
 #~ msgstr ""
 
 #~ msgid "Comparison Period Lag"
@@ -1630,79 +2555,61 @@ msgstr ""
 #~ msgid "Pixel height of each series"
 #~ msgstr ""
 
-#~ msgid "X axis format"
+#~ msgid "Page Length"
+#~ msgstr "Longitud de Página"
+
+#~ msgid "Rows per page, 0 means no pagination"
 #~ msgstr ""
 
-#~ msgid "Y axis format"
+#~ msgid "X Axis Format"
+#~ msgstr "Formato Eje X"
+
+#~ msgid "Y Axis Format"
+#~ msgstr "Formato Eje Y"
+
+#~ msgid "Right Axis Format"
+#~ msgstr ""
+
+#~ msgid "Date Time Format"
 #~ msgstr ""
 
 #~ msgid "Markup Type"
-#~ msgstr ""
-
-#~ msgid "markdown"
-#~ msgstr ""
-
-#~ msgid "html"
 #~ msgstr ""
 
 #~ msgid "Pick your favorite markup language"
 #~ msgstr ""
 
 #~ msgid "Rotation"
-#~ msgstr ""
-
-#~ msgid "random"
-#~ msgstr ""
-
-#~ msgid "flat"
-#~ msgstr ""
-
-#~ msgid "square"
-#~ msgstr ""
+#~ msgstr "Rotación"
 
 #~ msgid "Rotation to apply to words in the cloud"
 #~ msgstr ""
 
 #~ msgid "Line Style"
-#~ msgstr ""
-
-#~ msgid "linear"
-#~ msgstr ""
-
-#~ msgid "basis"
-#~ msgstr ""
-
-#~ msgid "cardinal"
-#~ msgstr ""
-
-#~ msgid "monotone"
-#~ msgstr ""
-
-#~ msgid "step-before"
-#~ msgstr ""
-
-#~ msgid "step-after"
-#~ msgstr ""
+#~ msgstr "Estilo Línea"
 
 #~ msgid "Line interpolation as defined by d3.js"
 #~ msgstr ""
 
-#~ msgid "Code"
+#~ msgid "Label Type"
+#~ msgstr "Tipo Etiqueta"
+
+#~ msgid "What should be shown on the label?"
 #~ msgstr ""
+
+#~ msgid "Code"
+#~ msgstr "Código"
 
 #~ msgid "Put your code here"
-#~ msgstr ""
+#~ msgstr "Pon tu código aquí"
 
 #~ msgid "Aggregation function"
-#~ msgstr ""
+#~ msgstr "Función de agregación"
 
-#~ msgid "max"
-#~ msgstr ""
-
-#~ msgid "stdev"
-#~ msgstr ""
-
-#~ msgid "var"
+#~ msgid ""
+#~ "Aggregate function to apply when "
+#~ "pivoting and computing the total rows"
+#~ " and columns"
 #~ msgstr ""
 
 #~ msgid "Font Size From"
@@ -1717,40 +2624,91 @@ msgstr ""
 #~ msgid "Font size for the biggest value in the list"
 #~ msgstr ""
 
-#~ msgid "Range Filter"
+#~ msgid "Instant Filtering"
 #~ msgstr ""
+
+#~ msgid "Range Filter"
+#~ msgstr "Filtro de Rango"
 
 #~ msgid "Whether to display the time range interactive selector"
 #~ msgstr ""
 
-#~ msgid "Data Table"
+#~ msgid "Date Filter"
+#~ msgstr "Filtro de Fecha"
+
+#~ msgid "Whether to include a time filter"
 #~ msgstr ""
+
+#~ msgid "Show SQL Granularity Dropdown"
+#~ msgstr ""
+
+#~ msgid "Check to include SQL Granularity dropdown"
+#~ msgstr ""
+
+#~ msgid "Show SQL Time Column"
+#~ msgstr ""
+
+#~ msgid "Check to include Time Column dropdown"
+#~ msgstr ""
+
+#~ msgid "Show Druid Granularity Dropdown"
+#~ msgstr ""
+
+#~ msgid "Check to include Druid Granularity dropdown"
+#~ msgstr ""
+
+#~ msgid "Show Druid Time Origin"
+#~ msgstr ""
+
+#~ msgid "Check to include Time Origin dropdown"
+#~ msgstr ""
+
+#~ msgid "Data Table"
+#~ msgstr "Tabla de Datos"
 
 #~ msgid "Whether to display the interactive data table"
 #~ msgstr ""
 
 #~ msgid "Search Box"
-#~ msgstr ""
+#~ msgstr "Caja de Búsqueda"
 
 #~ msgid "Whether to include a client side search box"
 #~ msgstr ""
 
-#~ msgid "Show Bubbles"
+#~ msgid "Table Filter"
+#~ msgstr "Filtro de Tabla"
+
+#~ msgid "Whether to apply filter when table cell is clicked"
 #~ msgstr ""
+
+#~ msgid "Show Bubbles"
+#~ msgstr "Mostrar Burbujas"
 
 #~ msgid "Whether to display bubbles on top of countries"
 #~ msgstr ""
 
 #~ msgid "Legend"
-#~ msgstr ""
+#~ msgstr "Leyenda"
 
 #~ msgid "Whether to display the legend (toggles)"
 #~ msgstr ""
 
-#~ msgid "X bounds"
+#~ msgid "Show Values"
 #~ msgstr ""
 
+#~ msgid "Whether to display the numerical values within the cells"
+#~ msgstr ""
+
+#~ msgid "X bounds"
+#~ msgstr "Límites X"
+
 #~ msgid "Whether to display the min and max values of the X axis"
+#~ msgstr ""
+
+#~ msgid "Y bounds"
+#~ msgstr "Límites Y"
+
+#~ msgid "Whether to display the min and max values of the Y axis"
 #~ msgstr ""
 
 #~ msgid "Rich Tooltip"
@@ -1759,47 +2717,90 @@ msgstr ""
 #~ msgid "The rich tooltip shows a list of all series for that point in time"
 #~ msgstr ""
 
-#~ msgid "Y Axis Zero"
-#~ msgstr ""
-
-#~ msgid "Force the Y axis to start at 0 instead of the minimum value"
-#~ msgstr ""
-
-#~ msgid "Y Log"
-#~ msgstr ""
+#~ msgid "Y Log Scale"
+#~ msgstr "Escala Logarítmica Y"
 
 #~ msgid "Use a log scale for the Y axis"
 #~ msgstr ""
 
-#~ msgid "X Log"
-#~ msgstr ""
+#~ msgid "X Log Scale"
+#~ msgstr "Escala Logarítmica X"
 
 #~ msgid "Use a log scale for the X axis"
 #~ msgstr ""
 
-#~ msgid "Donut"
+#~ msgid "Log Scale"
 #~ msgstr ""
 
+#~ msgid "Use a log scale"
+#~ msgstr ""
+
+#~ msgid "Donut"
+#~ msgstr "Donut"
+
 #~ msgid "Do you want a donut or a pie?"
+#~ msgstr "¿Quieres un donut o un pastel?"
+
+#~ msgid "Put labels outside"
+#~ msgstr "Poner las etiquetas fuera"
+
+#~ msgid "Put the labels outside the pie?"
 #~ msgstr ""
 
 #~ msgid "Contribution"
-#~ msgstr ""
+#~ msgstr "Contribución"
 
 #~ msgid "Compute the contribution to the total"
 #~ msgstr ""
 
 #~ msgid "Period Ratio"
+#~ msgstr "Ratio de Periodo"
+
+#~ msgid ""
+#~ "[integer] Number of period to compare"
+#~ " against, this is relative to the "
+#~ "granularity selected"
+#~ msgstr ""
+
+#~ msgid "Period Ratio Type"
+#~ msgstr "Tipo de Ratio de Periodo"
+
+#~ msgid ""
+#~ "`factor` means (new/previous), `growth` is "
+#~ "((new/previous) - 1), `value` is "
+#~ "(new-previous)"
 #~ msgstr ""
 
 #~ msgid "Time Shift"
 #~ msgstr ""
 
-#~ msgid "Subheader"
+#~ msgid ""
+#~ "Overlay a timeseries from a relative "
+#~ "time period. Expects relative time delta"
+#~ " in natural language (example:  24 "
+#~ "hours, 7 days, 56 weeks, 365 days)"
 #~ msgstr ""
+
+#~ msgid "Subheader"
+#~ msgstr "Sub-encabezado"
 
 #~ msgid "Description text that shows up below your Big Number"
 #~ msgstr ""
+
+#~ msgid "label"
+#~ msgstr "etiqueta"
+
+#~ msgid ""
+#~ "`count` is COUNT(*) if a group by"
+#~ " is used. Numerical columns will be"
+#~ " aggregated with the aggregator. Non-"
+#~ "numerical columns will be used to "
+#~ "label points. Leave empty to get a"
+#~ " count of points in each cluster."
+#~ msgstr ""
+
+#~ msgid "Map Style"
+#~ msgstr "Estilo Mapa"
 
 #~ msgid "Base layer map style"
 #~ msgstr ""
@@ -1807,7 +2808,23 @@ msgstr ""
 #~ msgid "Clustering Radius"
 #~ msgstr ""
 
+#~ msgid ""
+#~ "The radius (in pixels) the algorithm "
+#~ "uses to define a cluster. Choose 0"
+#~ " to turn off clustering, but beware"
+#~ " that a large number of points "
+#~ "(>1000) will cause lag."
+#~ msgstr ""
+
 #~ msgid "Point Radius"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The radius of individual points (ones"
+#~ " that are not in a cluster). "
+#~ "Either a numerical column or `Auto`, "
+#~ "which scales the point based on "
+#~ "the largest cluster"
 #~ msgstr ""
 
 #~ msgid "Point Radius Unit"
@@ -1817,28 +2834,28 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Opacity"
-#~ msgstr ""
+#~ msgstr "Opacidad"
 
 #~ msgid "Opacity of all clusters, points, and labels. Between 0 and 1."
 #~ msgstr ""
 
 #~ msgid "Zoom"
-#~ msgstr ""
+#~ msgstr "Acercamiento"
 
 #~ msgid "Zoom level of the map"
-#~ msgstr ""
+#~ msgstr "Nivel de acercamiento del mapa"
 
 #~ msgid "Default latitude"
-#~ msgstr ""
+#~ msgstr "Latitud por defecto"
 
 #~ msgid "Latitude of default viewport"
-#~ msgstr ""
+#~ msgstr "Latitud de la ventana gráfica predeterminada"
 
 #~ msgid "Default longitude"
-#~ msgstr ""
+#~ msgstr "Longitud por defecto"
 
 #~ msgid "Longitude of default viewport"
-#~ msgstr ""
+#~ msgstr "Longitud de la ventana gráfica predeterminada"
 
 #~ msgid "Live render"
 #~ msgstr ""
@@ -1847,100 +2864,351 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "RGB Color"
-#~ msgstr ""
+#~ msgstr "Color RGB"
 
 #~ msgid "The color for points and clusters in RGB"
 #~ msgstr ""
 
-#~ msgid "SQL"
+#~ msgid "Color"
 #~ msgstr ""
 
-#~ msgid "This section exposes ways to include snippets of SQL in your query"
+#~ msgid "Pick a color"
 #~ msgstr ""
 
-#~ msgid "Time Grain"
+#~ msgid "Ranges"
+#~ msgstr "Rangos"
+
+#~ msgid "Ranges to highlight with shading"
 #~ msgstr ""
 
-#~ msgid "Filter 1"
+#~ msgid "Range labels"
 #~ msgstr ""
 
-#~ msgid "Super"
+#~ msgid "Labels for the ranges"
+#~ msgstr ""
+
+#~ msgid "Markers"
+#~ msgstr "Marcadores"
+
+#~ msgid "List of values to mark with triangles"
+#~ msgstr ""
+
+#~ msgid "Marker labels"
+#~ msgstr "Etiquetas de Marcadores"
+
+#~ msgid "Labels for the markers"
+#~ msgstr "Etiquetas para los Marcadores"
+
+#~ msgid "Marker lines"
+#~ msgstr "Líneas de Marcadores"
+
+#~ msgid "List of values to mark with lines"
+#~ msgstr ""
+
+#~ msgid "Marker line labels"
+#~ msgstr "Etiquetas de Líneas para los Marcadores"
+
+#~ msgid "Labels for the marker lines"
+#~ msgstr ""
+
+#~ msgid "Slice ID"
+#~ msgstr ""
+
+#~ msgid "The id of the active slice"
+#~ msgstr ""
+
+#~ msgid "Cache Timeout (seconds)"
+#~ msgstr ""
+
+#~ msgid "The number of seconds before expiring the cache"
+#~ msgstr ""
+
+#~ msgid "Order by entity id"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Important! Select this if the table "
+#~ "is not already sorted by entity "
+#~ "id, else there is no guarantee "
+#~ "that all events for each entity "
+#~ "are returned."
+#~ msgstr ""
+
+#~ msgid "Minimum leaf node event count"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Leaf nodes that represent fewer than "
+#~ "this number of events will be "
+#~ "initially hidden in the visualization"
+#~ msgstr ""
+
+#~ msgid "Color Scheme"
+#~ msgstr ""
+
+#~ msgid "The color scheme for rendering chart"
+#~ msgstr ""
+
+#~ msgid "Significance Level"
+#~ msgstr ""
+
+#~ msgid "Threshold alpha level for determining significance"
+#~ msgstr ""
+
+#~ msgid "p-value precision"
+#~ msgstr ""
+
+#~ msgid "Number of decimal places with which to display p-values"
+#~ msgstr ""
+
+#~ msgid "Lift percent precision"
+#~ msgstr ""
+
+#~ msgid "Number of decimal places with which to display lift values"
+#~ msgstr ""
+
+#~ msgid "Time Series Columns"
+#~ msgstr ""
+
+#~ msgid "Options"
+#~ msgstr "Opciones"
+
+#~ msgid "Not Time Series"
+#~ msgstr ""
+
+#~ msgid "Ignore time"
+#~ msgstr ""
+
+#~ msgid "Time Series"
+#~ msgstr ""
+
+#~ msgid "Standard time series"
+#~ msgstr ""
+
+#~ msgid "Aggregate Mean"
+#~ msgstr ""
+
+#~ msgid "Mean of values over specified period"
+#~ msgstr ""
+
+#~ msgid "Aggregate Sum"
+#~ msgstr ""
+
+#~ msgid "Sum of values over specified period"
+#~ msgstr ""
+
+#~ msgid "Difference"
+#~ msgstr ""
+
+#~ msgid "Metric change in value from `since` to `until`"
+#~ msgstr ""
+
+#~ msgid "Percent Change"
+#~ msgstr ""
+
+#~ msgid "Metric percent change in value from `since` to `until`"
+#~ msgstr ""
+
+#~ msgid "Factor"
+#~ msgstr ""
+
+#~ msgid "Metric factor change from `since` to `until`"
+#~ msgstr ""
+
+#~ msgid "Advanced Analytics"
+#~ msgstr "Analíticas Avanzadas"
+
+#~ msgid "Use the Advanced Analytics options below"
+#~ msgstr ""
+
+#~ msgid "Settings for time series"
+#~ msgstr ""
+
+#~ msgid "Equal Date Sizes"
+#~ msgstr ""
+
+#~ msgid "Check to force date partitions to have the same height"
+#~ msgstr ""
+
+#~ msgid "Partition Limit"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The maximum number of subdivisions of"
+#~ " each group; lower values are pruned"
+#~ " first"
+#~ msgstr ""
+
+#~ msgid "Partition Threshold"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Partitions whose height to parent height"
+#~ " proportions are below this value are"
+#~ " pruned"
 #~ msgstr ""
 
 #~ msgid "Time"
-#~ msgstr ""
+#~ msgstr "Tiempo"
 
 #~ msgid "Time related form attributes"
 #~ msgstr ""
 
-#~ msgid "SQL link"
+#~ msgid "Datasource & Chart Type"
+#~ msgstr "Tipo de Fuente de Datos y Gráfico"
+
+#~ msgid "This section exposes ways to include snippets of SQL in your query"
 #~ msgstr ""
 
-#~ msgid "Is Featured"
+#~ msgid "Annotations"
+#~ msgstr "Anotaciones"
+
+#~ msgid ""
+#~ "This section contains options that allow"
+#~ " for advanced analytical post processing"
+#~ " of query results"
 #~ msgstr ""
 
-#~ msgid "This view requires the `all_datasource_access` permission"
+#~ msgid "Result Filters"
 #~ msgstr ""
 
-#~ msgid "Refresh Druid Metadata"
+#~ msgid ""
+#~ "The filters to apply after post-"
+#~ "aggregation.Leave the value control empty "
+#~ "to filter empty strings or nulls"
 #~ msgstr ""
+
+#~ msgid "Chart Options"
+#~ msgstr "Opciones de Gráfico"
+
+#~ msgid "Breakdowns"
+#~ msgstr "Descomposiciones"
+
+#~ msgid "Defines how each series is broken down"
+#~ msgstr ""
+
+#~ msgid "Pie Chart"
+#~ msgstr "Gráfico Pastel"
+
+#~ msgid "Dual Axis Line Chart"
+#~ msgstr ""
+
+#~ msgid "Y Axis 1"
+#~ msgstr "Eje Y 1"
+
+#~ msgid "Y Axis 2"
+#~ msgstr "Eje Y 2"
+
+#~ msgid "Left Axis Metric"
+#~ msgstr ""
+
+#~ msgid "Choose a metric for left axis"
+#~ msgstr ""
+
+#~ msgid "Left Axis Format"
+#~ msgstr "Formato del Eje Izquierdo"
+
+#~ msgid "Axes"
+#~ msgstr "Ejes"
 
 #~ msgid "GROUP BY"
-#~ msgstr ""
+#~ msgstr "AGRUPAR POR"
 
 #~ msgid "Use this section if you want a query that aggregates"
 #~ msgstr ""
 
 #~ msgid "NOT GROUPED BY"
-#~ msgstr ""
+#~ msgstr "NO AGRUPADO POR"
 
 #~ msgid "Use this section if you want to query atomic rows"
 #~ msgstr ""
 
-#~ msgid "Options"
+#~ msgid "Time Series Table"
 #~ msgstr ""
 
-#~ msgid "Chart Options"
+#~ msgid ""
+#~ "Templated link, it's possible to include"
+#~ " {{ metric }} or other values "
+#~ "coming from the controls."
 #~ msgstr ""
 
-#~ msgid "Advanced Analytics"
+#~ msgid "Pivot Options"
 #~ msgstr ""
 
-#~ msgid "Breakdowns"
+#~ msgid "Bubbles"
+#~ msgstr "Burbujas"
+
+#~ msgid "Numeric Column"
+#~ msgstr "Columna Numérica"
+
+#~ msgid "Select the numeric column to draw the histogram"
 #~ msgstr ""
 
-#~ msgid "Defines how each series is broken down"
+#~ msgid "No of Bins"
+#~ msgstr ""
+
+#~ msgid "Select number of bins for the histogram"
 #~ msgstr ""
 
 #~ msgid "Primary Metric"
-#~ msgstr ""
+#~ msgstr "Métrica Primaria"
 
 #~ msgid "The primary metric is used to define the arc segment sizes"
 #~ msgstr ""
 
 #~ msgid "Secondary Metric"
+#~ msgstr "Métrica Segundaria"
+
+#~ msgid ""
+#~ "This secondary metric is used to "
+#~ "define the color as a ratio "
+#~ "against the primary metric. If the "
+#~ "two metrics match, color is mapped "
+#~ "level groups"
 #~ msgstr ""
 
 #~ msgid "Hierarchy"
-#~ msgstr ""
+#~ msgstr "Jerarquía"
 
 #~ msgid "This defines the level of the hierarchy"
 #~ msgstr ""
 
 #~ msgid "Source / Target"
-#~ msgstr ""
+#~ msgstr "Origen / Destino"
 
 #~ msgid "Choose a source and a target"
 #~ msgstr ""
 
-#~ msgid "Force Layout"
+#~ msgid "Chord Diagram"
+#~ msgstr "Diagrama de Cuerdas"
+
+#~ msgid "Choose a number format"
+#~ msgstr "Elige un formato numérico"
+
+#~ msgid "Source"
+#~ msgstr "Fuente"
+
+#~ msgid "Choose a source"
+#~ msgstr "Elige una fuente"
+
+#~ msgid "Target"
+#~ msgstr "Destino"
+
+#~ msgid "Choose a target"
+#~ msgstr "Elige un destino"
+
+#~ msgid "ISO 3166-2 codes of region/province/department"
 #~ msgstr ""
 
-#~ msgid "Bubbles"
+#~ msgid ""
+#~ "It's ISO 3166-2 of your "
+#~ "region/province/department in your table. (see"
+#~ " documentation for list of ISO "
+#~ "3166-2)"
 #~ msgstr ""
 
-#~ msgid "Country Field"
-#~ msgstr ""
+#~ msgid "Country Control"
+#~ msgstr "Control de País"
 
 #~ msgid "3 letter code of the country"
 #~ msgstr ""
@@ -1957,20 +3225,36 @@ msgstr ""
 #~ msgid "Metric that defines the size of the bubble"
 #~ msgstr ""
 
-#~ msgid "Filter fields"
+#~ msgid "Filter Box"
 #~ msgstr ""
 
-#~ msgid "The fields you want to filter on"
+#~ msgid "Filter controls"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The controls you want to filter "
+#~ "on. Note that only columns checked "
+#~ "as \"filterable\" will show up on "
+#~ "this list."
 #~ msgstr ""
 
 #~ msgid "Heatmap Options"
 #~ msgstr ""
 
-#~ msgid "Points"
+#~ msgid "Value bounds"
 #~ msgstr ""
 
-#~ msgid "Labelling"
+#~ msgid "Value Format"
 #~ msgstr ""
+
+#~ msgid "Horizon"
+#~ msgstr "Horizonte"
+
+#~ msgid "Points"
+#~ msgstr "Puntos"
+
+#~ msgid "Labelling"
+#~ msgstr "Etiquetando"
 
 #~ msgid "Visual Tweaks"
 #~ msgstr ""
@@ -1979,13 +3263,13 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Longitude"
-#~ msgstr ""
+#~ msgstr "Longitud"
 
 #~ msgid "Column containing longitude data"
 #~ msgstr ""
 
 #~ msgid "Latitude"
-#~ msgstr ""
+#~ msgstr "Latitud"
 
 #~ msgid "Column containing latitude data"
 #~ msgstr ""
@@ -1993,707 +3277,160 @@ msgstr ""
 #~ msgid "Cluster label aggregator"
 #~ msgstr ""
 
+#~ msgid ""
+#~ "Aggregate function applied to the list"
+#~ " of points in each cluster to "
+#~ "produce the cluster label."
+#~ msgstr ""
+
 #~ msgid "Tooltip"
-#~ msgstr ""
-
-#~ msgid "Query"
-#~ msgstr ""
-
-#~ msgid "Save"
-#~ msgstr ""
-
-#~ msgid "Force refresh"
-#~ msgstr ""
-
-#~ msgid "Short URL"
-#~ msgstr ""
-
-#~ msgid "Generate an embeddable iframe"
-#~ msgstr ""
-
-#~ msgid "Export to .json"
-#~ msgstr ""
-
-#~ msgid "Export to .csv format"
-#~ msgstr ""
-
-#~ msgid "Query timer"
-#~ msgstr ""
-
-#~ msgid "0 sec"
-#~ msgstr ""
-
-#~ msgid "View database query"
-#~ msgstr ""
-
-#~ msgid "query"
-#~ msgstr ""
-
-#~ msgid "Filters are defined using comma delimited strings as in 'US,FR,Other'"
-#~ msgstr ""
-
-#~ msgid "Add filter"
-#~ msgstr ""
-
-#~ msgid "Close"
-#~ msgstr ""
-
-#~ msgid "Datasource Description"
-#~ msgstr ""
-
-#~ msgid "Save a Slice"
-#~ msgstr ""
-
-#~ msgid "Save & go to dashboard"
-#~ msgstr ""
-
-#~ msgid "Run!"
-#~ msgstr ""
-
-#~ msgid "Create View"
-#~ msgstr ""
-
-#~ msgid "Import"
-#~ msgstr ""
-
-#~ msgid "Welcome!"
-#~ msgstr ""
-
-#~ msgid "Unserializable object No data. of type"
-#~ msgstr ""
-
-#~ msgid "Please choose groupby which should be only one"
-#~ msgstr ""
-
-#~ msgid "The number of metric should be only one"
-#~ msgstr ""
-
-#~ msgid "Time Column"
-#~ msgstr ""
-
-#~ msgid "second"
-#~ msgstr ""
-
-#~ msgid "minute"
-#~ msgstr ""
-
-#~ msgid "hour"
-#~ msgstr ""
-
-#~ msgid "day"
-#~ msgstr ""
-
-#~ msgid "week"
-#~ msgstr ""
-
-#~ msgid "month"
-#~ msgstr ""
-
-#~ msgid "quarter"
-#~ msgstr ""
-
-#~ msgid "year"
-#~ msgstr ""
-
-#~ msgid "week_start_monday"
-#~ msgstr ""
-
-#~ msgid "week_ending_saturday"
-#~ msgstr ""
-
-#~ msgid "week_start_sunday"
-#~ msgstr ""
-
-#~ msgid "5 minute"
-#~ msgstr ""
-
-#~ msgid "half hour"
-#~ msgstr ""
-
-#~ msgid "10 minute"
-#~ msgstr ""
-
-#~ msgid "[Superset] Access to the datasource %(name)s was granted"
-#~ msgstr ""
-
-#~ msgid "Viz is missing a datasource"
-#~ msgstr ""
-
-#~ msgid "From date cannot be larger than to date"
-#~ msgstr ""
-
-#~ msgid "Table View"
-#~ msgstr ""
-
-#~ msgid "Pick a granularity in the Time section or uncheck 'Include Time'"
-#~ msgstr ""
-
-#~ msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
-#~ msgstr ""
-
-#~ msgid "Pivot Table"
-#~ msgstr ""
-
-#~ msgid "Please choose at least one \"Group by\" field "
-#~ msgstr ""
-
-#~ msgid "Please choose at least one metric"
-#~ msgstr ""
-
-#~ msgid "'Group By' and 'Columns' can't overlap"
-#~ msgstr ""
-
-#~ msgid "Markup"
-#~ msgstr ""
-
-#~ msgid "Separator"
-#~ msgstr ""
-
-#~ msgid "Word Cloud"
-#~ msgstr ""
-
-#~ msgid "Treemap"
-#~ msgstr ""
-
-#~ msgid "Calendar Heatmap"
-#~ msgstr ""
-
-#~ msgid "Box Plot"
-#~ msgstr ""
-
-#~ msgid "Bubble Chart"
-#~ msgstr ""
-
-#~ msgid "Pick a metric for x, y and size"
-#~ msgstr ""
-
-#~ msgid "Bullet Chart"
-#~ msgstr ""
-
-#~ msgid "Pick a metric to display"
-#~ msgstr ""
-
-#~ msgid "Big Number with Trendline"
-#~ msgstr ""
-
-#~ msgid "Pick a metric!"
-#~ msgstr ""
-
-#~ msgid "Big Number"
-#~ msgstr ""
-
-#~ msgid "Time Series - Line Chart"
-#~ msgstr ""
-
-#~ msgid "Pick a time granularity for your time series"
-#~ msgstr ""
-
-#~ msgid "Time Series - Dual Axis Line Chart"
-#~ msgstr ""
-
-#~ msgid "Pick a metric for left axis!"
-#~ msgstr ""
-
-#~ msgid "Pick a metric for right axis!"
-#~ msgstr ""
-
-#~ msgid "Please choose different metrics on left and right axis"
-#~ msgstr ""
-
-#~ msgid "Time Series - Bar Chart"
-#~ msgstr ""
-
-#~ msgid "Time Series - Percent Change"
-#~ msgstr ""
-
-#~ msgid "Time Series - Stacked"
-#~ msgstr ""
-
-#~ msgid "Distribution - NVD3 - Pie Chart"
-#~ msgstr ""
-
-#~ msgid "Histogram"
-#~ msgstr ""
-
-#~ msgid "Must have one numeric column specified"
-#~ msgstr ""
-
-#~ msgid "Distribution - Bar Chart"
-#~ msgstr ""
-
-#~ msgid "Can't have overlap between Series and Breakdowns"
-#~ msgstr ""
-
-#~ msgid "Pick at least one metric"
-#~ msgstr ""
-
-#~ msgid "Pick at least one field for [Series]"
-#~ msgstr ""
-
-#~ msgid "Sunburst"
-#~ msgstr ""
-
-#~ msgid "Sankey"
-#~ msgstr ""
-
-#~ msgid "Pick exactly 2 columns as [Source / Target]"
+#~ msgstr "Ayuda"
+
+#~ msgid ""
+#~ "Show a tooltip when hovering over "
+#~ "points and clusters describing the label"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "There's a loop in your Sankey, "
-#~ "please provide a tree. Here's a "
-#~ "faulty link: {}"
+#~ "One or many controls to group by."
+#~ " If grouping, latitude and longitude "
+#~ "columns must be present."
 #~ msgstr ""
 
-#~ msgid "Directed Force Layout"
+#~ msgid "Event definition"
+#~ msgstr "Definición evento"
+
+#~ msgid "Additional meta data"
 #~ msgstr ""
 
-#~ msgid "Pick exactly 2 columns to 'Group By'"
+#~ msgid "Column containing entity ids"
 #~ msgstr ""
 
-#~ msgid "Country Map"
+#~ msgid "e.g., a \"user id\" column"
 #~ msgstr ""
 
-#~ msgid "World Map"
+#~ msgid "Column containing event names"
 #~ msgstr ""
 
-#~ msgid "Filters"
+#~ msgid "Event count limit"
 #~ msgstr ""
 
-#~ msgid "Pick at least one filter field"
+#~ msgid "The maximum number of events to return, equivalent to number of rows"
 #~ msgstr ""
 
-#~ msgid "iFrame"
+#~ msgid "Meta data"
 #~ msgstr ""
 
-#~ msgid "Parallel Coordinates"
+#~ msgid "Select any columns for meta data inspection"
 #~ msgstr ""
 
-#~ msgid "Heatmap"
+#~ msgid "Paired t-test"
 #~ msgstr ""
 
-#~ msgid "Horizon Charts"
-#~ msgstr ""
-
-#~ msgid "Mapbox"
-#~ msgstr ""
-
-#~ msgid "Must have a [Group By] column to have 'count' as the [Label]"
-#~ msgstr ""
-
-#~ msgid "Choice of [Label] must be present in [Group By]"
-#~ msgstr ""
-
-#~ msgid "Choice of [Point Radius] must be present in [Group By]"
-#~ msgstr ""
-
-#~ msgid "[Longitude] and [Latitude] columns must be present in [Group By]"
-#~ msgstr ""
-
-#~ msgid "Event flow"
-#~ msgstr ""
-
-#~ msgid "No data was returned."
-#~ msgstr ""
-
-#~ msgid "List Druid Column"
-#~ msgstr ""
-
-#~ msgid "Show Druid Column"
-#~ msgstr ""
-
-#~ msgid "Add Druid Column"
-#~ msgstr ""
-
-#~ msgid "Edit Druid Column"
-#~ msgstr ""
-
-#~ msgid "Column"
-#~ msgstr ""
-
-#~ msgid "Type"
-#~ msgstr ""
-
-#~ msgid "Datasource"
-#~ msgstr ""
-
-#~ msgid "Groupable"
-#~ msgstr ""
-
-#~ msgid "Filterable"
-#~ msgstr ""
-
-#~ msgid "Count Distinct"
-#~ msgstr ""
-
-#~ msgid "Sum"
-#~ msgstr ""
-
-#~ msgid "Min"
-#~ msgstr ""
-
-#~ msgid "Max"
-#~ msgstr ""
-
-#~ msgid "Avg"
+#~ msgid "Time Series Options"
 #~ msgstr ""
 
 #~ msgid ""
-#~ "Whether this column is exposed in "
-#~ "the `Filters` section of the explore "
-#~ "view."
+#~ "The server could not be reached. "
+#~ "You may want to verify your "
+#~ "connection and try again."
 #~ msgstr ""
 
-#~ msgid "List Druid Metric"
+#~ msgid "An unknown error occurred. (Status: %s )"
 #~ msgstr ""
 
-#~ msgid "Show Druid Metric"
+#~ msgid "Favorites"
+#~ msgstr "Favoritos"
+
+#~ msgid "Created Content"
 #~ msgstr ""
 
-#~ msgid "Add Druid Metric"
+#~ msgid "Recent Activity"
+#~ msgstr "Actividad Reciente"
+
+#~ msgid "Security & Access"
+#~ msgstr "Acceso y Seguridad"
+
+#~ msgid "No slices"
+#~ msgstr "Sin segmentos"
+
+#~ msgid "No dashboards"
+#~ msgstr "Sin cuadros de mando"
+
+#~ msgid "Slices"
+#~ msgstr "Segmentos"
+
+#~ msgid "No favorite slices yet, go click on stars!"
 #~ msgstr ""
 
-#~ msgid "Edit Druid Metric"
+#~ msgid "No favorite dashboards yet, go click on stars!"
 #~ msgstr ""
 
-#~ msgid ""
-#~ "Whether the access to this metric "
-#~ "is restricted to certain roles. Only "
-#~ "roles with the permission 'metric access"
-#~ " on XXX (the name of this "
-#~ "metric)' are allowed to access this "
-#~ "metric"
+#~ msgid "Roles"
+#~ msgstr "Roles"
+
+#~ msgid "Databases"
+#~ msgstr "Bases de datos"
+
+#~ msgid "Datasources"
+#~ msgstr "Fuentes de datos"
+
+#~ msgid "Profile picture provided by Gravatar"
 #~ msgstr ""
 
-#~ msgid "Metric"
+#~ msgid "joined"
 #~ msgstr ""
 
-#~ msgid "Description"
+#~ msgid "id:"
+#~ msgstr "id:"
+
+#~ msgid "Sorry, there appears to be no data"
 #~ msgstr ""
 
-#~ msgid "Verbose Name"
+#~ msgid "Select [%s]"
 #~ msgstr ""
 
-#~ msgid "JSON"
+#~ msgid "Druid Clusters"
 #~ msgstr ""
 
-#~ msgid "Druid Datasource"
-#~ msgstr ""
-
-#~ msgid "List Druid Cluster"
-#~ msgstr ""
-
-#~ msgid "Show Druid Cluster"
-#~ msgstr ""
-
-#~ msgid "Add Druid Cluster"
-#~ msgstr ""
-
-#~ msgid "Edit Druid Cluster"
-#~ msgstr ""
-
-#~ msgid "Cluster"
-#~ msgstr ""
-
-#~ msgid "Coordinator Host"
-#~ msgstr ""
-
-#~ msgid "Coordinator Port"
-#~ msgstr ""
-
-#~ msgid "Coordinator Endpoint"
-#~ msgstr ""
-
-#~ msgid "Broker Host"
-#~ msgstr ""
-
-#~ msgid "Broker Port"
-#~ msgstr ""
-
-#~ msgid "Broker Endpoint"
-#~ msgstr ""
-
-#~ msgid "List Druid Datasource"
-#~ msgstr ""
-
-#~ msgid "Show Druid Datasource"
-#~ msgstr ""
-
-#~ msgid "Add Druid Datasource"
-#~ msgstr ""
-
-#~ msgid "Edit Druid Datasource"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The list of slices associated with "
-#~ "this table. By altering this datasource,"
-#~ " you may change how these associated"
-#~ " slices behave. Also note that slices"
-#~ " need to point to a datasource, "
-#~ "so this form will fail at saving"
-#~ " if removing slices from a "
-#~ "datasource. If you want to change "
-#~ "the datasource for a slice, overwrite"
-#~ " the slice from the 'explore view'"
-#~ msgstr ""
-
-#~ msgid "Timezone offset (in hours) for this datasource"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Time expression to use as a "
-#~ "predicate when retrieving distinct values "
-#~ "to populate the filter component. Only"
-#~ " applies when `Enable Filter Select` "
-#~ "is on. If you enter `7 days "
-#~ "ago`, the distinct list of values "
-#~ "in the filter will be populated "
-#~ "based on the distinct value over "
-#~ "the past week"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Whether to populate the filter's "
-#~ "dropdown in the explore view's filter"
-#~ " section with a list of distinct "
-#~ "values fetched from the backend on "
-#~ "the fly"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Redirects to this endpoint when clicking"
-#~ " on the datasource from the "
-#~ "datasource list"
-#~ msgstr ""
+#~ msgid "Sources"
+#~ msgstr "Fuentes"
 
 #~ msgid "Associated Slices"
+#~ msgstr "Segmentos Asociados"
+
+#~ msgid "Druid Datasources"
+#~ msgstr "Fuentes de Datos Druid"
+
+#~ msgid "Scan New Datasources"
+#~ msgstr "Buscar Nuevas Fuentes de Datos"
+
+#~ msgid "Refresh Druid Metadata"
 #~ msgstr ""
 
-#~ msgid "Data Source"
+#~ msgid "Refresh Metadata"
 #~ msgstr ""
 
-#~ msgid "Owner"
+#~ msgid "Refresh column metadata"
 #~ msgstr ""
 
-#~ msgid "Is Hidden"
-#~ msgstr ""
+#~ msgid "Tables"
+#~ msgstr "Tablas"
 
-#~ msgid "Enable Filter Select"
-#~ msgstr ""
+#~ msgid "Welcome!"
+#~ msgstr "Bienvenid@!"
 
-#~ msgid "Default Endpoint"
-#~ msgstr ""
-
-#~ msgid "Time Offset"
-#~ msgstr ""
-
-#~ msgid "Cache Timeout"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Datetime column not provided as part "
-#~ "table configuration and is required by"
-#~ " this type of chart"
-#~ msgstr ""
-
-#~ msgid "Metric '{}' is not valid"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Table doesn't seem to exist in the"
-#~ " specified database, couldn't fetch column"
-#~ " information"
-#~ msgstr ""
-
-#~ msgid "List Columns"
-#~ msgstr ""
-
-#~ msgid "Show Column"
-#~ msgstr ""
-
-#~ msgid "Add Column"
-#~ msgstr ""
-
-#~ msgid "Edit Column"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Whether to make this column available"
-#~ " as a [Time Granularity] option, "
-#~ "column has to be DATETIME or "
-#~ "DATETIME-like"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The data type that was inferred by"
-#~ " the database. It may be necessary"
-#~ " to input a type manually for "
-#~ "expression-defined columns in some cases."
-#~ " In most case users should not "
-#~ "need to alter this."
-#~ msgstr ""
-
-#~ msgid "Table"
-#~ msgstr ""
-
-#~ msgid "Expression"
-#~ msgstr ""
-
-#~ msgid "Is temporal"
-#~ msgstr ""
-
-#~ msgid "Datetime Format"
-#~ msgstr ""
-
-#~ msgid "Database Expression"
-#~ msgstr ""
-
-#~ msgid "List Metrics"
-#~ msgstr ""
-
-#~ msgid "Show Metric"
-#~ msgstr ""
-
-#~ msgid "Add Metric"
-#~ msgstr ""
-
-#~ msgid "Edit Metric"
-#~ msgstr ""
-
-#~ msgid "SQL Expression"
-#~ msgstr ""
-
-#~ msgid "D3 Format"
-#~ msgstr ""
-
-#~ msgid "Is Restricted"
-#~ msgstr ""
-
-#~ msgid "List Tables"
-#~ msgstr ""
-
-#~ msgid "Show Table"
-#~ msgstr ""
-
-#~ msgid "Add Table"
-#~ msgstr ""
-
-#~ msgid "Edit Table"
-#~ msgstr ""
-
-#~ msgid "Name of the table that exists in the source database"
-#~ msgstr ""
-
-#~ msgid "Schema, as used only in some databases like Postgres, Redshift and DB2"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This fields acts a Superset view, "
-#~ "meaning that Superset will run a "
-#~ "query against this string as a "
-#~ "subquery."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Predicate applied when fetching distinct "
-#~ "value to populate the filter control "
-#~ "component. Supports jinja template syntax. "
-#~ "Applies only when `Enable Filter Select`"
-#~ " is on."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Redirects to this endpoint when clicking"
-#~ " on the table from the table "
-#~ "list"
-#~ msgstr ""
-
-#~ msgid "Changed By"
-#~ msgstr ""
-
-#~ msgid "Database"
-#~ msgstr ""
-
-#~ msgid "Last Changed"
-#~ msgstr ""
-
-#~ msgid "Schema"
-#~ msgstr ""
-
-#~ msgid "Offset"
-#~ msgstr ""
-
-#~ msgid "Table Name"
-#~ msgstr ""
-
-#~ msgid "Fetch Values Predicate"
-#~ msgstr ""
-
-#~ msgid "Main Datetime Column"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Table [{}] could not be found, "
-#~ "please double check your database "
-#~ "connection, schema, and table name"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The table was created. As part of"
-#~ " this two phase configuration process, "
-#~ "you should now click the edit "
-#~ "button by the new table to "
-#~ "configure it."
-#~ msgstr ""
-
-#~ msgid "Profile"
-#~ msgstr ""
-
-#~ msgid "Logout"
-#~ msgstr ""
-
-#~ msgid "Login"
-#~ msgstr ""
-
-#~ msgid "Record Count"
-#~ msgstr ""
-
-#~ msgid "No records found"
-#~ msgstr ""
-
-#~ msgid "Add Filter"
-#~ msgstr ""
-
-#~ msgid "No Access!"
-#~ msgstr ""
-
-#~ msgid "You do not have permissions to access the datasource(s): %(name)s."
-#~ msgstr ""
-
-#~ msgid "Request Permissions"
-#~ msgstr ""
-
-#~ msgid "Cancel"
-#~ msgstr ""
-
-#~ msgid "Dashboards"
-#~ msgstr ""
-
-#~ msgid "Test Connection"
-#~ msgstr ""
+#~ msgid "Manage"
+#~ msgstr "Administrar"
 
 #~ msgid "Datasource %(name)s already exists"
 #~ msgstr ""
 
-#~ msgid "json isn't valid"
-#~ msgstr ""
-
 #~ msgid "Delete"
-#~ msgstr ""
+#~ msgstr "Eliminar"
 
 #~ msgid "Delete all Really?"
-#~ msgstr ""
+#~ msgstr "¿Realmente quieres borrar todo?"
 
 #~ msgid "This endpoint requires the `all_datasource_access` permission"
 #~ msgstr ""
@@ -2721,229 +3458,41 @@ msgstr ""
 #~ "permission"
 #~ msgstr ""
 
-#~ msgid "List Databases"
-#~ msgstr "数据源"
-
-#~ msgid "Show Database"
-#~ msgstr ""
-
-#~ msgid "Add Database"
-#~ msgstr ""
-
-#~ msgid "Edit Database"
-#~ msgstr ""
-
-#~ msgid "Expose this DB in SQL Lab"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Allow users to run synchronous queries,"
-#~ " this is the default and should "
-#~ "work well for queries that can be"
-#~ " executed within a web request scope"
-#~ " (<~1 minute)"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Allow users to run queries, against "
-#~ "an async backend. This assumes that "
-#~ "you have a Celery worker setup as"
-#~ " well as a results backend."
-#~ msgstr ""
-
-#~ msgid "Allow CREATE TABLE AS option in SQL Lab"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "Allow users to run non-SELECT "
-#~ "statements (UPDATE, DELETE, CREATE, ...) "
-#~ "in SQL Lab"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "When allowing CREATE TABLE AS option "
-#~ "in SQL Lab, this option forces the"
-#~ " table to be created in this "
-#~ "schema"
-#~ msgstr ""
-
-#~ msgid "Expose in SQL Lab"
-#~ msgstr ""
-
-#~ msgid "Allow CREATE TABLE AS"
-#~ msgstr ""
-
-#~ msgid "Allow DML"
-#~ msgstr ""
-
-#~ msgid "CTAS Schema"
-#~ msgstr ""
-
-#~ msgid "Creator"
-#~ msgstr ""
-
-#~ msgid "SQLAlchemy URI"
-#~ msgstr ""
-
-#~ msgid "Extra"
-#~ msgstr ""
-
-#~ msgid "Allow Run Sync"
-#~ msgstr ""
-
-#~ msgid "Allow Run Async"
-#~ msgstr ""
-
 #~ msgid "Import Dashboards"
-#~ msgstr ""
-
-#~ msgid "Manage"
-#~ msgstr ""
-
-#~ msgid "User"
-#~ msgstr ""
-
-#~ msgid "User Roles"
-#~ msgstr ""
-
-#~ msgid "Database URL"
-#~ msgstr ""
-
-#~ msgid "Roles to grant"
-#~ msgstr ""
-
-#~ msgid "Created On"
-#~ msgstr ""
+#~ msgstr "Importar Cuadros de Mando"
 
 #~ msgid "Access requests"
-#~ msgstr ""
+#~ msgstr "Solicitudes de Acceso"
+
+#~ msgid "Security"
+#~ msgstr "Seguridad"
 
 #~ msgid "List Slices"
-#~ msgstr ""
+#~ msgstr "Mostrar Segmentos"
 
 #~ msgid "Show Slice"
-#~ msgstr ""
+#~ msgstr "Mostrar Segmento"
 
 #~ msgid "Add Slice"
-#~ msgstr ""
+#~ msgstr "Añadir Segmento"
 
 #~ msgid "Edit Slice"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "These parameters are generated dynamically "
-#~ "when clicking the save or overwrite "
-#~ "button in the explore view. This "
-#~ "JSON object is exposed here for "
-#~ "reference and for power users who "
-#~ "may want to alter specific parameters."
-#~ msgstr ""
-
-#~ msgid "Duration (in seconds) of the caching timeout for this slice."
-#~ msgstr ""
-
-#~ msgid "Last Modified"
-#~ msgstr ""
-
-#~ msgid "Owners"
-#~ msgstr ""
-
-#~ msgid "Parameters"
-#~ msgstr ""
+#~ msgstr "Esitar Segmento"
 
 #~ msgid "Slice"
-#~ msgstr ""
-
-#~ msgid "Name"
-#~ msgstr ""
-
-#~ msgid "Visualization Type"
-#~ msgstr ""
-
-#~ msgid "Slices"
-#~ msgstr ""
-
-#~ msgid "List Dashboards"
-#~ msgstr ""
-
-#~ msgid "Show Dashboard"
-#~ msgstr ""
-
-#~ msgid "Add Dashboard"
-#~ msgstr ""
-
-#~ msgid "Edit Dashboard"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This json object describes the "
-#~ "positioning of the widgets in the "
-#~ "dashboard. It is dynamically generated "
-#~ "when adjusting the widgets size and "
-#~ "positions by using drag & drop in"
-#~ " the dashboard view"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "The css for individual dashboards can"
-#~ " be altered here, or in the "
-#~ "dashboard view where changes are "
-#~ "immediately visible"
-#~ msgstr ""
-
-#~ msgid "To get a readable URL for your dashboard"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This JSON object is generated "
-#~ "dynamically when clicking the save or"
-#~ " overwrite button in the dashboard "
-#~ "view. It is exposed here for "
-#~ "reference and for power users who "
-#~ "may want to alter specific parameters."
-#~ msgstr ""
-
-#~ msgid "Owners is a list of users who can alter the dashboard."
-#~ msgstr ""
-
-#~ msgid "Dashboard"
-#~ msgstr ""
-
-#~ msgid "Title"
-#~ msgstr ""
-
-#~ msgid "Slug"
-#~ msgstr ""
-
-#~ msgid "Modified"
-#~ msgstr ""
-
-#~ msgid "Position JSON"
-#~ msgstr ""
-
-#~ msgid "CSS"
-#~ msgstr ""
-
-#~ msgid "JSON Metadata"
-#~ msgstr ""
-
-#~ msgid "Underlying Tables"
-#~ msgstr ""
+#~ msgstr "Segmento"
 
 #~ msgid "Export"
-#~ msgstr ""
+#~ msgstr "Exportar"
 
 #~ msgid "Export dashboards?"
-#~ msgstr ""
+#~ msgstr "¿Exportar Cuadros de Mando?"
 
-#~ msgid "Action"
-#~ msgstr ""
-
-#~ msgid "dttm"
-#~ msgstr ""
+#~ msgid "Action Log"
+#~ msgstr "Registro Acciones"
 
 #~ msgid "Access was requested"
-#~ msgstr ""
+#~ msgstr "Se ha solicitado Acceso"
 
 #~ msgid ""
 #~ "%(user)s was granted the role %(role)s"
@@ -2974,75 +3523,15 @@ msgstr ""
 #~ msgid "Can't find DruidCluster with cluster_name = '%(name)s'"
 #~ msgstr ""
 
-#~ msgid "Query record was not created as expected."
-#~ msgstr ""
-
-#~ msgid "Template Name"
-#~ msgstr ""
-
-#~ msgid "SQL Editor"
-#~ msgstr ""
+#~ msgid "CSS Templates"
+#~ msgstr "Plantillas CSS"
 
 #~ msgid "SQL Lab"
-#~ msgstr ""
-
-#~ msgid "Query Search"
-#~ msgstr ""
-
-#~ msgid "Status"
-#~ msgstr ""
-
-#~ msgid "Start Time"
-#~ msgstr ""
-
-#~ msgid "End Time"
-#~ msgstr ""
+#~ msgstr "Laboratorio SQL"
 
 #~ msgid "Queries"
-#~ msgstr ""
-
-#~ msgid "List Saved Query"
-#~ msgstr ""
-
-#~ msgid "Show Saved Query"
-#~ msgstr ""
-
-#~ msgid "Add Saved Query"
-#~ msgstr ""
-
-#~ msgid "Edit Saved Query"
-#~ msgstr ""
-
-#~ msgid "Label"
-#~ msgstr ""
-
-#~ msgid "Pop Tab Link"
-#~ msgstr ""
-
-#~ msgid "Changed on"
-#~ msgstr ""
+#~ msgstr "Consultas"
 
 #~ msgid "Saved Queries"
-#~ msgstr ""
-
-#~ msgid "asc"
-#~ msgstr ""
-
-#~ msgid "desc"
-#~ msgstr ""
-
-#~ msgid "No data."
-#~ msgstr ""
-
-#~ msgid "Edit User Information"
-#~ msgstr ""
-
-#~ msgid "Hybrid Expression"
-#~ msgstr ""
-
-#~ msgid "Is Hybrid"
-#~ msgstr ""
-
-#~ msgid "Is Memcached"
-#~ msgstr ""
+#~ msgstr " Consultas Guardadas"
 

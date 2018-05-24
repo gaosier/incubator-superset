@@ -50,6 +50,10 @@ If you are proposing a feature:
 -   Remember that this is a volunteer-driven project, and that
     contributions are welcome :)
 
+### Questions
+
+There is a dedicated [tag](https://stackoverflow.com/questions/tagged/apache-superset) on [stackoverflow](https://stackoverflow.com/). Please use it when asking questions.
+
 ## Pull Request Guidelines
 
 Before you submit a pull request from your forked repo, check that it
@@ -57,15 +61,21 @@ meets these guidelines:
 
 1.  The pull request should include tests, either as doctests,
     unit tests, or both.
-2.  If the pull request adds functionality, the docs should be updated
+2.  Run `npm run lint` and resolve all errors. Run `npm run test` and
+    resolve all test failures.
+3.  Check code coverage by running the following commands in the `assets`
+    directory. Run `npm run cover` to check code coverage on `.js` work, and
+    run `nosetests --with-coverage` to check code coverage on `.py` work. You
+    may have to first run `pip install nose coverage`.     
+4.  If the pull request adds functionality, the docs should be updated
     as part of the same PR. Doc string are often sufficient, make
     sure to follow the sphinx compatible standards.
-3.  The pull request should work for Python 2.7, and ideally python 3.4+.
+5.  The pull request should work for Python 2.7, and ideally python 3.4+.
     ``from __future__ import`` will be required in every `.py` file soon.
-4.  Code will be reviewed by re running the unittests, flake8 and syntax
+6.  Code will be reviewed by re running the unittests, flake8 and syntax
     should be as rigorous as the core Python project.
-5.  Please rebase and resolve all conflicts before submitting.
-6.  If you are asked to update your pull request with some changes there's
+7.  Please rebase and resolve all conflicts before submitting.
+8.  If you are asked to update your pull request with some changes there's
     no need to create a new one. Push your changes to the same branch.
 
 ## Documentation
@@ -85,7 +95,7 @@ Before you start changing the docs, you'll want to
 [fork the Superset project on Github](https://help.github.com/articles/fork-a-repo/).
 Once that new repository has been created, clone it on your local machine:
 
-    git clone git@github.com:your_username/superset.git
+    git clone git@github.com:your_username/incubator-superset.git
 
 At this point, you may also want to create a
 [Python virtual environment](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
@@ -94,10 +104,10 @@ to manage the Python packages you're about to install:
     virtualenv superset-dev
     source superset-dev/bin/activate
 
-Finally, to make changes to the rst files and build the docs using Sphinx, 
+Finally, to make changes to the rst files and build the docs using Sphinx,
 you'll need to install a handful of dependencies from the repo you cloned:
 
-    cd superset
+    cd incubator-superset
     pip install -r dev-reqs-for-docs.txt
 
 To get the feel for how to edit and build the docs, let's edit a file, build
@@ -173,7 +183,7 @@ Check the [OS dependencies](https://superset.incubator.apache.org/installation.h
     source env/bin/activate
 
     # install for development
-    python setup.py develop
+    pip install -e .
 
     # Create an admin user
     fabmanager create-admin --app superset
@@ -255,6 +265,10 @@ superset runserver -d -p 8081
 npm run dev
 ```
 
+#### Upgrading npm packages
+
+Should you add or upgrade a npm package, which involves changing `package.json`, you'll need to re-run `yarn install` and push the newly generated `yarn.lock` file so we get the reproducible build. More information at (https://yarnpkg.com/blog/2016/11/24/lockfiles-for-all/)
+
 ## Testing
 
 Before running python unit tests, please setup local testing environment:
@@ -262,9 +276,15 @@ Before running python unit tests, please setup local testing environment:
 pip install -r dev-reqs.txt
 ```
 
-Python tests can be run with:
+All python tests can be run with:
 
     ./run_tests.sh
+
+Alternatively, you can run a specific test with:
+
+    ./run_specific_test.sh tests.core_tests:CoreTests.test_function_name
+
+Note that before running specific tests, you have to both setup the local testing environment and run all tests.
 
 We use [Mocha](https://mochajs.org/), [Chai](http://chaijs.com/) and [Enzyme](http://airbnb.io/enzyme/) to test Javascript. Tests can be run with:
 
@@ -276,36 +296,11 @@ We use [Mocha](https://mochajs.org/), [Chai](http://chaijs.com/) and [Enzyme](ht
 
 Lint the project with:
 
-    # for python changes
-    flake8 changes tests
-    flake8 changes superset
+    # for python
+    flake8
 
     # for javascript
     npm run lint
-
-## Linting with codeclimate
-Codeclimate is a service we use to measure code quality and test coverage. To get codeclimate's report on your branch, ideally before sending your PR, you can setup codeclimate against your Superset fork. After you push to your fork, you should be able to get the report at http://codeclimate.com . Alternatively, if you prefer to work locally, you can install the codeclimate cli tool.
-
-*Install the codeclimate cli tool*
-```
-curl -L https://github.com/docker/machine/releases/download/v0.7.0/docker-machine-`uname -s`-`uname -m` > /usr/local/bin/docker-machine && chmod +x /usr/local/bin/docker-machine 
-brew install docker
-docker-machine create --driver virtual box default
-docker-machine env default
-eval "$(docker-machine env default)"
-docker pull codeclimate/codeclimate
-brew tap codeclimate/formulae
-brew install codeclimate
-```
-
-*Run the lint command:*
-```
-docker-machine start
-eval "$(docker-machine env default)”
-codeclimate analyze
-```
-More info can be found here: https://docs.codeclimate.com/docs/open-source-free
-
 
 ## API documentation
 
@@ -331,6 +326,8 @@ key is to instrument the strings that need translation using
 a module, all you have to do is to `_("Wrap your strings")` using the
 underscore `_` "function".
 
+We use `import {t, tn, TCT} from locales;` in js, JSX file, locales is in `./superset/assets/javascripts/` directory.
+
 To enable changing language in your environment, you can simply add the
 `LANGUAGES` parameter to your `superset_config.py`. Having more than one
 options here will add a language selection dropdown on the right side of the
@@ -343,14 +340,15 @@ navigation bar.
     }
 
 As per the [Flask AppBuilder documentation] about translation, to create a
-new language dictionary, run the following command:
+new language dictionary, run the following command (where `es` is replaced with
+the language code for your target language):
 
-    pybabel init -i ./babel/messages.pot -d superset/translations -l es
+    pybabel init -i superset/translations/messages.pot -d superset/translations -l es
 
 Then it's a matter of running the statement below to gather all strings that
 need translation
 
-    fabmanager babel-extract --target superset/translations/
+    fabmanager babel-extract --target superset/translations/ --output superset/translations/messages.pot --config superset/translations/babel.cfg -k _ -k __ -k t -k tn -k tct
 
 You can then translate the strings gathered in files located under
 `superset/translation`, where there's one per language. For the translations
@@ -358,6 +356,19 @@ to take effect, they need to be compiled using this command:
 
     fabmanager babel-compile --target superset/translations/
 
+In the case of JS translation, we need to convert the PO file into a JSON file, and we need the global download of the npm package po2json.
+We need to be compiled using this command:
+
+    npm install po2json -g
+
+Execute this command to convert the en PO file into a json file:
+
+    po2json -d superset -f jed1.x superset/translations/en/LC_MESSAGES/messages.po superset/translations/en/LC_MESSAGES/messages.json
+
+If you get errors running `po2json`, you might be running the ubuntu package with the same
+name rather than the nodejs package (they have a different format for the arguments). You
+need to be running the nodejs version, and so if there is a conflict you may need to point
+directly at `/usr/local/bin/po2json` rather than just `po2json`.
 
 ## Adding new datasources
 
@@ -403,10 +414,74 @@ https://github.com/apache/incubator-superset/pull/3013
 
     # copy
     cp -r /tmp/tmp_superset_docs/ ~/incubator-superset-site.git/
- 
+
     # commit and push to `asf-site` branch
     cd ~/incubator-superset-site.git/
     git checkout asf-site
     git add .
     git commit -a -m "New doc version"
     git push origin master
+
+## Publishing a Pypi release
+
+  We create a branch that goes along each minor release `0.24`
+  and micro releases get corresponding tags as in `0.24.0`. Git history should
+  never be altered in release branches.
+  Bug fixes and security-related patches get cherry-picked
+  (usually from master) as in `git cherry-pick -x {SHA}`.
+
+  Following a set of cherries being picked, a release can be pushed to
+  Pypi as follows:
+
+  .. code::
+
+    # branching off of master
+    git checkout -b 0.25
+
+    # cherry-picking a SHA
+    git cherry-pick -x f9d85bd2e1fd9bc233d19c76bed09467522b968a
+    # repeat with other SHAs, don't forget the -x
+
+    # source of thruth for release numbers live in package.json
+    vi superset/assets/package.json
+    # hard code release in file, commit to the release branch
+    git commit -a -m "0.25.0"
+
+    # create the release tag in the release branch
+    git tag 0.25.0
+    git push apache 0.25 --tags
+
+    # check travis to confirm the build succeeded as
+    # you shouldn't assume that a clean cherry will be clean
+    # when landing on a new sundae
+
+    # compile the JS, and push to pypi
+    # to run this part you'll need a pypi account and rights on the
+    # superset package. Committers that want to ship releases
+    # should have this access.
+    # You'll also need a `.pypirc` as specified here:
+    # http://peterdowns.com/posts/first-time-with-pypi.html
+    ./pypi_push.sh
+
+    # publish an update to the CHANGELOG.md for the right version range
+    # looking the latest CHANGELOG entry for the second argument
+    ./gen_changelog.sh 0.22.1 0.25.0
+    # this will overwrite the CHANGELOG.md with only the version range
+    # so you'll want to copy paste that on top of the previous CHANGELOG.md
+    # open a PR against `master`
+
+  In the future we'll start publishing release candidates for minor releases
+  only, but typically not for micro release.
+  The process will be similar to the process described above, expect the
+  tags will be formated `0.25.0rc1`, `0.25.0rc2`, ..., until consensus
+  is reached.
+
+  We should also have a Github PR label process to target the proper
+  release, and tooling helping keeping track of all the cherries and
+  target versions.
+
+  For Apache releases, the process will be a bit heavier and should get
+  documented here. There will be extra steps for signing the binaries,
+  with a PGP key and providing MD5, Apache voting, as well as
+  publishing to Apache's SVN repository. View the ASF docs for more
+  information.

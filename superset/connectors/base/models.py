@@ -1,12 +1,19 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import json
 
 from sqlalchemy import (
-    and_, Column, Integer, String, Text, Boolean,
+    and_, Boolean, Column, Integer, String, Text,
 )
-from sqlalchemy.orm import foreign, relationship
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import foreign, relationship
 
-from superset import utils,db
+from superset import utils,utils_ext
+from superset import db
 from superset.models.core import Slice
 from superset.models.helpers import AuditMixinNullable, ImportMixin
 from flask_babel import lazy_gettext as _
@@ -48,8 +55,10 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         return relationship(
             'Slice',
             primaryjoin=lambda: and_(
-              foreign(Slice.datasource_id) == self.id,
-              foreign(Slice.datasource_type) == self.type))
+                foreign(Slice.datasource_id) == self.id,
+                foreign(Slice.datasource_type) == self.type,
+            ),
+        )
 
     # placeholder for a relationship to a derivative of BaseColumn
     columns = []
@@ -59,7 +68,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
     @property
     def uid(self):
         """Unique id across datasource types"""
-        return "{self.id}__{self.type}".format(**locals())
+        return '{self.id}__{self.type}'.format(**locals())
 
     @property
     def column_names(self):
@@ -71,7 +80,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
 
     @property
     def main_dttm_col(self):
-        return "timestamp"
+        return 'timestamp'
 
     @property
     def connection(self):
@@ -104,7 +113,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         if self.default_endpoint:
             return self.default_endpoint
         else:
-            return "/superset/explore/{obj.type}/{obj.id}/".format(obj=self)
+            return '/superset/explore/{obj.type}/{obj.id}/'.format(obj=self)
 
     @property
     def column_formats(self):
@@ -113,6 +122,13 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             for m in self.metrics
             if m.d3format
         }
+
+    def add_missing_metrics(self, metrics):
+        exisiting_metrics = {m.metric_name for m in self.metrics}
+        for metric in metrics:
+            if metric.metric_name not in exisiting_metrics:
+                metric.table_id = self.id
+                self.metrics += [metric]
 
     @property
     def metrics_combo(self):
@@ -135,13 +151,14 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'connection': self.connection,
             'creator': str(self.created_by),
         }
+
     def filter_columns_metrics(self):
         """
-        处理在有先或者没有切片id时，度量和指标显示的下拉框的值
+        处理在有或者没有切片id时，度量和指标显示的下拉框的值
         :return:
         """
         slice_user_id=getattr(self,'slice_users',None)
-        admin_user_list = utils.get_admin_id_list(db)
+        admin_user_list = utils_ext.get_admin_id_list(db)
         if slice_user_id:
             return [i for i in self.columns if (i.created_by_fk in slice_user_id) or (i.created_by_fk in admin_user_list)],\
                     [i for i in self.metrics if (i.created_by_fk in slice_user_id) or (i.created_by_fk in admin_user_list)]
@@ -153,6 +170,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
                 admin_user_list.append(g.user.id)
                 return [i for i in self.columns if i.created_by_fk in admin_user_list],\
                         [i for i in self.metrics if i.created_by_fk in admin_user_list]
+
     @property
     def data(self):
         """Data representation of the datasource sent to the frontend"""
@@ -179,15 +197,22 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             o.column_name: o.verbose_name or o.column_name
             for o in filterd_columns
         })
-        verbose_map.update({'__timestamp':"时间分组"})
+        verbose_map.update({'__timestamp': '时间分组'})
         gb_cols=[(i.column_name, i.verbose_name if i.verbose_name else i.column_name) \
          for i in sorted(filterd_columns, key=lambda x: x.order_number) if i.groupby]
         columns=[o.data for o in filterd_columns]
-        columns.append({'column_name':'__timestamp', 'verbose_name':'时间分组','groupby':True})
+        columns.append({'column_name': '__timestamp', 'verbose_name': '时间分组', 'groupby': True})
+        all_cols_1 = []
+        for col in sorted(filterd_columns,key=lambda x:x.order_number):
+            if col.is_active:
+                all_cols_1.append({"column_name": col.column_name, "expression": col.expression, "type": col.type,
+                                   "is_dttm": col.is_dttm})
+
         return {
             # 'all_cols': utils.choicify(self.column_names),
             'all_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.is_active],
             'column_formats': self.column_formats,
+            'database': self.database.data,  # pylint: disable=no-member
             'edit_url': self.url,
             'filter_select': self.filter_select_enabled,
             # 'filterable_cols': utils.choicify(self.filterable_column_names),
@@ -209,6 +234,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'metrics': [o.data for o in filterd_metrics],
             'columns': columns,
             'verbose_map': verbose_map,
+            'all_cols_1': all_cols_1
         }
 
     def get_query_str(self, query_obj):
@@ -252,6 +278,7 @@ class BaseColumn(AuditMixinNullable, ImportMixin):
     min = Column(Boolean, default=False)
     filterable = Column(Boolean, default=False)
     description = Column(Text)
+    is_dttm = None
 
     # [optional] Set this to support import/export functionality
     export_fields = []
@@ -261,7 +288,7 @@ class BaseColumn(AuditMixinNullable, ImportMixin):
 
     num_types = (
         'DOUBLE', 'FLOAT', 'INT', 'BIGINT',
-        'LONG', 'REAL', 'NUMERIC', 'DECIMAL'
+        'LONG', 'REAL', 'NUMERIC', 'DECIMAL', 'MONEY',
     )
     date_types = ('DATE', 'TIME', 'DATETIME')
     str_types = ('VARCHAR', 'STRING', 'CHAR')
@@ -295,7 +322,7 @@ class BaseColumn(AuditMixinNullable, ImportMixin):
     def data(self):
         attrs = (
             'column_name', 'verbose_name', 'description', 'expression',
-            'filterable', 'groupby')
+            'filterable', 'groupby', 'is_dttm', 'type')
         return {s: getattr(self, s) for s in attrs}
 
 
@@ -312,6 +339,7 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
     description = Column(Text)
     is_restricted = Column(Boolean, default=False, nullable=True)
     d3format = Column(String(128))
+    warning_text = Column(Text)
 
     """
     The interface should also declare a datasource relationship pointing
@@ -326,10 +354,6 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
         backref=backref('metrics', cascade='all, delete-orphan'),
         enable_typechecks=False)
     """
-
-    def __repr__(self):
-        return self.metric_name
-
     @property
     def perm(self):
         raise NotImplementedError()
@@ -340,5 +364,7 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
 
     @property
     def data(self):
-        attrs = ('metric_name', 'verbose_name', 'description', 'expression')
+        attrs = (
+            'metric_name', 'verbose_name', 'description', 'expression',
+            'warning_text')
         return {s: getattr(self, s) for s in attrs}

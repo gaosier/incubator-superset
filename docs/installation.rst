@@ -8,6 +8,32 @@ Superset is tested against Python ``2.7`` and Python ``3.4``.
 Airbnb currently uses 2.7.* in production. We do not plan on supporting
 Python ``2.6``.
 
+Cloud-native!
+-------------
+
+Superset is designed to be highly available. It is
+"cloud-native" as it has been designed scale out in large,
+distributed environments, and works well inside containers.
+While you can easily
+test drive Superset on a modest setup or simply on your laptop,
+there's virtually no limit around scaling out the platform.
+Superset is also cloud-native in the sense that it is
+flexible and lets you choose your web server (Gunicorn, Nginx, Apache),
+your metadata database engine (MySQL, Postgres, MariaDB, ...),
+your message queue (Redis, RabbitMQ, SQS, ...),
+your results backend (S3, Redis, Memcached, ...), your caching layer
+(memcached, Redis, ...), works well with services like NewRelic, StatsD and
+DataDog, and has the ability to run analytic workloads against
+most popular database technologies.
+
+Superset is battle tested in large environments with hundreds
+of concurrent users. Airbnb's production environment runs inside
+Kubernetes and serves 600+ daily active users viewing over 100K charts a
+day.
+
+The Superset web server and the Superset Celery workers (optional)
+are stateless, so you can scale out by running on as many servers
+as needed.
 
 OS dependencies
 ---------------
@@ -27,6 +53,12 @@ the required dependencies are installed: ::
 
     sudo apt-get install build-essential libssl-dev libffi-dev python-dev python-pip libsasl2-dev libldap2-dev
 
+**Ubuntu 16.04** If you have python3.5 installed alongside with python2.7, as is default on **Ubuntu 16.04 LTS**, run this command also
+
+    sudo apt-get install build-essential libssl-dev libffi-dev python3.5-dev python-pip libsasl2-dev libldap2-dev
+
+otherwhise build for ``cryptography`` fails.
+
 For **Fedora** and **RHEL-derivatives**, the following command will ensure
 that the required dependencies are installed: ::
 
@@ -36,7 +68,7 @@ that the required dependencies are installed: ::
 **OSX**, system python is not recommended. brew's python also ships with pip  ::
 
     brew install pkg-config libffi openssl python
-    env LDFLAGS="-L$(brew --prefix openssl)/lib" CFLAGS="-I$(brew --prefix openssl)/include" pip install cryptography==1.7.2
+    env LDFLAGS="-L$(brew --prefix openssl)/lib" CFLAGS="-I$(brew --prefix openssl)/include" pip install cryptography==1.9
 
 **Windows** isn't officially supported at this point, but if you want to
 attempt it, download `get-pip.py <https://bootstrap.pypa.io/get-pip.py>`_, and run ``python get-pip.py`` which may need admin access. Then run the following: ::
@@ -93,10 +125,7 @@ Follow these few simple steps to install Superset.::
     # Create default roles and permissions
     superset init
 
-    # Start the web server on port 8088, use -p to bind to another port
-    superset runserver
-
-    # To start a development web server, use the -d switch
+    # To start a development web server on port 8088, use -p to bind to another port
     # superset runserver -d
 
 
@@ -107,10 +136,60 @@ the credential you entered while creating the admin account, and navigate to
 your datasources for Superset to be aware of, and they should show up in
 `Menu -> Datasources`, from where you can start playing with your data!
 
-Please note that *gunicorn*, Superset default application server, does not
-work on Windows so you need to use the development web server.
-The development web server though is not intended to be used on production systems
-so better use a supported platform that can run *gunicorn*.
+A proper WSGI HTTP Server
+-------------------------
+
+While you can setup Superset to run on Nginx or Apache, many use
+Gunicorn, preferably in **async mode**, which allows for impressive
+concurrency even and is fairly easy to install and configure. Please
+refer to the
+documentation of your preferred technology to set up this Flask WSGI
+application in a way that works well in your environment. Here's an **async**
+setup known to work well in production: ::
+
+ 　gunicorn \
+		-w 10 \
+		-k gevent \
+		--timeout 120 \
+		-b  0.0.0.0:6666 \
+		--limit-request-line 0 \
+		--limit-request-field_size 0 \
+		--statsd-host localhost:8125 \
+		superset:app
+
+Refer to the
+`Gunicorn documentation <http://docs.gunicorn.org/en/stable/design.html>`_
+for more information.
+
+Note that *gunicorn* does not
+work on Windows so the `superset runserver` command is not expected to work
+in that context. Also note that the development web
+server (`superset runserver -d`) is not intended for production use.
+
+If not using gunicorn, you may want to disable the use of flask-compress
+by setting `ENABLE_FLASK_COMPRESS = False` in your `superset_config.py`
+
+Flask-AppBuilder Permissions
+----------------------------
+
+By default every time the Flask-AppBuilder (FAB) app is initialized the
+permissions and views are added automatically to the backend and associated with
+the ‘Admin’ role. The issue however is when you are running multiple concurrent
+workers this creates a lot of contention and race conditions when defining
+permissions and views.
+
+To alleviate this issue, the automatic updating of permissions can be disabled
+by setting the :envvar:`SUPERSET_UPDATE_PERMS` environment variable to `0`.
+The value `1` enables it, `0` disables it. Note if undefined the functionality
+is enabled to maintain backwards compatibility.
+
+In a production environment initialization could take on the following form:
+
+  export SUPERSET_UPDATE_PERMS=1
+  superset init
+
+  export SUPERSET_UPDATE_PERMS=0
+  gunicorn -w 10 ... superset:app
 
 Configuration behind a load balancer
 ------------------------------------
@@ -125,6 +204,11 @@ If the load balancer is inserting X-Forwarded-For/X-Forwarded-Proto headers, you
 should set `ENABLE_PROXY_FIX = True` in the superset config file to extract and use
 the headers.
 
+In case that the reverse proxy is used for providing ssl encryption,
+an explicit definition of the `X-Forwarded-Proto` may be required.
+For the Apache webserver this can be set as follows: ::
+
+　RequestHeader set X-Forwarded-Proto "https"
 
 Configuration
 -------------
@@ -137,7 +221,6 @@ of the parameters you can copy / paste in that configuration module: ::
     # Superset specific config
     #---------------------------------------------------------
     ROW_LIMIT = 5000
-    SUPERSET_WORKERS = 4
 
     SUPERSET_WEBSERVER_PORT = 8088
     #---------------------------------------------------------
@@ -157,20 +240,39 @@ of the parameters you can copy / paste in that configuration module: ::
 
     # Flask-WTF flag for CSRF
     WTF_CSRF_ENABLED = True
+    # Add endpoints that need to be exempt from CSRF protection
+    WTF_CSRF_EXEMPT_LIST = []
+    # A CSRF token that expires in 1 year
+    WTF_CSRF_TIME_LIMIT = 60 * 60 * 24 * 365
 
     # Set this API key to enable Mapbox visualizations
     MAPBOX_API_KEY = ''
 
-This file also allows you to define configuration parameters used by
-Flask App Builder, the web framework used by Superset. Please consult
+All the parameters and default values defined in
+https://github.com/apache/incubator-superset/blob/master/superset/config.py
+can be altered in your local ``superset_config.py`` .
+Administrators will want to
+read through the file to understand what can be configured locally
+as well as the default values in place.
+
+Since ``superset_config.py`` acts as a Flask configuration module, it
+can be used to alter the settings Flask itself,
+as well as Flask extensions like ``flask-wtf``, ``flask-cache``,
+``flask-migrate``, and ``flask-appbuilder``. Flask App Builder, the web
+framework used by Superset offers many configuration settings. Please consult
 the `Flask App Builder Documentation
 <http://flask-appbuilder.readthedocs.org/en/latest/config.html>`_
-for more information on how to configure Superset.
+for more information on how to configure it.
 
-Please make sure to change:
+Make sure to change:
 
 * *SQLALCHEMY_DATABASE_URI*, by default it is stored at *~/.superset/superset.db*
 * *SECRET_KEY*, to a long random string
+
+In case you need to exempt endpoints from CSRF, e.g. you are running a custom
+auth postback endpoint, you can add them to *WTF_CSRF_EXEMPT_LIST*
+
+     WTF_CSRF_EXEMPT_LIST = ['']
 
 Database dependencies
 ---------------------
@@ -214,6 +316,8 @@ Here's a list of some of the recommended packages.
 |  ClickHouse   | ``pip install                       | ``clickhouse://``                               |
 |               | sqlalchemy-clickhouse``             |                                                 |
 +---------------+-------------------------------------+-------------------------------------------------+
+|  Kylin        | ``pip install kylinpy``             | ``kylin://``                                    |
++---------------+-------------------------------------+-------------------------------------------------+
 
 Note that many other database are supported, the main criteria being the
 existence of a functional SqlAlchemy dialect and Python driver. Googling
@@ -222,10 +326,6 @@ database you want to connect to should get you to the right place.
 
 (AWS) Athena
 ------------
-
-This currently relies on an unreleased future version of `PyAthenaJDBC <https://github.com/laughingman7743/PyAthenaJDBC>`_. If you're adventurous or simply impatient, you can install directly from git: ::
-
-    pip install git+https://github.com/laughingman7743/PyAthenaJDBC@support_sqlalchemy
 
 The connection string for Athena looks like this ::
 
@@ -256,6 +356,16 @@ For setting your timeouts, this is done in the Superset metadata and goes
 up the "timeout searchpath", from your slice configuration, to your
 data source's configuration, to your database's and ultimately falls back
 into your global default defined in ``CACHE_CONFIG``.
+	
+.. code-block:: python
+
+    CACHE_CONFIG = {
+	    'CACHE_TYPE': 'redis',
+	    'CACHE_DEFAULT_TIMEOUT': 60 * 60 * 24, # 1 day default (in secs)
+	    'CACHE_KEY_PREFIX': 'superset_results',
+	    'CACHE_REDIS_URL': 'redis://localhost:6379/0',
+	}
+
 
 
 Deeper SQLAlchemy integration
@@ -284,6 +394,24 @@ on top of the **database**. For Superset to connect to a specific schema,
 there's a **schema** parameter you can set in the table form.
 
 
+External Password store for SQLAlchemy connections
+--------------------------------------------------
+It is possible to use an external store for you database passwords. This is
+useful if you a running a custom secret distribution framework and do not wish
+to store secrets in Superset's meta database.
+
+Example:
+Write a function that takes a single argument of type ``sqla.engine.url`` and returns
+the password for the given connection string. Then set ``SQLALCHEMY_CUSTOM_PASSWORD_STORE``
+in your config file to point to that function. ::
+
+    def example_lookup_password(url):
+        secret = <<get password from external framework>>
+        return 'secret'
+
+    SQLALCHEMY_CUSTOM_PASSWORD_STORE = example_lookup_password
+
+
 SSL Access to databases
 -----------------------
 This example worked with a MySQL database that requires SSL. The configuration
@@ -305,10 +433,10 @@ Druid
 -----
 
 * From the UI, enter the information about your clusters in the
-  ``Admin->Clusters`` menu by hitting the + sign.
+  `Sources -> Druid Clusters` menu by hitting the + sign.
 
 * Once the Druid cluster connection information is entered, hit the
-  ``Admin->Refresh Metadata`` menu item to populate
+  `Sources -> Refresh Druid Metadata` menu item to populate
 
 * Navigate to your datasources
 
@@ -317,7 +445,7 @@ metadata from your Druid cluster(s)
 
 
 CORS
------
+----
 
 The extra CORS Dependency must be installed:
 
@@ -379,8 +507,8 @@ execute beyond the typical web request's timeout (30-60 seconds), it is
 necessary to configure an asynchronous backend for Superset which consist of:
 
 * one or many Superset worker (which is implemented as a Celery worker), and
-  can be started with the ``superset worker`` command, run
-  ``superset worker --help`` to view the related options
+  can be started with the ``celery worker`` command, run
+  ``celery worker --help`` to view the related options.
 * a celery broker (message queue) for which we recommend using Redis
   or RabbitMQ
 * a results backend that defines where the worker will persist the query
@@ -399,6 +527,10 @@ have the same configuration.
         CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
 
     CELERY_CONFIG = CeleryConfig
+
+To start a Celery worker to leverage the configuration run: ::
+
+    celery worker --app=superset.sql_lab:celery_app --pool=gevent -Ofair
 
 To setup a result backend, you need to pass an instance of a derivative
 of ``werkzeug.contrib.cache.BaseCache`` to the ``RESULTS_BACKEND``
@@ -421,6 +553,11 @@ look something like:
     RESULTS_BACKEND = RedisCache(
         host='localhost', port=6379, key_prefix='superset_results')
 
+Note that it's important that all the worker nodes and web servers in
+the Superset cluster share a common metadata database.
+This means that SQLite will not work in this context since it has
+limited support for concurrency and
+typically lives on the local file system.
 
 Also note that SQL Lab supports Jinja templating in queries, and that it's
 possible to overload
@@ -434,6 +571,15 @@ in this dictionary are made available for users to use in their SQL.
         'my_crazy_macro': lambda x: x*2,
     }
 
+
+Flower is a web based tool for monitoring the Celery cluster which you can
+install from pip: ::
+
+    pip install flower
+
+and run via: ::
+
+    celery flower --app=superset.sql_lab:celery_app
 
 Making your own build
 ---------------------
@@ -462,7 +608,7 @@ at the ``/simple_page`` url. This can allow you to run other things such
 as custom data visualization applications alongside Superset, on the
 same server.
 
-..code ::
+.. code-block:: python
 
     from flask import Blueprint
     simple_page = Blueprint('simple_page', __name__,
@@ -473,3 +619,20 @@ same server.
         return "Ok"
 
     BLUEPRINTS = [simple_page]
+
+StatsD logging
+--------------
+
+Superset is instrumented to log events to StatsD if desired. Most endpoints hit
+are logged as well as key events like query start and end in SQL Lab.
+
+To setup StatsD logging, it's a matter of configuring the logger in your
+``superset_config.py``.
+
+.. code-block:: python
+
+    from superset.stats_logger import StatsdStatsLogger
+    STATS_LOGGER = StatsdStatsLogger(host='localhost', port=8125, prefix='superset')
+
+Note that it's also possible to implement you own logger by deriving
+``superset.stats_logger.BaseStatsLogger``.

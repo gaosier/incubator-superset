@@ -1,0 +1,1464 @@
+# Translations template for PROJECT.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-04-18 18:15+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.3\n"
+
+#: superset/db_engine_specs.py:290 superset/db_engine_specs.py:349
+#: superset/db_engine_specs.py:369 superset/db_engine_specs.py:421
+#: superset/db_engine_specs.py:474 superset/db_engine_specs.py:505
+#: superset/db_engine_specs.py:557 superset/db_engine_specs.py:1107
+#: superset/db_engine_specs.py:1149 superset/db_engine_specs.py:1204
+#: superset/db_engine_specs.py:1249 superset/db_engine_specs.py:1282
+msgid "Time Column"
+msgstr ""
+
+#: superset/db_engine_specs.py:291 superset/db_engine_specs.py:370
+#: superset/db_engine_specs.py:475 superset/db_engine_specs.py:506
+#: superset/db_engine_specs.py:558 superset/db_engine_specs.py:1108
+#: superset/db_engine_specs.py:1150 superset/db_engine_specs.py:1250
+msgid "second"
+msgstr ""
+
+#: superset/db_engine_specs.py:293 superset/db_engine_specs.py:350
+#: superset/db_engine_specs.py:374 superset/db_engine_specs.py:479
+#: superset/db_engine_specs.py:508 superset/db_engine_specs.py:561
+#: superset/db_engine_specs.py:1111 superset/db_engine_specs.py:1153
+#: superset/db_engine_specs.py:1205 superset/db_engine_specs.py:1251
+#: superset/db_engine_specs.py:1283
+msgid "minute"
+msgstr ""
+
+#: superset/db_engine_specs.py:295 superset/db_engine_specs.py:351
+#: superset/db_engine_specs.py:379 superset/db_engine_specs.py:422
+#: superset/db_engine_specs.py:482 superset/db_engine_specs.py:509
+#: superset/db_engine_specs.py:564 superset/db_engine_specs.py:1120
+#: superset/db_engine_specs.py:1156 superset/db_engine_specs.py:1214
+#: superset/db_engine_specs.py:1252 superset/db_engine_specs.py:1284
+msgid "hour"
+msgstr ""
+
+#: superset/db_engine_specs.py:297 superset/db_engine_specs.py:352
+#: superset/db_engine_specs.py:385 superset/db_engine_specs.py:425
+#: superset/db_engine_specs.py:485 superset/db_engine_specs.py:510
+#: superset/db_engine_specs.py:567 superset/db_engine_specs.py:1123
+#: superset/db_engine_specs.py:1159 superset/db_engine_specs.py:1217
+#: superset/db_engine_specs.py:1253 superset/db_engine_specs.py:1285
+msgid "day"
+msgstr ""
+
+#: superset/db_engine_specs.py:299 superset/db_engine_specs.py:353
+#: superset/db_engine_specs.py:392 superset/db_engine_specs.py:426
+#: superset/db_engine_specs.py:486 superset/db_engine_specs.py:511
+#: superset/db_engine_specs.py:570 superset/db_engine_specs.py:1126
+#: superset/db_engine_specs.py:1162 superset/db_engine_specs.py:1254
+#: superset/db_engine_specs.py:1286
+msgid "week"
+msgstr ""
+
+#: superset/db_engine_specs.py:301 superset/db_engine_specs.py:354
+#: superset/db_engine_specs.py:395 superset/db_engine_specs.py:429
+#: superset/db_engine_specs.py:489 superset/db_engine_specs.py:513
+#: superset/db_engine_specs.py:573 superset/db_engine_specs.py:1129
+#: superset/db_engine_specs.py:1165 superset/db_engine_specs.py:1220
+#: superset/db_engine_specs.py:1255 superset/db_engine_specs.py:1287
+msgid "month"
+msgstr ""
+
+#: superset/db_engine_specs.py:303 superset/db_engine_specs.py:355
+#: superset/db_engine_specs.py:398 superset/db_engine_specs.py:492
+#: superset/db_engine_specs.py:515 superset/db_engine_specs.py:576
+#: superset/db_engine_specs.py:1132 superset/db_engine_specs.py:1168
+#: superset/db_engine_specs.py:1223 superset/db_engine_specs.py:1256
+#: superset/db_engine_specs.py:1288
+msgid "quarter"
+msgstr ""
+
+#: superset/db_engine_specs.py:305 superset/db_engine_specs.py:356
+#: superset/db_engine_specs.py:403 superset/db_engine_specs.py:495
+#: superset/db_engine_specs.py:516 superset/db_engine_specs.py:587
+#: superset/db_engine_specs.py:1135 superset/db_engine_specs.py:1226
+#: superset/db_engine_specs.py:1258 superset/db_engine_specs.py:1289
+msgid "year"
+msgstr ""
+
+#: superset/db_engine_specs.py:498 superset/db_engine_specs.py:518
+msgid "week_start_monday"
+msgstr ""
+
+#: superset/db_engine_specs.py:579 superset/db_engine_specs.py:1171
+msgid "week_ending_saturday"
+msgstr ""
+
+#: superset/db_engine_specs.py:583 superset/db_engine_specs.py:1175
+msgid "week_start_sunday"
+msgstr ""
+
+#: superset/db_engine_specs.py:1114 superset/db_engine_specs.py:1208
+msgid "5 minute"
+msgstr ""
+
+#: superset/db_engine_specs.py:1117
+msgid "half hour"
+msgstr ""
+
+#: superset/db_engine_specs.py:1211
+msgid "10 minute"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:276 superset/forms.py:55
+msgid "Table Name"
+msgstr ""
+
+#: superset/forms.py:56
+msgid "Name of table to be created from csv data."
+msgstr ""
+
+#: superset/forms.py:60
+msgid "CSV File"
+msgstr ""
+
+#: superset/forms.py:61
+msgid "Select a CSV file to be uploaded to a database."
+msgstr ""
+
+#: superset/forms.py:63
+msgid "CSV Files Only!"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:269 superset/forms.py:65
+#: superset/views/core.py:279 superset/views/sql_lab.py:23
+#: superset/views/sql_lab.py:60
+msgid "Database"
+msgstr ""
+
+#: superset/forms.py:69
+msgid "Delimiter"
+msgstr ""
+
+#: superset/forms.py:70
+msgid "Delimiter used by CSV file (for whitespace use \\s+)."
+msgstr ""
+
+#: superset/forms.py:74
+msgid "Table Exists"
+msgstr ""
+
+#: superset/forms.py:75
+msgid ""
+"If table exists do one of the following: Fail (do nothing), Replace (drop"
+" and recreate table) or Append (insert data)."
+msgstr ""
+
+#: superset/forms.py:80
+msgid "Fail"
+msgstr ""
+
+#: superset/forms.py:80
+msgid "Replace"
+msgstr ""
+
+#: superset/forms.py:81
+msgid "Append"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:272 superset/forms.py:84
+msgid "Schema"
+msgstr ""
+
+#: superset/forms.py:85
+msgid "Specify a schema (if database flavour supports this)."
+msgstr ""
+
+#: superset/forms.py:90
+msgid "Header Row"
+msgstr ""
+
+#: superset/forms.py:91
+msgid ""
+"Row containing the headers to use as column names (0 is first line of "
+"data). Leave empty if there is no header row."
+msgstr ""
+
+#: superset/forms.py:99
+msgid "Index Column"
+msgstr ""
+
+#: superset/forms.py:100
+msgid ""
+"Column to use as the row labels of the dataframe. Leave empty if no index"
+" column."
+msgstr ""
+
+#: superset/forms.py:107
+msgid "Mangle Duplicate Columns"
+msgstr ""
+
+#: superset/forms.py:108
+msgid "Specify duplicate columns as \"X.0, X.1\"."
+msgstr ""
+
+#: superset/forms.py:110
+msgid "Skip Initial Space"
+msgstr ""
+
+#: superset/forms.py:111
+msgid "Skip spaces after delimiter."
+msgstr ""
+
+#: superset/forms.py:113
+msgid "Skip Rows"
+msgstr ""
+
+#: superset/forms.py:114
+msgid "Number of rows to skip at start of file."
+msgstr ""
+
+#: superset/forms.py:119
+msgid "Rows to Read"
+msgstr ""
+
+#: superset/forms.py:120
+msgid "Number of rows of file to read."
+msgstr ""
+
+#: superset/forms.py:125
+msgid "Skip Blank Lines"
+msgstr ""
+
+#: superset/forms.py:126
+msgid "Skip blank lines rather than interpreting them as NaN values."
+msgstr ""
+
+#: superset/forms.py:130
+msgid "Parse Dates"
+msgstr ""
+
+#: superset/forms.py:131
+msgid "A comma separated list of columns that should be parsed as dates."
+msgstr ""
+
+#: superset/forms.py:136
+msgid "Infer Datetime Format"
+msgstr ""
+
+#: superset/forms.py:137
+msgid "Use Pandas to interpret the datetime format automatically."
+msgstr ""
+
+#: superset/forms.py:141
+msgid "Decimal Character"
+msgstr ""
+
+#: superset/forms.py:142
+msgid "Character to interpret as decimal point."
+msgstr ""
+
+#: superset/forms.py:147
+msgid "Dataframe Index"
+msgstr ""
+
+#: superset/forms.py:148
+msgid "Write dataframe index as a column."
+msgstr ""
+
+#: superset/forms.py:150
+msgid "Column Label(s)"
+msgstr ""
+
+#: superset/forms.py:151
+msgid ""
+"Column label for index column(s). If None is given and Dataframe Index is"
+" True, Index Names are used."
+msgstr ""
+
+#: superset/connectors/druid/views.py:54 superset/connectors/sqla/models.py:206
+#: superset/connectors/sqla/views.py:91 superset/utils_ext.py:65
+msgid "Count Distinct"
+msgstr ""
+
+#: superset/viz.py:58
+msgid "Viz is missing a datasource"
+msgstr ""
+
+#: superset/viz.py:177 superset/viz.py:517
+msgid "Pick a granularity in the Time section or uncheck 'Include Time'"
+msgstr ""
+
+#: superset/viz.py:299
+msgid "From date cannot be larger than to date"
+msgstr ""
+
+#: superset/viz.py:505
+msgid "Table View"
+msgstr ""
+
+#: superset/viz.py:526
+msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
+msgstr ""
+
+#: superset/viz.py:612
+msgid "Time Table View"
+msgstr ""
+
+#: superset/viz.py:621 superset/viz.py:1532
+msgid "Pick at least one metric"
+msgstr ""
+
+#: superset/viz.py:624
+msgid "When using 'Group By' you are limited to use a single metric"
+msgstr ""
+
+#: superset/viz.py:653
+msgid "Pivot Table"
+msgstr ""
+
+#: superset/viz.py:670
+msgid "Please choose at least one \"Group by\" field "
+msgstr ""
+
+#: superset/viz.py:672
+msgid "Please choose at least one metric"
+msgstr ""
+
+#: superset/viz.py:676
+msgid "'Group By' and 'Columns' can't overlap"
+msgstr ""
+
+#: superset/viz.py:678 superset/viz.py:1536
+msgid "You can only choose one include_time"
+msgstr ""
+
+#: superset/viz.py:757
+msgid "Markup"
+msgstr ""
+
+#: superset/viz.py:779
+msgid "Separator"
+msgstr ""
+
+#: superset/viz.py:791
+msgid "Word Cloud"
+msgstr ""
+
+#: superset/viz.py:814
+msgid "Treemap"
+msgstr ""
+
+#: superset/viz.py:840
+msgid "Calendar Heatmap"
+msgstr ""
+
+#: superset/viz.py:898
+msgid "Box Plot"
+msgstr ""
+
+#: superset/viz.py:987
+msgid "Bubble Chart"
+msgstr ""
+
+#: superset/viz.py:1011
+msgid "Pick a metric for x, y and size"
+msgstr ""
+
+#: superset/viz.py:1037
+msgid "Bullet Chart"
+msgstr ""
+
+#: superset/viz.py:1063
+msgid "Pick a metric to display"
+msgstr ""
+
+#: superset/viz.py:1086
+msgid "Big Number with Trendline"
+msgstr ""
+
+#: superset/viz.py:1094 superset/viz.py:1123
+msgid "Pick a metric!"
+msgstr ""
+
+#: superset/viz.py:1115
+msgid "Big Number"
+msgstr ""
+
+#: superset/viz.py:1142
+msgid "Time Series - Line Chart"
+msgstr ""
+
+#: superset/viz.py:1205 superset/viz.py:1369
+msgid "Pick a time granularity for your time series"
+msgstr ""
+
+#: superset/viz.py:1283
+msgid ""
+"`Since` and `Until` time bounds should be specified when using the `Time "
+"Shift` feature."
+msgstr ""
+
+#: superset/viz.py:1312
+msgid "Time Series - Dual Axis Line Chart"
+msgstr ""
+
+#: superset/viz.py:1322
+msgid "Pick a metric for left axis!"
+msgstr ""
+
+#: superset/viz.py:1324
+msgid "Pick a metric for right axis!"
+msgstr ""
+
+#: superset/viz.py:1326
+msgid "Please choose different metrics on left and right axis"
+msgstr ""
+
+#: superset/viz.py:1387
+msgid "Time Series - Bar Chart"
+msgstr ""
+
+#: superset/viz.py:1396
+msgid "Time Series - Period Pivot"
+msgstr ""
+
+#: superset/viz.py:1436
+msgid "Time Series - Percent Change"
+msgstr ""
+
+#: superset/viz.py:1444
+msgid "Time Series - Stacked"
+msgstr ""
+
+#: superset/viz.py:1453
+msgid "Distribution - NVD3 - Pie Chart"
+msgstr ""
+
+#: superset/viz.py:1468
+msgid "The number of metric should be only one"
+msgstr ""
+
+#: superset/viz.py:1494
+msgid "Histogram"
+msgstr ""
+
+#: superset/viz.py:1504
+msgid "Must have one numeric column specified"
+msgstr ""
+
+#: superset/viz.py:1519
+msgid "Distribution - Bar Chart"
+msgstr ""
+
+#: superset/viz.py:1530
+msgid "Can't have overlap between Series and Breakdowns"
+msgstr ""
+
+#: superset/viz.py:1534
+msgid "Pick at least one field for [Series]"
+msgstr ""
+
+#: superset/viz.py:1595
+msgid "Sunburst"
+msgstr ""
+
+#: superset/viz.py:1626
+msgid "Sankey"
+msgstr ""
+
+#: superset/viz.py:1633
+msgid "Pick exactly 2 columns as [Source / Target]"
+msgstr ""
+
+#: superset/viz.py:1664
+msgid ""
+"There's a loop in your Sankey, please provide a tree. Here's a faulty "
+"link: {}"
+msgstr ""
+
+#: superset/viz.py:1675 superset/viz.py:1696
+msgid "Directed Force Layout"
+msgstr ""
+
+#: superset/viz.py:1682
+msgid "Pick exactly 2 columns to 'Group By'"
+msgstr ""
+
+#: superset/viz.py:1729
+msgid "Country Map"
+msgstr ""
+
+#: superset/viz.py:1757
+msgid "World Map"
+msgstr ""
+
+#: superset/viz.py:1807
+msgid "Filters"
+msgstr ""
+
+#: superset/viz.py:1828
+msgid "Pick at least one filter field"
+msgstr ""
+
+#: superset/viz.py:1853
+msgid "iFrame"
+msgstr ""
+
+#: superset/viz.py:1873
+msgid "Parallel Coordinates"
+msgstr ""
+
+#: superset/viz.py:1898
+msgid "Heatmap"
+msgstr ""
+
+#: superset/viz.py:1957
+msgid "Horizon Charts"
+msgstr ""
+
+#: superset/viz.py:1968
+msgid "Mapbox"
+msgstr ""
+
+#: superset/viz.py:1983
+msgid "Must have a [Group By] column to have 'count' as the [Label]"
+msgstr ""
+
+#: superset/viz.py:1996
+msgid "Choice of [Label] must be present in [Group By]"
+msgstr ""
+
+#: superset/viz.py:2001
+msgid "Choice of [Point Radius] must be present in [Group By]"
+msgstr ""
+
+#: superset/viz.py:2006
+msgid "[Longitude] and [Latitude] columns must be present in [Group By]"
+msgstr ""
+
+#: superset/viz.py:2075
+msgid "Deck.gl - Multiple Layers"
+msgstr ""
+
+#: superset/viz.py:2111 superset/viz.py:2124
+msgid "Bad spatial key"
+msgstr ""
+
+#: superset/viz.py:2205
+msgid "Deck.gl - Scatter plot"
+msgstr ""
+
+#: superset/viz.py:2247
+msgid "Deck.gl - Screen Grid"
+msgstr ""
+
+#: superset/viz.py:2262
+msgid "Deck.gl - 3D Grid"
+msgstr ""
+
+#: superset/viz.py:2277
+msgid "Deck.gl - Paths"
+msgstr ""
+
+#: superset/viz.py:2310
+msgid "Deck.gl - Polygon"
+msgstr ""
+
+#: superset/viz.py:2318
+msgid "Deck.gl - 3D HEX"
+msgstr ""
+
+#: superset/viz.py:2333
+msgid "Deck.gl - GeoJSON"
+msgstr ""
+
+#: superset/viz.py:2352
+msgid "Deck.gl - Arc"
+msgstr ""
+
+#: superset/viz.py:2376
+msgid "Event flow"
+msgstr ""
+
+#: superset/viz.py:2407
+msgid "Time Series - Paired t-test"
+msgstr ""
+
+#: superset/viz.py:2465
+msgid "Time Series - Nightingale Rose Chart"
+msgstr ""
+
+#: superset/viz.py:2495
+msgid "Partition Diagram"
+msgstr ""
+
+#: superset/connectors/base/models.py:183
+#: superset/connectors/base/models.py:186
+#: superset/connectors/base/models.py:190
+msgid "asc"
+msgstr ""
+
+#: superset/connectors/base/models.py:184
+#: superset/connectors/base/models.py:187
+#: superset/connectors/base/models.py:191
+msgid "desc"
+msgstr ""
+
+#: superset/connectors/druid/models.py:1010
+msgid "Metric(s) {} must be aggregations."
+msgstr ""
+
+#: superset/connectors/druid/models.py:1288
+msgid "No data was returned."
+msgstr ""
+
+#: superset/connectors/druid/views.py:32
+msgid "List Druid Column"
+msgstr ""
+
+#: superset/connectors/druid/views.py:33
+msgid "Show Druid Column"
+msgstr ""
+
+#: superset/connectors/druid/views.py:34
+msgid "Add Druid Column"
+msgstr ""
+
+#: superset/connectors/druid/views.py:35
+msgid "Edit Druid Column"
+msgstr ""
+
+#: superset/connectors/druid/views.py:49 superset/connectors/sqla/views.py:85
+msgid "Column"
+msgstr ""
+
+#: superset/connectors/druid/views.py:50 superset/connectors/druid/views.py:135
+#: superset/connectors/sqla/views.py:100 superset/connectors/sqla/views.py:184
+msgid "Type"
+msgstr ""
+
+#: superset/connectors/druid/views.py:51 superset/views/core.py:406
+#: superset/views/core.py:430 superset/views/core.py:462
+msgid "Datasource"
+msgstr ""
+
+#: superset/connectors/druid/views.py:52 superset/connectors/sqla/views.py:88
+msgid "Groupable"
+msgstr ""
+
+#: superset/connectors/druid/views.py:53 superset/connectors/sqla/views.py:89
+msgid "Filterable"
+msgstr ""
+
+#: superset/connectors/druid/views.py:55 superset/connectors/sqla/models.py:178
+#: superset/connectors/sqla/views.py:92
+msgid "Sum"
+msgstr ""
+
+#: superset/connectors/druid/views.py:56 superset/connectors/sqla/models.py:199
+#: superset/connectors/sqla/views.py:94
+msgid "Min"
+msgstr ""
+
+#: superset/connectors/druid/views.py:57 superset/connectors/sqla/models.py:192
+#: superset/connectors/sqla/views.py:95
+msgid "Max"
+msgstr ""
+
+#: superset/connectors/druid/views.py:60 superset/connectors/sqla/views.py:54
+msgid ""
+"Whether this column is exposed in the `Filters` section of the explore "
+"view."
+msgstr ""
+
+#: superset/connectors/druid/views.py:106
+msgid "List Druid Metric"
+msgstr ""
+
+#: superset/connectors/druid/views.py:107
+msgid "Show Druid Metric"
+msgstr ""
+
+#: superset/connectors/druid/views.py:108
+msgid "Add Druid Metric"
+msgstr ""
+
+#: superset/connectors/druid/views.py:109
+msgid "Edit Druid Metric"
+msgstr ""
+
+#: superset/connectors/druid/views.py:126 superset/connectors/sqla/views.py:166
+msgid ""
+"Whether the access to this metric is restricted to certain roles. Only "
+"roles with the permission 'metric access on XXX (the name of this "
+"metric)' are allowed to access this metric"
+msgstr ""
+
+#: superset/connectors/druid/views.py:132 superset/connectors/sqla/views.py:181
+msgid "Metric"
+msgstr ""
+
+#: superset/connectors/druid/views.py:133
+#: superset/connectors/druid/views.py:257 superset/connectors/sqla/views.py:87
+#: superset/connectors/sqla/views.py:182 superset/connectors/sqla/views.py:280
+#: superset/views/core.py:463 superset/views/sql_lab.py:61
+msgid "Description"
+msgstr ""
+
+#: superset/connectors/druid/views.py:134 superset/connectors/sqla/views.py:86
+#: superset/connectors/sqla/views.py:183
+msgid "Verbose Name"
+msgstr ""
+
+#: superset/connectors/druid/views.py:136 superset/views/core.py:673
+msgid "JSON"
+msgstr ""
+
+#: superset/connectors/druid/views.py:137
+msgid "Druid Datasource"
+msgstr ""
+
+#: superset/connectors/druid/views.py:138 superset/connectors/sqla/views.py:189
+msgid "Warning Message"
+msgstr ""
+
+#: superset/connectors/druid/views.py:156
+msgid "List Druid Cluster"
+msgstr ""
+
+#: superset/connectors/druid/views.py:157
+msgid "Show Druid Cluster"
+msgstr ""
+
+#: superset/connectors/druid/views.py:158
+msgid "Add Druid Cluster"
+msgstr ""
+
+#: superset/connectors/druid/views.py:159
+msgid "Edit Druid Cluster"
+msgstr ""
+
+#: superset/connectors/druid/views.py:170
+#: superset/connectors/druid/views.py:256
+msgid "Cluster"
+msgstr ""
+
+#: superset/connectors/druid/views.py:171
+msgid "Coordinator Host"
+msgstr ""
+
+#: superset/connectors/druid/views.py:172
+msgid "Coordinator Port"
+msgstr ""
+
+#: superset/connectors/druid/views.py:173
+msgid "Coordinator Endpoint"
+msgstr ""
+
+#: superset/connectors/druid/views.py:174
+msgid "Broker Host"
+msgstr ""
+
+#: superset/connectors/druid/views.py:175
+msgid "Broker Port"
+msgstr ""
+
+#: superset/connectors/druid/views.py:176
+msgid "Broker Endpoint"
+msgstr ""
+
+#: superset/connectors/druid/views.py:203
+msgid "List Druid Datasource"
+msgstr ""
+
+#: superset/connectors/druid/views.py:204
+msgid "Show Druid Datasource"
+msgstr ""
+
+#: superset/connectors/druid/views.py:205
+msgid "Add Druid Datasource"
+msgstr ""
+
+#: superset/connectors/druid/views.py:206
+msgid "Edit Druid Datasource"
+msgstr ""
+
+#: superset/connectors/druid/views.py:225 superset/connectors/sqla/views.py:229
+msgid ""
+"The list of slices associated with this table. By altering this "
+"datasource, you may change how these associated slices behave. Also note "
+"that slices need to point to a datasource, so this form will fail at "
+"saving if removing slices from a datasource. If you want to change the "
+"datasource for a slice, overwrite the slice from the 'explore view'"
+msgstr ""
+
+#: superset/connectors/druid/views.py:233 superset/connectors/sqla/views.py:237
+msgid "Timezone offset (in hours) for this datasource"
+msgstr ""
+
+#: superset/connectors/druid/views.py:237
+msgid ""
+"Time expression to use as a predicate when retrieving distinct values to "
+"populate the filter component. Only applies when `Enable Filter Select` "
+"is on. If you enter `7 days ago`, the distinct list of values in the "
+"filter will be populated based on the distinct value over the past week"
+msgstr ""
+
+#: superset/connectors/druid/views.py:244 superset/connectors/sqla/views.py:259
+msgid ""
+"Whether to populate the filter's dropdown in the explore view's filter "
+"section with a list of distinct values fetched from the backend on the "
+"fly"
+msgstr ""
+
+#: superset/connectors/druid/views.py:248
+msgid ""
+"Redirects to this endpoint when clicking on the datasource from the "
+"datasource list"
+msgstr ""
+
+#: superset/connectors/druid/views.py:254 superset/connectors/sqla/views.py:266
+msgid "Associated Charts"
+msgstr ""
+
+#: superset/connectors/druid/views.py:255
+msgid "Data Source"
+msgstr ""
+
+#: superset/connectors/druid/views.py:258 superset/connectors/sqla/views.py:278
+msgid "Owner"
+msgstr ""
+
+#: superset/connectors/druid/views.py:259
+msgid "Is Hidden"
+msgstr ""
+
+#: superset/connectors/druid/views.py:260 superset/connectors/sqla/views.py:271
+msgid "Enable Filter Select"
+msgstr ""
+
+#: superset/connectors/druid/views.py:261 superset/connectors/sqla/views.py:273
+msgid "Default Endpoint"
+msgstr ""
+
+#: superset/connectors/druid/views.py:262
+msgid "Time Offset"
+msgstr ""
+
+#: superset/connectors/druid/views.py:263 superset/connectors/sqla/views.py:275
+#: superset/views/core.py:283 superset/views/core.py:459
+msgid "Cache Timeout"
+msgstr ""
+
+#: superset/connectors/sqla/models.py:185 superset/connectors/sqla/views.py:93
+msgid "Avg"
+msgstr ""
+
+#: superset/connectors/sqla/models.py:537
+msgid ""
+"Datetime column not provided as part table configuration and is required "
+"by this type of chart"
+msgstr ""
+
+#: superset/connectors/sqla/models.py:541
+msgid "Empty query?"
+msgstr ""
+
+#: superset/connectors/sqla/models.py:549
+msgid "Metric '{}' is not valid"
+msgstr ""
+
+#: superset/connectors/sqla/models.py:830
+msgid ""
+"Table [{}] doesn't seem to exist in the specified database, couldn't "
+"fetch column information"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:32
+msgid "List Columns"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:33
+msgid "Show Column"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:34
+msgid "Add Column"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:35
+msgid "Edit Column"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:50
+msgid ""
+"Whether to make this column available as a [Time Granularity] option, "
+"column has to be DATETIME or DATETIME-like"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:57
+msgid ""
+"The data type that was inferred by the database. It may be necessary to "
+"input a type manually for expression-defined columns in some cases. In "
+"most case users should not need to alter this."
+msgstr ""
+
+#: superset/connectors/sqla/views.py:90 superset/connectors/sqla/views.py:186
+#: superset/connectors/sqla/views.py:267 superset/views/core.py:470
+msgid "Table"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:96
+msgid "Expression"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:97
+msgid "Is temporal"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:98
+msgid "Datetime Format"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:99
+msgid "Database Expression"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:101
+msgid "Is Memcached"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:153
+msgid "List Metrics"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:154
+msgid "Show Metric"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:155
+msgid "Add Metric"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:156
+msgid "Edit Metric"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:185
+msgid "SQL Expression"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:187
+msgid "D3 Format"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:188
+msgid "Is Restricted"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:207
+msgid "List Tables"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:208
+msgid "Show Table"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:209
+msgid "Add Table"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:210
+msgid "Edit Table"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:238
+msgid "Name of the table that exists in the source database"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:240
+msgid "Schema, as used only in some databases like Postgres, Redshift and DB2"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:246
+msgid ""
+"This fields acts a Superset view, meaning that Superset will run a query "
+"against this string as a subquery."
+msgstr ""
+
+#: superset/connectors/sqla/views.py:250
+msgid ""
+"Predicate applied when fetching distinct value to populate the filter "
+"control component. Supports jinja template syntax. Applies only when "
+"`Enable Filter Select` is on."
+msgstr ""
+
+#: superset/connectors/sqla/views.py:256
+msgid "Redirects to this endpoint when clicking on the table from the table list"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:268
+msgid "Changed By"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:270 superset/views/core.py:281
+msgid "Last Changed"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:274
+msgid "Offset"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:277
+msgid "Fetch Values Predicate"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:279
+msgid "Main Datetime Column"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:281
+msgid "Group Name"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:296
+msgid ""
+"Table [{}] could not be found, please double check your database "
+"connection, schema, and table name"
+msgstr ""
+
+#: superset/connectors/sqla/views.py:309
+msgid ""
+"The table was created. As part of this two phase configuration process, "
+"you should now click the edit button by the new table to configure it."
+msgstr ""
+
+#: superset/connectors/sqla/views.py:343
+#, python-format
+msgid "Metadata refreshed for the following table(s): %(tables)s"
+msgstr ""
+
+#: superset/templates/appbuilder/navbar_right.html:41
+msgid "Profile"
+msgstr ""
+
+#: superset/templates/appbuilder/navbar_right.html:42
+msgid "Logout"
+msgstr ""
+
+#: superset/templates/appbuilder/navbar_right.html:47
+msgid "Login"
+msgstr ""
+
+#: superset/templates/appbuilder/general/widgets/base_list.html:37
+msgid "Record Count"
+msgstr ""
+
+#: superset/templates/appbuilder/general/widgets/base_list.html:46
+msgid "No records found"
+msgstr ""
+
+#: superset/templates/appbuilder/general/widgets/search.html:6
+msgid "Add Filter"
+msgstr ""
+
+#: superset/templates/superset/import_dashboards.html:11
+msgid "Import"
+msgstr ""
+
+#: superset/templates/superset/request_access.html:2
+msgid "No Access!"
+msgstr ""
+
+#: superset/templates/superset/request_access.html:7
+#, python-format
+msgid "You do not have permissions to access the datasource(s): %(name)s."
+msgstr ""
+
+#: superset/templates/superset/request_access.html:13
+msgid "Request Permissions"
+msgstr ""
+
+#: superset/templates/superset/request_access.html:16
+msgid "Cancel"
+msgstr ""
+
+#: superset/templates/superset/models/database/macros.html:4
+msgid "Test Connection"
+msgstr ""
+
+#: superset/views/base.py:123
+msgid "json isn't valid"
+msgstr ""
+
+#: superset/views/core.py:193
+msgid "List Databases"
+msgstr ""
+
+#: superset/views/core.py:194
+msgid "Show Database"
+msgstr ""
+
+#: superset/views/core.py:195
+msgid "Add Database"
+msgstr ""
+
+#: superset/views/core.py:196
+msgid "Edit Database"
+msgstr ""
+
+#: superset/views/core.py:237
+msgid "Expose this DB in SQL Lab"
+msgstr ""
+
+#: superset/views/core.py:238
+msgid ""
+"Allow users to run synchronous queries, this is the default and should "
+"work well for queries that can be executed within a web request scope "
+"(<~1 minute)"
+msgstr ""
+
+#: superset/views/core.py:242
+msgid ""
+"Allow users to run queries, against an async backend. This assumes that "
+"you have a Celery worker setup as well as a results backend."
+msgstr ""
+
+#: superset/views/core.py:246
+msgid "Allow CREATE TABLE AS option in SQL Lab"
+msgstr ""
+
+#: superset/views/core.py:247
+msgid ""
+"Allow users to run non-SELECT statements (UPDATE, DELETE, CREATE, ...) in"
+" SQL Lab"
+msgstr ""
+
+#: superset/views/core.py:251
+msgid ""
+"When allowing CREATE TABLE AS option in SQL Lab, this option forces the "
+"table to be created in this schema"
+msgstr ""
+
+#: superset/views/core.py:263
+msgid ""
+"If Presto, all the queries in SQL Lab are going to be executed as the "
+"currently logged on user who must have permission to run them.<br/>If "
+"Hive and hive.server2.enable.doAs is enabled, will run the queries as "
+"service account, but impersonate the currently logged on user via "
+"hive.server2.proxy.user property."
+msgstr ""
+
+#: superset/views/core.py:269
+msgid ""
+"Allow SQL Lab to fetch a list of all tables and all views across all "
+"database schemas. For large data warehouse with thousands of tables, this"
+" can be expensive and put strain on the system."
+msgstr ""
+
+#: superset/views/core.py:275
+msgid "Expose in SQL Lab"
+msgstr ""
+
+#: superset/views/core.py:276
+msgid "Allow CREATE TABLE AS"
+msgstr ""
+
+#: superset/views/core.py:277
+msgid "Allow DML"
+msgstr ""
+
+#: superset/views/core.py:278
+msgid "CTAS Schema"
+msgstr ""
+
+#: superset/views/core.py:280 superset/views/core.py:460
+#: superset/views/core.py:578 superset/views/core.py:645
+msgid "Creator"
+msgstr ""
+
+#: superset/views/core.py:282
+msgid "SQLAlchemy URI"
+msgstr ""
+
+#: superset/views/core.py:284
+msgid "Extra"
+msgstr ""
+
+#: superset/views/core.py:285
+msgid "Allow Run Sync"
+msgstr ""
+
+#: superset/views/core.py:286
+msgid "Allow Run Async"
+msgstr ""
+
+#: superset/views/core.py:287
+msgid "Impersonate the logged on user"
+msgstr ""
+
+#: superset/views/core.py:338
+msgid "CSV to Database configuration"
+msgstr ""
+
+#: superset/views/core.py:377
+msgid "CSV file \"{0}\" uploaded to table \"{1}\" in database \"{2}\""
+msgstr ""
+
+#: superset/views/core.py:403 superset/views/core.py:670
+#: superset/views/sql_lab.py:22 superset/views/sql_lab.py:59
+msgid "User"
+msgstr ""
+
+#: superset/views/core.py:404
+msgid "User Roles"
+msgstr ""
+
+#: superset/views/core.py:405
+msgid "Database URL"
+msgstr ""
+
+#: superset/views/core.py:407
+msgid "Roles to grant"
+msgstr ""
+
+#: superset/views/core.py:408
+msgid "Created On"
+msgstr ""
+
+#: superset/views/core.py:423
+msgid "List Charts"
+msgstr ""
+
+#: superset/views/core.py:424
+msgid "Show Chart"
+msgstr ""
+
+#: superset/views/core.py:425
+msgid "Add Chart"
+msgstr ""
+
+#: superset/views/core.py:426
+msgid "Edit Chart"
+msgstr ""
+
+#: superset/views/core.py:448
+msgid ""
+"These parameters are generated dynamically when clicking the save or "
+"overwrite button in the explore view. This JSON object is exposed here "
+"for reference and for power users who may want to alter specific "
+"parameters."
+msgstr ""
+
+#: superset/views/core.py:454
+msgid "Duration (in seconds) of the caching timeout for this slice."
+msgstr ""
+
+#: superset/views/core.py:461
+msgid "Dashboards"
+msgstr ""
+
+#: superset/views/core.py:464
+msgid "Last Modified"
+msgstr ""
+
+#: superset/views/core.py:465 superset/views/core.py:577
+msgid "Owners"
+msgstr ""
+
+#: superset/views/core.py:466
+msgid "Show Users"
+msgstr ""
+
+#: superset/views/core.py:467
+msgid "Parameters"
+msgstr ""
+
+#: superset/views/core.py:468 superset/views/core.py:515
+msgid "Chart"
+msgstr ""
+
+#: superset/views/core.py:469
+msgid "Name"
+msgstr ""
+
+#: superset/views/core.py:471
+msgid "Visualization Type"
+msgstr ""
+
+#: superset/views/core.py:535
+msgid "List Dashboards"
+msgstr ""
+
+#: superset/views/core.py:536
+msgid "Show Dashboard"
+msgstr ""
+
+#: superset/views/core.py:537
+msgid "Add Dashboard"
+msgstr ""
+
+#: superset/views/core.py:538
+msgid "Edit Dashboard"
+msgstr ""
+
+#: superset/views/core.py:550
+msgid ""
+"This json object describes the positioning of the widgets in the "
+"dashboard. It is dynamically generated when adjusting the widgets size "
+"and positions by using drag & drop in the dashboard view"
+msgstr ""
+
+#: superset/views/core.py:555
+msgid ""
+"The css for individual dashboards can be altered here, or in the "
+"dashboard view where changes are immediately visible"
+msgstr ""
+
+#: superset/views/core.py:559
+msgid "To get a readable URL for your dashboard"
+msgstr ""
+
+#: superset/views/core.py:560
+msgid ""
+"This JSON object is generated dynamically when clicking the save or "
+"overwrite button in the dashboard view. It is exposed here for reference "
+"and for power users who may want to alter specific parameters."
+msgstr ""
+
+#: superset/views/core.py:565
+msgid "Owners is a list of users who can alter the dashboard."
+msgstr ""
+
+#: superset/views/core.py:573 superset/views/core.py:643
+msgid "Dashboard"
+msgstr ""
+
+#: superset/views/core.py:574 superset/views/core.py:644
+msgid "Title"
+msgstr ""
+
+#: superset/views/core.py:575
+msgid "Slug"
+msgstr ""
+
+#: superset/views/core.py:576
+msgid "Charts"
+msgstr ""
+
+#: superset/views/core.py:579 superset/views/core.py:646
+#: superset/views/sql_lab.py:62
+msgid "Modified"
+msgstr ""
+
+#: superset/views/core.py:580
+msgid "Position JSON"
+msgstr ""
+
+#: superset/views/core.py:581
+msgid "CSS"
+msgstr ""
+
+#: superset/views/core.py:582
+msgid "JSON Metadata"
+msgstr ""
+
+#: superset/views/core.py:583
+msgid "Underlying Tables"
+msgstr ""
+
+#: superset/views/core.py:671
+msgid "Action"
+msgstr ""
+
+#: superset/views/core.py:672
+msgid "dttm"
+msgstr ""
+
+#: superset/views/core.py:1303 superset/views/core.py:1308
+#: superset/views/core.py:1419 superset/views/core.py:1433
+msgid "You don't have the rights to "
+msgstr ""
+
+#: superset/views/core.py:1303 superset/views/core.py:1419
+msgid "alter this "
+msgstr ""
+
+#: superset/views/core.py:1303 superset/views/core.py:1308
+msgid "chart"
+msgstr ""
+
+#: superset/views/core.py:1308 superset/views/core.py:1433
+msgid "create a "
+msgstr ""
+
+#: superset/views/core.py:1420 superset/views/core.py:1433
+msgid "dashboard"
+msgstr ""
+
+#: superset/views/core.py:2460
+msgid "Query record was not created as expected."
+msgstr ""
+
+#: superset/views/core.py:2742
+msgid "Template Name"
+msgstr ""
+
+#: superset/views/core.py:2765
+msgid "SQL Editor"
+msgstr ""
+
+#: superset/views/core.py:2775
+msgid "Query Search"
+msgstr ""
+
+#: superset/views/sql_lab.py:24
+msgid "Status"
+msgstr ""
+
+#: superset/views/sql_lab.py:25
+msgid "Start Time"
+msgstr ""
+
+#: superset/views/sql_lab.py:26 superset/views/sql_lab.py:63
+msgid "End Time"
+msgstr ""
+
+#: superset/views/sql_lab.py:42
+msgid "List Saved Query"
+msgstr ""
+
+#: superset/views/sql_lab.py:43
+msgid "Show Saved Query"
+msgstr ""
+
+#: superset/views/sql_lab.py:44
+msgid "Add Saved Query"
+msgstr ""
+
+#: superset/views/sql_lab.py:45
+msgid "Edit Saved Query"
+msgstr ""
+
+#: superset/views/sql_lab.py:58
+msgid "Label"
+msgstr ""
+
+#: superset/views/sql_lab.py:64
+msgid "Pop Tab Link"
+msgstr ""
+
+#: superset/views/sql_lab.py:65
+msgid "Changed on"
+msgstr ""
+

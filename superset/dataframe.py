@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Superset wrapper around pandas.DataFrame.
 
 TODO(bkyryliuk): add support for the conventions like: *_dim or dim_*
@@ -10,12 +11,15 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from datetime import datetime, date
+from datetime import date, datetime
+
+import numpy as np
+import pandas as pd
+from pandas.core.common import _maybe_box_datetimelike
+from pandas.core.dtypes.dtypes import ExtensionDtype
 from past.builtins import basestring
 
-import pandas as pd
-import numpy as np
-
+from superset.utils import JS_MAX_INTEGER
 
 INFER_COL_TYPES_THRESHOLD = 95
 INFER_COL_TYPES_SAMPLE_SIZE = 100
@@ -47,11 +51,24 @@ class SupersetDataFrame(object):
 
     @property
     def data(self):
-        return self.__df.to_dict(orient='records')
+        # work around for https://github.com/pandas-dev/pandas/issues/18372
+        data = [dict((k, _maybe_box_datetimelike(v))
+                for k, v in zip(self.__df.columns, np.atleast_1d(row)))
+                for row in self.__df.values]
+        for d in data:
+            for k, v in list(d.items()):
+                # if an int is too big for Java Script to handle
+                # convert it to a string
+                if isinstance(v, int):
+                    if abs(v) > JS_MAX_INTEGER:
+                        d[k] = str(v)
+        return data
 
     @classmethod
     def db_type(cls, dtype):
         """Given a numpy dtype, Returns a generic database type"""
+        if isinstance(dtype, ExtensionDtype):
+            return cls.type_map.get(dtype.kind)
         return cls.type_map.get(dtype.char)
 
     @classmethod
@@ -87,8 +104,10 @@ class SupersetDataFrame(object):
         # consider checking for key substring too.
         if cls.is_id(column_name):
             return 'count_distinct'
-        if np.issubdtype(dtype, np.number):
+        if (issubclass(dtype.type, np.generic) and
+                np.issubdtype(dtype, np.number)):
             return 'sum'
+        return None
 
     @property
     def columns(self):
@@ -134,7 +153,7 @@ class SupersetDataFrame(object):
                     column.update({
                         'is_date': True,
                         'is_dim': False,
-                        'agg': None
+                        'agg': None,
                     })
             # 'agg' is optional attribute
             if not column['agg']:

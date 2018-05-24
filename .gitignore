@@ -1,9 +1,7 @@
 *.pyc
 yarn-error.log
 _modules
-superset/static/assets/coverage/*
-superset/static/assets/node_modules/*
-superset/static/assets/yarn.lock
+superset/assets/coverage/*
 changelog.sh
 .DS_Store
 .coverage
@@ -28,12 +26,18 @@ app.db
 *.sqllite
 .vscode
 .python-version
+.tox
+dump.rdb
 
 # Node.js, webpack artifacts
-#*.entry.js
+*.entry.js
 *.js.map
 node_modules
-npm-debug.log
-yarn.lock
-superset/static/assets/version_info.json
+npm-debug.log*
+superset/assets/version_info.json
 
+# IntelliJ
+*.iml
+venv
+@eaDir/
+*.log

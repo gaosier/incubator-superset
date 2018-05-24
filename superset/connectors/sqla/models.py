@@ -1,39 +1,84 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from datetime import datetime
 import logging
-import sqlparse
-from past.builtins import basestring
-
-import pandas as pd
-
-from sqlalchemy import (
-    Column, Integer, String, ForeignKey, Text, Boolean,
-    DateTime,INTEGER
-)
-import sqlalchemy as sa
-from sqlalchemy import asc, and_, desc, select,tuple_,or_
-from sqlalchemy.sql.expression import TextAsFrom
-from sqlalchemy.orm import backref, relationship
-from sqlalchemy.sql import table, literal_column, text, column
+import json
 
 from flask import escape, Markup
 from flask_appbuilder import Model
 from flask_babel import lazy_gettext as _
-from flask_babel import gettext as __
+import pandas as pd
+from past.builtins import basestring
+import six
+import sqlalchemy as sa
+from sqlalchemy import (
+    and_, asc, Boolean, Column, DateTime, desc, ForeignKey, Integer, or_,
+    select, String, Text,INTEGER
+)
+from sqlalchemy.orm import backref, relationship
+from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.sql import column, literal_column, table, text
+from sqlalchemy.sql.expression import TextAsFrom
+import sqlparse
 
-from superset import db, utils, import_util, sm
-from superset.connectors.base.models import BaseDatasource, BaseColumn, BaseMetric
-from superset.utils import DTTM_ALIAS, QueryStatus,time_grain_convert
-from superset.models.helpers import QueryResult
-from superset.models.core import Database
+from superset import db, import_util, security_manager, utils
+from superset.connectors.base.models import BaseColumn, BaseDatasource, BaseMetric
 from superset.jinja_context import get_template_processor
+from superset.models.annotations import Annotation
+from superset.models.core import Database
+from superset.models.helpers import QueryResult
 from superset.models.helpers import set_perm
-from flask import session
-from superset.config import SUPERSET_MEMCACHED
+from superset.utils import DTTM_ALIAS, QueryStatus
+from superset.utils_ext import time_grain_convert
+from .models_ext import SqlTableGroup, SqlTableColumnSort
+from superset.config_ext import SUPERSET_MEMCACHED
+
+class AnnotationDatasource(BaseDatasource):
+    """ Dummy object so we can query annotations using 'Viz' objects just like
+        regular datasources.
+    """
+
+    cache_timeout = 0
+
+    def query(self, query_obj):
+        df = None
+        error_message = None
+        qry = db.session.query(Annotation)
+        qry = qry.filter(Annotation.layer_id == query_obj['filter'][0]['val'])
+        qry = qry.filter(Annotation.start_dttm >= query_obj['from_dttm'])
+        qry = qry.filter(Annotation.end_dttm <= query_obj['to_dttm'])
+        status = QueryStatus.SUCCESS
+        try:
+            df = pd.read_sql_query(qry.statement, db.engine)
+        except Exception as e:
+            status = QueryStatus.FAILED
+            logging.exception(e)
+            error_message = (
+                utils.error_msg_from_exception(e))
+        return QueryResult(
+            status=status,
+            df=df,
+            duration=0,
+            query='',
+            error_message=error_message)
+
+    def get_query_str(self, query_obj):
+        raise NotImplementedError()
+
+    def values_for_column(self, column_name, limit=10000):
+        raise NotImplementedError()
+
+
 class TableColumn(Model, BaseColumn):
 
     """ORM object for table columns, each table can have multiple columns"""
 
     __tablename__ = 'table_columns'
+    __table_args__ = (UniqueConstraint('table_id', 'column_name'),)
     table_id = Column(Integer, ForeignKey('tables.id'))
     table = relationship(
         'SqlaTable',
@@ -43,17 +88,15 @@ class TableColumn(Model, BaseColumn):
     expression = Column(Text, default='')
     python_date_format = Column(String(255))
     database_expression = Column(String(255))
-    is_partition = Column(Boolean, default=False)
-    partition_expression = Column(String(255))
     is_memcached = Column(Boolean, default=False)
-    order_number=Column(INTEGER,default=0)
-
+    order_number = Column(INTEGER, default=0)
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
         'type', 'groupby', 'count_distinct', 'sum', 'avg', 'max', 'min',
         'filterable', 'expression', 'description', 'python_date_format',
-        'database_expression'
+        'database_expression',
     )
+    export_parent = 'table'
 
     @property
     def sqla_col(self):
@@ -64,31 +107,18 @@ class TableColumn(Model, BaseColumn):
             col = literal_column(self.expression).label(name)
         return col
 
+    @property
+    def datasource(self):
+        return self.table
+
     def get_time_filter(self, start_dttm, end_dttm):
         col = self.sqla_col.label('__time')
-        l = []
-        col_partition = column('day').label('day')
-        #是否分区
-        if self.is_partition:
-            if start_dttm:
-                l.append(col_partition >= text(self.dttm_hybird_literal(start_dttm)))
-            if end_dttm:
-                l.append(col_partition <= text(self.dttm_hybird_literal(end_dttm)))
-        else:
-            if start_dttm:
-                l.append(col >= text(self.dttm_sql_literal(start_dttm)))
-            if end_dttm:
-                l.append(col <= text(self.dttm_sql_literal(end_dttm)))
+        l = []  # noqa: E741
+        if start_dttm:
+            l.append(col >= text(self.dttm_sql_literal(start_dttm)))
+        if end_dttm:
+            l.append(col <= text(self.dttm_sql_literal(end_dttm)))
         return and_(*l)
-
-    def get_period_time_filter(self,start_dttm, end_dttm):
-        """
-        用以同期对比时间条件的返回
-        """
-        real_time=self.get_time_filter(start_dttm, end_dttm)
-        from dateutil.relativedelta import relativedelta
-        compare_time=self.get_time_filter(start_dttm-relativedelta(years=1),end_dttm-relativedelta(years=1))
-        return tuple_(or_(tuple_(real_time),tuple_(compare_time)))
 
     def get_timestamp_expression(self, time_grain):
         """Getting the time component of the query"""
@@ -125,26 +155,60 @@ class TableColumn(Model, BaseColumn):
         If database_expression is not empty, the internal dttm
         will be parsed as the sql sentence for the database to convert
         """
-
-        tf = self.python_date_format or '%Y-%m-%d %H:%M:%S.%f'
+        tf = self.python_date_format
         if self.database_expression:
             return self.database_expression.format(dttm.strftime('%Y-%m-%d %H:%M:%S'))
-        elif tf == 'epoch_s':
-            return str((dttm - datetime(1970, 1, 1)).total_seconds())
-        elif tf == 'epoch_ms':
-            return str((dttm - datetime(1970, 1, 1)).total_seconds() * 1000.0)
+        elif tf:
+            if tf == 'epoch_s':
+                return str((dttm - datetime(1970, 1, 1)).total_seconds())
+            elif tf == 'epoch_ms':
+                return str((dttm - datetime(1970, 1, 1)).total_seconds() * 1000.0)
+            return "'{}'".format(dttm.strftime(tf))
         else:
             s = self.table.database.db_engine_spec.convert_dttm(
                 self.type or '', dttm)
-            return s or "'{}'".format(dttm.strftime(tf))
+            return s or "'{}'".format(dttm.strftime('%Y-%m-%d %H:%M:%S.%f'))
 
-    def dttm_hybird_literal(self, dttm):
-        """转换时间格式符合hybird分区格式
-
-        """
-
-        tf = self.partition_expression or '%Y%m%d'
-        return "'{0}'".format(dttm.strftime(tf))
+    def get_metrics(self):
+        metrics = []
+        M = SqlMetric  # noqa
+        quoted = self.column_name
+        if self.sum:
+            metrics.append(M(
+                metric_name='sum__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Sum')),
+                metric_type='sum',
+                expression='SUM({})'.format(quoted),
+            ))
+        if self.avg:
+            metrics.append(M(
+                metric_name='avg__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Avg')),
+                metric_type='avg',
+                expression='AVG({})'.format(quoted),
+            ))
+        if self.max:
+            metrics.append(M(
+                metric_name='max__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Max')),
+                metric_type='max',
+                expression='MAX({})'.format(quoted),
+            ))
+        if self.min:
+            metrics.append(M(
+                metric_name='min__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Min')),
+                metric_type='min',
+                expression='MIN({})'.format(quoted),
+            ))
+        if self.count_distinct:
+            metrics.append(M(
+                metric_name='count_distinct__' + self.column_name,
+                verbose_name='{0}({1})'.format(self.verbose_name, _('Count Distinct')),
+                metric_type='count_distinct',
+                expression='COUNT(DISTINCT {})'.format(quoted),
+            ))
+        return {m.metric_name: m for m in metrics}
 
 
 class SqlMetric(Model, BaseMetric):
@@ -152,6 +216,7 @@ class SqlMetric(Model, BaseMetric):
     """ORM object for metrics, each table can have multiple metrics"""
 
     __tablename__ = 'sql_metrics'
+    __table_args__ = (UniqueConstraint('table_id', 'metric_name'),)
     table_id = Column(Integer, ForeignKey('tables.id'))
     table = relationship(
         'SqlaTable',
@@ -162,6 +227,7 @@ class SqlMetric(Model, BaseMetric):
     export_fields = (
         'metric_name', 'verbose_name', 'metric_type', 'table_id', 'expression',
         'description', 'is_restricted', 'd3format')
+    export_parent = 'table'
 
     @property
     def sqla_col(self):
@@ -171,7 +237,7 @@ class SqlMetric(Model, BaseMetric):
     @property
     def perm(self):
         return (
-            "{parent_name}.[{obj.metric_name}](id:{obj.id})"
+            '{parent_name}.[{obj.metric_name}](id:{obj.id})'
         ).format(obj=self,
                  parent_name=self.table.full_name) if self.table else None
 
@@ -188,19 +254,21 @@ class SqlaTable(Model, BaseDatasource):
 
     """An ORM object for SqlAlchemy table references"""
 
-    type = "table"
+    type = 'table'
     query_language = 'sql'
     metric_class = SqlMetric
     column_class = TableColumn
 
     __tablename__ = 'tables'
-    table_name = Column(String(250),nullable=False)
+    __table_args__ = (UniqueConstraint('database_id', 'table_name'),)
+
+    table_name = Column(String(250))
     main_dttm_col = Column(String(250))
     database_id = Column(Integer, ForeignKey('dbs.id'), nullable=False)
     fetch_values_predicate = Column(String(1000))
     user_id = Column(Integer, ForeignKey('ab_user.id'))
     owner = relationship(
-        sm.user_model,
+        security_manager.user_model,
         backref='tables',
         foreign_keys=[user_id])
     database = relationship(
@@ -213,16 +281,23 @@ class SqlaTable(Model, BaseDatasource):
     group = relationship("SqlTableGroup")
     verbose_name = Column(String(1024), nullable=True)
 
-    baselink = "tablemodelview"
+    baselink = 'tablemodelview'
+
     export_fields = (
         'table_name', 'main_dttm_col', 'description', 'default_endpoint',
         'database_id', 'offset', 'cache_timeout', 'schema',
         'sql', 'params')
+    export_parent = 'database'
+    export_children = ['metrics', 'columns']
 
-    __table_args__ = (
-        sa.UniqueConstraint(
-            'database_id', 'schema', 'table_name',
-            name='_customer_location_uc'),)
+    sqla_aggregations = {
+        'COUNT_DISTINCT': lambda column_name: sa.func.COUNT(sa.distinct(column_name)),
+        'COUNT': sa.func.COUNT,
+        'SUM': sa.func.SUM,
+        'AVG': sa.func.AVG,
+        'MIN': sa.func.MIN,
+        'MAX': sa.func.MAX,
+    }
 
     def __repr__(self):
         return self.name
@@ -244,18 +319,18 @@ class SqlaTable(Model, BaseDatasource):
     @property
     def schema_perm(self):
         """Returns schema permission if present, database one otherwise."""
-        return utils.get_schema_perm(self.database, self.schema)
+        return security_manager.get_schema_perm(self.database, self.schema)
 
     def get_perm(self):
         return (
-            "[{obj.database}].[{obj.table_name}]"
-            "(id:{obj.id})").format(obj=self)
+            '[{obj.database}].[{obj.table_name}]'
+            '(id:{obj.id})').format(obj=self)
 
     @property
     def name(self):
         if not self.schema:
             return self.verbose_name or self.table_name
-        return "{}.{}".format(self.schema, self.verbose_name or self.table_name)
+        return '{}.{}'.format(self.schema, self.verbose_name or self.table_name)
 
     @property
     def full_name(self):
@@ -264,7 +339,7 @@ class SqlaTable(Model, BaseDatasource):
 
     @property
     def dttm_cols(self):
-        l = [c.column_name for c in self.columns if c.is_dttm]
+        l = [c.column_name for c in self.columns if c.is_dttm]  # noqa: E741
         if self.main_dttm_col and self.main_dttm_col not in l:
             l.append(self.main_dttm_col)
         return l
@@ -287,18 +362,18 @@ class SqlaTable(Model, BaseDatasource):
         return df.to_html(
             index=False,
             classes=(
-                "dataframe table table-striped table-bordered "
-                "table-condensed"))
+                'dataframe table table-striped table-bordered '
+                'table-condensed'))
 
     @property
     def sql_url(self):
-        return self.database.sql_url + "?table_name=" + str(self.table_name)
+        return self.database.sql_url + '?table_name=' + str(self.table_name)
 
     @property
     def time_column_grains(self):
         return {
-            "time_columns": self.dttm_cols,
-            "time_grains": [grain.name for grain in self.database.grains()]
+            'time_columns': self.dttm_cols,
+            'time_grains': [grain.name for grain in self.database.grains()],
         }
 
     def get_col(self, col_name):
@@ -321,8 +396,8 @@ class SqlaTable(Model, BaseDatasource):
         if self.type == 'table':
             grains = self.database.grains() or []
             if grains:
-                grains = [(g.name, __(g.name)) for g in grains]
-            d['granularity_sqla'] = utils.choicify(self.dttm_cols)
+                grains = [(g.duration, g.name) for g in grains]
+            #d['granularity_sqla'] = utils.choicify(self.dttm_cols)
             d['granularity_sqla'] =self.my_dttm_cols
             d['time_grain_sqla'] = grains
         return d
@@ -363,9 +438,8 @@ class SqlaTable(Model, BaseDatasource):
             qry = qry.where(tp.process_template(self.fetch_values_predicate))
 
         engine = self.database.get_sqla_engine()
-        sql = "{}".format(
-            qry.compile(
-                engine, compile_kwargs={"literal_binds": True}, ),
+        sql = '{}'.format(
+            qry.compile(engine, compile_kwargs={'literal_binds': True}),
         )
 
         df = pd.read_sql_query(sql=sql, con=engine)
@@ -379,13 +453,15 @@ class SqlaTable(Model, BaseDatasource):
     def get_query_str(self, query_obj):
         engine = self.database.get_sqla_engine()
         qry = self.get_sqla_query(**query_obj)
-        sql = str(
+        sql = six.text_type(
             qry.compile(
                 engine,
-                compile_kwargs={"literal_binds": True}
-            )
+                compile_kwargs={'literal_binds': True},
+            ),
         )
         sql = sqlparse.format(sql, reindent=True)
+        if query_obj['is_prequery']:
+            query_obj['prequeries'].append(sql)
         return sql
 
     def get_sqla_table(self):
@@ -400,10 +476,15 @@ class SqlaTable(Model, BaseDatasource):
             from_sql = self.sql
             if template_processor:
                 from_sql = template_processor.process_template(from_sql)
-            if db_engine_spec:
-                from_sql = db_engine_spec.escape_sql(from_sql)
+            from_sql = sqlparse.format(from_sql, strip_comments=True)
             return TextAsFrom(sa.text(from_sql), []).alias('expr_qry')
         return self.get_sqla_table()
+
+    def adhoc_metric_to_sa(self, metric):
+        column_name = metric.get('column').get('column_name')
+        sa_metric = self.sqla_aggregations[metric.get('aggregate')](column(column_name))
+        sa_metric = sa_metric.label(metric.get('label'))
+        return sa_metric
 
     def get_sqla_query(  # sqla
             self,
@@ -420,22 +501,28 @@ class SqlaTable(Model, BaseDatasource):
             orderby=None,
             extras=None,
             columns=None,
-            form_data=None):
+            order_desc=True,
+            prequeries=None,
+            is_prequery=False,
+        ):
         """Querying any sqla table from this common interface"""
-
         template_kwargs = {
             'from_dttm': from_dttm,
             'groupby': groupby,
             'metrics': metrics,
             'row_limit': row_limit,
             'to_dttm': to_dttm,
-            'form_data': form_data,
+            'filter': filter,
+            'columns': {col.column_name: col for col in self.columns},
+
         }
         template_processor = self.get_template_processor(**template_kwargs)
         db_engine_spec = self.database.db_engine_spec
 
+        orderby = orderby or []
+
         # For backward compatibility
-        #如果是时间序列，则设置一个默认时间字段,否则为可选项
+        # 如果是时间序列，则设置一个默认时间字段,否则为可选项
         if is_timeseries:
             if granularity not in self.dttm_cols:
                 granularity = self.main_dttm_col
@@ -448,21 +535,22 @@ class SqlaTable(Model, BaseDatasource):
 
         if not granularity and is_timeseries:
             raise Exception(_(
-                "Datetime column not provided as part table configuration "
-                "and is required by this type of chart"))
+                'Datetime column not provided as part table configuration '
+                'and is required by this type of chart'))
+        if not groupby and not metrics and not columns:
+            raise Exception(_('Empty query?'))
+        metrics_exprs = []
         for m in metrics:
-            if m not in metrics_dict:
+            if utils.is_adhoc_metric(m):
+                metrics_exprs.append(self.adhoc_metric_to_sa(m))
+            elif m in metrics_dict:
+                metrics_exprs.append(metrics_dict.get(m).sqla_col)
+            else:
                 raise Exception(_("Metric '{}' is not valid".format(m)))
-        metrics_exprs = [metrics_dict.get(m).sqla_col for m in metrics]
-        timeseries_limit_metric = metrics_dict.get(timeseries_limit_metric)
-        timeseries_limit_metric_expr = None
-        if timeseries_limit_metric:
-            timeseries_limit_metric_expr = \
-                timeseries_limit_metric.sqla_col
         if metrics_exprs:
             main_metric_expr = metrics_exprs[0]
         else:
-            main_metric_expr = literal_column("COUNT(*)").label("ccount")
+            main_metric_expr = literal_column('COUNT(*)').label('ccount')
 
         select_exprs = []
         groupby_exprs = []
@@ -484,6 +572,7 @@ class SqlaTable(Model, BaseDatasource):
             for s in columns:
                 select_exprs.append(cols[s].sqla_col)
             metrics_exprs = []
+
         if granularity:
             dttm_col = cols[granularity]
             time_grain = extras.get('time_grain_sqla')
@@ -500,11 +589,7 @@ class SqlaTable(Model, BaseDatasource):
                     self.main_dttm_col != dttm_col.column_name:
                 time_filters.append(cols[self.main_dttm_col].
                                     get_time_filter(from_dttm, to_dttm))
-            if not form_data.get('period_compare'):
-                time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
-            else :
-                from dateutil.relativedelta import relativedelta
-                time_filters.append(dttm_col.get_period_time_filter(from_dttm, to_dttm))
+            time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
 
         select_exprs += metrics_exprs
         qry = sa.select(select_exprs)
@@ -600,6 +685,13 @@ class SqlaTable(Model, BaseDatasource):
         else:
             qry = qry.where(and_(*where_clause_and))
         qry = qry.having(and_(*having_clause_and))
+
+        # if not orderby and not columns:
+        #     orderby = [(main_metric_expr, not order_desc)]
+        #
+        # for col, ascending in orderby:
+        #     direction = asc if ascending else desc
+        #     qry = qry.order_by(direction(col))
         if groupby or metrics_exprs:
             # if not orderby:
             #     qry = qry.order_by(desc(main_metric_expr))
@@ -619,48 +711,87 @@ class SqlaTable(Model, BaseDatasource):
 
         if is_timeseries and \
                 timeseries_limit and groupby and not time_groupby_inline:
-            # some sql dialects require for order by expressions
-            # to also be in the select clause -- others, e.g. vertica,
-            # require a unique inner alias
-            inner_main_metric_expr = main_metric_expr.label('mme_inner__')
-            inner_select_exprs += [inner_main_metric_expr]
-            subq = select(inner_select_exprs)
-            subq = subq.select_from(tbl)
-            inner_time_filter = dttm_col.get_time_filter(
-                inner_from_dttm or from_dttm,
-                inner_to_dttm or to_dttm,
-            )
-            subq = subq.where(and_(*(where_clause_and + [inner_time_filter])))
-            subq = subq.group_by(*inner_groupby_exprs)
-            ob = inner_main_metric_expr
-            if timeseries_limit_metric_expr is not None:
-                ob = timeseries_limit_metric_expr
-            subq = subq.order_by(desc(ob))
-            subq = subq.limit(timeseries_limit)
-            on_clause = []
-            for i, gb in enumerate(groupby):
-                on_clause.append(
-                    groupby_exprs[i] == column(gb + '__'))
+            if self.database.db_engine_spec.inner_joins:
+                # some sql dialects require for order by expressions
+                # to also be in the select clause -- others, e.g. vertica,
+                # require a unique inner alias
+                inner_main_metric_expr = main_metric_expr.label('mme_inner__')
+                inner_select_exprs += [inner_main_metric_expr]
+                subq = select(inner_select_exprs)
+                subq = subq.select_from(tbl)
+                inner_time_filter = dttm_col.get_time_filter(
+                    inner_from_dttm or from_dttm,
+                    inner_to_dttm or to_dttm,
+                )
+                subq = subq.where(and_(*(where_clause_and + [inner_time_filter])))
+                subq = subq.group_by(*inner_groupby_exprs)
 
-            tbl = tbl.join(subq.alias(), and_(*on_clause))
+                ob = inner_main_metric_expr
+                if timeseries_limit_metric:
+                    timeseries_limit_metric = metrics_dict.get(timeseries_limit_metric)
+                    ob = timeseries_limit_metric.sqla_col
+                direction = desc if order_desc else asc
+                subq = subq.order_by(direction(ob))
+                subq = subq.limit(timeseries_limit)
+
+                on_clause = []
+                for i, gb in enumerate(groupby):
+                    on_clause.append(
+                        groupby_exprs[i] == column(gb + '__'))
+
+                tbl = tbl.join(subq.alias(), and_(*on_clause))
+            else:
+                # run subquery to get top groups
+                subquery_obj = {
+                    'prequeries': prequeries,
+                    'is_prequery': True,
+                    'is_timeseries': False,
+                    'row_limit': timeseries_limit,
+                    'groupby': groupby,
+                    'metrics': metrics,
+                    'granularity': granularity,
+                    'from_dttm': inner_from_dttm or from_dttm,
+                    'to_dttm': inner_to_dttm or to_dttm,
+                    'filter': filter,
+                    'orderby': orderby,
+                    'extras': extras,
+                    'columns': columns,
+                    'order_desc': True,
+                }
+                result = self.query(subquery_obj)
+                dimensions = [c for c in result.df.columns if c not in metrics]
+                top_groups = self._get_top_groups(result.df, dimensions)
+                qry = qry.where(top_groups)
+
         return qry.select_from(tbl)
-
+		
     def init_table(self, table):
         import re
         if re.match('^mysql:', str(self.database.get_sqla_engine().url)):
             sql = 'select column_name,column_comment from information_schema.columns WHERE TABLE_NAME ="%s" ' % str(
                 table)
             return {k: (v or k) for (k, v) in self.database.get_sqla_engine().execute(sql).fetchall()}
+			
+    def _get_top_groups(self, df, dimensions):
+        cols = {col.column_name: col for col in self.columns}
+        groups = []
+        for unused, row in df.iterrows():
+            group = []
+            for dimension in dimensions:
+                col_obj = cols.get(dimension)
+                group.append(col_obj.sqla_col == row[dimension])
+            groups.append(and_(*group))
 
-    def query(self, query_obj):
+        return or_(*groups)
+
+    def query(self, query_obj, viz_type=None):
         def format_time_grain(index, time_grain_sqla=None):
             if index.name == '__timestamp':
                 index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla))
             return index
+        time_grain_sqla = query_obj["extras"].get('time_grain_sqla',None)
         qry_start_dttm = datetime.now()
         sql = self.get_query_str(query_obj)
-        time_grain_sqla = query_obj['form_data'].get('time_grain_sqla',None)
-        #logging.info(sql)
         status = QueryStatus.SUCCESS
         error_message = None
         df = None
@@ -669,13 +800,17 @@ class SqlaTable(Model, BaseDatasource):
         except Exception as e:
             status = QueryStatus.FAILED
             logging.exception(e)
-            # error_message = (
-            #     self.database.db_engine_spec.extract_error_message(e))
             error_message = (
-                '查询语句不合法，请修改或联系管理员')
-        if query_obj['form_data'].get('viz_type')!='line':
+                self.database.db_engine_spec.extract_error_message(e))
+        if viz_type != 'line':
             if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
                 df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
+
+        # if this is a main query with prequeries, combine them together
+        if not query_obj['is_prequery']:
+            query_obj['prequeries'].append(sql)
+            sql = ';\n\n'.join(query_obj['prequeries'])
+        sql += ';'
 
         return QueryResult(
             status=status,
@@ -693,111 +828,60 @@ class SqlaTable(Model, BaseDatasource):
             table = self.get_sqla_table_object()
         except Exception:
             raise Exception(_(
-                "Table doesn't seem to exist in the specified database, "
-                "couldn't fetch column information"))
+                "Table [{}] doesn't seem to exist in the specified database, "
+                "couldn't fetch column information").format(self.table_name))
 
-        TC = TableColumn  # noqa shortcut to class
         M = SqlMetric  # noqa
         metrics = []
         any_date_col = None
-        db_dialect = self.database.get_sqla_engine().dialect
+        db_dialect = self.database.get_dialect()
         #获取mysql的comment信息
         comment_info_dict=self.init_table(table)
+        dbcols = (
+            db.session.query(TableColumn)
+            .filter(TableColumn.table == self)
+            .filter(or_(TableColumn.column_name == col.name
+                        for col in table.columns)))
+        dbcols = {dbcol.column_name: dbcol for dbcol in dbcols}
         count=0
         for col in table.columns:
             try:
-                datatype = "{}".format(col.type).upper()
+                datatype = col.type.compile(dialect=db_dialect).upper()
             except Exception as e:
-                datatype = "UNKNOWN"
+                datatype = 'UNKNOWN'
                 logging.error(
-                    "Unrecognized data type in {}.{}".format(table, col.name))
+                    'Unrecognized data type in {}.{}'.format(table, col.name))
                 logging.exception(e)
-            dbcol = (
-                db.session
-                .query(TC)
-                .filter(TC.table == self)
-                .filter(TC.column_name == col.name)
-                .first()
-            )
-            db.session.flush()
+            dbcol = dbcols.get(col.name, None)
             if not dbcol:
                 dbcol = TableColumn(column_name=col.name, type=datatype)
                 dbcol.groupby = dbcol.is_string
                 dbcol.filterable = dbcol.is_string
                 dbcol.sum = dbcol.is_num
-                dbcol.avg = dbcol.is_num
-                dbcol.max = dbcol.is_num
-                dbcol.min = dbcol.is_num
+                #dbcol.avg = dbcol.is_num
                 dbcol.is_dttm = dbcol.is_time
                 dbcol.order_number=count*100
                 count+=1
                 if comment_info_dict:
                     dbcol.verbose_name=comment_info_dict[dbcol.column_name]
-            db.session.merge(self)
+            else:
+                dbcol.type = datatype
             self.columns.append(dbcol)
-
             if not any_date_col and dbcol.is_time:
                 any_date_col = col.name
-
-            quoted = "{}".format(col.compile(dialect=db_dialect))
-            if dbcol.sum:
-                metrics.append(M(
-                    metric_name='sum__' + dbcol.column_name,
-                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Sum')),
-                    metric_type='sum',
-                    expression="SUM({})".format(quoted)
-                ))
-            if dbcol.avg:
-                metrics.append(M(
-                    metric_name='avg__' + dbcol.column_name,
-                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Avg')),
-                    metric_type='avg',
-                    expression="AVG({})".format(quoted)
-                ))
-            if dbcol.max:
-                metrics.append(M(
-                    metric_name='max__' + dbcol.column_name,
-                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Max')),
-                    metric_type='max',
-                    expression="MAX({})".format(quoted)
-                ))
-            if dbcol.min:
-                metrics.append(M(
-                    metric_name='min__' + dbcol.column_name,
-                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Min')),
-                    metric_type='min',
-                    expression="MIN({})".format(quoted)
-                ))
-            if dbcol.count_distinct:
-                metrics.append(M(
-                    metric_name='count_distinct__' + dbcol.column_name,
-                    verbose_name='{0}({1})'.format(dbcol.verbose_name,_('Count Distinct')),
-                    metric_type='count_distinct',
-                    expression="COUNT(DISTINCT {})".format(quoted)
-                ))
-            dbcol.type = datatype
-            db.session.merge(self)
-            db.session.commit()
+            metrics += dbcol.get_metrics().values()
 
         metrics.append(M(
             metric_name='count',
             verbose_name='COUNT(*)',
             metric_type='count',
-            expression="COUNT(*)"
+            expression='COUNT(*)',
         ))
-        for metric in metrics:
-            m = (
-                db.session.query(M)
-                .filter(M.metric_name == metric.metric_name)
-                .filter(M.table_id == self.id)
-                .first()
-            )
-            metric.table_id = self.id
-            if not m:
-                db.session.add(metric)
-                db.session.commit()
         if not self.main_dttm_col:
             self.main_dttm_col = any_date_col
+        self.add_missing_metrics(metrics)
+        db.session.merge(self)
+        db.session.commit()
 
     @classmethod
     def import_obj(cls, i_datasource, import_time=None):
@@ -833,17 +917,21 @@ class SqlaTable(Model, BaseDatasource):
             query = query.filter_by(schema=schema)
         return query.all()
 
+    def _get_sort_columns(self):
+        qry = db.session.query(SqlTableColumnSort).filter(SqlTableColumnSort.table_id==self.id,
+                SqlTableColumnSort.table_name==self.table_name)
+        cols = qry.all()
+        if len(cols) == 0:
+            logging.info('表{0}-{1}未匹配到配置项'.format(self.id, self.table_name))
+            return None
+        col = cols[0].expression
+        exp = None
+        try:
+            exp = json.loads(col)
+        except:
+            logging.info('表{0}的排序参数不是合法的json'.format(self.id))
+        return exp
+
+
 sa.event.listen(SqlaTable, 'after_insert', set_perm)
 sa.event.listen(SqlaTable, 'after_update', set_perm)
-
-class SqlTableGroup(Model):
-    __tablename__ = 'tables_group'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50), unique = True, nullable=False)
-
-    def __repr__(self):
-        return self.name
-
-    def get_name(group_id):
-        entity = db.session.query(SqlTableGroup).get(group_id)
-        return entity.name
