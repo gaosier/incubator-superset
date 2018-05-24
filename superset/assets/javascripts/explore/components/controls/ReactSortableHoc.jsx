@@ -35,9 +35,16 @@ export default class SortableComponent extends React.Component {
       const data_list=state.data_list;
       if(state.type==='show_sort'){
         let items=[];
+        let value_list=[];
+        let lable_list=[];
         this.props.opts.map(o=>{
-          if(data_list.indexOf(o[this.props.valueKey])>=0){
-            items.push(o[this.props.labelKey])
+          value_list.push(o[this.props.valueKey]);
+          lable_list.push(o[this.props.labelKey]);
+        });
+        data_list.map(o=>{
+          let index=value_list.indexOf(o);
+          if(index>=0){
+             items.push(lable_list[index])
           }
         });
         this.setState({
