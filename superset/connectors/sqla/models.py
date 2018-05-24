@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 import logging
+import json
 
 from flask import escape, Markup
 from flask_appbuilder import Model
@@ -33,7 +34,7 @@ from superset.models.helpers import QueryResult
 from superset.models.helpers import set_perm
 from superset.utils import DTTM_ALIAS, QueryStatus
 from superset.utils_ext import time_grain_convert
-from .models_ext import SqlTableGroup
+from .models_ext import SqlTableGroup, SqlTableColumnSort
 from superset.config_ext import SUPERSET_MEMCACHED
 
 class AnnotationDatasource(BaseDatasource):
@@ -458,7 +459,6 @@ class SqlaTable(Model, BaseDatasource):
                 compile_kwargs={'literal_binds': True},
             ),
         )
-        logging.info(sql)
         sql = sqlparse.format(sql, reindent=True)
         if query_obj['is_prequery']:
             query_obj['prequeries'].append(sql)
@@ -916,6 +916,21 @@ class SqlaTable(Model, BaseDatasource):
         if schema:
             query = query.filter_by(schema=schema)
         return query.all()
+
+    def _get_sort_columns(self):
+        qry = db.session.query(SqlTableColumnSort).filter(SqlTableColumnSort.table_id==self.id,
+                SqlTableColumnSort.table_name==self.table_name)
+        cols = qry.all()
+        if len(cols) == 0:
+            logging.info('表{0}-{1}未匹配到配置项'.format(self.id, self.table_name))
+            return None
+        col = cols[0].expression
+        exp = None
+        try:
+            exp = json.loads(col)
+        except:
+            logging.info('表{0}的排序参数不是合法的json'.format(self.id))
+        return exp
 
 
 sa.event.listen(SqlaTable, 'after_insert', set_perm)
