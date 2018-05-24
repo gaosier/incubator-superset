@@ -88,6 +88,54 @@ class BaseViz(object):
         self._any_cached_dttm = None
         self._extra_chart_data = None
 
+    def _sort_index(self, df):
+        '''dataframe 索引进行排序
+           params:
+            df: dataframe
+           return:
+            dataframe
+        '''
+        def sort_col(x, values):
+            i = -1
+            try:
+                i = values.index(x)
+            except:
+                pass
+            return i
+        sort_columns = self.datasource._get_sort_columns()
+        if sort_columns is None:
+            return
+        for name,values in sort_columns.items():
+            if name not in df.columns:
+                continue
+            cates, cates_set = [], set()
+            for index,value in df[name].items():
+                cates_set.add(value)
+            cates = list(cates_set)
+            cates = sorted(cates, key=lambda x: sort_col(x, values))
+            df[name] = pd.Categorical(df[name], categories=cates, ordered=True)
+
+    def process_metrics(self):
+        self.metric_dict = {}
+        fd = self.form_data
+        for mkey in METRIC_KEYS:
+            val = fd.get(mkey)
+            if val:
+                if not isinstance(val, list):
+                    val = [val]
+                for o in val:
+                    self.metric_dict[self.get_metric_label(o)] = o
+
+        # Cast to list needed to return serializable object in py3
+        self.all_metrics = list(self.metric_dict.values())
+        self.metric_labels = list(self.metric_dict.keys())
+
+    def get_metric_label(self, metric):
+        if isinstance(metric, string_types):
+            return metric
+        if isinstance(metric, dict):
+            return metric.get('label')
+
     def reorder_columns(self, columns,type=1):
         fd = self.form_data
         if type==1:
@@ -656,89 +704,41 @@ class PivotTableViz(BaseViz):
 
     def query_obj(self):
         d = super(PivotTableViz, self).query_obj()
-        fd=self.form_data
         groupby = self.form_data.get('groupby')
         columns = self.form_data.get('columns')
         metrics = self.form_data.get('metrics')
-        order_by_metric = self.form_data.get('order_by_metric') or []
-        d['orderby'] = self.filter_groupby_orderby(order_by_metric, d['metrics'], d['groupby'])
         if not columns:
             columns = []
         if not groupby:
             groupby = []
-        if not groupby and not fd.get('include_time') :
-            raise Exception(_("Please choose at least one \"Group by\" field "))
+        if not groupby:
+            raise Exception(_("Please choose at least one 'Group by' field "))
         if not metrics:
             raise Exception(_('Please choose at least one metric'))
         if (
                 any(v in groupby for v in columns) or
                 any(v in columns for v in groupby)):
-            raise Exception(_("'Group By' and 'Columns' can't overlap"))
-        if fd.get('include_time') and fd.get('include_time_2'):
-            raise Exception(_("You can only choose one include_time"))
-        d['is_timeseries'] = self.should_be_timeseries()
+            raise Exception(_("Group By' and 'Columns' can't overlap"))
         return d
 
-    def get_data(self, df,is_xlsx=False):
+    def get_data(self, df, is_xlsx=False):
         if (
                 self.form_data.get('granularity') == 'all' and
                 DTTM_ALIAS in df):
             del df[DTTM_ALIAS]
-        fd = self.form_data
-        columns = self.reorder_columns(fd.get('columns') or [],type=2)
-        groupby=self.reorder_columns(self.groupby)
+        self._sort_index(df)
         df = df.pivot_table(
-            # index=self.form_data.get('groupby'),
-            index=groupby,
-            # columns=self.form_data.get('columns'),
-            columns=columns,
-            values=self.form_data.get('metrics'),
+            index=self.form_data.get('groupby'),
+            columns=self.form_data.get('columns'),
+            values=[self.get_metric_label(m) for m in self.form_data.get('metrics')],
             aggfunc=self.form_data.get('pandas_aggfunc'),
             margins=self.form_data.get('pivot_margins'),
         )
         # Display metrics side by side with each column
-        import pandas as pd
-        from pandas.core.indexes.multi import MultiIndex
-        if len(groupby)>1 and self.form_data.get('pivot_group_sum'): ##判断是否需要分别对分类进行求和
-            if self.form_data.get('pivot_margins'):
-                m=df.groupby(groupby[0]).sum().drop(['All']).reset_index()
-            else:
-                m = df.groupby(groupby[0]).sum().reset_index()
-            for i in range(1,len(groupby)):
-                if i ==1 :
-                    m[groupby[i]] = '总计'
-                else:
-                    m[groupby[i]] = ''
-            m = m.set_index(groupby)
-            new_df=''
-            for i,j in enumerate(m.index):
-                if i==0:
-                    new_df=pd.concat([df.ix[[j[0]]],m.ix[[j[0]]]])
-                else:
-                    new_df=pd.concat([new_df,df.ix[[j[0]]],m.ix[[j[0]]]])
-            if self.form_data.get('pivot_margins'):
-                new_df=pd.concat([new_df,df.ix[["All"]]])
-            df=new_df
-        a = df.index
-        if type(df.columns) == MultiIndex:
-            df=df.reindex(index=a,columns=df[self.form_data.get('metrics')].columns)
-        else:
-            df=df.reindex(index=a,columns=self.form_data.get('metrics'))
         if self.form_data.get('combine_metric'):
             df = df.stack(0).unstack()
-            if self.form_data.get('pivot_margins'):
-                if type(df.columns)==MultiIndex:
-                    values = list(df.columns.levels[0])
-                    values.remove('All')
-                    values.append('All')
-                    df = df.reindex(index=a,columns=df[values].columns)
-            # from pandas.core.indexes.frozen import FrozenNDArray
         if is_xlsx:
             return df
-        # if type(df.index) == MultiIndex:  #控制df的索引名称不展示
-        #     df.index.names=[None for i in range(len(df.index.names))]
-        # else :
-        #     df.index.name=None
         return dict(
             columns=list(df.columns),
             html=df.to_html(
@@ -747,6 +747,8 @@ class PivotTableViz(BaseViz):
                     'dataframe table table-striped table-bordered '
                     'table-condensed table-hover').split(' ')),
         )
+    
+
 
 
 class MarkupViz(BaseViz):
