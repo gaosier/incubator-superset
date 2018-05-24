@@ -52,8 +52,11 @@ module.exports = function (slice, payload) {
       scrollY: `${height}px`,
       scrollCollapse: true,
       scrollX: true,
+      "order": [],
+      autoFill: true
     });
-    table.column('-1').order('desc').draw();
+    table.draw();
+    //table.column('-1').order('desc').draw();
     fixDataTableBodyHeight(container.find('.dataTables_wrapper'), height);
   } else {
     // When there is more than 1 group by column we just render the table, without using
