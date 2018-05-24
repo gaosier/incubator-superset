@@ -25,7 +25,7 @@ from flask_babel import lazy_gettext as _
 import pandas as pd
 from six import text_type
 import sqlalchemy as sqla
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import IntegrityError
 from unidecode import unidecode
@@ -184,6 +184,11 @@ class DashboardFilter(SupersetFilter):
                 .filter(Slice.id.in_(slice_ids_qry)),
             ),
         )
+
+        sub_qry_1 = db.session.query(Dash.id).filter(Dash.owners.contains(g.user))
+        sub_qry_2 = db.session.query(Dash.id).filter(Dash.show_users.contains(g.user))
+        query = query.filter(or_(Dash.id.in_(sub_qry_1), Dash.id.in_(sub_qry_2)))
+
         return query
 
 
