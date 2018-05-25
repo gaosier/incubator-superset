@@ -1141,14 +1141,16 @@ class Superset(BaseSupersetView):
         return df
 
     def get_xlsx_file(self, viz_obj):
+        is_show_index = False  # execl表中是否显示index列
         dfa = viz_obj.get_df()
         # 先特殊处理pivot_table的下载
         if viz_obj.viz_type == 'pivot_table':
             dfa = viz_obj.get_data(dfa, is_xlsx=True)
+            is_show_index = True
         dfa = self.deal_with_df(viz_obj, dfa)
         filename = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time())) + u'.xlsx'
         filepath = os.path.join(app.config.get('SQLLAB_DATA_DIR'), filename)
-        dfa.to_excel(filepath, index=True, encoding='utf-8', engine='xlsxwriter')
+        dfa.to_excel(filepath, index=is_show_index, encoding='utf-8', engine='xlsxwriter')
         return send_file(filepath, as_attachment=True,
                          attachment_filename=parse.quote(filename))
 
