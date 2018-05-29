@@ -354,6 +354,8 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
         backref=backref('metrics', cascade='all, delete-orphan'),
         enable_typechecks=False)
     """
+    str_types = ('VARCHAR', 'STRING', 'CHAR')
+
     @property
     def perm(self):
         raise NotImplementedError()
@@ -368,3 +370,11 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
             'metric_name', 'verbose_name', 'description', 'expression',
             'warning_text')
         return {s: getattr(self, s) for s in attrs}
+
+    @property
+    def is_string(self):
+        return (
+            self.metric_type and
+            any([t in self.metric_type.upper() for t in self.str_types])
+        )
+

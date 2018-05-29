@@ -731,11 +731,22 @@ class PivotTableViz(BaseViz):
     def get_fillna_for_col(self, col):
         """Returns the value for use as filler for a specific Column.type"""
         if col:
-            print('col: %s   col.is_string: %s' % (col, col.is_string))
             if col.is_string:
-                return self.form_data.get('pandas_fill_column')
+                return self.form_data.get('pandas_fill_column') or ''
         return self.default_fillna
 
+    def get_fillna_for_columns(self, columns=None):
+        """Returns a dict or scalar that can be passed to DataFrame.fillna"""
+        if columns is None:
+            return self.default_fillna
+
+        columns_dict = {col.column_name: col for col in self.datasource.columns}
+        columns_dict.update({metric.metric_name: metric for metric in self.datasource.metrics})
+        fillna = {
+            c: self.get_fillna_for_col(columns_dict.get(c))
+            for c in columns
+        }
+        return fillna
 
     def get_data(self, df, is_xlsx=False):
         if (
@@ -1482,7 +1493,6 @@ class DistributionPieViz(NVD3Viz):
         fd = self.form_data
         order_by_metric = fd.get('order_by_metric') or []
         d['orderby'] = self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
-        # print(type(self)==DistributionBarViz,type(self)==DistributionPieViz)
         if self.viz_type =='pie':
         #     if len(self.form_data.get("groupby")) !=1:
         #         # raise Exception(_("请选择维度且个数为一"))
