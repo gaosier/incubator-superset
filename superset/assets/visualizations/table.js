@@ -194,6 +194,7 @@ function tableVis(slice, payload) {
     scrollY: height + 'px',
     scrollCollapse: true,
     scrollX: true,
+    order: [],
   });
   fixDataTableBodyHeight(
       container.find('.dataTables_wrapper'), height);

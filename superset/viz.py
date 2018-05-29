@@ -283,7 +283,6 @@ class BaseViz(object):
                     df[DTTM_ALIAS] += self.time_shift
 
             #self.df_metrics_to_num(df, query_obj.get('metrics') or []) 先注释掉，防止不是数字形式的指标
-
             df.replace([np.inf, -np.inf], np.nan)
             fillna = self.get_fillna_for_columns(df.columns)
             df = df.fillna(fillna)
@@ -707,19 +706,36 @@ class PivotTableViz(BaseViz):
         groupby = self.form_data.get('groupby')
         columns = self.form_data.get('columns')
         metrics = self.form_data.get('metrics')
+        order_by_metric = self.form_data.get('order_by_metric') or []
+        d['orderby'] = self.filter_groupby_orderby(order_by_metric, d['metrics'], d['groupby'])
         if not columns:
             columns = []
         if not groupby:
             groupby = []
-        if not groupby:
-            raise Exception(_("Please choose at least one 'Group by' field "))
+
+        if not groupby and not self.form_data.get('include_time'):
+            raise Exception(_("Please choose at least one \"Group by\" field "))
         if not metrics:
             raise Exception(_('Please choose at least one metric'))
         if (
                 any(v in groupby for v in columns) or
                 any(v in columns for v in groupby)):
-            raise Exception(_("Group By' and 'Columns' can't overlap"))
+            raise Exception(_("'Group By' and 'Columns' can't overlap"))
+
+        if self.form_data.get('include_time') and self.form_data.get('include_time_2'):
+            raise Exception(_("You can only choose one include_time"))
+
+        d['is_timeseries'] = self.should_be_timeseries()
         return d
+
+    def get_fillna_for_col(self, col):
+        """Returns the value for use as filler for a specific Column.type"""
+        if col:
+            print('col: %s   col.is_string: %s' % (col, col.is_string))
+            if col.is_string:
+                return self.form_data.get('pandas_fill_column')
+        return self.default_fillna
+
 
     def get_data(self, df, is_xlsx=False):
         if (
@@ -734,6 +750,12 @@ class PivotTableViz(BaseViz):
             aggfunc=self.form_data.get('pandas_aggfunc'),
             margins=self.form_data.get('pivot_margins'),
         )
+
+        # 空值填充
+        df.replace([np.inf, -np.inf, None], np.nan)
+        fillna = self.get_fillna_for_columns(self.form_data.get('metrics'))
+        df = df.fillna(fillna)
+
         # Display metrics side by side with each column
         if self.form_data.get('combine_metric'):
             df = df.stack(0).unstack()

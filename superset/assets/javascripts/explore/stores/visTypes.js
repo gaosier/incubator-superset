@@ -244,6 +244,7 @@ export const visTypes = {
         label: t('Pivot Options'),
         controlSetRows: [
           ['pandas_aggfunc', 'number_format'],
+          ['pandas_fill_column', null],
           ['pivot_margins', 'combine_metric','pivot_group_sum'],
         ],
       },

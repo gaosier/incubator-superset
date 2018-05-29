@@ -25,6 +25,7 @@ module.exports = function (slice, payload) {
     $(this)[0].textContent = slice.datasource.verbose_map[s] || s;
   };
   slice.container.find('thead tr:first th').each(replaceCell);
+  slice.container.find('thead tr:eq(1) th').each(replaceCell);
   slice.container.find('thead tr th:first-child').each(replaceCell);
 
   // jQuery hack to format number
@@ -52,8 +53,8 @@ module.exports = function (slice, payload) {
       scrollY: `${height}px`,
       scrollCollapse: true,
       scrollX: true,
-      "order": [],
-      autoFill: true
+      order: [],
+      autoFill: true,
     });
     table.draw();
     //table.column('-1').order('desc').draw();

@@ -966,7 +966,7 @@ export const controls = {
     freeForm: true,
     label: t('Number format'),
     renderTrigger: true,
-    default: '.3s',
+    default: '.',
     choices: D3_FORMAT_OPTIONS,
     description: D3_FORMAT_DOCS,
   },
@@ -2127,6 +2127,20 @@ export const controls = {
     renderTrigger: true,
     description: t('Whether to normalize the histogram'),
     default: false,
+  },
+
+  pandas_fill_column: {          // customer add fill column
+    type: 'SelectControl',
+    label: t('Fill Column'),
+    clearable: false,
+    choices: formatSelectOptions([
+      '',
+      '0',
+      '-',
+      'NA',
+    ]),
+    default: '',
+    description: t('fill pandas column'),
   },
 };
 export default controls;
