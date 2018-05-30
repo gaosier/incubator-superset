@@ -466,7 +466,7 @@ export const controls = {
     type: 'CheckboxControl',
     label: t('Show totals'),
     renderTrigger: false,
-    default: true,
+    default: false,
     description: t('Display total row/column'),
   },
 
