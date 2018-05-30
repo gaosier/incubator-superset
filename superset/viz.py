@@ -740,10 +740,12 @@ class PivotTableViz(BaseViz):
         if columns is None:
             return self.default_fillna
 
-        columns_dict = {col.column_name: col for col in self.datasource.columns}
-        columns_dict.update({metric.metric_name: metric for metric in self.datasource.metrics})
+        try:
+            fill_value = int(self.form_data.get('pandas_fill_column'))
+        except:
+            fill_value = self.form_data.get('pandas_fill_column')
         fillna = {
-            c: self.get_fillna_for_col(columns_dict.get(c))
+            c: fill_value
             for c in columns
         }
         return fillna
@@ -753,10 +755,15 @@ class PivotTableViz(BaseViz):
                 self.form_data.get('granularity') == 'all' and
                 DTTM_ALIAS in df):
             del df[DTTM_ALIAS]
+        fd = self.form_data
+        columns = self.reorder_columns(fd.get('columns') or [], type=2)
+        groupby = self.reorder_columns(self.groupby)
+
         self._sort_index(df)
+
         df = df.pivot_table(
-            index=self.form_data.get('groupby'),
-            columns=self.form_data.get('columns'),
+            index=groupby,
+            columns=columns,
             values=[self.get_metric_label(m) for m in self.form_data.get('metrics')],
             aggfunc=self.form_data.get('pandas_aggfunc'),
             margins=self.form_data.get('pivot_margins'),
@@ -765,7 +772,10 @@ class PivotTableViz(BaseViz):
         # 空值填充
         df.replace([np.inf, -np.inf, None], np.nan)
         fillna = self.get_fillna_for_columns(self.form_data.get('metrics'))
+        print('fillna: ', fillna)
+        print('df before: ', df)
         df = df.fillna(fillna)
+        print('df  after', df)
 
         # Display metrics side by side with each column
         if self.form_data.get('combine_metric'):
