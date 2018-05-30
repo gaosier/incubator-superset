@@ -40,11 +40,11 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'column_name', 'verbose_name', 'description',
         'type', 'groupby', 'filterable',
         'table', 'count_distinct', 'sum', 'avg','min', 'max', 'expression',
-        'is_dttm', 'python_date_format', 'database_expression','order_number']
+        'is_dttm', 'python_date_format', 'database_expression','order_number', 'hybrid_expression']
     add_columns = edit_columns
     list_columns = [
         'order_number','column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
-        'sum', 'avg','min', 'max', 'is_dttm','is_memcached','is_active']
+        'sum', 'avg','min', 'max', 'is_dttm','is_memcached','is_active', 'is_hybrid']
     page_size = 500
     description_columns = {
         'is_dttm': _(
@@ -80,6 +80,8 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
             "`Ex: TO_DATE('{}', 'YYYY-MM-DD HH24:MI:SS')` for Oracle "
             'Superset uses default expression based on DB URI if this '
             'field is blank.', True),
+        'is_hybrid': _("Is Hybrid"),
+        'hybrid_expression': _("Hybrid Expression"),
     }
     label_columns = {
         'column_name': _('Column'),
