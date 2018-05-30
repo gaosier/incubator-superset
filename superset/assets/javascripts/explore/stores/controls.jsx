@@ -235,7 +235,7 @@ export const controls = {
     multi: true,
     label: t('Ordering'),
     default: [],
-    description: t('One or many metrics to display'),
+    description: t('One or many metrics to ordering'),
     mapStateToProps: state => ({
       choices: (state.datasource) ? state.datasource.order_by_choices : [],
     }),
@@ -245,7 +245,7 @@ export const controls = {
     multi: true,
     label: t('Ordering'),
     default: [],
-    description: t('One or many metrics to display'),
+    description: t('One or many metrics to ordering'),
     mapStateToProps: state => ({
       choices: (state.datasource) ? state.datasource.order_by_metric : [],
     }),
@@ -968,7 +968,7 @@ export const controls = {
     renderTrigger: true,
     default: '.',
     choices: D3_FORMAT_OPTIONS,
-    description: D3_FORMAT_DOCS,
+    description: t('D3 format syntax: https://github.com/d3/d3-format'),
   },
 
   row_limit: {

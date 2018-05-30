@@ -302,7 +302,7 @@ msgstr "表视图"
 
 #: superset/viz.py:526
 msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
-msgstr "为[分组]和[指标]或[列]选择任何的字段，或者两个都不选"
+msgstr "聚合查询和非聚合不能同时选择"
 
 #: superset/viz.py:612
 msgid "Time Table View"

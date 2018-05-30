@@ -751,10 +751,12 @@ class PivotTableViz(BaseViz):
         return fillna
 
     def get_data(self, df, is_xlsx=False):
+
         if (
                 self.form_data.get('granularity') == 'all' and
                 DTTM_ALIAS in df):
             del df[DTTM_ALIAS]
+
         fd = self.form_data
         columns = self.reorder_columns(fd.get('columns') or [], type=2)
         groupby = self.reorder_columns(self.groupby)
@@ -772,10 +774,7 @@ class PivotTableViz(BaseViz):
         # 空值填充
         df.replace([np.inf, -np.inf, None], np.nan)
         fillna = self.get_fillna_for_columns(self.form_data.get('metrics'))
-        print('fillna: ', fillna)
-        print('df before: ', df)
         df = df.fillna(fillna)
-        print('df  after', df)
 
         # Display metrics side by side with each column
         if self.form_data.get('combine_metric'):
