@@ -69,6 +69,7 @@ class Dashboard extends React.PureComponent {
     this.getFormDataExtra = this.getFormDataExtra.bind(this);
     this.exploreChart = this.exploreChart.bind(this);
     this.exportCSV = this.exportCSV.bind(this);
+    this.exportXlsx = this.exportXlsx.bind(this);
     this.props.actions.fetchFaveStar = this.props.actions.fetchFaveStar.bind(this);
     this.props.actions.saveFaveStar = this.props.actions.saveFaveStar.bind(this);
     this.props.actions.saveSlice = this.props.actions.saveSlice.bind(this);
@@ -287,6 +288,11 @@ class Dashboard extends React.PureComponent {
     exportChart(formData, 'csv');
   }
 
+  exportXlsx(slice) {
+    const formData = this.getFormDataExtra(slice);
+    exportChart(formData, 'xlsx');
+  }
+
   // re-render chart without fetch
   rerenderCharts() {
     this.getAllSlices().forEach((slice) => {
@@ -331,6 +337,7 @@ class Dashboard extends React.PureComponent {
             getFormDataExtra={this.getFormDataExtra}
             exploreChart={this.exploreChart}
             exportCSV={this.exportCSV}
+            exportXlsx={this.exportXlsx}
             fetchSlice={this.fetchSlice}
             saveSlice={this.props.actions.saveSlice}
             removeSlice={this.props.actions.removeSlice}

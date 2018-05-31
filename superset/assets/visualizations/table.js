@@ -199,23 +199,23 @@ function tableVis(slice, payload) {
   fixDataTableBodyHeight(
       container.find('.dataTables_wrapper'), height);
   // Sorting table by main column
-  let sortBy;
-  if (fd.order_by_metric.length > 0) {
-    // Sort by as specified
-    sortBy = JSON.parse(fd.order_by_metric);
-  } else if (metrics.length > 0) {
-    // If not specified, use the first metric from the list
-    sortBy = [metrics[0], false];
-  } else if (fd.order_by_cols.length > 0) {
-    sortBy = JSON.parse(fd.order_by_cols);
-  }
-  if (sortBy) {
-    datatable.column(data.columns.indexOf(sortBy[0])).order(sortBy[1] ? 'asc' : 'desc');
-  }
-  if (fd.timeseries_limit_metric && metrics.indexOf(fd.timeseries_limit_metric) < 0) {
-    // Hiding the sortBy column if not in the metrics list
-    datatable.column(data.columns.indexOf(sortBy[0])).visible(false);
-  }
+  // let sortBy;
+  // if (fd.order_by_metric.length > 0) {
+  //   // Sort by as specified
+  //   sortBy = JSON.parse(fd.order_by_metric);
+  // } else if (metrics.length > 0) {
+  //   // If not specified, use the first metric from the list
+  //   sortBy = [metrics[0], false];
+  // } else if (fd.order_by_cols.length > 0) {
+  //   sortBy = JSON.parse(fd.order_by_cols);
+  // }
+  // if (sortBy) {
+  //   datatable.column(data.columns.indexOf(sortBy[0])).order(sortBy[1] ? 'asc' : 'desc');
+  // }
+  // if (fd.timeseries_limit_metric && metrics.indexOf(fd.timeseries_limit_metric) < 0) {
+  //   // Hiding the sortBy column if not in the metrics list
+  //   datatable.column(data.columns.indexOf(sortBy[0])).visible(false);
+  // }
   datatable.draw();
   container.parents('.widget').find('.tooltip').remove();
 }

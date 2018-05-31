@@ -26,6 +26,7 @@ const propTypes = {
   toggleExpandSlice: PropTypes.func,
   exploreChart: PropTypes.func,
   exportCSV: PropTypes.func,
+  exportXlsx: PropTypes.func,
   addFilter: PropTypes.func,
   getFilters: PropTypes.func,
   clearFilter: PropTypes.func,
@@ -41,6 +42,7 @@ const defaultProps = {
   toggleExpandSlice: () => ({}),
   exploreChart: () => ({}),
   exportCSV: () => ({}),
+  exportXlsx: () => ({}),
   addFilter: () => ({}),
   getFilters: () => ({}),
   clearFilter: () => ({}),
@@ -93,7 +95,7 @@ class GridCell extends React.PureComponent {
       isExpanded, isLoading, isCached, cachedDttm,
       removeSlice, updateSliceName, toggleExpandSlice, forceRefresh,
       chartKey, slice, datasource, formData, timeout, annotationQuery,
-      exploreChart, exportCSV,
+      exploreChart, exportXlsx,
     } = this.props;
     return (
       <div
@@ -113,7 +115,7 @@ class GridCell extends React.PureComponent {
             editMode={this.props.editMode}
             annotationQuery={annotationQuery}
             exploreChart={exploreChart}
-            exportCSV={exportCSV}
+            exportXlsx={exportXlsx}
           />
         </div>
         {

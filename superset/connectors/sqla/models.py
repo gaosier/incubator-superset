@@ -90,8 +90,8 @@ class TableColumn(Model, BaseColumn):
     database_expression = Column(String(255))
     is_memcached = Column(Boolean, default=False)
     order_number = Column(INTEGER, default=0)
-    is_hybrid = Column(Boolean, default=False)
-    hybrid_expression = Column(String(255))
+    is_partition = Column(Boolean, default=False)
+    partition_expression = Column(String(255))
 
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
@@ -122,7 +122,7 @@ class TableColumn(Model, BaseColumn):
         if end_dttm:
             l.append(col <= text(self.dttm_sql_literal(end_dttm)))
         col_partition = column('day').label('day')
-        if self.is_hybrid:
+        if self.is_partition:
             if start_dttm:
                 l.append(col_partition >= text(self.dttm_hybird_literal(start_dttm)))
         if end_dttm:
@@ -150,7 +150,7 @@ class TableColumn(Model, BaseColumn):
 
     def dttm_hybird_literal(self, dttm):
         """转换时间格式符合hybird分区格式"""
-        tf = self.hybrid_expression or '%Y%m%d'
+        tf = self.partition_expression or '%Y%m%d'
         return "'{0}'".format(dttm.strftime(tf))
 
     @classmethod

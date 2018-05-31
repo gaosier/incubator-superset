@@ -16,7 +16,7 @@ const propTypes = {
   toggleExpandSlice: PropTypes.func,
   forceRefresh: PropTypes.func,
   exploreChart: PropTypes.func,
-  exportCSV: PropTypes.func,
+  exportXlsx: PropTypes.func,
   editMode: PropTypes.bool,
   annotationQuery: PropTypes.object,
   annotationError: PropTypes.object,
@@ -28,7 +28,7 @@ const defaultProps = {
   updateSliceName: () => ({}),
   toggleExpandSlice: () => ({}),
   exploreChart: () => ({}),
-  exportCSV: () => ({}),
+  exportXlsx: () => ({}),
   editMode: false,
 };
 
@@ -38,7 +38,7 @@ class SliceHeader extends React.PureComponent {
 
     this.onSaveTitle = this.onSaveTitle.bind(this);
     this.onToggleExpandSlice = this.onToggleExpandSlice.bind(this);
-    this.exportCSV = this.props.exportCSV.bind(this, this.props.slice);
+    this.exportXlsx = this.props.exportXlsx.bind(this, this.props.slice);
     this.exploreChart = this.props.exploreChart.bind(this, this.props.slice);
     this.forceRefresh = this.props.forceRefresh.bind(this, this.props.slice.slice_id);
     this.removeSlice = this.props.removeSlice.bind(this, this.props.slice);
@@ -135,11 +135,11 @@ class SliceHeader extends React.PureComponent {
                   <i className="fa fa-pencil" />
                 </TooltipWrapper>
               </a>
-              <a className="exportCSV" onClick={this.exportCSV}>
+              <a className="exportXlsx" onClick={this.exportXlsx}>
                 <TooltipWrapper
                   placement="top"
-                  label="exportCSV"
-                  tooltip={t('Export CSV')}
+                  label="exportXlsx"
+                  tooltip={t('Export Xlsx')}
                 >
                   <i className="fa fa-table" />
                 </TooltipWrapper>
