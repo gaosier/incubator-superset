@@ -125,8 +125,9 @@ class TableColumn(Model, BaseColumn):
         if self.is_partition:
             if start_dttm:
                 l.append(col_partition >= text(self.dttm_hybird_literal(start_dttm)))
-        if end_dttm:
-            l.append(col_partition <= text(self.dttm_hybird_literal(end_dttm)))
+
+            if end_dttm:
+                l.append(col_partition <= text(self.dttm_hybird_literal(end_dttm)))
 
         return and_(*l)
 
