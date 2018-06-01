@@ -167,6 +167,31 @@ class MProjectView(SupersetModelView):
         'page_or_element_button':'操作'
     }
 
+    def pre_add(self, obj):
+        # 判断项目ID是否符合规范
+        if not re.match(r'[a-z]+$', obj.id):
+            raise ValueError(u'项目ID不合法,请以项目名称为项目ID,项目名称中仅包含(a-z)中的字符')
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
+
+    def pre_update(self, obj):
+        # 判断按钮ID是否符合规范
+        if not re.match(r'[a-z]+$', obj.id):
+            raise ValueError(u'项目ID不合法,请以项目名称为项目ID,项目名称中仅包含(a-z)中的字符')
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
+
+
 appbuilder.add_view(
     MProjectView,
     "M Project View",
@@ -234,7 +259,12 @@ class MPageView(SupersetModelView):
         'update_time':'更新时间'
     }
     post_update_flag=False
+
     def pre_update(self,obj):
+        # 判断页面ID是否符合规范
+        if not re.match(r'[a-z]+\d+$', obj.page_id):
+            raise ValueError(u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')
+
         columns_name=[]
         for i in obj.__table__.columns:
             tab,col=str(i).split(".")
@@ -251,7 +281,29 @@ class MPageView(SupersetModelView):
         new_mproject_id=sorted([i.id for i in obj.m_project])
         if item2 != new_mproject_id:
             self.post_update_flag=True
-            obj.status=True
+            obj.status = True
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
+
+    def pre_add(self, obj):
+        """
+        处理前端页面的数据
+        """
+        # 判断按钮ID是否符合规范
+        if not re.match(r'[a-z]+\d+$', obj.page_id):
+            raise ValueError(u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
 
     def post_update(self,obj):
         if self.post_update_flag:
@@ -302,7 +354,12 @@ class MElementView(SupersetModelView):
         'get_del_status':'是否删除',
         'update_time': '更新时间'
     }
+
     def pre_update(self,obj):
+        # 判断按钮ID是否符合规范
+        if not re.match(r'[a-z]+\d+_\d+$', obj.element_id):
+            raise ValueError(u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')
+
         columns_name=[]
         for i in obj.__table__.columns:
             tab,col=str(i).split(".")
@@ -314,11 +371,33 @@ class MElementView(SupersetModelView):
                 if getattr(obj,col) != item1[ind]:
                     obj.status=True
                     return None
-        sql2="select mpage_mproject_id from melement_mproject_mproject WHERE melement_id = %s"%(obj.id)
+        sql2="select mpage_mproject_id from melement_mpage_mproject WHERE melement_id = %s"%(obj.id)
         item2 =sorted([i[0] for i in db.session.execute(sql2)])
         new_item_id=sorted([i.id for i in obj.mpage_mproject])
         if item2 != new_item_id:
             obj.status=True
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
+
+    def pre_add(self, obj):
+        """
+        处理前端页面的数据
+        """
+        # 判断按钮ID是否符合规范
+        if not re.match(r'[a-z]+\d+_\d+$', obj.element_id):
+            raise ValueError(u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
 
     def post_add(self,obj):
         for i in obj.mpage_mproject:
