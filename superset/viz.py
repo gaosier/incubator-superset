@@ -728,28 +728,6 @@ class PivotTableViz(BaseViz):
         d['is_timeseries'] = self.should_be_timeseries()
         return d
 
-    def get_fillna_for_col(self, col):
-        """Returns the value for use as filler for a specific Column.type"""
-        if col:
-            if col.is_string:
-                return self.form_data.get('pandas_fill_column') or ''
-        return self.default_fillna
-
-    def get_fillna_for_columns(self, columns=None):
-        """Returns a dict or scalar that can be passed to DataFrame.fillna"""
-        if columns is None:
-            return self.default_fillna
-
-        try:
-            fill_value = int(self.form_data.get('pandas_fill_column'))
-        except:
-            fill_value = self.form_data.get('pandas_fill_column')
-        fillna = {
-            c: fill_value
-            for c in columns
-        }
-        return fillna
-
     def get_data(self, df, is_xlsx=False):
 
         if (
@@ -773,8 +751,7 @@ class PivotTableViz(BaseViz):
 
         # 空值填充
         df.replace([np.inf, -np.inf, None], np.nan)
-        fillna = self.get_fillna_for_columns(self.form_data.get('metrics'))
-        df = df.fillna(fillna)
+        df = df.fillna(self.form_data.get('pandas_fill_column'))
 
         # Display metrics side by side with each column
         if self.form_data.get('combine_metric'):
