@@ -437,19 +437,17 @@ class LoadMap(BaseSupersetView):
         """
         rest = []
         table_name = 'dm_beixiao_page'
-        print('start_time:', request.args)
         start_time = request.args.get('start_time')
         end_time = request.args.get('end_time')
-        print('start_time:', start_time)
+
         if start_time and end_time:
             start_time = datetime.datetime.strptime(start_time, '%Y/%m/%d').strftime('%Y%m%d')
             end_time = datetime.datetime.strptime(end_time, '%Y/%m/%d').strftime('%Y%m%d')
         else:
             start_time = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d')
             end_time = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d')
-        print("after start_time: ", start_time)
-        print("after end_time: ", end_time)
-        table = db.session.query(SqlaTable).filter(table_name == table_name).first()
+
+        table = db.session.query(SqlaTable).filter(SqlaTable.table_name == table_name).first()
         if table:
             database = table.database
             engine = database.get_sqla_engine()
@@ -458,13 +456,11 @@ class LoadMap(BaseSupersetView):
                     table_name, end_time, start_time,
                 ))
             rows = result.fetchall()
-            print('rows: ', len(rows))
             for item in rows:
                 data = {}
                 data['count'] = item[2]
                 data['coordinate'] = [item[0], item[1]]
                 rest.append(data)
-        print("rest: ", len(rest))
 
         return self.render_template('superset/beixiao/map.html', data=json.dumps(rest), total=len(rest))
 
