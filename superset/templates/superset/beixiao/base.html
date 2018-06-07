@@ -1,0 +1,137 @@
+{% import 'appbuilder/general/lib.html' as lib %}
+<html>
+<head>
+    <title>北校用户登录热力图</title>
+    {% block head_meta %}{% endblock %}
+    {% block head_css %}
+      <link rel="icon" type="image/png" href="/static/assets/images/favicon.png">
+      <link rel="stylesheet" type="text/css" href="/static/appbuilder/css/flags/flags16.css" />
+      <link rel="stylesheet" type="text/css" href="{{ js_manifest('theme.css') }}" />
+      <link rel="stylesheet" type="text/css" href="/static/appbuilder/css/font-awesome.min.css">
+       <link href="https://cdn.bootcss.com/bootstrap-daterangepicker/2.1.25/daterangepicker.css" rel="stylesheet" type="text/css">
+    {% endblock %}
+    {% block head_js %}
+        <script src="{{ js_manifest('common.js') }}"></script>
+        <script src="/static/appbuilder/js/jquery-latest.js"></script>
+        <script type="text/javascript" src="/static/appbuilder/js/bootstrap.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap-daterangepicker/2.1.25/moment.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap-daterangepicker/2.1.25/daterangepicker.js"></script>
+    {% endblock %}
+    <input
+      type="hidden"
+      name="csrf_token"
+      id="csrf_token"
+      value="{{ csrf_token() if csrf_token else '' }}"
+    >
+</head>
+<body>
+    {% block navbar %}
+      {% if not standalone_mode %}
+        <header class="top" role="header">
+          {% include 'appbuilder/navbar.html' %}
+        </header>
+      {% endif %}
+    {% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-4 col-md-offset-2 demo">
+            <label for="male">选择查询时间</label>
+            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
+            <input type="text" id="config-demo" class="form-control" placeholder="不选时间,默认展示前天的数据">
+        </div>
+        <div class="col-md-2 col-md-offset-2">
+            <button type="button" onclick="RunQuery()" class="form-control"> 查询</button>
+        </div>
+        <div class="col-md-2 col-md-offset-2">
+            <label for="male">总条数:</label>
+            <input type="text" id="btn_num" class="form-control" readonly>
+        </div>
+    </div>
+    </div>
+    <style type="text/css">
+        .demo {
+            position: relative;
+        }
+
+        .demo i {
+            position: absolute;
+            bottom: 10px;
+            right: 24px;
+            top: auto;
+            cursor: pointer;
+        }
+    </style>
+    <div>
+        <iframe
+          id="login_map"
+          width="100%"
+          frameBorder="0"
+          scrolling="no"
+          src=""
+          onload="this.height=document.body.scrollHeight"
+        >
+        </iframe>
+    </div>
+{% endblock %}
+<script>
+       var csrftoken = "{{ csrf_token() }}";
+       $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                }
+            }
+        });
+        // 动态获取url
+        $(document).ready(function(){
+             var protol = window.location.protocol;
+             var host = window.location.host;
+             var port = window.location.port;
+             var url = protol + '//' + host+ '/loadmap/my_queries/';
+             $('iframe').attr('src',url);
+        });
+
+        var beginTimeStore = '';
+        var endTimeStore = '';
+        $('#config-demo').daterangepicker({
+            "timePicker": false,
+            "timePicker24Hour": false,
+            "linkedCalendars": false,
+            "autoUpdateInput": false,
+            "locale": {
+                format: 'YYYY/MM/DD',
+                separator: ' ~ ',
+                applyLabel: "应用",
+                cancelLabel: "取消",
+                resetLabel: "重置",
+            }
+        }, function(start, end, label) {
+            beginTimeStore = start;
+            endTimeStore = end;
+            if(!this.startDate){
+                this.element.val('');
+            }else{
+                this.element.val(this.startDate.format(this.locale.format) + this.locale.separator + this.endDate.format(this.locale.format));
+            }
+        });
+
+       function RunQuery(){
+            var start_time = $("#config-demo").val().split("~")[0];
+            if (start_time){
+                start_time = start_time.replace(/^\s+|\s+$/g,"")
+            }
+
+            var end_time = $("#config-demo").val().split("~")[1];
+            if (end_time){
+                end_time = end_time.replace(/^\s+|\s+$/g,"");
+            }
+
+            var protol = window.location.protocol;
+            var host = window.location.host;
+            var p_url = protol + '//' + host+ '/loadmap/my_queries/';
+            var url = protol + '//' + host+ '/loadmap/my_queries/?start_time=' + start_time + '&end_time=' + end_time;
+            document.getElementById('login_map').src=url;
+        }
+</script>
+</body>
+</html>

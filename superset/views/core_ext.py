@@ -1,30 +1,27 @@
-#-*-coding:utf-8-*-
-from datetime import datetime, timedelta
+# -*-coding:utf-8-*-
+import datetime
 import json
 import logging
 import os
 import re
-import time
-import traceback
-from urllib import parse
 from urllib.parse import quote
 import pandas as pd
 from flask import (
      g, request, redirect, flash, Response, render_template, Markup,
     abort, url_for,send_from_directory,send_file)
+from flask_babel import gettext as __
 
 from superset import (
     app, appbuilder, cache, db, results_backend, security, sql_lab, utils,
-    viz, utils_ext, security_manager
+    viz, utils_ext, security_manager,db
 )
-from superset.utils import (
-    merge_extra_filters, merge_request_params, QueryStatus,
-)
+from sqlalchemy import create_engine
+
 from flask_appbuilder.security.decorators import has_access, has_access_api
 import superset.models.core as models
 from superset.models.core_ext import MPage,MpageMproject,MElement,JingYouUser,MProject
 from superset.models.sql_lab import Query
-import xlsxwriter
+
 from .core import get_datasource_access_error_msg
 from flask_appbuilder import expose, SimpleFormView
 from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
@@ -33,6 +30,7 @@ from .base import (
     generate_download_headers, get_error_msg, get_user_roles,
     json_error_response, SupersetFilter, SupersetModelView, YamlExportMixin,
 )
+from ..connectors.sqla.models import SqlaTable
 
 config = app.config
 stats_logger = config.get('STATS_LOGGER')
@@ -415,3 +413,61 @@ class MElementView(SupersetModelView):
 
 
 appbuilder.add_view_no_menu(MElementView)
+
+# 北校用户登录热力图
+appbuilder.add_link(
+    __('Login Map'),
+    href='/loginmap/my_queries/',
+    icon='fa-map',
+    category='')
+
+
+class LoginMap(BaseSupersetView):
+    @expose('/my_queries/')
+    def my_queries(self):
+        return self.render_template('superset/beixiao/base.html')
+
+
+class LoadMap(BaseSupersetView):
+    @expose('/my_queries/', methods=['GET', 'POST'])
+    def my_queries(self):
+        """
+        查询数据
+        :return: 
+        """
+        rest = []
+        table_name = 'dm_beixiao_page'
+        print('start_time:', request.args)
+        start_time = request.args.get('start_time')
+        end_time = request.args.get('end_time')
+        print('start_time:', start_time)
+        if start_time and end_time:
+            start_time = datetime.datetime.strptime(start_time, '%Y/%m/%d').strftime('%Y%m%d')
+            end_time = datetime.datetime.strptime(end_time, '%Y/%m/%d').strftime('%Y%m%d')
+        else:
+            start_time = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+            end_time = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+        print("after start_time: ", start_time)
+        print("after end_time: ", end_time)
+        table = db.session.query(SqlaTable).filter(table_name == table_name).first()
+        if table:
+            database = table.database
+            engine = database.get_sqla_engine()
+            result = engine.execute(
+                'select lng, lat, count(*) as num from %s where day<= "%s" and day>= "%s" group by lng, lat' % (
+                    table_name, end_time, start_time,
+                ))
+            rows = result.fetchall()
+            print('rows: ', len(rows))
+            for item in rows:
+                data = {}
+                data['count'] = item[2]
+                data['coordinate'] = [item[0], item[1]]
+                rest.append(data)
+        print("rest: ", len(rest))
+
+        return self.render_template('superset/beixiao/map.html', data=json.dumps(rest), total=len(rest))
+
+appbuilder.add_view_no_menu(LoginMap)
+appbuilder.add_view_no_menu(LoadMap)
+

@@ -3418,6 +3418,9 @@ msgstr "允许多模式元数据获取"
 msgid "Show users is a list of users who cannot alter the dashboard."
 msgstr "共享用户是一组没有修改看板权限的用户."
 
+msgid "Login Map"
+msgstr "北校用户登录热力图"
+
 
 
 
