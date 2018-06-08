@@ -119,7 +119,7 @@ def check_ownership(obj, raise_if_false=True):
         return False
 
     security_exception = SupersetSecurityException(
-        "You don't have the rights to alter [{}]".format(obj))
+        "您没有权限修改 [{}]".format(obj))
 
     if g.user.is_anonymous():
         if raise_if_false:
@@ -128,16 +128,20 @@ def check_ownership(obj, raise_if_false=True):
     roles = (r.name for r in get_user_roles())
     if 'Admin' in roles:
         return True
+
     session = db.create_scoped_session()
     orig_obj = session.query(obj.__class__).filter_by(id=obj.id).first()
-    owner_names = (user.username for user in orig_obj.owners)
+    if hasattr(orig_obj, "owner") and orig_obj.owner:
+        owner_names = [orig_obj.owner.username]
+    else:
+        owner_names = []
     if (
             hasattr(orig_obj, 'created_by') and
             orig_obj.created_by and
             orig_obj.created_by.username == g.user.username):
         return True
     if (
-            hasattr(orig_obj, 'owners') and
+            hasattr(orig_obj, 'owner') and
             g.user and
             hasattr(g.user, 'username') and
             g.user.username in owner_names):

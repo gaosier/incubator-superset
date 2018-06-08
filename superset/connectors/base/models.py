@@ -356,6 +356,9 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
     """
     str_types = ('VARCHAR', 'STRING', 'CHAR')
 
+    def __repr__(self):
+        return self.metric_name
+
     @property
     def perm(self):
         raise NotImplementedError()

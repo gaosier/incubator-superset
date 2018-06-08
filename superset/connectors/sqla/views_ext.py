@@ -1,4 +1,5 @@
 #-*-coding:utf-8-*-
+from flask import redirect
 from flask_appbuilder.views import GeneralView,ModelView,MasterDetailView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext as __
@@ -8,6 +9,10 @@ from . import models,models_ext
 from .views import TableModelView,TableColumnInlineView,SqlMetricInlineView
 from superset.views.core_ext import TableColumnFilter
 from superset.views.core import check_ownership
+
+from flask_appbuilder import expose
+from flask_appbuilder.security.decorators import has_access
+from past.builtins import basestring
 
 
 class MyTableColumnInlineView(TableColumnInlineView):
@@ -45,8 +50,19 @@ appbuilder.add_view_no_menu(MySqlMetricInlineView)
 class MyTableModelView(TableModelView):
     edit_columns=['table_name']
     related_views = [MyTableColumnInlineView,MySqlMetricInlineView]
+
     def pre_update(self, obj):
         check_ownership(obj)
+
+    @expose('/edit/<pk>', methods=['GET', 'POST'])
+    @has_access
+    def edit(self, pk):
+        """Simple hack to redirect to explore view after saving"""
+        resp = super(TableModelView, self).edit(pk)
+        if isinstance(resp, basestring):
+            return resp
+        return resp
+
 
 appbuilder.add_view_no_menu(MyTableModelView)
 # appbuilder.add_view(
