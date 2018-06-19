@@ -61,6 +61,7 @@ GB_RESULT_SET = [
         'timestamp': '2012-01-01T00:00:00.000Z',
         'event': {
             'dim1': 'Canada',
+            'dim2': 'boy',
             'metric1': 12345678,
         },
     },
@@ -69,10 +70,13 @@ GB_RESULT_SET = [
         'timestamp': '2012-01-01T00:00:00.000Z',
         'event': {
             'dim1': 'USA',
+            'dim2': 'girl',
             'metric1': 12345678 / 2,
         },
     },
 ]
+
+DruidCluster.get_druid_version = lambda _: '0.9.1'
 
 
 class DruidTests(SupersetTestCase):
@@ -90,6 +94,7 @@ class DruidTests(SupersetTestCase):
             coordinator_port=7979,
             broker_host='localhost',
             broker_port=7980,
+            broker_endpoint='druid/v2',
             metadata_last_refreshed=datetime.now())
 
     def get_cluster(self, PyDruid):
@@ -112,7 +117,6 @@ class DruidTests(SupersetTestCase):
 
         db.session.add(cluster)
         cluster.get_datasources = PickableMock(return_value=['test_datasource'])
-        cluster.get_druid_version = PickableMock(return_value='0.9.1')
 
         return cluster
 
@@ -165,7 +169,7 @@ class DruidTests(SupersetTestCase):
             'row_limit': 5000,
             'include_search': 'false',
             'metrics': ['count'],
-            'groupby': ['dim1', 'dim2d'],
+            'groupby': ['dim1', 'dim2'],
             'force': 'true',
         }
         # two groupby
@@ -322,7 +326,6 @@ class DruidTests(SupersetTestCase):
         cluster.get_datasources = PickableMock(
             return_value=['test_datasource'],
         )
-        cluster.get_druid_version = PickableMock(return_value='0.9.1')
 
         cluster.refresh_datasources()
         cluster.datasources[0].merge_flag = True
@@ -344,37 +347,37 @@ class DruidTests(SupersetTestCase):
         self.login(username='admin')
         cluster = self.get_cluster(PyDruid)
         cluster.refresh_datasources()
+        datasource = cluster.datasources[0]
 
-        for i, datasource in enumerate(cluster.datasources):
-            cols = (
-                db.session.query(DruidColumn)
-                .filter(DruidColumn.datasource_id == datasource.id)
+        cols = (
+            db.session.query(DruidColumn)
+            .filter(DruidColumn.datasource_id == datasource.id)
+        )
+
+        for col in cols:
+            self.assertIn(
+                col.column_name,
+                SEGMENT_METADATA[0]['columns'].keys(),
             )
 
-            for col in cols:
-                self.assertIn(
-                    col.column_name,
-                    SEGMENT_METADATA[i]['columns'].keys(),
-                )
+        metrics = (
+            db.session.query(DruidMetric)
+            .filter(DruidMetric.datasource_id == datasource.id)
+            .filter(DruidMetric.metric_name.like('%__metric1'))
+        )
 
-            metrics = (
-                db.session.query(DruidMetric)
-                .filter(DruidMetric.datasource_id == datasource.id)
-                .filter(DruidMetric.metric_name.like('%__metric1'))
-            )
+        self.assertEqual(
+            {metric.metric_name for metric in metrics},
+            {'max__metric1', 'min__metric1', 'sum__metric1'},
+        )
+
+        for metric in metrics:
+            agg, _ = metric.metric_name.split('__')
 
             self.assertEqual(
-                {metric.metric_name for metric in metrics},
-                {'max__metric1', 'min__metric1', 'sum__metric1'},
+                json.loads(metric.json)['type'],
+                'double{}'.format(agg.capitalize()),
             )
-
-            for metric in metrics:
-                agg, _ = metric.metric_name.split('__')
-
-                self.assertEqual(
-                    json.loads(metric.json)['type'],
-                    'double{}'.format(agg.capitalize()),
-                )
 
     @patch('superset.connectors.druid.models.PyDruid')
     def test_refresh_metadata_augment_type(self, PyDruid):
@@ -387,52 +390,60 @@ class DruidTests(SupersetTestCase):
         instance = PyDruid.return_value
         instance.segment_metadata.return_value = metadata
         cluster.refresh_datasources()
+        datasource = cluster.datasources[0]
 
-        for i, datasource in enumerate(cluster.datasources):
-            metrics = (
-                db.session.query(DruidMetric)
-                .filter(DruidMetric.datasource_id == datasource.id)
-                .filter(DruidMetric.metric_name.like('%__metric1'))
+        column = (
+            db.session.query(DruidColumn)
+            .filter(DruidColumn.datasource_id == datasource.id)
+            .filter(DruidColumn.column_name == 'metric1')
+        ).one()
+
+        self.assertEqual(column.type, 'LONG')
+
+        metrics = (
+            db.session.query(DruidMetric)
+            .filter(DruidMetric.datasource_id == datasource.id)
+            .filter(DruidMetric.metric_name.like('%__metric1'))
+        )
+
+        for metric in metrics:
+            agg, _ = metric.metric_name.split('__')
+
+            self.assertEqual(
+                metric.json_obj['type'],
+                'long{}'.format(agg.capitalize()),
             )
-
-            for metric in metrics:
-                agg, _ = metric.metric_name.split('__')
-
-                self.assertEqual(
-                    metric.json_obj['type'],
-                    'long{}'.format(agg.capitalize()),
-                )
 
     @patch('superset.connectors.druid.models.PyDruid')
     def test_refresh_metadata_augment_verbose_name(self, PyDruid):
         self.login(username='admin')
         cluster = self.get_cluster(PyDruid)
         cluster.refresh_datasources()
+        datasource = cluster.datasources[0]
 
-        for i, datasource in enumerate(cluster.datasources):
-            metrics = (
-                db.session.query(DruidMetric)
-                .filter(DruidMetric.datasource_id == datasource.id)
-                .filter(DruidMetric.metric_name.like('%__metric1'))
-            )
+        metrics = (
+            db.session.query(DruidMetric)
+            .filter(DruidMetric.datasource_id == datasource.id)
+            .filter(DruidMetric.metric_name.like('%__metric1'))
+        )
 
-            for metric in metrics:
-                metric.verbose_name = metric.metric_name
+        for metric in metrics:
+            metric.verbose_name = metric.metric_name
 
-            db.session.commit()
+        db.session.commit()
 
         # The verbose name should not change during a refresh.
         cluster.refresh_datasources()
+        datasource = cluster.datasources[0]
 
-        for i, datasource in enumerate(cluster.datasources):
-            metrics = (
-                db.session.query(DruidMetric)
-                .filter(DruidMetric.datasource_id == datasource.id)
-                .filter(DruidMetric.metric_name.like('%__metric1'))
-            )
+        metrics = (
+            db.session.query(DruidMetric)
+            .filter(DruidMetric.datasource_id == datasource.id)
+            .filter(DruidMetric.metric_name.like('%__metric1'))
+        )
 
-            for metric in metrics:
-                self.assertEqual(metric.verbose_name, metric.metric_name)
+        for metric in metrics:
+            self.assertEqual(metric.verbose_name, metric.metric_name)
 
     def test_urls(self):
         cluster = self.get_test_cluster_obj()
@@ -446,8 +457,8 @@ class DruidTests(SupersetTestCase):
             'https://localhost:9999')
 
         self.assertEquals(
-            cluster.get_base_coordinator_url(),
-            'http://localhost:7979/druid/coordinator/v1/metadata')
+            cluster.get_base_broker_url(),
+            'http://localhost:7980/druid/v2')
 
 
 if __name__ == '__main__':

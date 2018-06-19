@@ -983,6 +983,10 @@ msgstr "Tabelle einfügen"
 msgid "Edit Table"
 msgstr "Tabelle bearbeiten"
 
+#: superset/templates/appbuilder/general/widgets/search.html:6
+msgid "Add Filter"
+msgstr ""
+
 #: superset/connectors/sqla/views.py:238
 msgid "Name of the table that exists in the source database"
 msgstr ""

@@ -1349,6 +1349,7 @@ msgstr "Параметры"
 msgid "Chart"
 msgstr ""
 
+
 #: superset/views/core.py:469
 msgid "Name"
 msgstr "Название"

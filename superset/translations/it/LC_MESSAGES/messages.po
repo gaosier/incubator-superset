@@ -1515,6 +1515,7 @@ msgstr "Mostra query salvate"
 msgid "Add Saved Query"
 msgstr "Aggiungi query salvata"
 
+
 #: superset/views/sql_lab.py:45
 msgid "Edit Saved Query"
 msgstr "Modifica query salvata"

@@ -1712,6 +1712,10 @@ msgstr "Cambiado el"
 #~ msgid "Sort columns alphabetically"
 #~ msgstr ""
 
+#: superset/templates/appbuilder/general/widgets/search.html:6
+msgid "Add Filter"
+msgstr "Añadir Filtro"
+
 #~ msgid "Original table column order"
 #~ msgstr ""
 

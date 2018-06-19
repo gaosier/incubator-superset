@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Apache Superset 0.22.1\n"
 "Report-Msgid-Bugs-To: benedictjin2016@gmail.com\n"
-"POT-Creation-Date: 2018-04-18 18:15+0800\n"
+"POT-Creation-Date: 2018-06-07 00:14-0700\n"
 "PO-Revision-Date: 2018-01-08 17:47+0800\n"
 "Last-Translator: \n"
 "Language: zh\n"
@@ -2560,15 +2560,35 @@ msgstr "表格过滤器"
 msgid "Whether to apply filter when table cell is clicked"
 msgstr "单击表单元时是否应用筛选器"
 
+#: superset/assets/src/explore/controls.jsx:1441
+msgid "Align +/-"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1444
+msgid "Whether to align the background chart for +/- values"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1449
+msgid "Color +/-"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1452
+msgid "Whether to color +/- values"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1457
 msgid "Show Bubbles"
 msgstr "显示气泡"
 
+#: superset/assets/src/explore/controls.jsx:1460
 msgid "Whether to display bubbles on top of countries"
 msgstr "是否在国家之上展示泡沫"
 
+#: superset/assets/src/explore/controls.jsx:1465
 msgid "Legend"
 msgstr "图例"
 
+#: superset/assets/src/explore/controls.jsx:1468
 msgid "Whether to display the legend (toggles)"
 msgstr "是否展示图例"
 
@@ -2578,33 +2598,51 @@ msgstr "显示数据"
 msgid "Whether to display the numerical values within the cells"
 msgstr "是否在单元格内显示数值"
 
+#: superset/assets/src/explore/controls.jsx:1481
+msgid "Show Metric Names"
+msgstr "显示指标名字"
+
+#: superset/assets/src/explore/controls.jsx:1484
+msgid "Whether to display the metric name as a title"
+msgstr "是否把指标作为一个标题来显示"
+
+#: superset/assets/src/explore/controls.jsx:1489
 msgid "X bounds"
 msgstr "X轴界限"
 
+#: superset/assets/src/explore/controls.jsx:1492
 msgid "Whether to display the min and max values of the X axis"
 msgstr "是否显示X轴的最小值和最大值"
 
+#: superset/assets/src/explore/controls.jsx:1497
 msgid "Y bounds"
 msgstr "Y轴界限"
 
+#: superset/assets/src/explore/controls.jsx:1500
 msgid "Whether to display the min and max values of the Y axis"
 msgstr "是否显示Y轴的最小值和最大值"
 
+#: superset/assets/src/explore/controls.jsx:1505
 msgid "Rich Tooltip"
 msgstr "丰富的工具提示"
 
+#: superset/assets/src/explore/controls.jsx:1508
 msgid "The rich tooltip shows a list of all series for that point in time"
 msgstr "丰富的工具提示显示了该时间点的所有系列的列表"
 
+#: superset/assets/src/explore/controls.jsx:1514
 msgid "Y Log Scale"
 msgstr "Y轴的对数刻度"
 
+#: superset/assets/src/explore/controls.jsx:1517
 msgid "Use a log scale for the Y axis"
 msgstr "使用Y轴的对数刻度"
 
+#: superset/assets/src/explore/controls.jsx:1522
 msgid "X Log Scale"
 msgstr "X轴的对数刻度"
 
+#: superset/assets/src/explore/controls.jsx:1525
 msgid "Use a log scale for the X axis"
 msgstr "使用X轴的对数刻度"
 
@@ -2614,24 +2652,40 @@ msgstr "对数刻度"
 msgid "Use a log scale"
 msgstr "使用对数刻度"
 
+
+#: superset/assets/src/explore/controls.jsx:1530
+msgid "Log Scale"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1533
+msgid "Use a log scale"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1538
 msgid "Donut"
 msgstr "圆饼图"
 
+#: superset/assets/src/explore/controls.jsx:1541
 msgid "Do you want a donut or a pie?"
 msgstr "你想要圆饼图还是柱状图"
 
+#: superset/assets/src/explore/controls.jsx:1546
 msgid "Put labels outside"
 msgstr "把标签放到外面"
 
+#: superset/assets/src/explore/controls.jsx:1549
 msgid "Put the labels outside the pie?"
 msgstr ""
 
+#: superset/assets/src/explore/controls.jsx:1554
 msgid "Contribution"
 msgstr "贡献"
 
+#: superset/assets/src/explore/controls.jsx:1556
 msgid "Compute the contribution to the total"
 msgstr "计算对总数的贡献"
 
+#: superset/assets/src/explore/controls.jsx:1561
 msgid "Period Ratio"
 msgstr "周期比"
 
@@ -2650,6 +2704,7 @@ msgstr "时间间隔"
 msgid "Overlay a timeseries from a relative time period. Expects relative time delta in natural language (example:  24 hours, 7 days, 56 weeks, 365 days)"
 msgstr "用一个相对的时间段来覆盖时间序列。期望自然语言中的相对时间增量（例如：24小时，7天，56周，365天）"
 
+
 msgid "Subheader"
 msgstr "子标题"
 
@@ -2662,45 +2717,97 @@ msgstr "标签"
 msgid "`count` is COUNT(*) if a group by is used. Numerical columns will be aggregated with the aggregator. Non-numerical columns will be used to label points. Leave empty to get a count of points in each cluster."
 msgstr "如果使用了group by，count表示COUNT(*).数值列将与聚合的聚合。非数值列将用于标记点。留空以获得每个簇中的点计数"
 
+
 msgid "Map Style"
 msgstr "地图风格"
 
+#: superset/assets/src/explore/controls.jsx:1630
 msgid "Base layer map style"
 msgstr "基础地图风格"
 
+#: superset/assets/src/explore/controls.jsx:1636
 msgid "Clustering Radius"
 msgstr "聚类半径"
 
 msgid "The radius (in pixels) the algorithm uses to define a cluster. Choose 0 to turn off clustering, but beware that a large number of points (>1000) will cause lag."
 msgstr "算法用来定义一个簇的半径(以像素为单位.选择0关闭聚类，但是要注意大量的点(＞1000)会导致滞后"
 
+#: superset/assets/src/explore/controls.jsx:1649
+msgid ""
+"The radius (in pixels) the algorithm uses to define a cluster. Choose 0 "
+"to turn off clustering, but beware that a large number of points (>1000) "
+"will cause lag."
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1656
+#: superset/assets/src/explore/visTypes.js:798
+msgid "Point Size"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1658
+msgid "Fixed point radius"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1666
 msgid "Point Radius"
 msgstr "点半径"
 
 msgid "The radius of individual points (ones that are not in a cluster).Either a numerical column or `Auto`, which scales the point based on the largest cluster"
 msgstr "单个点的半径(不是在一个簇中的半径)，或者是一个数值列或“AUTO”，它根据最大的簇来缩放点"
 
+#: superset/assets/src/explore/controls.jsx:1668
+msgid ""
+"The radius of individual points (ones that are not in a cluster). Either "
+"a numerical column or `Auto`, which scales the point based on the largest"
+" cluster"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1678
 msgid "Point Radius Unit"
 msgstr "点半径的单位"
 
+
+#: superset/assets/src/explore/controls.jsx:1681
+#: superset/assets/src/explore/controls.jsx:1697
 msgid "The unit of measure for the specified point radius"
 msgstr "指定点半径的度量单位"
 
+#: superset/assets/src/explore/controls.jsx:1686
+msgid "Point Unit"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1702
 msgid "Opacity"
 msgstr "不透明度"
 
+
+#: superset/assets/src/explore/controls.jsx:1705
 msgid "Opacity of all clusters, points, and labels. Between 0 and 1."
 msgstr "所有簇、点和标签的不透明度，不透明度在0到1之间"
 
+
+#: superset/assets/src/explore/controls.jsx:1711
+#: superset/assets/src/explore/visTypes.js:1657
+msgid "Viewport"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1713
+msgid "Parameters related to the view and perspective on the map"
+msgstr ""
+
+#: superset/assets/src/explore/controls.jsx:1722
 msgid "Zoom"
 msgstr "缩放"
 
+#: superset/assets/src/explore/controls.jsx:1725
 msgid "Zoom level of the map"
 msgstr "缩放级别的地图"
 
+#: superset/assets/src/explore/controls.jsx:1731
 msgid "Default latitude"
 msgstr "默认的纬度"
 
+#: superset/assets/src/explore/controls.jsx:1734
 msgid "Latitude of default viewport"
 msgstr "默认视口纬度"
 
@@ -3211,6 +3318,10 @@ msgstr "Druid 数据源"
 msgid "Scan New Datasources"
 msgstr "扫描新的数据源"
 
+#: superset/templates/superset/import_dashboards.html:11
+msgid "Import dashboards"
+msgstr "导入看板"
+
 msgid "Refresh Druid Metadata"
 msgstr "刷新 Druid 元数据"
 
@@ -3417,9 +3528,3 @@ msgstr "允许多模式元数据获取"
 
 msgid "Show users is a list of users who cannot alter the dashboard."
 msgstr "共享用户是一组没有修改看板权限的用户."
-
-
-
-
-
-

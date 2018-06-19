@@ -35,6 +35,27 @@ The Superset web server and the Superset Celery workers (optional)
 are stateless, so you can scale out by running on as many servers
 as needed.
 
+Start with Docker
+-----------------
+
+If you know docker, then you're lucky, we have shortcut road for you to 
+initialize development environment: ::
+
+    git clone https://github.com/apache/incubator-superset/
+    cd incubator-superset
+    cp contrib/docker/{docker-build.sh,docker-compose.yml,docker-entrypoint.sh,docker-init.sh,Dockerfile} .
+    cp contrib/docker/superset_config.py superset/
+    bash -x docker-build.sh
+    docker-compose up -d
+    docker-compose exec superset bash
+    bash docker-init.sh
+
+After several minutes for sueprset initialization to finish, you can open a 
+a browser and view `http://localhost:8088` to start your journey.
+
+Or if you're curious and want to install superset from bottom up, then go 
+ahead.
+
 OS dependencies
 ---------------
 
@@ -126,7 +147,7 @@ Follow these few simple steps to install Superset.::
     superset init
 
     # To start a development web server on port 8088, use -p to bind to another port
-    # superset runserver -d
+    superset runserver -d
 
 
 After installation, you should be able to point your browser to the right
@@ -208,7 +229,7 @@ In case that the reverse proxy is used for providing ssl encryption,
 an explicit definition of the `X-Forwarded-Proto` may be required.
 For the Apache webserver this can be set as follows: ::
 
-　RequestHeader set X-Forwarded-Proto "https"
+    RequestHeader set X-Forwarded-Proto "https"
 
 Configuration
 -------------
@@ -294,11 +315,15 @@ Here's a list of some of the recommended packages.
 +---------------+-------------------------------------+-------------------------------------------------+
 |  Presto       | ``pip install pyhive``              | ``presto://``                                   |
 +---------------+-------------------------------------+-------------------------------------------------+
+|  Hive         | ``pip install pyhive``              | ``hive://``                                     |
++---------------+-------------------------------------+-------------------------------------------------+
 |  Oracle       | ``pip install cx_Oracle``           | ``oracle://``                                   |
 +---------------+-------------------------------------+-------------------------------------------------+
 |  sqlite       |                                     | ``sqlite://``                                   |
 +---------------+-------------------------------------+-------------------------------------------------+
-|  Redshift     | ``pip install sqlalchemy-redshift`` | ``postgresql+psycopg2://``                      |
+|  Snowflake    | ``pip install snowflake-sqlalchemy``| ``snowflake://``                                |
++---------------+-------------------------------------+-------------------------------------------------+
+|  Redshift     | ``pip install sqlalchemy-redshift`` | ``redshift+psycopg2://``                        |
 +---------------+-------------------------------------+-------------------------------------------------+
 |  MSSQL        | ``pip install pymssql``             | ``mssql://``                                    |
 +---------------+-------------------------------------+-------------------------------------------------+
@@ -310,6 +335,8 @@ Here's a list of some of the recommended packages.
 +---------------+-------------------------------------+-------------------------------------------------+
 |  Athena       | ``pip install "PyAthenaJDBC>1.0.9"``| ``awsathena+jdbc://``                           |
 +---------------+-------------------------------------+-------------------------------------------------+
+|  Athena       | ``pip install "PyAthena>1.2.0"``    | ``awsathena+rest://``                           |
++---------------+-------------------------------------+-------------------------------------------------+
 |  Vertica      | ``pip install                       |  ``vertica+vertica_python://``                  |
 |               | sqlalchemy-vertica-python``         |                                                 |
 +---------------+-------------------------------------+-------------------------------------------------+
@@ -317,6 +344,8 @@ Here's a list of some of the recommended packages.
 |               | sqlalchemy-clickhouse``             |                                                 |
 +---------------+-------------------------------------+-------------------------------------------------+
 |  Kylin        | ``pip install kylinpy``             | ``kylin://``                                    |
++---------------+-------------------------------------+-------------------------------------------------+
+|  BigQuery     | ``pip install pybigquery``          | ``bigquery://``                                 |
 +---------------+-------------------------------------+-------------------------------------------------+
 
 Note that many other database are supported, the main criteria being the
@@ -335,6 +364,11 @@ Where you need to escape/encode at least the s3_staging_dir, i.e., ::
 
     s3://... -> s3%3A//...
 
+You can also use `PyAthena` library
+
+    awsathena+rest://{aws_access_key_id}:{aws_secret_access_key}@athena.{region_name}.amazonaws.com/{schema_name}?s3_staging_dir={s3_staging_dir}&...
+
+_(See more details at https://github.com/laughingman7743/PyAthena#sqlalchemy.)_
 
 Caching
 -------
@@ -356,7 +390,7 @@ For setting your timeouts, this is done in the Superset metadata and goes
 up the "timeout searchpath", from your slice configuration, to your
 data source's configuration, to your database's and ultimately falls back
 into your global default defined in ``CACHE_CONFIG``.
-	
+
 .. code-block:: python
 
     CACHE_CONFIG = {
@@ -375,7 +409,7 @@ It is possible to tweak the database connection information using the
 parameters exposed by SQLAlchemy. In the ``Database`` edit view, you will
 find an ``extra`` field as a ``JSON`` blob.
 
-.. image:: _static/img/tutorial/add_db.png
+.. image:: images/tutorial/add_db.png
    :scale: 30 %
 
 This JSON string contains extra configuration elements. The ``engine_params``
@@ -410,6 +444,16 @@ in your config file to point to that function. ::
         return 'secret'
 
     SQLALCHEMY_CUSTOM_PASSWORD_STORE = example_lookup_password
+
+A common pattern is to use environment variables to make secrets available.
+``SQLALCHEMY_CUSTOM_PASSWORD_STORE`` can also be used for that purpose. ::
+
+    def example_password_as_env_var(url):
+        # assuming the uri looks like
+        # mysql://localhost?superset_user:{SUPERSET_PASSWORD}
+        return url.password.format(os.environ)
+
+    SQLALCHEMY_CUSTOM_PASSWORD_STORE = example_password_as_env_var
 
 
 SSL Access to databases
@@ -636,3 +680,18 @@ To setup StatsD logging, it's a matter of configuring the logger in your
 
 Note that it's also possible to implement you own logger by deriving
 ``superset.stats_logger.BaseStatsLogger``.
+
+
+Install Superset with helm in Kubernetes
+--------------
+
+You can install Superset into Kubernetes with Helm <https://helm.sh/>. The chart is
+located in ``install/helm``.
+
+To install Superset into your Kubernetes:
+
+.. code-block:: bash
+
+    helm upgrade --install superset ./install/helm/superset
+
+Note that the above command will install Superset into ``default`` namespace of your Kubernetes cluster.

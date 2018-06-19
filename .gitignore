@@ -11,6 +11,7 @@ _images
 _modules
 superset/bin/supersetc
 env_py3
+envpy3
 .eggs
 build
 *.db
@@ -40,3 +41,10 @@ superset/assets/version_info.json
 *.iml
 venv
 @eaDir/
+
+# docker
+/Dockerfile
+/docker-build.sh
+/docker-compose.yml
+/docker-entrypoint.sh
+/docker-init.sh

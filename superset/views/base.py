@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=C,R,W
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -41,11 +42,13 @@ def get_error_msg():
     return error_msg
 
 
-def json_error_response(msg=None, status=500, stacktrace=None, payload=None):
+def json_error_response(msg=None, status=500, stacktrace=None, payload=None, link=None):
     if not payload:
         payload = {'error': str(msg)}
         if stacktrace:
             payload['stacktrace'] = stacktrace
+        if link:
+            payload['link'] = link
     return Response(
         json.dumps(payload, default=utils.json_iso_dttm_ser),
         status=status, mimetype='application/json')
