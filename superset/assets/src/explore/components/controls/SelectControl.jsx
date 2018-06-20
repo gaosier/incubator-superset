@@ -6,7 +6,7 @@ import ControlHeader from '../ControlHeader';
 import { t } from '../../../locales';
 import VirtualizedRendererWrap from '../../../components/VirtualizedRendererWrap';
 import OnPasteSelect from '../../../components/OnPasteSelect';
-import SortableComponent from './ReactSortableHoc';
+import SortableComponent from '../../../../javascripts/explore/components/controls/ReactSortableHoc';
 import {createStore} from 'redux'
 
 const propTypes = {
@@ -48,12 +48,9 @@ const defaultProps = {
   optionRenderer: opt => opt.label,
   valueRenderer: opt => opt.label,
   valueKey: 'value',
-<<<<<<< HEAD:superset/assets/javascripts/explore/components/controls/SelectControl.jsx
   clearAllText: '清空',
   clearValueText: '清空',
-=======
   noResultsText: t('No results found'),
->>>>>>> upstream/master:superset/assets/src/explore/components/controls/SelectControl.jsx
 };
 
 export default class SelectControl extends React.PureComponent {
@@ -161,12 +158,9 @@ export default class SelectControl extends React.PureComponent {
       onFocus: this.props.onFocus,
       optionRenderer: VirtualizedRendererWrap(this.props.optionRenderer),
       valueRenderer: this.props.valueRenderer,
-<<<<<<< HEAD:superset/assets/javascripts/explore/components/controls/SelectControl.jsx
       clearAllText: this.props.clearAllText,
       clearValueText: this.props.clearValueText,
-=======
       noResultsText: this.props.noResultsText,
->>>>>>> upstream/master:superset/assets/src/explore/components/controls/SelectControl.jsx
       selectComponent: this.props.freeForm ? Creatable : Select,
       disabled: this.props.disabled,
       refFunc: this.props.refFunc,

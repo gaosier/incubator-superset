@@ -16,15 +16,12 @@ const propTypes = {
   hovered: PropTypes.bool,
   tooltipOnClick: PropTypes.func,
   warning: PropTypes.string,
-<<<<<<< HEAD:superset/assets/javascripts/explore/components/ControlHeader.jsx
   clickfunc: PropTypes.func,
   opts: PropTypes.array,
   store: PropTypes.store,
   sorttext: PropTypes.string,
   button: PropTypes.string,
-=======
   danger: PropTypes.string,
->>>>>>> upstream/master:superset/assets/src/explore/components/ControlHeader.jsx
 };
 
 const defaultProps = {

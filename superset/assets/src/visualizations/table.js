@@ -3,11 +3,8 @@ import dt from 'datatables.net-bs';
 import 'datatables.net-bs/css/dataTables.bootstrap.css';
 import dompurify from 'dompurify';
 
-<<<<<<< HEAD:superset/assets/visualizations/table.js
-import { fixDataTableBodyHeight, d3TimeFormatPreset, d3format } from '../javascripts/modules/utils';
-=======
-import { fixDataTableBodyHeight, d3TimeFormatPreset } from '../modules/utils';
->>>>>>> upstream/master:superset/assets/src/visualizations/table.js
+import { fixDataTableBodyHeight, d3TimeFormatPreset, d3format} from '../modules/utils';
+
 import './table.css';
 
 const $ = require('jquery');
@@ -99,9 +96,7 @@ function tableVis(slice, payload) {
               new_val=new Date(val);
           }
         html = tsFormatter(new_val.getTime())
-      }
-<<<<<<< HEAD:superset/assets/visualizations/table.js
-      else if (typeof (val) === 'string') {
+      } else if (typeof (val) === 'string') {
           var reg =/^\d{4}-\d{2}-\d{2}T/;
           if(reg.test(val)){
               let new_val=new Date(val);
@@ -111,10 +106,6 @@ function tableVis(slice, payload) {
               html = `<span class="like-pre">${val}</span>`;
           }
 
-=======
-      if (typeof (val) === 'string') {
-        html = `<span class="like-pre">${dompurify.sanitize(val)}</span>`;
->>>>>>> upstream/master:superset/assets/src/visualizations/table.js
       }
       if (isMetric) {
         const format_ = slice.datasource.column_formats[c] || fd.number_format || '.3s';

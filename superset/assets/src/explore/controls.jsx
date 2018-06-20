@@ -55,17 +55,7 @@ const D3_FORMAT_DOCS = 'D3 format syntax: https://github.com/d3/d3-format';
 
 // input choices & options
 const D3_FORMAT_OPTIONS = [
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/controls.jsx
   ['.', '. | 12345'],
-  ['.1s', '.1s | 12k'],
-  ['.3s', '.3s | 12.3k'],
-  ['.1%', '.1% | 12.3%'],
-  ['.3%', '.3% | 1234543.210%'],
-  ['.4r', '.4r | 12350'],
-  ['.3f', '.3f | 12345.432'],
-  ['+,', '+, | +12,345.4321'],
-  ['$,.2f', '$,.2f | $12,345.43'],
-=======
   ['.1s', '.1s (12345.432 => 10k)'],
   ['.3s', '.3s (12345.432 => 12.3k)'],
   [',.1%', ',.1% (12345.432 => 1,234,543.2%)'],
@@ -74,7 +64,6 @@ const D3_FORMAT_OPTIONS = [
   [',.3f', ',.3f (12345.432 => 12,345.432)'],
   ['+,', '+, (12345.432 => +12,345.432)'],
   ['$,.2f', '$,.2f (12345.432 => $12,345.43)'],
->>>>>>> upstream/master:superset/assets/src/explore/controls.jsx
 ];
 
 const ROW_LIMIT_OPTIONS = [10, 50, 100, 250, 500, 1000, 5000, 10000, 50000,100000];
@@ -116,14 +105,11 @@ const groupByControl = {
   optionRenderer: c => <ColumnOption column={c} showType />,
   valueRenderer: c => <ColumnOption column={c} />,
   valueKey: 'column_name',
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/controls.jsx
   labelKey: 'verbose_name', // 很重要，用于拖动排序的key值
-=======
   filterOption: (opt, text) => (
     (opt.column_name && opt.column_name.toLowerCase().indexOf(text) >= 0) ||
     (opt.verbose_name && opt.verbose_name.toLowerCase().indexOf(text) >= 0)
   ),
->>>>>>> upstream/master:superset/assets/src/explore/controls.jsx
   mapStateToProps: (state, control) => {
     const newState = {};
     if (state.datasource) {
@@ -136,31 +122,31 @@ const groupByControl = {
   },
 };
 
-const metrics = {
-  type: 'MetricsControl',
-  multi: true,
-  label: t('Metrics'),
-  validators: [v.nonEmpty],
-  default: (c) => {
-    const metric = mainMetric(c.savedMetrics);
-    return metric ? [metric] : null;
-  },
-  mapStateToProps: (state) => {
-    const datasource = state.datasource;
-    return {
-      columns: datasource ? datasource.columns : [],
-      savedMetrics: datasource ? datasource.metrics : [],
-      datasourceType: datasource && datasource.type,
-    };
-  },
-  description: t('One or many metrics to display'),
-};
-const metric = {
-  ...metrics,
-  multi: false,
-  label: t('Metric'),
-  default: props => mainMetric(props.savedMetrics),
-};
+// const metrics = {
+//   type: 'MetricsControl',
+//   multi: true,
+//   label: t('Metrics'),
+//   validators: [v.nonEmpty],
+//   default: (c) => {
+//     const metric = mainMetric(c.savedMetrics);
+//     return metric ? [metric] : null;
+//   },
+//   mapStateToProps: (state) => {
+//     const datasource = state.datasource;
+//     return {
+//       columns: datasource ? datasource.columns : [],
+//       savedMetrics: datasource ? datasource.metrics : [],
+//       datasourceType: datasource && datasource.type,
+//     };
+//   },
+//   description: t('One or many metrics to display'),
+// };
+// const metric = {
+//   type: 'SelectControl',
+//   multi: false,
+//   label: t('Metric'),
+//   default: props => mainMetric(props.savedMetrics),
+// };
 
 const sandboxUrl = (
   'https://github.com/apache/incubator-superset/' +
@@ -199,9 +185,9 @@ function jsFunctionControl(label, description, extraDescr = null, height = 100, 
 
 export const controls = {
 
-  metrics,
-
-  metric,
+  // metrics,
+  //
+  // metric,
 
   datasource: {
     type: 'DatasourceControl',
@@ -219,24 +205,7 @@ export const controls = {
     default: 'table',
     description: t('The type of visualization to display'),
   },
-
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/controls.jsx
-  // metrics: {
-  //   type: 'MetricsControl',
-  //   multi: true,
-  //   label: t('Metrics'),
-  //   validators: [v.nonEmpty],
-  //   default: (c) => {
-  //     const metric = mainMetric(c.options);
-  //     return metric ? [metric] : null;
-  //   },
-  //   mapStateToProps: state => ({
-  //     columns: state.datasource ? state.datasource.columns : [],
-  //     savedMetrics: state.datasource ? state.datasource.metrics : [],
-  //     datasourceType: state.datasource && state.datasource.type,
-  //   }),
-  //   description: t('One or many metrics to display'),
-  // },
+    
   metrics: {
     type: 'SelectControl',
     multi: true,
@@ -253,14 +222,11 @@ export const controls = {
     }),
     description: t('One or many metrics to display'),
   },
-
-=======
->>>>>>> upstream/master:superset/assets/src/explore/controls.jsx
+    
   percent_metrics: {
-    ...metrics,
+    type: 'SelectControl',
     multi: true,
     label: t('Percentage Metrics'),
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/controls.jsx
     valueKey: 'metric_name',
     labelKey: 'verbose_name', // 很重要，用于拖动排序的key值
     optionRenderer: m => <MetricOption metric={m} showType />,
@@ -268,9 +234,7 @@ export const controls = {
     mapStateToProps: state => ({
       options: (state.datasource) ? state.datasource.metrics : [],
     }),
-=======
     validators: [],
->>>>>>> upstream/master:superset/assets/src/explore/controls.jsx
     description: t('Metrics for which percentage of total are to be displayed'),
   },
 
@@ -344,7 +308,6 @@ export const controls = {
     renderTrigger: true,
   },
 
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/controls.jsx
   metric: {
     type: 'MetricsControl',
     multi: false,
@@ -360,14 +323,11 @@ export const controls = {
     }),
   },
 
-=======
->>>>>>> upstream/master:superset/assets/src/explore/controls.jsx
   metric_2: {
-    ...metric,
+    type: 'MetricsControl',
     label: t('Right Axis Metric'),
     clearable: true,
     description: t('Choose a metric for right axis'),
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/controls.jsx
     valueKey: 'metric_name',
     labelKey: 'verbose_name',//很重要，用于拖动排序的key值
     optionRenderer: m => <MetricOption metric={m} showType />,
@@ -375,8 +335,6 @@ export const controls = {
     mapStateToProps: state => ({
       options: (state.datasource) ? state.datasource.metrics : [],
     }),
-=======
->>>>>>> upstream/master:superset/assets/src/explore/controls.jsx
   },
 
   stacked_style: {
@@ -603,7 +561,7 @@ export const controls = {
   },
 
   secondary_metric: {
-    ...metric,
+    type: 'MetricsControl',
     label: t('Color Metric'),
     default: null,
     description: t('A metric to use for color'),
@@ -1203,21 +1161,21 @@ export const controls = {
   },
 
   x: {
-    ...metric,
+    type: 'MetricsControl',
     label: t('X Axis'),
     description: t('Metric assigned to the [X] axis'),
     default: null,
   },
 
   y: {
-    ...metric,
+    type: 'MetricsControl',
     label: t('Y Axis'),
     default: null,
     description: t('Metric assigned to the [Y] axis'),
   },
 
   size: {
-    ...metric,
+    type: 'MetricsControl',
     label: t('Bubble Size'),
     default: null,
   },

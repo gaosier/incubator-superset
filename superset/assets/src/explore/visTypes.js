@@ -114,6 +114,13 @@ export const visTypes = {
         ],
       },
       {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['adhoc_filters'],
+        ],
+      },
+      {
         label: t('Options'),
         expanded: true,
         controlSetRows: [
@@ -230,11 +237,12 @@ export const visTypes = {
         label: t('Query'),
         expanded: true,
         controlSetRows: [
-          ['groupby', 'columns'],
-          ['metrics'],
-          ['order_by_metric'],
-          ['row_limit'],
-          // ['limit'],
+            ['metrics'],
+            ['adhoc_filters'],
+            ['groupby'],
+            ['columns'],
+            ['order_by_metric'],
+            ['row_limit'],
         ],
       },
       {
@@ -976,62 +984,6 @@ export const visTypes = {
       },
     },
   },
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/visTypes.js
-=======
-
-  table: {
-    label: t('Table View'),
-    controlPanelSections: [
-      {
-        label: t('GROUP BY'),
-        description: t('Use this section if you want a query that aggregates'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metrics'],
-          ['percent_metrics'],
-          ['timeseries_limit_metric', 'row_limit'],
-          ['include_time', 'order_desc'],
-        ],
-      },
-      {
-        label: t('NOT GROUPED BY'),
-        description: t('Use this section if you want to query atomic rows'),
-        controlSetRows: [
-          ['all_columns'],
-          ['order_by_cols'],
-          ['row_limit', null],
-        ],
-      },
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['adhoc_filters'],
-        ],
-      },
-      {
-        label: t('Options'),
-        expanded: true,
-        controlSetRows: [
-          ['table_timestamp_format'],
-          ['page_length', null],
-          ['include_search', 'table_filter'],
-          ['align_pn', 'color_pn'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      metrics: {
-        validators: [],
-      },
-      time_grain_sqla: {
-        default: null,
-      },
-    },
-  },
-
->>>>>>> upstream/master:superset/assets/src/explore/visTypes.js
   time_table: {
     label: t('Time Series Table'),
     controlPanelSections: [
@@ -1074,37 +1026,6 @@ export const visTypes = {
     ],
   },
 
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/visTypes.js
-=======
-  pivot_table: {
-    label: t('Pivot Table'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metrics'],
-          ['adhoc_filters'],
-          ['groupby'],
-          ['columns'],
-          ['row_limit', null],
-        ],
-      },
-      {
-        label: t('Pivot Options'),
-        controlSetRows: [
-          ['pandas_aggfunc', 'pivot_margins'],
-          ['number_format', 'combine_metric'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      groupby: { includeTime: true },
-      columns: { includeTime: true },
-    },
-  },
-
->>>>>>> upstream/master:superset/assets/src/explore/visTypes.js
   separator: {
     label: t('Separator'),
     controlPanelSections: [
@@ -1966,19 +1887,9 @@ export function sectionsToRender(vizType, datasourceType) {
   }
 
   return [].concat(
-<<<<<<< HEAD:superset/assets/javascripts/explore/stores/visTypes.js
-    sections.datasourceAndVizType,
-    datasourceType === 'table' ? sections.sqlaTimeSeries : sections.druidTimeSeries,
-    datasourceType === 'table' ? sections.filters[0] : sections.filters,
-    viz.controlPanelSections,
-    datasourceType === 'table' ? sections.filters[1] : [],
-    datasourceType === 'table' ? sections.sqlClause : [],
-    //datasourceType === 'table' ? sections.filters[0] : sections.filters,
-  );
-=======
     sectionsCopy.datasourceAndVizType,
     datasourceType === 'table' ? sectionsCopy.sqlaTimeSeries : sectionsCopy.druidTimeSeries,
     viz.controlPanelSections,
   ).filter(section => section);
->>>>>>> upstream/master:superset/assets/src/explore/visTypes.js
+
 }

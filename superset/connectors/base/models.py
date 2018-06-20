@@ -208,7 +208,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         for col in sorted(filterd_columns,key=lambda x:x.order_number):
             if col.is_active:
                 all_cols_1.append({"column_name": col.column_name, "expression": col.expression, "type": col.type,
-                                   "is_dttm": col.is_dttm})
+                                   "is_dttm": col.is_dttm, "verbose_name": col.verbose_name or col.column_name})
 
         return {
             # 'all_cols': utils.choicify(self.column_names),
