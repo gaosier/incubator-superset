@@ -207,8 +207,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         all_cols_1 = []
         for col in sorted(filterd_columns,key=lambda x:x.order_number):
             if col.is_active:
-                all_cols_1.append({"column_name": col.column_name, "expression": col.expression, "type": col.type,
-                                   "is_dttm": col.is_dttm, "verbose_name": col.verbose_name or col.column_name})
+                all_cols_1.append(col.data)
 
         return {
             # 'all_cols': utils.choicify(self.column_names),
@@ -218,8 +217,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'edit_url': self.url,
             'filter_select': self.filter_select_enabled,
             # 'filterable_cols': utils.choicify(self.filterable_column_names),
-            'filterable_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
-                                            for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.filterable],
+            'filterable_cols': [i.data for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.filterable],
             # 'gb_cols': utils.choicify(self.groupby_column_names),
             'gb_cols': gb_cols,
             'id': self.id,

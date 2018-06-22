@@ -21,6 +21,9 @@ import VirtualizedRendererWrap from '../../components/VirtualizedRendererWrap';
 
 const $ = require('jquery');
 
+const OPERATOR_ZH = { '==': '等于', '!=': '不等于', 'LIKE': 'like', '>': '大于', '>=': '大于等于', '<': '小于',
+'<=': '小于等于', 'in': '在', 'not in': '不再' };
+
 const propTypes = {
   adhocFilter: PropTypes.instanceOf(AdhocFilter).isRequired,
   onChange: PropTypes.func.isRequired,
@@ -38,14 +41,8 @@ const defaultProps = {
 };
 
 function translateOperator(operator) {
-  if (operator === OPERATORS['==']) {
-    return 'equals';
-  } else if (operator === OPERATORS['!=']) {
-    return 'not equal to';
-  } else if (operator === OPERATORS.LIKE) {
-    return 'like';
-  }
-  return operator;
+  const key = OPERATOR_ZH[operator];
+  return key;
 }
 
 const SINGLE_LINE_SELECT_CONTROL_HEIGHT = 30;
@@ -94,18 +91,22 @@ export default class AdhocFilterEditPopoverSimpleTabContent extends React.Compon
   onSubjectChange(option) {
     let subject;
     let clause;
+    let verbose_name;
     // infer the new clause based on what subject was selected.
     if (option && option.column_name) {
       subject = option.column_name;
       clause = CLAUSES.WHERE;
+      verbose_name = option.verbose_name;
     } else if (option && (option.saved_metric_name || option.label)) {
       subject = option.saved_metric_name || option.label;
       clause = CLAUSES.HAVING;
+      verbose_name = option.verbose_name;
     }
     this.props.onChange(this.props.adhocFilter.duplicateWith({
       subject,
       clause,
       expressionType: EXPRESSION_TYPES.SIMPLE,
+      verbose_name,
     }));
   }
 
@@ -200,14 +201,13 @@ export default class AdhocFilterEditPopoverSimpleTabContent extends React.Compon
 
   render() {
     const { adhocFilter, options, datasource } = this.props;
-
     let subjectSelectProps = {
       value: adhocFilter.subject ? { value: adhocFilter.subject } : undefined,
       onChange: this.onSubjectChange,
       optionRenderer: VirtualizedRendererWrap(option => (
         <FilterDefinitionOption option={option} />
       )),
-      valueRenderer: option => <span>{option.value}</span>,
+      valueRenderer: option => <span>{adhocFilter.verbose_name || option.value}</span>,
       valueKey: 'filterOptionName',
       noResultsText: t('No such column found. To filter on a metric, try the Custom SQL tab.'),
     };

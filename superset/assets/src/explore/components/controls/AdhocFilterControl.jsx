@@ -53,7 +53,6 @@ export default class AdhocFilterControl extends React.Component {
     const filters = (this.props.value || []).map(filter => (
       isDictionaryForAdhocFilter(filter) ? new AdhocFilter(filter) : filter
     ));
-
     this.optionRenderer = VirtualizedRendererWrap(option => (
       <FilterDefinitionOption option={option} />
     ));
@@ -129,6 +128,7 @@ export default class AdhocFilterControl extends React.Component {
           operator: OPERATORS['=='],
           comparator: '',
           clause: CLAUSES.WHERE,
+          verbose_name: option.verbose_name,
         });
       } else if (option instanceof AdhocFilter) {
         return option;

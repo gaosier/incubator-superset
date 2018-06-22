@@ -49,6 +49,7 @@ import { colorPrimary, ALL_COLOR_SCHEMES, spectrums } from '../modules/colors';
 import { defaultViewport } from '../modules/geo';
 import ColumnOption from '../components/ColumnOption';
 import OptionDescription from '../components/OptionDescription';
+import MetricOption from '../components/MetricOption';
 import { t } from '../locales';
 
 const D3_FORMAT_DOCS = 'D3 format syntax: https://github.com/d3/d3-format';
@@ -184,11 +185,6 @@ function jsFunctionControl(label, description, extraDescr = null, height = 100, 
 }
 
 export const controls = {
-
-  // metrics,
-  //
-  // metric,
-
   datasource: {
     type: 'DatasourceControl',
     label: t('Datasource'),
@@ -205,7 +201,6 @@ export const controls = {
     default: 'table',
     description: t('The type of visualization to display'),
   },
-    
   metrics: {
     type: 'SelectControl',
     multi: true,
@@ -222,7 +217,6 @@ export const controls = {
     }),
     description: t('One or many metrics to display'),
   },
-    
   percent_metrics: {
     type: 'SelectControl',
     multi: true,
@@ -1005,7 +999,7 @@ export const controls = {
     freeForm: true,
     label: t('Number format'),
     renderTrigger: true,
-    default: '.3s',
+    default: '.',
     choices: D3_FORMAT_OPTIONS,
     description: D3_FORMAT_DOCS,
   },
@@ -1879,7 +1873,7 @@ export const controls = {
     default: null,
     description: '',
     mapStateToProps: state => ({
-      columns: state.datasource ? state.datasource.columns : [],
+      columns: state.datasource ? state.datasource.filterable_cols : [],
       savedMetrics: state.datasource ? state.datasource.metrics : [],
       datasource: state.datasource,
     }),

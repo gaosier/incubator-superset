@@ -108,8 +108,8 @@ function tableVis(slice, payload) {
 
       }
       if (isMetric) {
-        const format_ = slice.datasource.column_formats[c] || fd.number_format || '.3s';
-        html = d3format(format_, val);
+        const format = slice.datasource.column_formats[c] || fd.number_format || '.3s';
+        html = d3format(format, val);
       }
       return {
         col: c,
