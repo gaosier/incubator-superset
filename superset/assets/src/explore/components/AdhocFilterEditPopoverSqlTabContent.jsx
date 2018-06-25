@@ -20,7 +20,7 @@ const propTypes = {
   onChange: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.oneOfType([
     columnType,
-    PropTypes.shape({ saved_metric_name: PropTypes.string.isRequired }),
+    PropTypes.shape({ saved_metric_name: PropTypes.string.isRequired, verbose_name: PropTypes.string.isRequired}),
     adhocMetricType,
   ])).isRequired,
   height: PropTypes.number.isRequired,

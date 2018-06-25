@@ -21,7 +21,7 @@ export default function FilterDefinitionOption({ option }) {
       <div>
         <ColumnTypeLabel type="expression" />
         <span className="m-r-5 option-label">
-          {option.saved_metric_name}
+          {option.verbose_name || option.saved_metric_name}
         </span>
       </div>
     );

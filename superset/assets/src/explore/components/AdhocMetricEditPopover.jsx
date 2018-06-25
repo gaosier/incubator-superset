@@ -215,7 +215,7 @@ export default class AdhocMetricEditPopover extends React.Component {
           onSelect={this.refreshAceEditor}
           animation={false}
         >
-          <Tab className="adhoc-metric-edit-tab" eventKey={EXPRESSION_TYPES.SIMPLE} title="Simple">
+          <Tab className="adhoc-metric-edit-tab" eventKey={EXPRESSION_TYPES.SIMPLE} title={t('Simple')}>
             <FormGroup>
               <ControlLabel><strong>column</strong></ControlLabel>
               <OnPasteSelect {...this.selectProps} {...columnSelectProps} />
@@ -225,7 +225,7 @@ export default class AdhocMetricEditPopover extends React.Component {
               <OnPasteSelect {...this.selectProps} {...aggregateSelectProps} />
             </FormGroup>
           </Tab>
-          <Tab className="adhoc-metric-edit-tab" eventKey={EXPRESSION_TYPES.SQL} title="Custom SQL">
+          <Tab className="adhoc-metric-edit-tab" eventKey={EXPRESSION_TYPES.SQL} title={t('Custom SQL')}>
             {
               this.props.datasourceType !== 'druid' ?
                 <FormGroup>

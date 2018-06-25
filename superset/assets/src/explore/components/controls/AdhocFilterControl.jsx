@@ -49,12 +49,15 @@ export default class AdhocFilterControl extends React.Component {
     this.onFilterEdit = this.onFilterEdit.bind(this);
     this.onChange = this.onChange.bind(this);
     this.getMetricExpression = this.getMetricExpression.bind(this);
+    this.getMetricVerboseName = this.getMetricVerboseName.bind(this);
+    this.updateOption = this.updateOption.bind(this);
 
     const filters = (this.props.value || []).map(filter => (
       isDictionaryForAdhocFilter(filter) ? new AdhocFilter(filter) : filter
     ));
+
     this.optionRenderer = VirtualizedRendererWrap(option => (
-      <FilterDefinitionOption option={option} />
+      <FilterDefinitionOption option={this.updateOption(option)} />
     ));
     this.valueRenderer = adhocFilter => (
       <AdhocFilterOption
@@ -95,6 +98,16 @@ export default class AdhocFilterControl extends React.Component {
     }));
   }
 
+  updateOption(option) {
+    if (option.saved_metric_name) {
+      let verbose_name = this.getMetricVerboseName(option.saved_metric_name);
+      let param = option;
+      param.verbose_name = verbose_name;
+      return param;
+    }
+    return option;
+  }
+
   onChange(opts) {
     this.props.onChange(opts.map((option) => {
       if (option.saved_metric_name) {
@@ -108,6 +121,7 @@ export default class AdhocFilterControl extends React.Component {
           operator: OPERATORS['>'],
           comparator: 0,
           clause: CLAUSES.HAVING,
+          verbose_name: this.getMetricVerboseName(option.saved_metric_name),
         });
       } else if (option.label) {
         return new AdhocFilter({
@@ -120,7 +134,10 @@ export default class AdhocFilterControl extends React.Component {
           operator: OPERATORS['>'],
           comparator: 0,
           clause: CLAUSES.HAVING,
-        });
+          verbose_name: this.props.datasource.type === 'druid' ?
+            option.label :
+            new AdhocMetric(option).translateToSql(),
+          });
       } else if (option.column_name) {
         return new AdhocFilter({
           expressionType: EXPRESSION_TYPES.SIMPLE,
@@ -141,6 +158,12 @@ export default class AdhocFilterControl extends React.Component {
     return this.props.savedMetrics.find((
       savedMetric => savedMetric.metric_name === savedMetricName
     )).expression;
+  }
+
+  getMetricVerboseName(savedMetricName) {
+    return this.props.savedMetrics.find((
+      savedMetric => savedMetric.metric_name === savedMetricName
+    )).verbose_name;
   }
 
   optionsForSelect(props) {

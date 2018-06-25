@@ -7,6 +7,7 @@ import adhocMetricType from '../propTypes/adhocMetricType';
 import AdhocFilter, { EXPRESSION_TYPES } from '../AdhocFilter';
 import AdhocFilterEditPopoverSimpleTabContent from './AdhocFilterEditPopoverSimpleTabContent';
 import AdhocFilterEditPopoverSqlTabContent from './AdhocFilterEditPopoverSqlTabContent';
+import { t } from '../../locales';
 
 const propTypes = {
   adhocFilter: PropTypes.instanceOf(AdhocFilter).isRequired,
@@ -113,7 +114,7 @@ export default class AdhocFilterEditPopover extends React.Component {
           <Tab
             className="adhoc-filter-edit-tab"
             eventKey={EXPRESSION_TYPES.SIMPLE}
-            title="Simple"
+            title={t('Simple')}
           >
             <AdhocFilterEditPopoverSimpleTabContent
               adhocFilter={this.state.adhocFilter}
@@ -126,7 +127,7 @@ export default class AdhocFilterEditPopover extends React.Component {
           <Tab
             className="adhoc-filter-edit-tab"
             eventKey={EXPRESSION_TYPES.SQL}
-            title="Custom SQL"
+            title={t('Custom SQL')}
           >
             {
               (!this.props.datasource || this.props.datasource.type !== 'druid') ?

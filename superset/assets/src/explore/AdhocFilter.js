@@ -35,14 +35,25 @@ in: '在',
 };
 
 function translateToSql(adhocMetric, { useSimple } = {}) {
-  if (adhocMetric.expressionType === EXPRESSION_TYPES.SIMPLE || useSimple) {
+  if (adhocMetric.expressionType === EXPRESSION_TYPES.SIMPLE) {
     const isMulti = MULTI_OPERATORS.indexOf(adhocMetric.operator) >= 0;
     const operator = OPERATORS_TO_ZH[adhocMetric.operator];
     const comparator = isMulti ? adhocMetric.comparator.join("','") : adhocMetric.comparator;
     const verbose_name = adhocMetric.verbose_name;
     return `${verbose_name} ${operator} ${isMulti ? '(\'' : ''}${comparator}${isMulti ? '\')' : ''}`;
   } else if (adhocMetric.expressionType === EXPRESSION_TYPES.SQL) {
-    return adhocMetric.sqlExpression;
+    if (useSimple) {
+      const isMulti = MULTI_OPERATORS.indexOf(adhocMetric.operator) >= 0;
+      const operator = OPERATORS_TO_SQL[adhocMetric.operator];
+      const comparator = isMulti ? adhocMetric.comparator.join("','") : adhocMetric.comparator;
+      const subject = adhocMetric.subject;
+      return `${subject} ${operator} ${isMulti ? '(\'' : ''}${comparator}${isMulti ? '\')' : ''}`;
+    }
+    const isMulti_sql = MULTI_OPERATORS.indexOf(adhocMetric.operator) >= 0;
+    const operator_sql = OPERATORS_TO_ZH[adhocMetric.operator];
+    const comparator_sql = isMulti_sql ? adhocMetric.comparator.join("','") : adhocMetric.comparator;
+    const verbose_name_sql = adhocMetric.verbose_name;
+    return `${verbose_name_sql} ${operator_sql} ${isMulti_sql ? '(\'' : ''}${comparator_sql}${isMulti_sql ? '\')' : ''}`;
   }
   return '';
 }
@@ -62,10 +73,10 @@ export default class AdhocFilter {
         adhocFilter.sqlExpression :
         translateToSql(adhocFilter, { useSimple: true });
       this.clause = adhocFilter.clause;
-      this.subject = null;
-      this.operator = null;
-      this.comparator = null;
-      this.verbose_name = null;
+      this.subject = adhocFilter.subject;
+      this.operator = adhocFilter.operator;
+      this.comparator = adhocFilter.comparator;
+      this.verbose_name = adhocFilter.verbose_name;
     }
     this.fromFormData = !!adhocFilter.filterOptionName;
 
