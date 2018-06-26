@@ -302,7 +302,7 @@ msgstr "表视图"
 
 #: superset/viz.py:526
 msgid "Choose either fields to [Group By] and [Metrics] or [Columns], not both"
-msgstr "为[分组]和[指标]或[列]选择任何的字段，或者两个都不选"
+msgstr "聚合查询和非聚合不能同时选择"
 
 #: superset/viz.py:612
 msgid "Time Table View"
@@ -3417,6 +3417,9 @@ msgstr "允许多模式元数据获取"
 
 msgid "Show users is a list of users who cannot alter the dashboard."
 msgstr "共享用户是一组没有修改看板权限的用户."
+
+msgid "Login Map"
+msgstr "北校用户登录热力图"
 
 
 

@@ -69,4 +69,7 @@ class SupersetSQLAInterface(SAI):
         search_columns = search_columns or []
         return SupersetFilters(self.filter_converter_class, self, search_columns)
 
+    def get_all_string_columns(self):
+        all_columns = self.get_columns_list()
+        return filter(lambda x: self.is_string(x), all_columns)
 

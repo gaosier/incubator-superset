@@ -40,3 +40,5 @@ superset/assets/version_info.json
 *.iml
 venv
 @eaDir/
+*.log
+log

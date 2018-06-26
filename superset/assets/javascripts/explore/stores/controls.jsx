@@ -235,7 +235,7 @@ export const controls = {
     multi: true,
     label: t('Ordering'),
     default: [],
-    description: t('One or many metrics to display'),
+    description: t('One or many metrics to ordering'),
     mapStateToProps: state => ({
       choices: (state.datasource) ? state.datasource.order_by_choices : [],
     }),
@@ -245,7 +245,7 @@ export const controls = {
     multi: true,
     label: t('Ordering'),
     default: [],
-    description: t('One or many metrics to display'),
+    description: t('One or many metrics to ordering'),
     mapStateToProps: state => ({
       choices: (state.datasource) ? state.datasource.order_by_metric : [],
     }),
@@ -466,7 +466,7 @@ export const controls = {
     type: 'CheckboxControl',
     label: t('Show totals'),
     renderTrigger: false,
-    default: true,
+    default: false,
     description: t('Display total row/column'),
   },
 
@@ -966,9 +966,9 @@ export const controls = {
     freeForm: true,
     label: t('Number format'),
     renderTrigger: true,
-    default: '.3s',
+    default: '.',
     choices: D3_FORMAT_OPTIONS,
-    description: D3_FORMAT_DOCS,
+    description: t('D3 format syntax: https://github.com/d3/d3-format'),
   },
 
   row_limit: {
@@ -2127,6 +2127,19 @@ export const controls = {
     renderTrigger: true,
     description: t('Whether to normalize the histogram'),
     default: false,
+  },
+  pandas_fill_column: {          // customer add fill column
+    type: 'SelectControl',
+    label: t('Fill Column'),
+    clearable: false,
+    choices: formatSelectOptions([
+      '',
+      '0',
+      '-',
+      'NA',
+    ]),
+    default: '',
+    description: t('fill pandas column'),
   },
 };
 export default controls;

@@ -90,6 +90,9 @@ class TableColumn(Model, BaseColumn):
     database_expression = Column(String(255))
     is_memcached = Column(Boolean, default=False)
     order_number = Column(INTEGER, default=0)
+    is_partition = Column(Boolean, default=False)
+    partition_expression = Column(String(255))
+
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
         'type', 'groupby', 'count_distinct', 'sum', 'avg', 'max', 'min',
@@ -118,6 +121,14 @@ class TableColumn(Model, BaseColumn):
             l.append(col >= text(self.dttm_sql_literal(start_dttm)))
         if end_dttm:
             l.append(col <= text(self.dttm_sql_literal(end_dttm)))
+        col_partition = column('day').label('day')
+        if self.is_partition:
+            if start_dttm:
+                l.append(col_partition >= text(self.dttm_hybird_literal(start_dttm)))
+
+            if end_dttm:
+                l.append(col_partition <= text(self.dttm_hybird_literal(end_dttm)))
+
         return and_(*l)
 
     def get_timestamp_expression(self, time_grain):
@@ -137,6 +148,11 @@ class TableColumn(Model, BaseColumn):
             grain = self.table.database.grains_dict().get(time_grain, '{col}')
             expr = grain.function.format(col=expr)
         return literal_column(expr, type_=DateTime).label(DTTM_ALIAS)
+
+    def dttm_hybird_literal(self, dttm):
+        """转换时间格式符合hybird分区格式"""
+        tf = self.partition_expression or '%Y%m%d'
+        return "'{0}'".format(dttm.strftime(tf))
 
     @classmethod
     def import_obj(cls, i_column):
@@ -692,7 +708,7 @@ class SqlaTable(Model, BaseDatasource):
         # for col, ascending in orderby:
         #     direction = asc if ascending else desc
         #     qry = qry.order_by(direction(col))
-        if groupby or metrics_exprs:
+        if groupby:
             # if not orderby:
             #     qry = qry.order_by(desc(main_metric_expr))
             if orderby:

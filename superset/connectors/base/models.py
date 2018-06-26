@@ -206,7 +206,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         for col in sorted(filterd_columns,key=lambda x:x.order_number):
             if col.is_active:
                 all_cols_1.append({"column_name": col.column_name, "expression": col.expression, "type": col.type,
-                                   "is_dttm": col.is_dttm})
+                                   "is_dttm": col.is_dttm, "verbose_name": col.verbose_name or col.column_name})
 
         return {
             # 'all_cols': utils.choicify(self.column_names),
@@ -354,6 +354,12 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
         backref=backref('metrics', cascade='all, delete-orphan'),
         enable_typechecks=False)
     """
+
+    str_types = ('VARCHAR', 'STRING', 'CHAR')
+
+    def __repr__(self):
+        return self.metric_name
+
     @property
     def perm(self):
         raise NotImplementedError()
@@ -368,3 +374,10 @@ class BaseMetric(AuditMixinNullable, ImportMixin):
             'metric_name', 'verbose_name', 'description', 'expression',
             'warning_text')
         return {s: getattr(self, s) for s in attrs}
+
+    @property
+    def is_string(self):
+        return (
+            self.metric_type and
+            any([t in self.metric_type.upper() for t in self.str_types])
+        )

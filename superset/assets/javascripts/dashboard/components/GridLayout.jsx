@@ -19,6 +19,7 @@ const propTypes = {
   getFormDataExtra: PropTypes.func,
   exploreChart: PropTypes.func,
   exportCSV: PropTypes.func,
+  exportXlsx: PropTypes.func,
   fetchSlice: PropTypes.func,
   saveSlice: PropTypes.func,
   removeSlice: PropTypes.func,
@@ -37,6 +38,7 @@ const defaultProps = {
   getFormDataExtra: () => ({}),
   exploreChart: () => ({}),
   exportCSV: () => ({}),
+  exportXlsx: () => ({}),
   fetchSlice: () => ({}),
   saveSlice: () => ({}),
   removeSlice: () => ({}),
@@ -154,6 +156,7 @@ class GridLayout extends React.Component {
             widgetWidth={this.getWidgetWidth(slice)}
             exploreChart={this.props.exploreChart}
             exportCSV={this.props.exportCSV}
+            exportXlsx={this.props.exportXlsx}
             isExpanded={!!this.isExpanded(slice)}
             isLoading={currentChart.chartStatus === 'loading'}
             isCached={queryResponse.is_cached}

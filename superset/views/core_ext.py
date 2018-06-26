@@ -1,30 +1,26 @@
-#-*-coding:utf-8-*-
-from datetime import datetime, timedelta
+# -*-coding:utf-8-*-
+import datetime
 import json
 import logging
 import os
 import re
-import time
-import traceback
-from urllib import parse
 from urllib.parse import quote
 import pandas as pd
 from flask import (
      g, request, redirect, flash, Response, render_template, Markup,
     abort, url_for,send_from_directory,send_file)
+from flask_babel import gettext as __
 
 from superset import (
     app, appbuilder, cache, db, results_backend, security, sql_lab, utils,
-    viz, utils_ext, security_manager
+    viz, utils_ext, security_manager,db
 )
-from superset.utils import (
-    merge_extra_filters, merge_request_params, QueryStatus,
-)
+from sqlalchemy import create_engine
+
 from flask_appbuilder.security.decorators import has_access, has_access_api
 import superset.models.core as models
 from superset.models.core_ext import MPage,MpageMproject,MElement,JingYouUser,MProject
 from superset.models.sql_lab import Query
-import xlsxwriter
 from .core import get_datasource_access_error_msg
 from flask_appbuilder import expose, SimpleFormView
 from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
@@ -33,6 +29,9 @@ from .base import (
     generate_download_headers, get_error_msg, get_user_roles,
     json_error_response, SupersetFilter, SupersetModelView, YamlExportMixin,
 )
+
+from ..connectors.sqla.models import SqlaTable
+
 
 config = app.config
 stats_logger = config.get('STATS_LOGGER')
@@ -167,6 +166,32 @@ class MProjectView(SupersetModelView):
         'page_or_element_button':'操作'
     }
 
+
+    def pre_add(self, obj):
+        # 判断项目ID是否符合规范
+        if not re.match(r'[a-z]+$', obj.id):
+            raise ValueError(u'项目ID不合法,请以项目名称为项目ID,项目名称中仅包含(a-z)中的字符')
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
+
+    def pre_update(self, obj):
+        # 判断按钮ID是否符合规范
+        if not re.match(r'[a-z]+$', obj.id):
+            raise ValueError(u'项目ID不合法,请以项目名称为项目ID,项目名称中仅包含(a-z)中的字符')
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
+
+
 appbuilder.add_view(
     MProjectView,
     "M Project View",
@@ -234,7 +259,13 @@ class MPageView(SupersetModelView):
         'update_time':'更新时间'
     }
     post_update_flag=False
+
+
     def pre_update(self,obj):
+        # 判断页面ID是否符合规范
+        if not re.match(r'[a-z]+\d+$', obj.page_id):
+            raise ValueError(u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')
+
         columns_name=[]
         for i in obj.__table__.columns:
             tab,col=str(i).split(".")
@@ -251,7 +282,30 @@ class MPageView(SupersetModelView):
         new_mproject_id=sorted([i.id for i in obj.m_project])
         if item2 != new_mproject_id:
             self.post_update_flag=True
-            obj.status=True
+
+            obj.status = True
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
+
+    def pre_add(self, obj):
+        """
+        处理前端页面的数据
+        """
+        # 判断按钮ID是否符合规范
+        if not re.match(r'[a-z]+\d+$', obj.page_id):
+            raise ValueError(u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
 
     def post_update(self,obj):
         if self.post_update_flag:
@@ -302,7 +356,12 @@ class MElementView(SupersetModelView):
         'get_del_status':'是否删除',
         'update_time': '更新时间'
     }
+
     def pre_update(self,obj):
+        # 判断按钮ID是否符合规范
+        if not re.match(r'[a-z]+\d+_\d+$', obj.element_id):
+            raise ValueError(u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')
+
         columns_name=[]
         for i in obj.__table__.columns:
             tab,col=str(i).split(".")
@@ -314,11 +373,34 @@ class MElementView(SupersetModelView):
                 if getattr(obj,col) != item1[ind]:
                     obj.status=True
                     return None
-        sql2="select mpage_mproject_id from melement_mproject_mproject WHERE melement_id = %s"%(obj.id)
+
+        sql2="select mpage_mproject_id from melement_mpage_mproject WHERE melement_id = %s"%(obj.id)
         item2 =sorted([i[0] for i in db.session.execute(sql2)])
         new_item_id=sorted([i.id for i in obj.mpage_mproject])
         if item2 != new_item_id:
             obj.status=True
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
+
+    def pre_add(self, obj):
+        """
+        处理前端页面的数据
+        """
+        # 判断按钮ID是否符合规范
+        if not re.match(r'[a-z]+\d+_\d+$', obj.element_id):
+            raise ValueError(u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')
+
+        # 去掉string的空格
+        string_columns = self.datamodel.get_all_string_columns()
+        for col in string_columns:
+            value = getattr(obj, col)
+            if value:
+                setattr(obj, col, value.strip())
 
     def post_add(self,obj):
         for i in obj.mpage_mproject:
@@ -334,5 +416,57 @@ class MElementView(SupersetModelView):
                     db.session.commit()
 
 
-
 appbuilder.add_view_no_menu(MElementView)
+
+# 北校用户登录热力图
+appbuilder.add_link(
+    __('Login Map'),
+    href='/loginmap/my_queries/',
+    icon='fa-map',
+    category='')
+
+
+class LoginMap(BaseSupersetView):
+    @expose('/my_queries/')
+    def my_queries(self):
+        return self.render_template('superset/beixiao/base.html')
+
+
+class LoadMap(BaseSupersetView):
+    @expose('/my_queries/', methods=['GET', 'POST'])
+    def my_queries(self):
+        """
+        查询数据
+        :return: 
+        """
+        rest = []
+        table_name = 'dm_beixiao_page'
+        start_time = request.args.get('start_time')
+        end_time = request.args.get('end_time')
+
+        if start_time and end_time:
+            start_time = datetime.datetime.strptime(start_time, '%Y/%m/%d').strftime('%Y%m%d')
+            end_time = datetime.datetime.strptime(end_time, '%Y/%m/%d').strftime('%Y%m%d')
+        else:
+            start_time = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+            end_time = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+
+        table = db.session.query(SqlaTable).filter(SqlaTable.table_name == table_name).first()
+        if table:
+            database = table.database
+            engine = database.get_sqla_engine()
+            result = engine.execute(
+                'select lng, lat, count(*) as num from %s where day<= "%s" and day>= "%s" group by lng, lat' % (
+                    table_name, end_time, start_time,
+                ))
+            rows = result.fetchall()
+            for item in rows:
+                data = {}
+                data['count'] = item[2]
+                data['coordinate'] = [item[0], item[1]]
+                rest.append(data)
+
+        return self.render_template('superset/beixiao/map.html', data=json.dumps(rest), total=len(rest))
+
+appbuilder.add_view_no_menu(LoginMap)
+appbuilder.add_view_no_menu(LoadMap)

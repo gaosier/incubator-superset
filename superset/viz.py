@@ -283,7 +283,6 @@ class BaseViz(object):
                     df[DTTM_ALIAS] += self.time_shift
 
             #self.df_metrics_to_num(df, query_obj.get('metrics') or []) 先注释掉，防止不是数字形式的指标
-
             df.replace([np.inf, -np.inf], np.nan)
             fillna = self.get_fillna_for_columns(df.columns)
             df = df.fillna(fillna)
@@ -707,33 +706,53 @@ class PivotTableViz(BaseViz):
         groupby = self.form_data.get('groupby')
         columns = self.form_data.get('columns')
         metrics = self.form_data.get('metrics')
+        order_by_metric = self.form_data.get('order_by_metric') or []
+        d['orderby'] = self.filter_groupby_orderby(order_by_metric, d['metrics'], d['groupby'])
         if not columns:
             columns = []
         if not groupby:
             groupby = []
-        if not groupby:
-            raise Exception(_("Please choose at least one 'Group by' field "))
+
+        if not groupby and not self.form_data.get('include_time'):
+            raise Exception(_("Please choose at least one \"Group by\" field "))
         if not metrics:
             raise Exception(_('Please choose at least one metric'))
         if (
                 any(v in groupby for v in columns) or
                 any(v in columns for v in groupby)):
-            raise Exception(_("Group By' and 'Columns' can't overlap"))
+            raise Exception(_("'Group By' and 'Columns' can't overlap"))
+
+        if self.form_data.get('include_time') and self.form_data.get('include_time_2'):
+            raise Exception(_("You can only choose one include_time"))
+
+        d['is_timeseries'] = self.should_be_timeseries()
         return d
 
     def get_data(self, df, is_xlsx=False):
+
         if (
                 self.form_data.get('granularity') == 'all' and
                 DTTM_ALIAS in df):
             del df[DTTM_ALIAS]
+
+        fd = self.form_data
+        columns = self.reorder_columns(fd.get('columns') or [], type=2)
+        groupby = self.reorder_columns(self.groupby)
+
         self._sort_index(df)
+
         df = df.pivot_table(
-            index=self.form_data.get('groupby'),
-            columns=self.form_data.get('columns'),
+            index=groupby,
+            columns=columns,
             values=[self.get_metric_label(m) for m in self.form_data.get('metrics')],
             aggfunc=self.form_data.get('pandas_aggfunc'),
             margins=self.form_data.get('pivot_margins'),
         )
+
+        # 空值填充
+        df.replace([np.inf, -np.inf, None], np.nan)
+        df = df.fillna(self.form_data.get('pandas_fill_column'))
+
         # Display metrics side by side with each column
         if self.form_data.get('combine_metric'):
             df = df.stack(0).unstack()
@@ -1460,7 +1479,7 @@ class DistributionPieViz(NVD3Viz):
         fd = self.form_data
         order_by_metric = fd.get('order_by_metric') or []
         d['orderby'] = self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
-        # print(type(self)==DistributionBarViz,type(self)==DistributionPieViz)
+
         if self.viz_type =='pie':
         #     if len(self.form_data.get("groupby")) !=1:
         #         # raise Exception(_("请选择维度且个数为一"))

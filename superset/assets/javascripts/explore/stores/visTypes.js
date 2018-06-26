@@ -102,10 +102,20 @@ export const visTypes = {
     table: {
     label: t('Table View'),
     controlPanelSections: [
+       {
+        label: t('NOT GROUPED BY'),
+        description: t('Use this section if you want to query atomic rows'),
+        expanded: true,
+        controlSetRows: [
+          ['all_columns'],
+          ['order_by_cols'],
+          ['row_limit', null],
+        ],
+      },
       {
         label: t('GROUP BY'),
         description: t('Use this section if you want a query that aggregates'),
-        expanded: true,
+        expanded: false,
         controlSetRows: [
           ['groupby'],
           ['metrics'],
@@ -114,15 +124,6 @@ export const visTypes = {
           // ['timeseries_limit_metric'],
           ['row_limit'],
           // ['include_time', 'order_desc'],
-        ],
-      },
-      {
-        label: t('NOT GROUPED BY'),
-        description: t('Use this section if you want to query atomic rows'),
-        controlSetRows: [
-          ['all_columns'],
-          ['order_by_cols'],
-          ['row_limit', null],
         ],
       },
       {
@@ -244,6 +245,7 @@ export const visTypes = {
         label: t('Pivot Options'),
         controlSetRows: [
           ['pandas_aggfunc', 'number_format'],
+          ['pandas_fill_column', null],
           ['pivot_margins', 'combine_metric','pivot_group_sum'],
         ],
       },

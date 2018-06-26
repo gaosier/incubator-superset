@@ -97,9 +97,9 @@ export default class AlteredSliceTag extends React.Component {
     return (
       <Table className="table" sortable>
         <Thead>
-          <Th column="control">Control</Th>
-          <Th column="before">Before</Th>
-          <Th column="after">After</Th>
+          <Th column="control">{t('Control')}</Th>
+          <Th column="before">{t('Before')}</Th>
+          <Th column="after">{t('After')}</Th>
         </Thead>
         {this.renderRows()}
       </Table>

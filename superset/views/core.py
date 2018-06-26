@@ -119,7 +119,7 @@ def check_ownership(obj, raise_if_false=True):
         return False
 
     security_exception = SupersetSecurityException(
-        "You don't have the rights to alter [{}]".format(obj))
+        "您没有权限修改 [{}]".format(obj))
 
     if g.user.is_anonymous():
         if raise_if_false:
@@ -128,16 +128,20 @@ def check_ownership(obj, raise_if_false=True):
     roles = (r.name for r in get_user_roles())
     if 'Admin' in roles:
         return True
+
     session = db.create_scoped_session()
     orig_obj = session.query(obj.__class__).filter_by(id=obj.id).first()
-    owner_names = (user.username for user in orig_obj.owners)
+    if hasattr(orig_obj, "owner") and orig_obj.owner:
+        owner_names = [orig_obj.owner.username]
+    else:
+        owner_names = []
     if (
             hasattr(orig_obj, 'created_by') and
             orig_obj.created_by and
             orig_obj.created_by.username == g.user.username):
         return True
     if (
-            hasattr(orig_obj, 'owners') and
+            hasattr(orig_obj, 'owner') and
             g.user and
             hasattr(g.user, 'username') and
             g.user.username in owner_names):
@@ -1141,14 +1145,16 @@ class Superset(BaseSupersetView):
         return df
 
     def get_xlsx_file(self, viz_obj):
+        is_show_index = False  # execl表中是否显示index列
         dfa = viz_obj.get_df()
         # 先特殊处理pivot_table的下载
         if viz_obj.viz_type == 'pivot_table':
             dfa = viz_obj.get_data(dfa, is_xlsx=True)
+            is_show_index = True
         dfa = self.deal_with_df(viz_obj, dfa)
         filename = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time())) + u'.xlsx'
         filepath = os.path.join(app.config.get('SQLLAB_DATA_DIR'), filename)
-        dfa.to_excel(filepath, index=True, encoding='utf-8', engine='xlsxwriter')
+        dfa.to_excel(filepath, index=is_show_index, encoding='utf-8', engine='xlsxwriter')
         return send_file(filepath, as_attachment=True,
                          attachment_filename=parse.quote(filename))
 
