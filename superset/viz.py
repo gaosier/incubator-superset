@@ -1540,28 +1540,13 @@ class DistributionPieViz(NVD3Viz):
     verbose_name = _('Distribution - NVD3 - Pie Chart')
     is_timeseries = False
 
-    def query_obj(self):
-        d = super(NVD3Viz, self).query_obj()  # noqa
-        fd = self.form_data
-        order_by_metric = fd.get('order_by_metric') or []
-        d['orderby'] = self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
-        # print(type(self)==DistributionBarViz,type(self)==DistributionPieViz)
-        if self.viz_type =='pie':
-        #     if len(self.form_data.get("groupby")) !=1:
-        #         # raise Exception(_("请选择维度且个数为一"))
-        #         raise Exception(_("Please choose groupby which should be only one"))
-            if len(self.form_data.get("metrics")) !=1:
-                # raise Exception(_("指标个数只能为一"))
-                raise Exception(_("The number of metric should be only one"))
-        d['is_timeseries'] = self.should_be_timeseries()
-        return d
-
     def get_data(self, df):
-        index=self.reorder_columns(self.groupby)
+        metric = self.metric_labels[0]
+        index = self.reorder_columns(self.groupby)
         df = df.pivot_table(
             index=index,
-            values=[self.metrics[0]])
-        df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
+            values=[metric])
+        df.sort_values(by=metric, ascending=False, inplace=True)
         df = df.reset_index()
         if len(index)>1: #分组多选时，将其进行拼接
             se=df[index[0]].astype('str')

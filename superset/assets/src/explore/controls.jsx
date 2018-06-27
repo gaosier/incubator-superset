@@ -309,7 +309,7 @@ export const controls = {
     labelKey: 'verbose_name', // 很重要，用于拖动排序的key值
     clearable: false,
     validators: [v.nonEmpty],
-    default: c => mainMetric(c.options),
+    default: c => mainMetric(c.savedMetrics),
     mapStateToProps: state => ({
       columns: state.datasource ? state.datasource.columns : [],
       savedMetrics: state.datasource ? state.datasource.metrics : [],
