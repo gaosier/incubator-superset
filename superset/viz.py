@@ -740,8 +740,6 @@ class PivotTableViz(BaseViz):
         groupby = self.reorder_columns(self.groupby)
 
         cols_in_index_or_column, special_sort_cols = self.get_special_sort_data(groupby, columns)
-        print("cols_in_index_or_column: ", cols_in_index_or_column)
-        print("special_sort_cols:  ", special_sort_cols)
 
         if cols_in_index_or_column:
             for col in cols_in_index_or_column[1]:
@@ -766,7 +764,6 @@ class PivotTableViz(BaseViz):
                     df.index = Index(index_1, name=df.index.name)
                 else:
                     for item in cols_in_index_or_column[1]:
-                        print("df.index.names: ", df.index.names)
                         ix = df.index.names.index(item)
                         index_1 = df.index.levels[ix].tolist()
                         sort_info = special_sort_cols.get(item)
