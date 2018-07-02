@@ -8,7 +8,8 @@ from flask_appbuilder import Model
 class SqlTableGroup(Model):
     __tablename__ = 'tables_group'
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), unique = True, nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
+    sort_id = Column(Integer, unique=True, nullable=False, comment=u"排序序列")
 
     def __repr__(self):
         return self.name

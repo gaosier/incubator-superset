@@ -78,6 +78,7 @@ class TableGroupView(MasterDetailView):
     list_title = '数据集分类'
     datamodel = SQLAInterface(models_ext.SqlTableGroup)
     related_views = [MyTableModelView]
+    base_order = ('sort_id', 'asc')
 
 
 appbuilder.add_view(
