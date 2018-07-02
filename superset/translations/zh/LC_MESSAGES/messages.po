@@ -3421,6 +3421,11 @@ msgstr "共享用户是一组没有修改看板权限的用户."
 msgid "Login Map"
 msgstr "北校用户登录热力图"
 
+msgid "Has Special Sort Columns"
+msgstr "有特殊排序列"
+
+msgid "If there are any columns that need to be sorted, check them out."
+msgstr "如果有需要进行特殊排序的列，就勾选"
 
 
 

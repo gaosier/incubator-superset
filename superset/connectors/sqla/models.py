@@ -296,6 +296,7 @@ class SqlaTable(Model, BaseDatasource):
     group_id = Column(Integer, ForeignKey('tables_group.id'), nullable=False)
     group = relationship("SqlTableGroup")
     verbose_name = Column(String(1024), nullable=True)
+    has_special_sort_cols = Column(Boolean, default=False)     # 是否有需要特殊排序的列
 
     baselink = 'tablemodelview'
 
@@ -933,17 +934,16 @@ class SqlaTable(Model, BaseDatasource):
             query = query.filter_by(schema=schema)
         return query.all()
 
-    def _get_sort_columns(self):
-        qry = db.session.query(SqlTableColumnSort).filter(SqlTableColumnSort.table_id==self.id,
-                SqlTableColumnSort.table_name==self.table_name)
-        cols = qry.all()
-        if len(cols) == 0:
+    def get_sort_columns(self):
+        qry = db.session.query(SqlTableColumnSort).filter(SqlTableColumnSort.table_id == self.id,
+                SqlTableColumnSort.table_name == self.table_name)
+        if qry.count() == 0:
             logging.info('表{0}-{1}未匹配到配置项'.format(self.id, self.table_name))
             return None
-        col = cols[0].expression
+        col = qry.first()
         exp = None
         try:
-            exp = json.loads(col)
+            exp = json.loads(col.expression)
         except:
             logging.info('表{0}的排序参数不是合法的json'.format(self.id))
         return exp

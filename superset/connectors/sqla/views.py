@@ -221,12 +221,12 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'table_name', 'sql', 'filter_select_enabled', 'slices',
         'fetch_values_predicate', 'database', 'schema','verbose_name',
         'description', 'owner',
-        'main_dttm_col', 'default_endpoint', 'offset', 'cache_timeout', 'group']
+        'main_dttm_col', 'default_endpoint', 'offset', 'cache_timeout', 'has_special_sort_cols', 'group']
     show_columns = edit_columns + ['perm']
     related_views = [TableColumnInlineView, SqlMetricInlineView]
     base_order = ('changed_on', 'desc')
     search_columns = (
-        'database', 'schema', 'table_name', 'owner',
+        'database', 'schema', 'verbose_name', 'owner',
     )
     description_columns = {
         'slices': _(
@@ -263,6 +263,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
             "Whether to populate the filter's dropdown in the explore "
             "view's filter section with a list of distinct values fetched "
             'from the backend on the fly'),
+        'has_special_sort_cols': _("If there are any columns that need to be sorted, check them out.")
     }
     base_filters = [['id', DatasourceFilter, lambda: []]]
     label_columns = {
@@ -282,7 +283,8 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'main_dttm_col': _('Main Datetime Column'),
         'description': _('Description'),
         'group': _('Group Name'),
-        'verbose_name': _('Verbose Name')
+        'verbose_name': _('Verbose Name'),
+        'has_special_sort_cols': _('Has Special Sort Columns')
     }
 
     def pre_add(self, table):

@@ -29,6 +29,7 @@ from markdown import markdown
 import numpy as np
 import pandas as pd
 from pandas.tseries.frequencies import to_offset
+from pandas import Index
 import polyline
 import simplejson as json
 from six import string_types, text_type
@@ -729,7 +730,6 @@ class PivotTableViz(BaseViz):
         return d
 
     def get_data(self, df, is_xlsx=False):
-
         if (
                 self.form_data.get('granularity') == 'all' and
                 DTTM_ALIAS in df):
@@ -739,7 +739,13 @@ class PivotTableViz(BaseViz):
         columns = self.reorder_columns(fd.get('columns') or [], type=2)
         groupby = self.reorder_columns(self.groupby)
 
-        self._sort_index(df)
+        cols_in_index_or_column, special_sort_cols = self.get_special_sort_data(groupby, columns)
+        print("cols_in_index_or_column: ", cols_in_index_or_column)
+        print("special_sort_cols:  ", special_sort_cols)
+
+        if cols_in_index_or_column:
+            for col in cols_in_index_or_column[1]:
+                df[col] = df[col].replace(special_sort_cols.get(col))     # 替换df
 
         df = df.pivot_table(
             index=groupby,
@@ -749,8 +755,35 @@ class PivotTableViz(BaseViz):
             margins=self.form_data.get('pivot_margins'),
         )
 
+        if cols_in_index_or_column:
+            if cols_in_index_or_column[0] == 'index':
+                if len(groupby) == 1:
+                    col_name = cols_in_index_or_column[1][0]
+                    sort_info = special_sort_cols.get(col_name)
+                    r_sort_info = {v:k for k, v in zip(sort_info.keys(), sort_info.values())}
+                    index_1 = df.index.tolist()
+                    index_1 = [r_sort_info.get(item) for item in index_1]
+                    df.index = Index(index_1, name=df.index.name)
+                else:
+                    for item in cols_in_index_or_column[1]:
+                        print("df.index.names: ", df.index.names)
+                        ix = df.index.names.index(item)
+                        index_1 = df.index.levels[ix].tolist()
+                        sort_info = special_sort_cols.get(item)
+                        r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
+                        index_1 = [r_sort_info.get(item) for item in index_1]
+                        df.index = df.index.set_levels(index_1, level=ix)
+            else:
+                for item in cols_in_index_or_column[1]:
+                    ix = df.columns.names.index(item)
+                    col_1 = df.columns.levels[ix].tolist()
+                    sort_info = special_sort_cols.get(item)
+                    r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
+                    col_1 = [r_sort_info.get(item) for item in col_1]
+                    df.columns = df.columns.set_levels(col_1, level=ix)
+
         # 空值填充
-        df.replace([np.inf, -np.inf, None], np.nan)
+        df = df.replace([np.inf, -np.inf, None], np.nan)
         df = df.fillna(self.form_data.get('pandas_fill_column'))
 
         # Display metrics side by side with each column
@@ -766,8 +799,23 @@ class PivotTableViz(BaseViz):
                     'dataframe table table-striped table-bordered '
                     'table-condensed table-hover').split(' ')),
         )
-    
 
+    def get_special_sort_data(self, groupby, columns):
+        # 获取需要特殊处理的字段的信息
+        special_sort_cols = None
+        cols_in_index_or_column = None     # 判断特殊排序字段在index还是column中
+        if self.datasource.has_special_sort_cols:
+            # 获取表需要处理的特殊字段信息
+            special_sort_cols = self.datasource.get_sort_columns()  # {"grade_name": {}}
+
+            if special_sort_cols:
+                i_intersection = list(set(groupby) & set(special_sort_cols.keys()))
+                c_intersection = list(set(columns) & set(special_sort_cols.keys()))
+                if i_intersection:
+                    cols_in_index_or_column = ('index', i_intersection)
+                elif c_intersection:
+                    cols_in_index_or_column = ('column', c_intersection)
+        return cols_in_index_or_column, special_sort_cols
 
 
 class MarkupViz(BaseViz):
