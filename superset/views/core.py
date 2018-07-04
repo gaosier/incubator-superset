@@ -25,7 +25,7 @@ from flask_babel import lazy_gettext as _
 import pandas as pd
 from six import text_type
 import sqlalchemy as sqla
-from sqlalchemy import create_engine, or_
+from sqlalchemy import create_engine, or_, and_
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import IntegrityError
 from unidecode import unidecode
@@ -133,6 +133,8 @@ def check_ownership(obj, raise_if_false=True):
     orig_obj = session.query(obj.__class__).filter_by(id=obj.id).first()
     if hasattr(orig_obj, "owner") and orig_obj.owner:
         owner_names = [orig_obj.owner.username]
+    elif hasattr(orig_obj, "owners") and orig_obj.owners:
+        owner_names = [item.username for item in orig_obj.owners]
     else:
         owner_names = []
     if (
@@ -140,12 +142,22 @@ def check_ownership(obj, raise_if_false=True):
             orig_obj.created_by and
             orig_obj.created_by.username == g.user.username):
         return True
+
     if (
             hasattr(orig_obj, 'owner') and
             g.user and
             hasattr(g.user, 'username') and
             g.user.username in owner_names):
         return True
+
+    if (
+            hasattr(orig_obj, 'owners') and
+            g.user and
+            hasattr(g.user, 'username') and
+            g.user.username in owner_names):
+        return True
+
+
     if raise_if_false:
         raise security_exception
     else:
@@ -158,10 +170,23 @@ class SliceFilter(SupersetFilter):
             return query
         perms = self.get_view_menus('datasource_access')
         # TODO(bogdan): add `schema_access` support here
-        from sqlalchemy import or_
-        sub_qry_1=db.session.query(models.Slice.id).filter(models.Slice.owners.contains(g.user))
-        sub_qry_2=db.session.query(models.Slice.id).filter(models.Slice.show_users.contains(g.user))
-        return query.filter(self.model.perm.in_(perms)).filter(or_(models.Slice.id.in_(sub_qry_1),models.Slice.id.in_(sub_qry_2)))
+        Slice = models.Slice  # noqa
+        User = security_manager.user_model
+        owner_ids_qry = (
+            db.session
+                .query(Slice.id)
+                .join(Slice.owners)
+                .filter(User.id == User.get_user_id())
+        )
+
+        show_user_ids_qry = (
+            db.session
+                .query(Slice.id)
+                .join(Slice.show_users)
+                .filter(User.id == User.get_user_id())
+        )
+
+        return query.filter(Slice.perm.in_(perms)).filter(or_(Slice.id.in_(owner_ids_qry), Slice.id.in_(show_user_ids_qry)))
 
 
 class DashboardFilter(SupersetFilter):
@@ -173,26 +198,37 @@ class DashboardFilter(SupersetFilter):
             return query
         Slice = models.Slice  # noqa
         Dash = models.Dashboard  # noqa
+        User = security_manager.user_model
         # TODO(bogdan): add `schema_access` support here
         datasource_perms = self.get_view_menus('datasource_access')
+
         slice_ids_qry = (
             db.session
             .query(Slice.id)
             .filter(Slice.perm.in_(datasource_perms))
         )
-        query = query.filter(
-            Dash.id.in_(
-                db.session.query(Dash.id)
-                .distinct()
-                .join(Dash.slices)
-                .filter(Slice.id.in_(slice_ids_qry)),
-            ),
+        owner_ids_qry = (
+            db.session
+                .query(Dash.id)
+                .join(Dash.owners)
+                .filter(User.id == User.get_user_id())
         )
 
-        sub_qry_1 = db.session.query(Dash.id).filter(Dash.owners.contains(g.user))
-        sub_qry_2 = db.session.query(Dash.id).filter(Dash.show_users.contains(g.user))
-        query = query.filter(or_(Dash.id.in_(sub_qry_1), Dash.id.in_(sub_qry_2)))
+        show_user_ids_qry = (
+            db.session
+                .query(Dash.id)
+                .join(Dash.show_users)
+                .filter(User.id == User.get_user_id())
+        )
 
+        query = query.filter(
+            and_(Dash.id.in_(
+                db.session.query(Dash.id)
+                    .distinct()
+                    .join(Dash.slices)
+                    .filter(Slice.id.in_(slice_ids_qry)),
+            ), or_(Dash.id.in_(owner_ids_qry), Dash.id.in_(show_user_ids_qry))),
+        )
         return query
 
 
