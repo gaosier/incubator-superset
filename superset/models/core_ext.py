@@ -194,13 +194,7 @@ class MPage(Model):
         onupdate=datetime.now, nullable=True)
     melement_url = Column(String(2048), nullable=True)
 
-    # @property
-    # def element_link(self):
-    #     url = self.melementview_url()
-    #     if not url:
-    #         return ''
-    #     else:
-    #         return url
+
     @property
     def melement_url_btn(self):
         url=self.melement_url
@@ -214,20 +208,6 @@ class MPage(Model):
                 <a href={url1} class='btn btn-sm btn-default' data-toggle='tooltip' rel='tooltip' title='' data-original-title='该页面的点击埋点'>点击行为</a>\
                         </div></center>".format(url1=url))
 
-    # def melementview_url(self):
-    #     mpage_mproject_list = db.session.query(MpageMproject).filter_by(mpage_id=self.id)
-    #     url = '/melementview/list/?'
-    #     flag=False
-    #     for i in mpage_mproject_list:
-    #         url += '_flt_0_mpage_mproject=%s&' % i.id
-    #         if not flag:
-    #             if len(db.session.query(MElement).filter(MElement.mpage_mproject.contains(i)).all())!= 0:
-    #                 flag=True
-    #     if flag:
-    #         return url
-    #     else:
-    #         return None
-
     @property
     def get_del_status(self):
         if self.del_status == False:
@@ -235,9 +215,7 @@ class MPage(Model):
         else:
             str_btn = '<a class="btn btn-danger btn-xs disabled">已删除</a>'
         return str_btn
-    # __table_args__ = (
-    #     UniqueConstraint('page_id','project_id'),
-    # )
+
     @property
     def get_status(self):
         if not self.status:

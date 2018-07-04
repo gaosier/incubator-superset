@@ -16,6 +16,8 @@ from superset import (
     viz, utils_ext, security_manager,db
 )
 from sqlalchemy import create_engine
+from wtforms.validators import DataRequired, Regexp
+from flask_appbuilder.models.sqla.filters import BaseFilter
 
 from flask_appbuilder.security.decorators import has_access, has_access_api
 import superset.models.core as models
@@ -139,8 +141,10 @@ appbuilder.add_view(
     category="",
     category_icon='',)
 
+
 class MProjectView(SupersetModelView):
     datamodel = SQLAInterface(MProject)
+    validators_columns = {'id': [Regexp(r'^[a-z]+$', message=u'项目ID不合法,请以项目名称为项目ID,项目名称中仅包含(a-z)中的字符')]}
     list_title = '项目列表'
     show_title = '项目信息'
     add_title = '添加项目'
@@ -150,7 +154,7 @@ class MProjectView(SupersetModelView):
     list_columns = ['id','name','project_type_link','get_status','page_or_element_button']
     edit_columns = ['id','name','full_id','describe','status']
     search_columns = ['id','name','name_type']
-    order_columns=['id',]
+    order_columns=['id']
     label_columns = {
         'id': "项目id",
         'name': "项目名称",
@@ -166,12 +170,7 @@ class MProjectView(SupersetModelView):
         'page_or_element_button':'操作'
     }
 
-
     def pre_add(self, obj):
-        # 判断项目ID是否符合规范
-        if not re.match(r'[a-z]+$', obj.id):
-            raise ValueError(u'项目ID不合法,请以项目名称为项目ID,项目名称中仅包含(a-z)中的字符')
-
         # 去掉string的空格
         string_columns = self.datamodel.get_all_string_columns()
         for col in string_columns:
@@ -180,10 +179,6 @@ class MProjectView(SupersetModelView):
                 setattr(obj, col, value.strip())
 
     def pre_update(self, obj):
-        # 判断按钮ID是否符合规范
-        if not re.match(r'[a-z]+$', obj.id):
-            raise ValueError(u'项目ID不合法,请以项目名称为项目ID,项目名称中仅包含(a-z)中的字符')
-
         # 去掉string的空格
         string_columns = self.datamodel.get_all_string_columns()
         for col in string_columns:
@@ -199,16 +194,17 @@ appbuilder.add_view(
     icon="fa-envelope",
     category="",
     category_icon='',)
-from flask_appbuilder.models.sqla.filters import BaseFilter
+
+
 class MPageFilter(BaseFilter):
     def apply(self, query, func):  # noqa
         return query
 
 
-#from flask_appbuilder.models.sqla.filters import FilterRelationManyToManyEqual
-
 class MPageView(SupersetModelView):
     datamodel = SQLAInterface(MPage)
+    validators_columns = {"page_id": [Regexp(r'^[a-z]+\d+$', message=u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')],
+                          "name": [DataRequired()], "m_project": [DataRequired()]}
     list_title = '页面列表'
     show_title = '页面详情'
     add_title = '添加页面信息'
@@ -221,7 +217,7 @@ class MPageView(SupersetModelView):
                    'pp1','pp2','pp3','pp4','pp5']
     show_columns = edit_columns + ['status', 'create_time', 'update_time']
     base_filters = [['id', MPageFilter, lambda: []]]
-    order_columns = ['page_id',]
+    order_columns = ['page_id']
     description_columns = {
         'status': "1表示未修改，2表示已修改",
         'del_status':"勾选表示已删除",
@@ -260,12 +256,7 @@ class MPageView(SupersetModelView):
     }
     post_update_flag=False
 
-
     def pre_update(self,obj):
-        # 判断页面ID是否符合规范
-        if not re.match(r'[a-z]+\d+$', obj.page_id):
-            raise ValueError(u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')
-
         columns_name=[]
         for i in obj.__table__.columns:
             tab,col=str(i).split(".")
@@ -296,10 +287,6 @@ class MPageView(SupersetModelView):
         """
         处理前端页面的数据
         """
-        # 判断按钮ID是否符合规范
-        if not re.match(r'[a-z]+\d+$', obj.page_id):
-            raise ValueError(u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')
-
         # 去掉string的空格
         string_columns = self.datamodel.get_all_string_columns()
         for col in string_columns:
@@ -326,8 +313,11 @@ class MPageView(SupersetModelView):
 
 appbuilder.add_view_no_menu(MPageView)
 
+
 class MElementView(SupersetModelView):
     datamodel = SQLAInterface(MElement)
+    validators_columns = {"element_id": [Regexp(r'^[a-z]+\d+_\d+$', message=u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')],
+                          "name": [DataRequired()]}
     list_title = '点击列表'
     show_title = '点击详情'
     add_title = '添加点击信息'
@@ -358,10 +348,6 @@ class MElementView(SupersetModelView):
     }
 
     def pre_update(self,obj):
-        # 判断按钮ID是否符合规范
-        if not re.match(r'[a-z]+\d+_\d+$', obj.element_id):
-            raise ValueError(u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')
-
         columns_name=[]
         for i in obj.__table__.columns:
             tab,col=str(i).split(".")
@@ -391,10 +377,6 @@ class MElementView(SupersetModelView):
         """
         处理前端页面的数据
         """
-        # 判断按钮ID是否符合规范
-        if not re.match(r'[a-z]+\d+_\d+$', obj.element_id):
-            raise ValueError(u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')
-
         # 去掉string的空格
         string_columns = self.datamodel.get_all_string_columns()
         for col in string_columns:
