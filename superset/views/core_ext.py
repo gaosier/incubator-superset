@@ -133,13 +133,13 @@ class JingYouModelView(SupersetModelView):
         item = db.session.execute(sql).first()
         if item[0] !=obj.cookies:
             obj.status=2
-appbuilder.add_view(
-    JingYouModelView,
-    "Jing You User",
-    label="菁优用户",
-    icon="fa-table",
-    category="",
-    category_icon='',)
+# appbuilder.add_view(
+#     JingYouModelView,
+#     "Jing You User",
+#     label="菁优用户",
+#     icon="fa-table",
+#     category="",
+#     category_icon='',)
 
 
 class MProjectView(SupersetModelView):
