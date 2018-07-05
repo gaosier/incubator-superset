@@ -649,7 +649,12 @@ class TableViz(BaseViz):
             return json.dumps(
                 obj, default=utils.json_iso_dttm_ser, sort_keys=sort_keys)
         else:
-            return super(TableViz, self).json_dumps(obj)
+            return json.dumps(
+                obj,
+                default=utils.json_iso_dttm_ser,
+                ignore_nan=True,
+                sort_keys=sort_keys,
+            )
 
 
 class TimeTableViz(BaseViz):
