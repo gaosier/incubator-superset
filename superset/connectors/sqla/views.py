@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from flask import flash, Markup, redirect
+from flask import flash, Markup, redirect, request
 from flask_appbuilder import CompactCRUDMixin, expose
 from flask_appbuilder.actions import action
 from flask_appbuilder.models.sqla.interface import SQLAInterface
@@ -115,7 +115,6 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         db.session.commit()
 
     def pre_add(self, item):
-        from flask import request
         table_id = request.full_path.split('=')[1] if len(request.full_path.split('=')) == 2 else None
         item.table_id = int(table_id)
 
@@ -166,7 +165,7 @@ class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     list_columns = ['metric_name', 'verbose_name', 'metric_type']
     edit_columns = [
         'metric_name', 'description', 'verbose_name', 'metric_type',
-        'expression', 'table', 'd3format', 'is_restricted', 'warning_text']
+        'expression', 'd3format', 'is_restricted', 'warning_text']
     description_columns = {
         'expression': utils.markdown(
             'a valid, *aggregating* SQL expression as supported by the '
@@ -196,6 +195,10 @@ class SqlMetricInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'is_restricted': _('Is Restricted'),
         'warning_text': _('Warning Message'),
     }
+
+    def pre_add(self, metric):
+        table_id = request.full_path.split('=')[1] if len(request.full_path.split('=')) == 2 else None
+        metric.table_id = int(table_id)
 
     def post_add(self, metric):
         if metric.is_restricted:
