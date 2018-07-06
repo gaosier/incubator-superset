@@ -39,7 +39,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     edit_columns = [
         'column_name', 'verbose_name', 'description',
         'type', 'groupby', 'filterable',
-        'table', 'count_distinct', 'sum', 'avg','min', 'max', 'expression',
+        'count_distinct', 'sum', 'avg','min', 'max', 'expression',
         'is_dttm', 'python_date_format', 'database_expression','order_number', 'is_partition', 'partition_expression']
     add_columns = edit_columns
     list_columns = [
@@ -113,6 +113,11 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         for m in Metric_dict:
             db.session.delete(m)
         db.session.commit()
+
+    def pre_add(self, item):
+        from flask import request
+        table_id = request.full_path.split('=')[1] if len(request.full_path.split('=')) == 2 else None
+        item.table_id = int(table_id)
 
     def post_add(self, item):
         dic=self.metric_name_dic(item)
