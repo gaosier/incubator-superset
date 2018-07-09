@@ -1,5 +1,5 @@
-#-*-coding:utf-8-*-
-from flask import redirect
+# -*-coding:utf-8-*-
+from flask import request
 from flask_appbuilder.views import GeneralView,ModelView,MasterDetailView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext as __
@@ -19,25 +19,31 @@ class MyTableColumnInlineView(TableColumnInlineView):
     edit_columns = [
         'column_name', 'verbose_name', 'description',
         'type', 'groupby', 'filterable','count_distinct', 'sum', 'avg', 'min', 'max',
-        'table',  'expression',
-        'is_dttm']
+        'expression', 'is_dttm']
     add_columns = edit_columns
     base_filters = [['id', TableColumnFilter, lambda: []]]
     list_columns = [
         'column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'is_dttm','count_distinct', 'sum', 'avg', 'min', 'max','created_by' ]
+
     def pre_update(self, obj):
         check_ownership(obj)
 
     def pre_delete(self, obj):
         check_ownership(obj)
 
+    def pre_add(self, obj):
+        check_ownership(obj)
+        table_id = request.full_path.split('=')[1] if len(request.full_path.split('=')) == 2 else None
+        obj.table_id = int(table_id)
+
 appbuilder.add_view_no_menu(MyTableColumnInlineView)
+
 
 class MySqlMetricInlineView(SqlMetricInlineView):
     list_columns = ['metric_name', 'verbose_name', 'metric_type','created_by']
     edit_columns = [
         'metric_name', 'description', 'verbose_name', 'metric_type',
-        'expression', 'table',]
+        'expression']
     add_columns = edit_columns
     base_filters = [['id', TableColumnFilter, lambda: []]]
     def pre_update(self, obj):
@@ -45,6 +51,13 @@ class MySqlMetricInlineView(SqlMetricInlineView):
 
     def pre_delete(self, obj):
         check_ownership(obj)
+
+    def pre_add(self, obj):
+        check_ownership(obj)
+        table_id = request.full_path.split('=')[1] if len(request.full_path.split('=')) == 2 else None
+        obj.table_id = int(table_id)
+
+
 appbuilder.add_view_no_menu(MySqlMetricInlineView)
 
 class MyTableModelView(TableModelView):
