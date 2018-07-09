@@ -93,6 +93,8 @@ class TableGroupView(MasterDetailView):
     related_views = [MyTableModelView]
     base_order = ('sort_id', 'asc')
 
+    list_columns = ['name']
+
 
 appbuilder.add_view(
     TableGroupView,
