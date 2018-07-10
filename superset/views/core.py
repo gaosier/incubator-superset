@@ -1361,7 +1361,6 @@ class Superset(BaseSupersetView):
     def explore(self, datasource_type=None, datasource_id=None):
         user_id = g.user.get_id() if g.user else None
         form_data, slc = self.get_form_data()
-
         datasource_id, datasource_type = self.datasource_info(
             datasource_id, datasource_type, form_data)
 
@@ -1424,9 +1423,8 @@ class Superset(BaseSupersetView):
                 datasource_type,
                 datasource.name)
         if slc:
-            datasource.slice_users=[slc.created_by_fk,]
-        else:
-            datasource.slice_users = None
+            datasource.slice_users = [slc.created_by_fk, ]
+            self.deal_form_data(form_data, datasource)  # 过滤没有权限的字段
         standalone = request.args.get('standalone') == 'true'
         bootstrap_data = {
             'can_add': slice_add_perm,
@@ -1445,10 +1443,7 @@ class Superset(BaseSupersetView):
         table_name = datasource.table_name \
             if datasource_type == 'table' \
             else datasource.datasource_name
-        if slc:
-            title = slc.slice_name
-        else:
-            title = 'Explore - ' + table_name
+        title = slc.slice_name if slc else 'Explore - ' + table_name
         return self.render_template(
             'superset/basic.html',
             bootstrap_data=json.dumps(bootstrap_data),
@@ -2836,6 +2831,22 @@ class Superset(BaseSupersetView):
         if not security_manager.datasource_access(viz_obj.datasource):
             return json_error_response(DATASOURCE_ACCESS_ERR, status=401)
         return self.get_query_string_response(viz_obj)
+
+
+    def deal_form_data(self, form_data, datasource):
+        """
+        处理groupby,columns,all_columns字段 过滤出不属于当前用户的字段
+        :return: 
+        """
+        pnames = ['groupby', 'columns', 'all_columns']
+        owner_columns, _ = datasource.filter_columns_metrics()
+        owner_columns = [col.column_name for col in owner_columns]
+
+        for p in pnames:
+            value = form_data.get(p, None)
+            if value:
+                s_value = set(value)
+                form_data.update({p: list(s_value & set(owner_columns))})
 
 
 appbuilder.add_view_no_menu(Superset)

@@ -37,7 +37,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
     can_delete = False
     list_widget = ListWidgetWithCheckboxes
     edit_columns = [
-        'column_name', 'verbose_name', 'description',
+        'column_name', 'verbose_name', 'description', 'owners',
         'type', 'groupby', 'filterable',
         'count_distinct', 'sum', 'avg','min', 'max', 'expression',
         'is_dttm', 'python_date_format', 'database_expression','order_number', 'is_partition', 'partition_expression']
@@ -102,6 +102,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'database_expression': _('Database Expression'),
         'type': _('Type'),
         'is_memcached': _("Is Memcached"),
+        'owners': _('Owners'),
     }
     def post_delete(self, item):
         """

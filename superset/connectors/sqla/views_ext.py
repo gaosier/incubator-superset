@@ -17,7 +17,7 @@ from past.builtins import basestring
 
 class MyTableColumnInlineView(TableColumnInlineView):
     edit_columns = [
-        'column_name', 'verbose_name', 'description',
+        'column_name', 'verbose_name', 'description', 'owners',
         'type', 'groupby', 'filterable','count_distinct', 'sum', 'avg', 'min', 'max',
         'expression', 'is_dttm']
     add_columns = edit_columns

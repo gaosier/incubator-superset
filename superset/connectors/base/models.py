@@ -6,13 +6,14 @@ from __future__ import unicode_literals
 
 import json
 
+from flask import g
 from sqlalchemy import (
     and_, Boolean, Column, Integer, String, Text,
 )
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import foreign, relationship
 
-from superset import utils,utils_ext
+from superset import utils, utils_ext, security_manager
 from superset import db
 from superset.models.core import Slice
 from superset.models.helpers import AuditMixinNullable, ImportMixin
@@ -157,27 +158,33 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
         处理在有或者没有切片id时，度量和指标显示的下拉框的值
         :return:
         """
-        slice_user_id=getattr(self,'slice_users',None)
+        def filter_cols(col):
+            if col.owners:
+                if g.user not in col.owners:
+                    return False
+            return True
+
         admin_user_list = utils_ext.get_admin_id_list(db)
+        slice_user_id = getattr(self, 'slice_users', None)
         if slice_user_id:
-            return [i for i in self.columns if (i.created_by_fk in slice_user_id) or (i.created_by_fk in admin_user_list)],\
-                    [i for i in self.metrics if (i.created_by_fk in slice_user_id) or (i.created_by_fk in admin_user_list)]
-        else:
-            from flask import g
-            if any( [r.name in ['Admin',] for r in g.user.roles]):
-                return [i for i in self.columns ], [i for i in self.metrics ]
-            else:
-                admin_user_list.append(g.user.id)
-                return [i for i in self.columns if i.created_by_fk in admin_user_list],\
-                        [i for i in self.metrics if i.created_by_fk in admin_user_list]
+            admin_user_list.extend(slice_user_id)
+
+        if any([r.name in ['Admin'] for r in g.user.roles]):
+            return [i for i in self.columns], [i for i in self.metrics]
+
+        admin_user_list.append(g.user.id)
+        columns = [i for i in self.columns if i.created_by_fk in admin_user_list]
+        metrics = [i for i in self.metrics if i.created_by_fk in admin_user_list]
+
+        columns = list(filter(filter_cols, columns))
+        return columns, metrics
 
     @property
     def data(self):
         """Data representation of the datasource sent to the frontend"""
         order_by_choices = []
         order_by_metric = []
-        # for s in sorted(self.column_names):
-        filterd_columns,filterd_metrics=self.filter_columns_metrics()
+        filterd_columns,filterd_metrics = self.filter_columns_metrics()
         for s in sorted(filterd_columns,key=lambda x:x.column_name):
             a= s.verbose_name if s.verbose_name else s.column_name
             order_by_choices.append((json.dumps([s.column_name, True]), a + '(%s)'%(_('asc'))))
@@ -209,19 +216,15 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
                                    "is_dttm": col.is_dttm, "verbose_name": col.verbose_name or col.column_name})
 
         return {
-            # 'all_cols': utils.choicify(self.column_names),
             'all_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name) for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.is_active],
             'column_formats': self.column_formats,
             'database': self.database.data,  # pylint: disable=no-member
             'edit_url': self.url,
             'filter_select': self.filter_select_enabled,
-            # 'filterable_cols': utils.choicify(self.filterable_column_names),
             'filterable_cols': [(i.column_name, i.verbose_name if i.verbose_name else i.column_name)\
                                             for i in sorted(filterd_columns,key=lambda x:x.order_number) if i.filterable],
-            # 'gb_cols': utils.choicify(self.groupby_column_names),
             'gb_cols': gb_cols,
             'id': self.id,
-            # 'metrics_combo': self.metrics_combo,
             'metrics_combo': sorted(
                 [
                 (m.metric_name, m.verbose_name or m.metric_name)

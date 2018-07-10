@@ -17,7 +17,7 @@ import six
 import sqlalchemy as sa
 from sqlalchemy import (
     and_, asc, Boolean, Column, DateTime, desc, ForeignKey, Integer, or_,
-    select, String, Text,INTEGER
+    select, String, Text, INTEGER, Table, MetaData
 )
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.schema import UniqueConstraint
@@ -36,6 +36,7 @@ from superset.utils import DTTM_ALIAS, QueryStatus
 from superset.utils_ext import time_grain_convert
 from .models_ext import SqlTableGroup, SqlTableColumnSort
 from superset.config_ext import SUPERSET_MEMCACHED
+
 
 class AnnotationDatasource(BaseDatasource):
     """ Dummy object so we can query annotations using 'Viz' objects just like
@@ -73,6 +74,13 @@ class AnnotationDatasource(BaseDatasource):
         raise NotImplementedError()
 
 
+column_owners = Table('column_owners', Model.metadata,
+    Column('id', Integer, primary_key=True),
+    Column('column_id', Integer, ForeignKey('table_columns.id')),
+    Column('user_id', Integer, ForeignKey('ab_user.id'))
+)
+
+
 class TableColumn(Model, BaseColumn):
 
     """ORM object for table columns, each table can have multiple columns"""
@@ -92,6 +100,7 @@ class TableColumn(Model, BaseColumn):
     order_number = Column(INTEGER, default=0)
     is_partition = Column(Boolean, default=False)
     partition_expression = Column(String(255))
+    owners = relationship(security_manager.user_model, secondary=column_owners)
 
     export_fields = (
         'table_id', 'column_name', 'verbose_name', 'is_dttm', 'is_active',
