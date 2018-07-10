@@ -17,7 +17,7 @@ from past.builtins import basestring
 
 class MyTableColumnInlineView(TableColumnInlineView):
     edit_columns = [
-        'column_name', 'verbose_name', 'description', 'owners',
+        'column_name', 'verbose_name', 'description',
         'type', 'groupby', 'filterable','count_distinct', 'sum', 'avg', 'min', 'max',
         'expression', 'is_dttm']
     add_columns = edit_columns
@@ -46,6 +46,7 @@ class MySqlMetricInlineView(SqlMetricInlineView):
         'expression']
     add_columns = edit_columns
     base_filters = [['id', TableColumnFilter, lambda: []]]
+
     def pre_update(self, obj):
         check_ownership(obj)
 
@@ -59,6 +60,7 @@ class MySqlMetricInlineView(SqlMetricInlineView):
 
 
 appbuilder.add_view_no_menu(MySqlMetricInlineView)
+
 
 class MyTableModelView(TableModelView):
     edit_columns=['table_name']
@@ -78,13 +80,6 @@ class MyTableModelView(TableModelView):
 
 
 appbuilder.add_view_no_menu(MyTableModelView)
-# appbuilder.add_view(
-#     MyTableModelView,
-#     "My Tables",
-#     label="自定义数据集",
-#     icon="fa-table",
-#     category="",
-#     category_icon='',)
 
 
 class TableGroupView(MasterDetailView):
@@ -99,7 +94,6 @@ class TableGroupView(MasterDetailView):
 appbuilder.add_view(
     TableGroupView,
     'TableGroups',
-    #label=__('TableGroups'),
     label='数据中心',
     category='',
     icon='fa-table',
