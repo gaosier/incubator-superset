@@ -12,6 +12,7 @@ import re
 import time
 import traceback
 from urllib import parse
+from copy import deepcopy
 
 from flask import (
     flash, g, Markup, redirect, render_template, request, Response, url_for,send_file
@@ -2845,8 +2846,14 @@ class Superset(BaseSupersetView):
         for p in pnames:
             value = form_data.get(p, None)
             if value:
-                s_value = set(value)
-                form_data.update({p: list(s_value & set(owner_columns))})
+                dvalue = deepcopy(value)
+                for field in value:
+                    if field == '__timestamp':
+                        continue
+
+                    if field not in owner_columns:
+                        dvalue.remove(field)
+                form_data.update({p: dvalue})
 
 
 appbuilder.add_view_no_menu(Superset)
