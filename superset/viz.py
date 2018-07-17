@@ -765,7 +765,9 @@ class PivotTableViz(BaseViz):
                     sort_info = special_sort_cols.get(col_name)
                     r_sort_info = {v:k for k, v in zip(sort_info.keys(), sort_info.values())}
                     index_1 = df.index.tolist()
-                    index_1 = [r_sort_info.get(item) for item in index_1]
+                    if 'All' in index_1:
+                        r_sort_info.update({'All': 'All'})
+                    index_1 = [r_sort_info.get(item, '') for item in index_1]
                     df.index = Index(index_1, name=df.index.name)
                 else:
                     for item in cols_in_index_or_column[1]:
@@ -773,7 +775,9 @@ class PivotTableViz(BaseViz):
                         index_1 = df.index.levels[ix].tolist()
                         sort_info = special_sort_cols.get(item)
                         r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
-                        index_1 = [r_sort_info.get(item) for item in index_1]
+                        if 'All' in index_1:
+                            r_sort_info.update({'All': 'All'})
+                        index_1 = [r_sort_info.get(item, '') for item in index_1]
                         df.index = df.index.set_levels(index_1, level=ix)
             else:
                 for item in cols_in_index_or_column[1]:
@@ -781,7 +785,9 @@ class PivotTableViz(BaseViz):
                     col_1 = df.columns.levels[ix].tolist()
                     sort_info = special_sort_cols.get(item)
                     r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
-                    col_1 = [r_sort_info.get(item) for item in col_1]
+                    if 'All' in col_1:
+                        r_sort_info.update({'All': 'All'})
+                    col_1 = [r_sort_info.get(item, '') for item in col_1]
                     df.columns = df.columns.set_levels(col_1, level=ix)
 
         # 空值填充

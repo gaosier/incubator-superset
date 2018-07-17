@@ -32,7 +32,6 @@ class MyTableColumnInlineView(TableColumnInlineView):
         check_ownership(obj)
 
     def pre_add(self, obj):
-        check_ownership(obj)
         table_id = request.full_path.split('=')[1] if len(request.full_path.split('=')) == 2 else None
         obj.table_id = int(table_id)
 
