@@ -735,11 +735,12 @@ class PivotTableViz(BaseViz):
         if cols_in_index_or_column:   # 特殊字段排序
             df = self.deal_sort(df, cols_in_index_or_column, special_sort_cols, groupby)
 
-        if fd.get('pivot_group_sum') or (fd.get('pivot_group_sum') and fd.get('combine_metric')):
+        if fd.get('pivot_group_sum'):
             # 分组求和
             df = self.deal_groupby_sum(df, groupby)
-        elif fd.get('combine_metric'):
-            # Display metrics side by side with each column
+
+        if fd.get('combine_metric'):
+            # 指标整合
             old_index = df.index
             df = df.stack(0).unstack()
             if self.form_data.get('pivot_margins'):
@@ -806,22 +807,14 @@ class PivotTableViz(BaseViz):
             if self.form_data.get('pivot_margins'):
                 new_df = pd.concat([new_df, df.ix[["All"]]])
             df = new_df
-        a = df.index
 
+        # a = df.index
         # if type(df.columns) == MultiIndex:
         #     df = df.reindex(index=a, columns=df[self.form_data.get('metrics')].columns)
         # else:
         #     df = df.reindex(index=a, columns=self.form_data.get('metrics'))
         #
-        # Display metrics side by side with each column
-        if self.form_data.get('combine_metric'):
-            df = df.stack(0).unstack()
-            if self.form_data.get('pivot_margins'):
-                if type(df.columns) == MultiIndex:
-                    values = list(df.columns.levels[0])
-                    values.remove('All')
-                    values.append('All')
-                    df = df.reindex(index=a, columns=df[values].columns)
+
         return df
 
     def deal_sort(self, df, cols_in_index_or_column, special_sort_cols, groupby):
