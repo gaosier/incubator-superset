@@ -735,12 +735,22 @@ class PivotTableViz(BaseViz):
         if cols_in_index_or_column:   # 特殊字段排序
             df = self.deal_sort(df, cols_in_index_or_column, special_sort_cols, groupby)
 
+        print("df.index:   ", df.index)
+        print("df.columns:    ", df.columns)
+
         if fd.get('pivot_group_sum') or (fd.get('pivot_group_sum') and fd.get('combine_metric')):
             # 分组求和
             df = self.deal_groupby_sum(df, groupby)
         elif fd.get('combine_metric'):
             # Display metrics side by side with each column
+            old_index = df.index
             df = df.stack(0).unstack()
+            if self.form_data.get('pivot_margins'):
+                if type(df.columns) == MultiIndex:
+                    values = list(df.columns.levels[0])
+                    values.remove('All')
+                    values.append('All')
+                    df = df.reindex(index=old_index, columns=df[values].columns)
 
         # 空值填充
         df = df.replace([np.inf, -np.inf, None], np.nan)
