@@ -792,7 +792,6 @@ class PivotTableViz(BaseViz):
             m = m.set_index(groupby)     # 设置index
             new_df = ''
             for i, j in enumerate(m.index):
-                print('i:  %s    j:%s' % (i, j))
                 if i == 0:
                     new_df = pd.concat([df.ix[[j[0]]], m.ix[[j[0]]]])
                 else:
