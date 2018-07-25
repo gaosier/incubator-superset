@@ -30,6 +30,7 @@ import numpy as np
 import pandas as pd
 from pandas.tseries.frequencies import to_offset
 from pandas import Index
+from pandas.core.indexes.multi import MultiIndex
 import polyline
 import simplejson as json
 from six import string_types, text_type
@@ -88,33 +89,6 @@ class BaseViz(object):
         self._any_cache_key = None
         self._any_cached_dttm = None
         self._extra_chart_data = None
-
-    def _sort_index(self, df):
-        '''dataframe 索引进行排序
-           params:
-            df: dataframe
-           return:
-            dataframe
-        '''
-        def sort_col(x, values):
-            i = -1
-            try:
-                i = values.index(x)
-            except:
-                pass
-            return i
-        sort_columns = self.datasource._get_sort_columns()
-        if sort_columns is None:
-            return
-        for name,values in sort_columns.items():
-            if name not in df.columns:
-                continue
-            cates, cates_set = [], set()
-            for index,value in df[name].items():
-                cates_set.add(value)
-            cates = list(cates_set)
-            cates = sorted(cates, key=lambda x: sort_col(x, values))
-            df[name] = pd.Categorical(df[name], categories=cates, ordered=True)
 
     def process_metrics(self):
         self.metric_dict = {}
@@ -758,45 +732,20 @@ class PivotTableViz(BaseViz):
             margins=self.form_data.get('pivot_margins'),
         )
 
-        if cols_in_index_or_column:
-            if cols_in_index_or_column[0] == 'index':
-                if len(groupby) == 1:
-                    col_name = cols_in_index_or_column[1][0]
-                    sort_info = special_sort_cols.get(col_name)
-                    r_sort_info = {v:k for k, v in zip(sort_info.keys(), sort_info.values())}
-                    index_1 = df.index.tolist()
-                    if 'All' in index_1:
-                        r_sort_info.update({'All': 'All'})
-                    index_1 = [r_sort_info.get(item, '') for item in index_1]
-                    df.index = Index(index_1, name=df.index.name)
-                else:
-                    for item in cols_in_index_or_column[1]:
-                        ix = df.index.names.index(item)
-                        index_1 = df.index.levels[ix].tolist()
-                        sort_info = special_sort_cols.get(item)
-                        r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
-                        if 'All' in index_1:
-                            r_sort_info.update({'All': 'All'})
-                        index_1 = [r_sort_info.get(item, '') for item in index_1]
-                        df.index = df.index.set_levels(index_1, level=ix)
-            else:
-                for item in cols_in_index_or_column[1]:
-                    ix = df.columns.names.index(item)
-                    col_1 = df.columns.levels[ix].tolist()
-                    sort_info = special_sort_cols.get(item)
-                    r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
-                    if 'All' in col_1:
-                        r_sort_info.update({'All': 'All'})
-                    col_1 = [r_sort_info.get(item, '') for item in col_1]
-                    df.columns = df.columns.set_levels(col_1, level=ix)
+        if cols_in_index_or_column:   # 特殊字段排序
+            df = self.deal_sort(df, cols_in_index_or_column, special_sort_cols, groupby)
+
+        if fd.get('pivot_group_sum') or (fd.get('pivot_group_sum') and fd.get('combine_metric')):
+            # 分组求和
+            df = self.deal_groupby_sum(df, groupby)
+        elif fd.get('combine_metric'):
+            # Display metrics side by side with each column
+            df = df.stack(0).unstack()
 
         # 空值填充
         df = df.replace([np.inf, -np.inf, None], np.nan)
         df = df.fillna(self.form_data.get('pandas_fill_column'))
 
-        # Display metrics side by side with each column
-        if self.form_data.get('combine_metric'):
-            df = df.stack(0).unstack()
         if is_xlsx:
             return df
         return dict(
@@ -824,6 +773,84 @@ class PivotTableViz(BaseViz):
                 elif c_intersection:
                     cols_in_index_or_column = ('column', c_intersection)
         return cols_in_index_or_column, special_sort_cols
+
+    def deal_groupby_sum(self, df, groupby):
+        """
+        分别对分类进行求和
+        """
+        if len(groupby) > 1:
+            if self.form_data.get('pivot_margins'):
+                m = df.groupby(groupby[0]).sum().drop(['All']).reset_index()
+            else:
+                m = df.groupby(groupby[0]).sum().reset_index()
+
+            for i in range(1, len(groupby)):
+                if i == 1:
+                    m[groupby[i]] = '总计'
+                else:
+                    m[groupby[i]] = ''
+            m = m.set_index(groupby)     # 设置index
+            new_df = ''
+            for i, j in enumerate(m.index):
+                print('i:  %s    j:%s' % (i, j))
+                if i == 0:
+                    new_df = pd.concat([df.ix[[j[0]]], m.ix[[j[0]]]])
+                else:
+                    new_df = pd.concat([new_df, df.ix[[j[0]]], m.ix[[j[0]]]])
+            if self.form_data.get('pivot_margins'):
+                new_df = pd.concat([new_df, df.ix[["All"]]])
+            df = new_df
+        a = df.index
+
+        # if type(df.columns) == MultiIndex:
+        #     df = df.reindex(index=a, columns=df[self.form_data.get('metrics')].columns)
+        # else:
+        #     df = df.reindex(index=a, columns=self.form_data.get('metrics'))
+        #
+        # Display metrics side by side with each column
+        if self.form_data.get('combine_metric'):
+            df = df.stack(0).unstack()
+            if self.form_data.get('pivot_margins'):
+                if type(df.columns) == MultiIndex:
+                    values = list(df.columns.levels[0])
+                    values.remove('All')
+                    values.append('All')
+                    df = df.reindex(index=a, columns=df[values].columns)
+        return df
+
+    def deal_sort(self, df, cols_in_index_or_column, special_sort_cols, groupby):
+        if cols_in_index_or_column[0] == 'index':
+            if len(groupby) == 1:
+                col_name = cols_in_index_or_column[1][0]
+                sort_info = special_sort_cols.get(col_name)
+                r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
+                index_1 = df.index.tolist()
+                if 'All' in index_1:
+                    r_sort_info.update({'All': 'All'})
+                index_1 = [r_sort_info.get(item, item) for item in index_1]
+                df.index = Index(index_1, name=df.index.name)
+            else:
+                for item in cols_in_index_or_column[1]:
+                    ix = df.index.names.index(item)
+                    index_1 = df.index.levels[ix].tolist()
+                    sort_info = special_sort_cols.get(item)
+                    r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
+                    if 'All' in index_1:
+                        r_sort_info.update({'All': 'All'})
+
+                    index_1 = [r_sort_info.get(item, item) for item in index_1]
+                    df.index = df.index.set_levels(index_1, level=ix)
+        else:
+            for item in cols_in_index_or_column[1]:
+                ix = df.columns.names.index(item)
+                col_1 = df.columns.levels[ix].tolist()
+                sort_info = special_sort_cols.get(item)
+                r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
+                if 'All' in col_1:
+                    r_sort_info.update({'All': 'All'})
+                col_1 = [r_sort_info.get(item, item) for item in col_1]
+                df.columns = df.columns.set_levels(col_1, level=ix)
+        return df
 
 
 class MarkupViz(BaseViz):
