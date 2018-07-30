@@ -188,3 +188,4 @@ if flask_app_mutator:
     flask_app_mutator(app)
 
 from superset import views  # noqa
+from superset.monitor.g_configs import views
