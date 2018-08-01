@@ -42,3 +42,5 @@ venv
 @eaDir/
 *.log
 log
+celerybeat.*
+celerybeat-*

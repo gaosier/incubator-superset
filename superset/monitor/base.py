@@ -16,7 +16,6 @@ import yaml
 from flask import abort, flash, g, get_flashed_messages, redirect, Response
 from flask_appbuilder import BaseView
 from flask_appbuilder.actions import action
-from flask_appbuilder.models.sqla.filters import BaseFilter
 from flask_appbuilder.widgets import ListWidget
 from flask_babel import get_locale
 from flask_babel import gettext as __

@@ -37,6 +37,16 @@ app = Flask(__name__)
 app.config.from_object(CONFIG_MODULE)
 conf = app.config
 
+celery_app = utils.get_celery_app(conf)
+
+# celery_app.conf.beat_schedule = {
+#     'add-every-30-seconds': {
+#         'task': 'superset.monitor.tasks.tasks.add',
+#         'schedule': 30.0,
+#         'args': (16, 17)
+#     },
+# }
+
 #################################################################
 # Handling manifest file logic at app start
 #################################################################
@@ -187,5 +197,8 @@ flask_app_mutator = app.config.get('FLASK_APP_MUTATOR')
 if flask_app_mutator:
     flask_app_mutator(app)
 
+
 from superset import views  # noqa
+
+# from superset.monitor.tasks import views
 from superset.monitor.g_configs import views

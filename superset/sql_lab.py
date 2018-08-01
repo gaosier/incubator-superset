@@ -17,14 +17,14 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from superset import app, dataframe, db, results_backend, security_manager, utils
+from superset import app, dataframe, db, results_backend, security_manager, utils, celery_app
 from superset.db_engine_specs import LimitMethod
 from superset.models.sql_lab import Query
 from superset.sql_parse import SupersetQuery
-from superset.utils import get_celery_app, QueryStatus
+from superset.utils import QueryStatus
 
 config = app.config
-celery_app = get_celery_app(config)
+
 stats_logger = app.config.get('STATS_LOGGER')
 SQLLAB_TIMEOUT = config.get('SQLLAB_ASYNC_TIME_LIMIT_SEC', 600)
 
