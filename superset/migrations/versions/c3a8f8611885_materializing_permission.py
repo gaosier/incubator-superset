@@ -29,6 +29,7 @@ class Slice(Base):
     table_id = Column(Integer, ForeignKey('tables.id'))
     perm = Column(String(2000))
 
+
 def upgrade():
     bind = op.get_bind()
     op.add_column('slices', sa.Column('perm', sa.String(length=2000), nullable=True))
@@ -40,7 +41,7 @@ def upgrade():
             slc.perm = slc.datasource.perm
             session.merge(slc)
             session.commit()
-    db.session.close()
+    session.close()
 
 
 def downgrade():
