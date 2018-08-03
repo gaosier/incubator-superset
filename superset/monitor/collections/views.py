@@ -1,10 +1,11 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
+import json
 
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 
 from superset import appbuilder
-from .models import CollectRule
+from .models import CollectRule, CollectRecord
 from ..base import MonitorModelView, DeleteMixin
 from ..base_filters import CommonFilter
 
@@ -38,9 +39,16 @@ class CollectRuleModelView(MonitorModelView, DeleteMixin):
         'end_time': '结束时间',
         'creator': '创建者',
         'modified': '修改时间',
-        'db_name': '数据库名字',
         'comment': '备注',
     }
+
+    description_columns = {
+        "rule_type": "db(数据库)| tb(表)两种类型；如果是db类型,后面的选项可以不用填",
+        "fields": "{'repeat': ['name'], 'missing': ['id'], 'error': [], 'count': []}",
+        "start_time": "如果需要采集多天的数据，请填写；否则不用选择，默认采集1天的数据",
+        "end_time": "如果需要采集多天的数据，请填写；否则不用选择，默认采集1天的数据",
+    }
+
 
 appbuilder.add_view(CollectRuleModelView, 'CollectRule',
     label='采集规则',
@@ -48,3 +56,40 @@ appbuilder.add_view(CollectRuleModelView, 'CollectRule',
     category='Collect Manager',
     category_label='数据采集',
     category_icon='fa-folder-open')
+
+
+class CollectRecordModelView(MonitorModelView, DeleteMixin):
+    """
+    采集记录
+    """
+    datamodel = SQLAInterface(CollectRecord)
+
+    base_permissions = ['can_list']
+
+    list_title = '采集规则记录列表'
+
+    search_columns = ('task_name', 'collect_rule_name', 'created_on')
+    list_columns = ['task_name', 'collect_rule_name', 'result', 'reason', 'created_on', 'changed_on']
+    order_columns = ['task_name', 'created_on']
+    base_order = ('changed_on', 'desc')
+
+    base_filters = [['id', CommonFilter, lambda: []]]
+    label_columns = {
+        'task_name': '任务名称',
+        'collect_rule_name': '采集规则名称',
+        'result': '采集结果',
+        'reason': '失败详情',
+        'fields': '采集字段',
+        'created_on': '开始时间',
+        'changed_on': '结束时间',
+    }
+
+
+appbuilder.add_view(CollectRecordModelView, 'CollectRecord',
+                    label='规则记录',
+                    icon='fa-list',
+                    category='Collect Manager',
+                    category_label='数据采集',
+                    category_icon='fa-folder-open')
+
+

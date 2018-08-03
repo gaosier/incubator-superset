@@ -2,10 +2,8 @@
 # __author__ = majing
 
 from flask_appbuilder import Model
-from sqlalchemy import (
-    Column, Integer,
-    String, Text, DateTime
-)
+from flask_appbuilder.models.decorators import renders
+from sqlalchemy import Column, Integer,String, Text, DateTime
 
 from superset.monitor.helpers import AuditMixinNullable
 
@@ -29,7 +27,7 @@ class CollectRule(Model, AuditMixinNullable):
     comment = Column(Text, comment=u"备注")
 
 
-class CollectRecord(BaseRecordModel):
+class CollectRecord(Model, BaseRecordModel):
     """
     采集记录
     """
@@ -37,5 +35,11 @@ class CollectRecord(BaseRecordModel):
 
     collect_rule_id = Column(Integer, comment=u"采集规则ID")
     collect_rule_name = Column(String(60), comment=u"采集规则名称")
+
+    @renders('is_success')
+    def result(self):
+        return u"成功" if self.is_success else u"失败"
+
+
 
 
