@@ -20,6 +20,7 @@ from flask_appbuilder.widgets import ListWidget
 from flask_babel import get_locale
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
+from odps import ODPS
 
 from superset.views.base import SupersetModelView as ModelView
 from superset import conf, security_manager, utils
@@ -203,3 +204,19 @@ class DeleteMixin(object):
                 self._delete(item.id)
         self.update_redirect()
         return redirect(self.get_redirect())
+
+
+ODPS_INFO = {
+        "access_key": "kxvb9Hh1S7deJgyYRg79F0rvSf9vL5",
+        "access_id": "LTAIhNwQk5AplazR"
+    }
+
+common_odps = None
+
+def get_odps():
+    global common_odps
+    if not common_odps:
+        common_odps = ODPS(ODPS_INFO.get('access_id'), ODPS_INFO.get('access_key'), 'sync_data')
+    return common_odps
+
+

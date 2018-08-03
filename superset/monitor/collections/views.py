@@ -8,6 +8,7 @@ from superset import appbuilder
 from .models import CollectRule, CollectRecord
 from ..base import MonitorModelView, DeleteMixin
 from ..base_filters import CommonFilter
+from ..funcs import CollectInter
 
 
 class CollectRuleModelView(MonitorModelView, DeleteMixin):
@@ -24,7 +25,8 @@ class CollectRuleModelView(MonitorModelView, DeleteMixin):
     search_columns = ('rule_type', 'pro_name', 'table_name')
     list_columns = ['name', 'rule_type', 'pro_name', 'table_name', 'fields', 'comment', 'creator', 'modified']
     order_columns = ['pro_name', 'modified']
-    edit_columns = ['name', 'rule_type', 'pro_name', 'table_name', 'fields', 'start_time', 'end_time', 'comment']
+    edit_columns = ['name', 'rule_type', 'pro_name', 'table_name', 'fields', 'collect_day', 'partion_format',
+                    'comment']
     add_columns = edit_columns
     base_order = ('changed_on', 'desc')
 
@@ -35,19 +37,22 @@ class CollectRuleModelView(MonitorModelView, DeleteMixin):
         'pro_name': '项目名称',
         'table_name': '表名',
         'fields': '采集字段',
-        'start_time': '开始时间',
-        'end_time': '结束时间',
+        'collect_day': '采集日期',
         'creator': '创建者',
         'modified': '修改时间',
         'comment': '备注',
+        'partion_format': '分区格式'
     }
 
     description_columns = {
         "rule_type": "db(数据库)| tb(表)两种类型；如果是db类型,后面的选项可以不用填",
         "fields": "{'repeat': ['name'], 'missing': ['id'], 'error': [], 'count': []}",
-        "start_time": "如果需要采集多天的数据，请填写；否则不用选择，默认采集1天的数据",
-        "end_time": "如果需要采集多天的数据，请填写；否则不用选择，默认采集1天的数据",
+        "partion_format": "如果规则类型是tb, 分区类型必须填写",
+        "collect_day": "如果不填，默认采集前一天的数据"
     }
+
+    def post_update(self, item):
+        CollectInter.collect_tb_data(1, '测试任务', item)
 
 
 appbuilder.add_view(CollectRuleModelView, 'CollectRule',

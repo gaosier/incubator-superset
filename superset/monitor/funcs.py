@@ -4,16 +4,56 @@
 具体采集，校验函数
 """
 import json
+from pandas import DataFrame as PdDataFrame
+
+from odps.df import DataFrame
+
+from .base import get_odps
+from .collections.models import CollectRecord, CollectRule
+
+odps_app = get_odps()
 
 
 class CollectInter(object):
 
     @classmethod
-    def collect_data(cls, rule):
+    def collect_tb_data(cls, task_id, task_name, rule):
         """
         数据采集
         """
-        print('collect data ....')
+        is_success = False
+        df = reason = None
+        try:
+            if rule:
+                partition = rule.partition
+                if partition:
+                    df = DataFrame(odps_app.get_table(rule.table_name, project=rule.pro_name).get_partition(partition))
+                else:
+                    df = DataFrame(odps_app.get_table(rule.table_name, project=rule.pro_name))
+                if not df:
+                    reason = u"获取到的数据为空: 分区： %s" % partition
+
+                if rule.all_fields:
+                    df = df[rule.all_fields]
+                is_success = True
+            else:
+                reason = u"错误原因：采集规则为空"
+        except Exception as exc:
+            reason = str(exc)
+
+        if rule:
+            collect_rule_id = rule.id
+            collect_rule_name = rule.name
+        else:
+            collect_rule_id = collect_rule_name = None
+
+        CollectRecord.add_task_record(task_id=task_id, task_name=task_name, is_success=is_success, reason=reason,
+                                      collect_rule_id=collect_rule_id, collect_rule_name=collect_rule_name)
+        return df
+
+    @classmethod
+    def collect_db_data(cls):
+        pass
 
 
 class ValidateInter(object):
