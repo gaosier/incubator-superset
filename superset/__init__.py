@@ -202,4 +202,8 @@ from superset import views  # noqa
 
 # from superset.monitor.tasks import views
 from superset.monitor.collections import views
+from superset.monitor.validates import views
 from superset.monitor.g_configs import views
+
+
+

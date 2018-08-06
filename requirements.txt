@@ -81,3 +81,4 @@ WTForms==2.1
 redis
 DictObject
 xlsxwriter==1.0.5
+pyodps

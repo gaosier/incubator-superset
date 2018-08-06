@@ -1,7 +1,5 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
-import json
-
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 
 from superset import appbuilder

@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
 from sqlalchemy import Column, Integer, String, Text, Boolean
+from flask_appbuilder.models.decorators import renders
 
 from superset import db
 
@@ -25,6 +26,10 @@ class BaseRecordModel(AuditMixinNullable):
                 session.add(task)
                 session.commit()
         except Exception as exc:
-            print(str(exc))        ## logger
+            raise ValueError("add_taks_record error: %s" % str(exc))        ## logger
+
+    @renders('is_success')
+    def result(self):
+        return u"成功" if self.is_success else u"失败"
 
 
