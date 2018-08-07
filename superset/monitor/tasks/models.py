@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
 from flask_appbuilder import Model
+from flask_appbuilder.models.decorators import renders
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
@@ -11,8 +12,6 @@ from ..alarms.models import AlarmRule
 
 from ..helpers import AuditMixinNullable
 from ..base_models import BaseRecordModel
-
-from .task import set_tasks
 
 
 class PeriodTask(Model, AuditMixinNullable):
@@ -31,6 +30,7 @@ class PeriodTask(Model, AuditMixinNullable):
     alarm_rule = relationship(AlarmRule)
     interval = Column(String(20), nullable=False, comment=u"定时任务时间间隔")
     status = Column(String(20), default='pending', nullable=False, comment=u"定时任务状态 pending|running|success|failed")
+    detail = Column(Text, comment=u"任务详情")
     comment = Column(Text, comment=u"备注")
 
     def __str__(self):
@@ -44,4 +44,8 @@ class TaskRecord(Model, BaseRecordModel):
     __tablename__ = 'task_record'
 
     duration = Column(Integer, comment=u"定时任务运行时间")
+
+    @renders('duration')
+    def exec_duration(self):
+        return self.changed_on - self.created_on
 

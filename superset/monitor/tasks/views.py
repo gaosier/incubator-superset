@@ -23,7 +23,7 @@ class TaskModelView(MonitorModelView):
     edit_title = '编辑任务'
 
     search_columns = ('name', 'status')
-    list_columns = ['name', 'collect_rule', 'validate_rule', 'alarm_rule', 'interval', 'status', 'modified']
+    list_columns = ['name', 'collect_rule', 'validate_rule', 'alarm_rule', 'interval', 'status', 'detail', 'modified']
     order_columns = ['name', 'modified']
     edit_columns = ['name', 'collect_rule', 'validate_rule', 'alarm_rule', 'interval', 'status', 'comment']
     add_columns = edit_columns
@@ -39,7 +39,8 @@ class TaskModelView(MonitorModelView):
         'alarm_rule': '告警规则',
         'comment': '备注',
         'interval': '时间间隔',
-        'status': '任务状态'
+        'status': '任务状态',
+        'detail': '任务详情'
     }
 
     def pre_add(self, obj):
@@ -63,7 +64,7 @@ class TaskRecordModelView(MonitorModelView):
     list_title = '任务记录列表'
 
     search_columns = ('task_id', 'task_name')
-    list_columns = ['task_id', 'task_name', 'is_success', 'duration', 'created_on', 'changed_on', 'reason']
+    list_columns = ['task_id', 'task_name', 'is_success', 'exec_duration', 'created_on', 'changed_on', 'reason']
     order_columns = ['name', 'modified']
     base_order = ('changed_on', 'desc')
 
@@ -76,6 +77,7 @@ class TaskRecordModelView(MonitorModelView):
         'duration': '运行时间',
         'created_on': '开始时间',
         'changed_on': '结束时间',
+        'exec_duration': '运行时间'
     }
 
 
