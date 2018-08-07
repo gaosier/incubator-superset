@@ -10,7 +10,7 @@ APP_ICON = "/static/assets/images/logo.png"
 
 class CeleryConfig(object):
     BROKER_URL = 'redis://localhost:6379/1'
-    CELERY_IMPORTS = ('superset.sql_lab', 'superset.monitor.tasks.tasks')
+    CELERY_IMPORTS = ('superset.sql_lab', 'superset.monitor.tasks.task')
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
     CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
     CELERYD_LOG_LEVEL = 'DEBUG'

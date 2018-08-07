@@ -49,9 +49,6 @@ class CollectRuleModelView(MonitorModelView, DeleteMixin):
         "collect_day": "如果不填，默认采集前一天的数据"
     }
 
-    def post_update(self, item):
-        CollectInter.collect_tb_data(1, '测试任务', item)
-
 
 appbuilder.add_view(CollectRuleModelView, 'CollectRule',
     label='采集规则',

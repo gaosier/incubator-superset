@@ -4,9 +4,6 @@
 contab: * * * * * 
 * 分钟   * 小时  * 天    * 月份   * 星期
 """
-from collections import defaultdict
-
-from celery.schedules import crontab
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 
 from superset import appbuilder
@@ -15,7 +12,6 @@ from ..base import MonitorModelView
 from ..base_filters import CommonFilter
 
 from .models import PeriodTask, TaskRecord
-from .tasks import celery_app
 
 
 class TaskModelView(MonitorModelView):
@@ -42,7 +38,8 @@ class TaskModelView(MonitorModelView):
         'validate_rule': '校验规则',
         'alarm_rule': '告警规则',
         'comment': '备注',
-        'interval': '时间间隔'
+        'interval': '时间间隔',
+        'status': '任务状态'
     }
 
     def pre_add(self, obj):
@@ -50,18 +47,13 @@ class TaskModelView(MonitorModelView):
         if len(interval) != 5:
             raise ValueError("interval 格式错误，请使用crontab格式")
 
-    def post_add(self, obj):
-        interval = obj.interval.split()
-        scheduler = crontab(minute=interval[0], hour=interval[1], day_of_month=interval[2], month_of_year=interval[3],
-                            day_of_week=interval[4])
-
 
 appbuilder.add_view(TaskModelView, 'Tasks',
                     label='定时任务',
-                    icon='fa-tasks',
+                    icon='fa-indent',
                     category='Tasks Manager',
                     category_label='任务管理',
-                    category_icon='fa-folder-close')
+                    category_icon='fa-tasks')
 
 
 class TaskRecordModelView(MonitorModelView):
@@ -89,7 +81,7 @@ class TaskRecordModelView(MonitorModelView):
 
 appbuilder.add_view(TaskRecordModelView, 'TaskRecord',
                     label='任务记录',
-                    icon='fa-cubes',
+                    icon='fa-list',
                     category='Tasks Manager',
                     category_label='任务管理',
-                    category_icon='fa-folder-close')
+                    category_icon='fa-tasks')

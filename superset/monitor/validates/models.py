@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
 from flask_appbuilder import Model
+from flask_appbuilder.models.decorators import renders
 from sqlalchemy import String, Column, Text, Integer, Boolean, Table, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -35,6 +36,11 @@ class ValidateRule(Model, AuditMixinNullable):
 
     def __str__(self):
         return self.name
+
+    @renders('types')
+    def typenames(self):
+        print("typenames: ", ','.join([item.name for item in self.types]))
+        return ','.join([item.name for item in self.types])
 
 
 class ValidateErrorRule(Model, AuditMixinNullable):

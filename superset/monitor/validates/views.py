@@ -12,7 +12,7 @@ from ..funcs import CollectInter
 
 class ValidateRuleModelView(MonitorModelView, DeleteMixin):
     """
-    数据源配置
+    数据校验
     """
     datamodel = SQLAInterface(ValidateRule)
 
@@ -22,7 +22,7 @@ class ValidateRuleModelView(MonitorModelView, DeleteMixin):
     edit_title = '编辑规则'
 
     search_columns = ('types', 'name')
-    list_columns = ['name', 'types', 'comment', 'creator', 'modified']
+    list_columns = ['name', 'typenames', 'comment', 'creator', 'modified']
     order_columns = ['name', 'modified']
     edit_columns = ['name', 'types', 'comment']
     add_columns = edit_columns
@@ -31,14 +31,12 @@ class ValidateRuleModelView(MonitorModelView, DeleteMixin):
     base_filters = [['id', CommonFilter, lambda: []]]
     label_columns = {
         'name': '规则名称',
-        'types': '规则类型',
+        'types': '校验类型',
         'creator': '创建者',
         'modified': '修改时间',
         'comment': '备注',
+        'typenames': '校验类型',
     }
-
-    def post_update(self, item):
-        CollectInter.collect_tb_data(1, '测试任务', item)
 
 
 appbuilder.add_view(ValidateRuleModelView, 'ValidateRule',
