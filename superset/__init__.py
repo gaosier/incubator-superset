@@ -38,6 +38,13 @@ app.config.from_object(CONFIG_MODULE)
 conf = app.config
 
 celery_app = utils.get_celery_app(conf)
+celery_app.conf.ONCE = {
+  'backend': 'celery_once.backends.Redis',
+  'settings': {
+    'url': 'redis://localhost:6379/0',
+    'default_timeout': 60 * 60
+  }
+}
 
 #################################################################
 # Handling manifest file logic at app start

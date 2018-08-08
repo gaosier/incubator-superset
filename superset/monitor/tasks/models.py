@@ -6,6 +6,8 @@ from flask_appbuilder.models.decorators import renders
 from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
 
+from superset import db
+
 from ..collections.models import CollectRule
 from ..validates.models import ValidateRule
 from ..alarms.models import AlarmRule
@@ -36,6 +38,18 @@ class PeriodTask(Model, AuditMixinNullable):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def update_task_status_by_id(cls, task_id, status='running', detail=''):
+        session = db.session
+        session.query(PeriodTask).filter(PeriodTask.id == task_id).update({PeriodTask.status: status,
+                                                                          PeriodTask.detail: detail
+                                                                          })
+        session.commit()
+
+    @classmethod
+    def get_task_by_id(cls, task_id):
+        return db.session.query(PeriodTask).filter(PeriodTask.id == task_id).first()
+
 
 class TaskRecord(Model, BaseRecordModel):
     """
@@ -48,4 +62,11 @@ class TaskRecord(Model, BaseRecordModel):
     @renders('duration')
     def exec_duration(self):
         return self.changed_on - self.created_on
+
+    @classmethod
+    def create_record_by_obj(cls, record):
+        if isinstance(record, cls):
+            db.session.add(record)
+            db.session.commit()
+
 
