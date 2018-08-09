@@ -60,11 +60,11 @@ appbuilder.add_view(TaskModelView, 'Tasks',
 class TaskRecordModelView(MonitorModelView):
     datamodel = SQLAInterface(TaskRecord)
 
-    can_list = True
+    base_permissions = ['can_list']
     list_title = '任务记录列表'
 
     search_columns = ('task_id', 'task_name')
-    list_columns = ['task_id', 'task_name', 'is_success', 'exec_duration', 'created_on', 'changed_on', 'reason']
+    list_columns = ['task_id', 'task_name', 'result', 'exec_duration', 'created_on', 'changed_on', 'reason']
     order_columns = ['name', 'modified']
     base_order = ('changed_on', 'desc')
 
@@ -72,7 +72,7 @@ class TaskRecordModelView(MonitorModelView):
     label_columns = {
         'task_id': '任务ID',
         'task_name': '任务名称',
-        'is_success': '运行结果',
+        'result': '运行结果',
         'reason': '任务详情',
         'duration': '运行时间',
         'created_on': '开始时间',

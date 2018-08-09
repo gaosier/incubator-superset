@@ -3,8 +3,6 @@
 from sqlalchemy import Column, Integer, String, Text, Boolean
 from flask_appbuilder.models.decorators import renders
 
-from superset import db
-
 from superset.monitor.helpers import AuditMixinNullable
 
 
@@ -18,15 +16,13 @@ class BaseRecordModel(AuditMixinNullable):
     reason = Column(Text, comment=u"失败原因")
 
     @classmethod
-    def add_task_record(cls, **kwargs):
-        session = db.session
+    def add_task_record(cls, session=None, **kwargs):
         try:
             if kwargs.get('task_id') and kwargs.get('task_name'):
                 task = cls(**kwargs)
                 session.add(task)
-                session.commit()
         except Exception as exc:
-            raise ValueError("add_taks_record error: %s" % str(exc))        ## logger
+            raise ValueError("add_taks_record error: %s" % str(exc))
 
     @renders('is_success')
     def result(self):

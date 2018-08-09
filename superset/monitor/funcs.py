@@ -17,7 +17,7 @@ odps_app = get_odps()
 class CollectInter(object):
 
     @classmethod
-    def collect_tb_data(cls, task_id, task_name, rule):
+    def collect_tb_data(cls, task_id, task_name, rule, session=None):
         """
         数据采集
         """
@@ -48,7 +48,8 @@ class CollectInter(object):
             collect_rule_id = collect_rule_name = None
 
         CollectRecord.add_task_record(task_id=task_id, task_name=task_name, is_success=is_success, reason=reason,
-                                      collect_rule_id=collect_rule_id, collect_rule_name=collect_rule_name)
+                                      collect_rule_id=collect_rule_id, collect_rule_name=collect_rule_name,
+                                      session=session)
         return df
 
     @classmethod

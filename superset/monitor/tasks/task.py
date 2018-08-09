@@ -14,23 +14,23 @@ def generate_task(task_id):
     生成定时任务
     """
     print("task running begin ....   target: %s   type(target): %s" % (task_id, type(task_id)))
-
+    session = db.create_scoped_session()
     # 添加任务记录
     record = TaskRecord(is_success=True, reason='')
     try:
-        PeriodTask.update_task_status_by_id(task_id)      # 设置task的状态为running
+        PeriodTask.update_task_status_by_id(task_id, session=session)      # 设置task的状态为running
 
-        task_obj = PeriodTask.get_task_by_id(task_id)
+        task_obj = PeriodTask.get_task_by_id(task_id, session=session)
         print("task running ....  value: %s" % task_obj)
 
-        CollectInter.collect_tb_data(task_obj.id, task_obj.name, task_obj.collect_rule)
+        CollectInter.collect_tb_data(task_obj.id, task_obj.name, task_obj.collect_rule, session=session)
         # 校验数据
         if task_obj.validate_rule_id:
             validate_rule = task_obj.validate_rule
             types = validate_rule.types
             type_names = [item.name for item in types]
-            for name in type_names:
-                getattr(ValidateInter, name)(validate_rule)
+            for _name in type_names:
+                getattr(ValidateInter, _name)(validate_rule)
 
         record.task_id = task_obj.id
         record.task_name = task_obj.name
@@ -40,6 +40,8 @@ def generate_task(task_id):
         task_status = 'failed'
         error_msg = str(exc)
 
+        record.task_id = -1
+        record.task_name = 'NULL'
         record.is_success = False
         record.reason = str(exc)
     else:
@@ -48,9 +50,11 @@ def generate_task(task_id):
         task_status = 'success'
         error_msg = ''
 
-    PeriodTask.update_task_status_by_id(task_id, task_status, error_msg)  # 设置task的状态
+    PeriodTask.update_task_status_by_id(task_id, task_status, error_msg, session=session)  # 设置task的状态
 
-    TaskRecord.create_record_by_obj(record)    # 创建任务记录
+    TaskRecord.create_record_by_obj(record, session=session)    # 创建任务记录
+
+    session.commit()
 
 
 def get_tasks():

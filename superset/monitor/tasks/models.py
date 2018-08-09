@@ -39,16 +39,14 @@ class PeriodTask(Model, AuditMixinNullable):
         return self.name
 
     @classmethod
-    def update_task_status_by_id(cls, task_id, status='running', detail=''):
-        session = db.session
+    def update_task_status_by_id(cls, task_id, status='running', detail='', session=None):
         session.query(PeriodTask).filter(PeriodTask.id == task_id).update({PeriodTask.status: status,
                                                                           PeriodTask.detail: detail
                                                                           })
-        session.commit()
 
     @classmethod
-    def get_task_by_id(cls, task_id):
-        return db.session.query(PeriodTask).filter(PeriodTask.id == task_id).first()
+    def get_task_by_id(cls, task_id, session=None):
+        return session.query(PeriodTask).filter(PeriodTask.id == task_id).first()
 
 
 class TaskRecord(Model, BaseRecordModel):
@@ -64,9 +62,8 @@ class TaskRecord(Model, BaseRecordModel):
         return self.changed_on - self.created_on
 
     @classmethod
-    def create_record_by_obj(cls, record):
+    def create_record_by_obj(cls, record, session=None):
         if isinstance(record, cls):
-            db.session.add(record)
-            db.session.commit()
+            session.add(record)
 
 
