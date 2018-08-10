@@ -5,7 +5,9 @@ from celery.schedules import crontab
 from celery_once import QueueOnce
 
 from ..funcs import CollectInter, ValidateInter
-from .models import PeriodTask, TaskRecord
+
+
+from .models import PeriodTask, TaskRecord, CeleryRestartRecord
 
 
 @celery_app.task(base=QueueOnce, once={'graceful': True}, ignore_result=True)
@@ -55,6 +57,7 @@ def generate_task(task_id):
     TaskRecord.create_record_by_obj(record, session=session)    # 创建任务记录
 
     session.commit()
+    session.close()
 
 
 def get_tasks():
@@ -70,5 +73,5 @@ def get_tasks():
 
 tasks_info = get_tasks()
 
-for key, value, name in tasks_info:
-    celery_app.add_periodic_task(key, generate_task.s(value), name=name)
+# for key, value, name in tasks_info:
+#     celery_app.add_periodic_task(key, generate_task.s(value), name=name)

@@ -44,3 +44,4 @@ venv
 log
 celerybeat.*
 celerybeat-*
+*.pid

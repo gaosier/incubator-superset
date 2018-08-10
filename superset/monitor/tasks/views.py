@@ -5,13 +5,13 @@ contab: * * * * *
 * 分钟   * 小时  * 天    * 月份   * 星期
 """
 from flask_appbuilder.models.sqla.interface import SQLAInterface
-
-from superset import appbuilder
+from superset import appbuilder, db
 
 from ..base import MonitorModelView
 from ..base_filters import CommonFilter
+from ..base_validaters import SchedulerCheck
 
-from .models import PeriodTask, TaskRecord
+from .task import PeriodTask, TaskRecord, CeleryRestartRecord
 
 
 class TaskModelView(MonitorModelView):
@@ -30,6 +30,8 @@ class TaskModelView(MonitorModelView):
     base_order = ('changed_on', 'desc')
 
     base_filters = [['id', CommonFilter, lambda: []]]
+    validators_columns = {"interval": [SchedulerCheck()]}
+
     label_columns = {
         'name': '任务名称',
         'creator': '创建者',
@@ -43,15 +45,9 @@ class TaskModelView(MonitorModelView):
         'detail': '任务详情'
     }
 
-    def pre_add(self, obj):
-        interval = obj.interval.split()
-        if len(interval) != 5:
-            raise ValueError("interval 格式错误，请使用crontab格式")
-
-
 appbuilder.add_view(TaskModelView, 'Tasks',
                     label='定时任务',
-                    icon='fa-indent',
+                    icon='fa-tags',
                     category='Tasks Manager',
                     category_label='任务管理',
                     category_icon='fa-tasks')
@@ -84,6 +80,36 @@ class TaskRecordModelView(MonitorModelView):
 appbuilder.add_view(TaskRecordModelView, 'TaskRecord',
                     label='任务记录',
                     icon='fa-list',
+                    category='Tasks Manager',
+                    category_label='任务管理',
+                    category_icon='fa-tasks')
+
+
+class CeleryRestartRecordModelView(MonitorModelView):
+    datamodel = SQLAInterface(CeleryRestartRecord)
+
+    base_permissions = ['can_list']
+    list_title = '任务记录列表'
+
+    search_columns = ('operation', 'task_name')
+    list_columns = ['task_id', 'task_name', 'operation',  'result', 'reason', 'created_on']
+    order_columns = ['name', 'modified']
+    base_order = ('changed_on', 'desc')
+
+    base_filters = [['id', CommonFilter, lambda: []]]
+    label_columns = {
+        'task_id': '任务ID',
+        'task_name': '任务名称',
+        'result': 'celery重启结果',
+        'reason': '失败原因',
+        'created_on': '操作时间',
+        'operation': '执行的操作'
+    }
+
+
+appbuilder.add_view(CeleryRestartRecordModelView, 'CeleryRestartRecord',
+                    label='celery重启记录',
+                    icon='fa-refresh',
                     category='Tasks Manager',
                     category_label='任务管理',
                     category_icon='fa-tasks')

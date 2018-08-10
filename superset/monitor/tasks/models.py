@@ -3,10 +3,11 @@
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 
+from superset import db
+import sqlalchemy as sqla
+
 from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
-
-from superset import db
 
 from ..collections.models import CollectRule
 from ..validates.models import ValidateRule
@@ -14,6 +15,7 @@ from ..alarms.models import AlarmRule
 
 from ..helpers import AuditMixinNullable
 from ..base_models import BaseRecordModel
+from ..utils import restart_celery
 
 
 class PeriodTask(Model, AuditMixinNullable):
@@ -66,4 +68,32 @@ class TaskRecord(Model, BaseRecordModel):
         if isinstance(record, cls):
             session.add(record)
 
+
+class CeleryRestartRecord(Model, BaseRecordModel):
+    """
+    重启celery记录表
+    """
+    __tablename__ = "celery_restart_rds"
+
+    operation = Column(String(20), comment=u"操作")
+
+
+def async_restart_celery(mapper, connection, target):
+    """
+    :param task_id: 
+    :param task_name: 
+    :param operation:  
+    """
+    print("enter async_restart_celery .....")
+    operation = 'update task'
+    session = db.create_scoped_session()
+    is_success, msg = restart_celery()
+    CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, operation=operation,
+                                        is_success=is_success, reason=msg, session=session)
+    session.commit()
+    session.close()
+
+
+sqla.event.listen(PeriodTask, 'after_insert', async_restart_celery)
+sqla.event.listen(PeriodTask, 'after_update', async_restart_celery)
 
