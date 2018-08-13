@@ -1,13 +1,14 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
+import json
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 
-from superset import db
-import sqlalchemy as sqla
-
 from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
+import sqlalchemy as sqla
+
+from superset import db
 
 from ..collections.models import CollectRule
 from ..validates.models import ValidateRule
@@ -76,6 +77,19 @@ class CeleryRestartRecord(Model, BaseRecordModel):
     __tablename__ = "celery_restart_rds"
 
     operation = Column(String(20), comment=u"操作")
+    old_pids = Column(String(100), comment=u"旧的进程号")
+    cur_pids = Column(String(100), comment=u"当前进程号")
+    status = Column(String(20), default='running', comment=u"running|complete")
+    is_restart = Column(String(10), default='undefined', comment=u"undefined|success|failed")
+
+    @renders('is_restart')
+    def restarts(self):
+        if self.is_restart == 'undefined':
+            return u"未知"
+        elif self.is_restart == 'success':
+            return u"成功"
+        else:
+            return u"失败"
 
 
 def async_restart_celery(mapper, connection, target):
@@ -84,16 +98,12 @@ def async_restart_celery(mapper, connection, target):
     :param task_name: 
     :param operation:  
     """
-    print("enter async_restart_celery .....")
-    operation = 'update task'
     session = db.create_scoped_session()
-    is_success, msg = restart_celery()
-    CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, operation=operation,
-                                        is_success=is_success, reason=msg, session=session)
+    is_success, msg, pids= restart_celery()
+    CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, is_restart=is_success, reason=msg,
+                                        old_pids=json.dumps(pids), session=session)
     session.commit()
     session.close()
 
-
 sqla.event.listen(PeriodTask, 'after_insert', async_restart_celery)
 sqla.event.listen(PeriodTask, 'after_update', async_restart_celery)
-

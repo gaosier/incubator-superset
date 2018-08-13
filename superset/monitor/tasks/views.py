@@ -5,7 +5,7 @@ contab: * * * * *
 * 分钟   * 小时  * 天    * 月份   * 星期
 """
 from flask_appbuilder.models.sqla.interface import SQLAInterface
-from superset import appbuilder, db
+from superset import appbuilder
 
 from ..base import MonitorModelView
 from ..base_filters import CommonFilter
@@ -92,7 +92,7 @@ class CeleryRestartRecordModelView(MonitorModelView):
     list_title = '任务记录列表'
 
     search_columns = ('operation', 'task_name')
-    list_columns = ['task_id', 'task_name', 'operation',  'result', 'reason', 'created_on']
+    list_columns = ['task_id', 'task_name', 'old_pids', 'restarts', 'cur_pids','reason', 'created_on']
     order_columns = ['name', 'modified']
     base_order = ('changed_on', 'desc')
 
@@ -100,10 +100,11 @@ class CeleryRestartRecordModelView(MonitorModelView):
     label_columns = {
         'task_id': '任务ID',
         'task_name': '任务名称',
-        'result': 'celery重启结果',
+        'restarts': 'celery重启结果',
         'reason': '失败原因',
         'created_on': '操作时间',
-        'operation': '执行的操作'
+        'old_pids': '旧的进程号',
+        'cur_pids': '当前进程号'
     }
 
 

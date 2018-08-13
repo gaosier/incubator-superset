@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
+import json
 from superset import celery_app, db
 from celery.schedules import crontab
 from celery_once import QueueOnce
@@ -8,6 +9,7 @@ from ..funcs import CollectInter, ValidateInter
 
 
 from .models import PeriodTask, TaskRecord, CeleryRestartRecord
+from ..utils import get_celery_beat_worker_pid
 
 
 @celery_app.task(base=QueueOnce, once={'graceful': True}, ignore_result=True)
@@ -60,6 +62,36 @@ def generate_task(task_id):
     session.close()
 
 
+@celery_app.task(base=QueueOnce, once={'graceful': True}, ignore_result=True)
+def get_new_celery_pids():
+    new_pids = get_celery_beat_worker_pid()
+    print("get_new_celery_pids:  new_pids: ", new_pids)
+    if new_pids:
+        session = db.create_scoped_session()
+        records = session.query(CeleryRestartRecord).filter(CeleryRestartRecord.status == 'running').all()
+        for record in records:
+            is_restart = 'success'
+            msg = ''
+            try:
+                old_pids = json.loads(record.old_pids)
+                print("get_new_celery_pids: old_pids:  ", old_pids)
+                for key, value in old_pids.items():
+                    if value == new_pids.get(key):
+                        msg = '%s is restart falied' % key
+                        is_restart = 'falied'
+                        break
+            except Exception as exc:
+                msg = str(exc)
+
+            record.cur_pids = new_pids
+            record.reason = msg
+            record.is_restart = is_restart
+            record.status = 'complete'
+
+            session.commit()
+        session.close()
+
+
 def get_tasks():
     task_infos = []
     tasks = db.session.query(PeriodTask).all()
@@ -73,5 +105,8 @@ def get_tasks():
 
 tasks_info = get_tasks()
 
-# for key, value, name in tasks_info:
-#     celery_app.add_periodic_task(key, generate_task.s(value), name=name)
+for key, value, name in tasks_info:
+    celery_app.add_periodic_task(key, generate_task.s(value), name=name)
+
+scheduler = crontab(minute='*/5', hour='*', day_of_month='*', month_of_year='*', day_of_week='*')
+celery_app.add_periodic_task(scheduler, get_new_celery_pids.s())
