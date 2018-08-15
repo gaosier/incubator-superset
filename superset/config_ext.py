@@ -26,7 +26,7 @@ if not os.path.exists(SQLLAB_DATA_DIR):
 
 CUSTOM_SECURITY_MANAGER = MySecurityManager
 SUPERSET_MEMCACHED={
-    'servers':('f8ed3954cee74f46.m.cnbjalinu17pub001.ocs.aliyuncs.com:11211'),
+    'servers':('m-2ze017afe9b6b9d4.memcache.rds.aliyuncs.com:11211'),
     'username':'f8ed3954cee74f46',
     'password':'Gaosi2012'
 }

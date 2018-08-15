@@ -21,6 +21,7 @@ import smtplib
 import sys
 import uuid
 import zlib
+import bmemcached
 
 import bleach
 import celery
@@ -812,3 +813,13 @@ def is_adhoc_metric(metric):
 
 def get_metric_names(metrics):
     return [metric['label'] if is_adhoc_metric(metric) else metric for metric in metrics]
+
+
+memcached_engine = None
+
+
+def get_memcached_engine(info):
+    global memcached_engine
+    if not memcached_engine:
+        memcached_engine = bmemcached.Client(info.get('servers'), info.get('username'), info.get('password'))
+    return memcached_engine

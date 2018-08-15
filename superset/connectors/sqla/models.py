@@ -32,7 +32,7 @@ from superset.models.annotations import Annotation
 from superset.models.core import Database
 from superset.models.helpers import QueryResult
 from superset.models.helpers import set_perm
-from superset.utils import DTTM_ALIAS, QueryStatus
+from superset.utils import DTTM_ALIAS, QueryStatus, get_memcached_engine
 from superset.utils_ext import time_grain_convert
 from .models_ext import SqlTableGroup, SqlTableColumnSort
 from superset.config_ext import SUPERSET_MEMCACHED
@@ -433,20 +433,24 @@ class SqlaTable(Model, BaseDatasource):
         sample values for the given column.
         """
         cols = {col.column_name: col for col in self.columns}
+        print("values_for_column ......")
         try:
             if cols[column_name].is_memcached:
-                import bmemcached
-                import json
-                mc = bmemcached.Client(SUPERSET_MEMCACHED['servers'], SUPERSET_MEMCACHED['username'],SUPERSET_MEMCACHED['password'])
-                key='superset-%s-%s' % (self.table_name, column_name)
+                print(" column [%s]  is memcached" % column_name)
+                mc = get_memcached_engine(SUPERSET_MEMCACHED)
+                key = 'superset-%s-%s' % (self.table_name, column_name)
+                print("key: ", key)
                 if mc.get(key):
-                    num_li=mc.get(key)
-                    li=[]
+                    num_li = mc.get(key)
+                    print("num_li:  ", num_li)
+                    li = []
                     for i in num_li:
-                        li.extend(mc.get('%s-%s'%(key,i)))
+                        _key = '%s-%s' % (key, i)
+                        li.extend(mc.get(_key))
+                        print("key: %s    len(li): %s" % (key, len(li)))
                     return li
         except Exception as e:
-            pass
+            print("values_for_column error: %s" % str(e))
         target_col = cols[column_name]
         tp = self.get_template_processor()
         db_engine_spec = self.database.db_engine_spec
