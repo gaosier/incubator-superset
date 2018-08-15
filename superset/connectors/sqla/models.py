@@ -32,8 +32,8 @@ from superset.models.annotations import Annotation
 from superset.models.core import Database
 from superset.models.helpers import QueryResult
 from superset.models.helpers import set_perm
-from superset.utils import DTTM_ALIAS, QueryStatus, get_memcached_engine
-from superset.utils_ext import time_grain_convert
+from superset.utils import DTTM_ALIAS, QueryStatus
+from superset.utils_ext import time_grain_convert, get_memcached_engine
 from .models_ext import SqlTableGroup, SqlTableColumnSort
 from superset.config_ext import SUPERSET_MEMCACHED
 
