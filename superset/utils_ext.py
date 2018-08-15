@@ -27,9 +27,12 @@ def time_grain_convert(frm_date, time_grain_sqla):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年{1}月{2}日'.format(frm_date.year, frm_date.month,frm_date.day)
     elif time_grain_sqla=='P1W':
-        if type(frm_date) == type(''):
+        if type(frm_date) == type(''):#周一开始
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
-        return '{0}年第{1}周'.format(frm_date.year,frm_date.strftime('%U'))
+        return '{0}年第{1}周'.format(frm_date.year, frm_date.strftime('%W'))
+        #if type(frm_date) == type(''):
+        #    frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
+        #return '{0}年第{1}周'.format(frm_date.year,frm_date.strftime('%U'))
     elif time_grain_sqla=='P1M':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
