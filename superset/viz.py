@@ -801,9 +801,9 @@ class PivotTableViz(BaseViz):
             new_df = ''
             for i, j in enumerate(m.index):
                 if i == 0:
-                    new_df = pd.concat([df.ix[[j[0]]], m.ix[[j[0]]]])
+                    new_df = pd.concat([df.loc[[j[0]]], m.loc[[j[0]]]])
                 else:
-                    new_df = pd.concat([new_df, df.ix[[j[0]]], m.ix[[j[0]]]])
+                    new_df = pd.concat([new_df, df.loc[[j[0]]], m.loc[[j[0]]]])
             if self.form_data.get('pivot_margins'):
                 new_df = pd.concat([new_df, df.ix[["All"]]])
             df = new_df

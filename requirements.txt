@@ -83,3 +83,4 @@ DictObject
 xlsxwriter==1.0.5
 pyodps
 celery_once
+python-binary-memcached

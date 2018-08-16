@@ -1,6 +1,8 @@
-#-*-coding:utf-8-*-
+# -*-coding:utf-8-*-
+import bmemcached
 from datetime import datetime
 from flask_babel import lazy_gettext as _
+
 
 def time_grain_convert(frm_date, time_grain_sqla):
     '''切片时间分组，格式化中文
@@ -27,9 +29,12 @@ def time_grain_convert(frm_date, time_grain_sqla):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年{1}月{2}日'.format(frm_date.year, frm_date.month,frm_date.day)
     elif time_grain_sqla=='P1W':
-        if type(frm_date) == type(''):
+        if type(frm_date) == type(''):#周一开始
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
-        return '{0}年第{1}周'.format(frm_date.year,frm_date.strftime('%U'))
+        return '{0}年第{1}周'.format(frm_date.year, frm_date.strftime('%W'))
+        #if type(frm_date) == type(''):
+        #    frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
+        #return '{0}年第{1}周'.format(frm_date.year,frm_date.strftime('%U'))
     elif time_grain_sqla=='P1M':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
@@ -84,3 +89,13 @@ def get_admin_id_list(db):
     for i in result:
         admin_user_list.append(i[0])
     return admin_user_list
+
+
+memcached_engine = None
+
+
+def get_memcached_engine(info):
+    global memcached_engine
+    if not memcached_engine:
+        memcached_engine = bmemcached.Client(info.get('servers'), info.get('username'), info.get('password'))
+    return memcached_engine
