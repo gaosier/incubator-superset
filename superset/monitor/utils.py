@@ -38,26 +38,18 @@ def get_celery_beat_worker_pid():
     return pids
 
 
-def restart_celery():
-    is_success = 'undefined'
-    msg = ''
-    old_pids = {}
-    try:
-        old_pids = get_celery_beat_worker_pid()
+def pkill_celery():
+    kill_cmd = ['pkill',  '-9',  '-f', 'celery']
+    subprocess.Popen(kill_cmd)
 
-        # kill old worker,beat
-        kill_cmd = ['pkill',  '-9',  '-f', 'celery']
-        subprocess.Popen(kill_cmd)
 
-        cmd_beat = 'celery --workdir=%s -A superset.celery_app beat -s celerybeat-schedule'
-        cmd_worker = 'celery multi start worker --workdir=%s -A superset.celery_app --loglevel=INFO  -D  --concurrency=4 --pidfile=%s --logfile=%s'
+def restart_celery_beat():
+    cmd_beat = 'celery --workdir=%s -A superset.celery_app beat -s celerybeat-schedule'
+    cmd_beat_args = list(map(deal_cmd, cmd_beat.split()))
+    subprocess.Popen(cmd_beat_args)
 
-        for cmd in [cmd_beat, cmd_worker]:
-            cmd_beat_args = list(map(deal_cmd, cmd.split()))
-            subprocess.Popen(cmd_beat_args)
-            time.sleep(2)
-    except Exception as exc:
-        is_success = 'failed'
-        msg = str(exc)
 
-    return is_success, msg, old_pids
+def restart_celery_worker():
+    cmd_worker = 'celery multi start worker --workdir=%s -A superset.celery_app --loglevel=INFO  -D  --concurrency=4 --pidfile=%s --logfile=%s'
+    cmd_work_args = list(map(deal_cmd, cmd_worker.split()))
+    subprocess.Popen(cmd_work_args)

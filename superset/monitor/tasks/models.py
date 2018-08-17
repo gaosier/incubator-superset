@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
 import json
+from concurrent.futures import ProcessPoolExecutor
+
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 
@@ -16,7 +18,7 @@ from ..alarms.models import AlarmRule
 
 from ..helpers import AuditMixinNullable
 from ..base_models import BaseRecordModel
-from ..utils import restart_celery
+from ..utils import get_celery_beat_worker_pid, pkill_celery, restart_celery_beat, restart_celery_worker
 
 
 class PeriodTask(Model, AuditMixinNullable):
@@ -99,11 +101,19 @@ def async_restart_celery(mapper, connection, target):
     :param operation:  
     """
     session = db.create_scoped_session()
-    is_success, msg, pids= restart_celery()
-    CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, is_restart=is_success, reason=msg,
-                                        old_pids=json.dumps(pids), session=session)
+    old_pids = get_celery_beat_worker_pid()
+
+    CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, is_restart="undefined", reason='',
+                                        old_pids=json.dumps(old_pids), session=session)
     session.commit()
     session.close()
+
+    pkill_celery()
+
+    with ProcessPoolExecutor(2) as executor:
+        executor.submit(restart_celery_beat)
+        executor.submit(restart_celery_worker)
+
 
 sqla.event.listen(PeriodTask, 'after_insert', async_restart_celery)
 sqla.event.listen(PeriodTask, 'after_update', async_restart_celery)
