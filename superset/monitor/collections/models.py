@@ -49,6 +49,21 @@ class CollectRule(Model, AuditMixinNullable):
         return list(set(cols))
 
     @property
+    def repeat_fields(self):
+        columns = json.loads(self.fields) or {}
+        return columns.get('repeat')
+
+    @property
+    def error_fields(self):
+        columns = json.loads(self.fields) or {}
+        return columns.get('error')
+
+    @property
+    def missing_fields(self):
+        columns = json.loads(self.fields) or {}
+        return columns.get('error')
+
+    @property
     def partition(self):
         result = None
         if self.partion_format:

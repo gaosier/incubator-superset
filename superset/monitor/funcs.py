@@ -4,53 +4,52 @@
 具体采集，校验函数
 """
 import json
-from pandas import DataFrame as PdDataFrame
 
 from odps.df import DataFrame
+from odps.df.expr.groupby import GroupBy
 
 from .base import get_odps
-from .collections.models import CollectRecord, CollectRule
+from .collections.models import CollectRecord
 
 odps_app = get_odps()
+
+
+class GenRecord(object):
+
+    _record_cls = {'CollectRecord': CollectRecord}
+
+    @classmethod
+    def create_record(cls, cls_name, **kwargs):
+        if cls_name in cls._record_cls:
+            cls._record_cls.get(cls_name).add_task_record(**kwargs)
 
 
 class CollectInter(object):
 
     @classmethod
-    def collect_tb_data(cls, task_id, task_name, rule, session=None):
+    def collect_tb_data(cls, rule):
         """
         数据采集
         """
         is_success = False
         df = reason = None
         try:
-            if rule:
-                partition = rule.partition
-                if partition:
-                    df = DataFrame(odps_app.get_table(rule.table_name, project=rule.pro_name).get_partition(partition))
-                else:
-                    df = DataFrame(odps_app.get_table(rule.table_name, project=rule.pro_name))
-                if not df:
-                    reason = u"获取到的数据为空: 分区： %s" % partition
-
-                if rule.all_fields:
-                    df = df[rule.all_fields]
-                is_success = True
+            partition = rule.partition
+            print("partion:  ", partition)
+            if partition:
+                df = DataFrame(odps_app.get_table(rule.table_name, project=rule.pro_name).get_partition(partition))
             else:
-                reason = u"错误原因：采集规则为空"
+                df = DataFrame(odps_app.get_table(rule.table_name, project=rule.pro_name))
+            if not df:
+                reason = u"获取到的数据为空: 分区： %s" % partition
+            else:
+                # if rule.all_fields:
+                #     df = df[rule.all_fields]
+                is_success = True
         except Exception as exc:
             reason = str(exc)
 
-        if rule:
-            collect_rule_id = rule.id
-            collect_rule_name = rule.name
-        else:
-            collect_rule_id = collect_rule_name = None
-
-        CollectRecord.add_task_record(task_id=task_id, task_name=task_name, is_success=is_success, reason=reason,
-                                      collect_rule_id=collect_rule_id, collect_rule_name=collect_rule_name,
-                                      session=session)
-        return df
+        return is_success, reason, df
 
     @classmethod
     def collect_db_data(cls):
@@ -74,20 +73,28 @@ class ValidateInter(object):
         pass
 
     @classmethod
-    def repeat(cls, rule):
+    def repeat(cls, df, fields):
         """
         重复数据校验
         """
-        print('validate repeat ...')
-        # 采集记录
-        # 如果失败, 告警
+        is_repeat = False
+        print("repeat ...... fields: ", fields)
+
+        df_new = df.groupby(fields).count()
+        print("df_new: group count: ", dir(df_new))
+
+        print("df_new max:  ", df_new)
+        print("repeat:   df having count", type(df_new))
+
+        return is_repeat
 
     @classmethod
-    def missing(cls, rule):
+    def missing(cls, df, fields):
         """
         缺失数据
         """
-        print('validate missing ....')
+        df = df[fields].isnull().any()
+        print("missing:  df ", df)
 
     @classmethod
     def tb_count(cls, rule):
