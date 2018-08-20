@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
 import json
+import logging
 from superset import celery_app, db
 from celery.schedules import crontab
 from celery_once import QueueOnce
@@ -38,8 +39,23 @@ def generate_task(task_id):
                 validate_rule = task_obj.validate_rule
                 types = validate_rule.types
                 type_names = [item.name for item in types]
-                for _name in type_names:
-                    getattr(ValidateInter, _name)(df, collect_r.repeat_fields)
+                if 'repeat' in type_names:
+                    is_repeat, detail = getattr(ValidateInter, 'repeat')(df, collect_r.repeat_fields)
+                    logging.info("is_repeat: %s    detail: %s" % (is_repeat, detail))
+                    GenRecord.create_record('ValidateRecord', task_id=task_id, task_name=task_obj.name,
+                                            is_success=is_repeat, operation='repeat',
+                            reason=detail, validate_rule_id=validate_rule.id, validate_rule_name=validate_rule.name,
+                            session=session)
+                if 'missing' in type_names:
+                    is_missing, msg = ValidateInter.missing(collect_r)
+                    logging.info("is_missing: %s    detail: %s" % (is_missing, msg))
+                    GenRecord.create_record('ValidateRecord', task_id=task_id, task_name=task_obj.name,
+                                            is_success=is_missing,
+                                            reason=msg, validate_rule_id=validate_rule.id,
+                                            validate_rule_name=validate_rule.name, operation='missing',
+                                            session=session)
+                if 'error' in type_names:
+                    is_error, msg = ValidateInter.error(collect_r)
         else:
             record.is_success = False
             record.reason = u"错误原因：采集规则为空"

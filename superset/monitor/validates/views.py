@@ -58,7 +58,7 @@ class ValidateRecordModelView(MonitorModelView, DeleteMixin):
     list_title = '校验规则记录列表'
 
     search_columns = ('task_name', 'validate_rule_name', 'created_on')
-    list_columns = ['task_name', 'validate_rule_name', 'result', 'reason', 'created_on', 'changed_on']
+    list_columns = ['task_name', 'validate_rule_name', 'operation', 'result', 'reason', 'created_on', 'changed_on']
     order_columns = ['task_name', 'created_on']
     base_order = ('changed_on', 'desc')
 
@@ -70,6 +70,7 @@ class ValidateRecordModelView(MonitorModelView, DeleteMixin):
         'reason': '失败详情',
         'created_on': '开始时间',
         'changed_on': '结束时间',
+        'operation': '校验类型'
     }
 
 

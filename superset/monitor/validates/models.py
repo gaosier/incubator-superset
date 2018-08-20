@@ -62,6 +62,11 @@ class ValidateRecord(Model, BaseRecordModel):
 
     validate_rule_id = Column(Integer, comment=u"校验规则ID")
     validate_rule_name = Column(String(60), comment=u"校验规则名称")
+    operation = Column(String(60), comment=u"具体的校验操作")
 
     def __str__(self):
         return self.validate_rule_name
+
+    @renders('is_success')
+    def result(self):
+        return u'是' if self.is_success else u'否'

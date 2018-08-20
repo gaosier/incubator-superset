@@ -7,7 +7,7 @@ from flask_appbuilder import Model
 from sqlalchemy import Column, Integer,String, Text, DateTime
 
 from superset.monitor.helpers import AuditMixinNullable
-from superset import  db
+from superset import db
 
 from ..base_models import BaseRecordModel
 
@@ -51,17 +51,17 @@ class CollectRule(Model, AuditMixinNullable):
     @property
     def repeat_fields(self):
         columns = json.loads(self.fields) or {}
-        return columns.get('repeat')
+        return columns.get('repeat', [])
 
     @property
     def error_fields(self):
         columns = json.loads(self.fields) or {}
-        return columns.get('error')
+        return columns.get('error', [])
 
     @property
     def missing_fields(self):
         columns = json.loads(self.fields) or {}
-        return columns.get('error')
+        return columns.get('missing', [])
 
     @property
     def partition(self):
