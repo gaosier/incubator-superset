@@ -48,6 +48,7 @@ class PeriodTask(Model, AuditMixinNullable):
         session.query(PeriodTask).filter(PeriodTask.id == task_id).update({PeriodTask.status: status,
                                                                           PeriodTask.detail: detail
                                                                           })
+        session.commit()
 
     @classmethod
     def get_task_by_id(cls, task_id, session=None):
@@ -70,6 +71,11 @@ class TaskRecord(Model, BaseRecordModel):
     def create_record_by_obj(cls, record, session=None):
         if isinstance(record, cls):
             session.add(record)
+            session.commit()
+
+    @classmethod
+    def get_task_record_by_id(cls, record_id, session=None):
+        return session.query(cls).filter(cls.id == record_id).first()
 
 
 class CeleryRestartRecord(Model, BaseRecordModel):

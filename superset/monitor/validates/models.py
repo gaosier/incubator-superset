@@ -2,7 +2,7 @@
 # __author__ = majing
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
-from sqlalchemy import String, Column, Text, Integer, Boolean, Table, ForeignKey
+from sqlalchemy import String, Column, Text, Integer, Table, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from superset.monitor.helpers import AuditMixinNullable
@@ -39,8 +39,14 @@ class ValidateRule(Model, AuditMixinNullable):
 
     @renders('types')
     def typenames(self):
-        print("typenames: ", ','.join([item.name for item in self.types]))
         return ','.join([item.name for item in self.types])
+
+    def get_types_len(self):
+        return len([item.name for item in self.types])
+
+    @classmethod
+    def get_validate_rule_by_id(cls, rule_id, session=None):
+        return session.query(cls).filter(cls.id == rule_id).first()
 
 
 class ValidateErrorRule(Model, AuditMixinNullable):
@@ -53,8 +59,15 @@ class ValidateErrorRule(Model, AuditMixinNullable):
     rule = Column(Text)
     comment = Column(Text)
 
+    __table_args__ = (UniqueConstraint('pro_name', 'table_name', name='project_table_name_uc'),
+                      )
+
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_table_error_conf(cls, pro_name, tab_name, session):
+        return session.query(cls).filter(cls.pro_name == pro_name, cls.table_name == tab_name).first()
 
 
 class ValidateRecord(Model, BaseRecordModel):
@@ -70,3 +83,7 @@ class ValidateRecord(Model, BaseRecordModel):
     @renders('is_success')
     def result(self):
         return u'是' if self.is_success else u'否'
+
+    @classmethod
+    def get_records_by_id(cls, record_id, session=None):
+        return session.query(cls).filter(cls.id == record_id).first()

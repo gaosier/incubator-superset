@@ -6,7 +6,7 @@ from superset import celery_app, db
 from celery.schedules import crontab
 from celery_once import QueueOnce
 
-from ..funcs import CollectInter, ValidateInter, GenRecord
+from ..funcs import CollectInter, ValidateInter, GenRecord, AlarmInter
 
 
 from .models import PeriodTask, TaskRecord, CeleryRestartRecord
@@ -18,44 +18,30 @@ def generate_task(task_id):
     """
     生成定时任务
     """
-    print("task running begin ....   target: %s   type(target): %s" % (task_id, type(task_id)))
     session = db.create_scoped_session()
     # 添加任务记录
     record = TaskRecord(is_success=True, reason='')
+    task_obj = PeriodTask.get_task_by_id(task_id, session=session)
+    logging.info("task running ....  value: %s" % task_obj)
+    validate_record_ids = []
     try:
         PeriodTask.update_task_status_by_id(task_id, session=session)      # 设置task的状态为running
-
-        task_obj = PeriodTask.get_task_by_id(task_id, session=session)
-        print("task running ....  value: %s" % task_obj)
         collect_r = task_obj.collect_rule
         if collect_r:
-            is_success, reason, df = CollectInter.collect_tb_data(collect_r)
-
-            GenRecord.create_record('CollectRecord', task_id=task_id, task_name=task_obj.name, is_success=is_success,
-                                    reason=reason, collect_rule_id=collect_r.id, collect_rule_name=collect_r.name,
-                                    session=session)
             # 校验数据
-            if task_obj.validate_rule_id and is_success:
+            if task_obj.validate_rule_id:
                 validate_rule = task_obj.validate_rule
                 types = validate_rule.types
                 type_names = [item.name for item in types]
-                if 'repeat' in type_names:
-                    is_repeat, detail = getattr(ValidateInter, 'repeat')(df, collect_r.repeat_fields)
-                    logging.info("is_repeat: %s    detail: %s" % (is_repeat, detail))
-                    GenRecord.create_record('ValidateRecord', task_id=task_id, task_name=task_obj.name,
-                                            is_success=is_repeat, operation='repeat',
+                for name in type_names:
+                    is_repeat, detail = getattr(ValidateInter, name)(collect_r, session=session)
+                    logging.info("operation: %s   result: %s    detail: %s" % (name, is_repeat, detail))
+                    record_id = GenRecord.create_record('ValidateRecord', task_id=task_id, task_name=task_obj.name,
+                                            is_success=is_repeat, operation=name,
                             reason=detail, validate_rule_id=validate_rule.id, validate_rule_name=validate_rule.name,
                             session=session)
-                if 'missing' in type_names:
-                    is_missing, msg = ValidateInter.missing(collect_r)
-                    logging.info("is_missing: %s    detail: %s" % (is_missing, msg))
-                    GenRecord.create_record('ValidateRecord', task_id=task_id, task_name=task_obj.name,
-                                            is_success=is_missing,
-                                            reason=msg, validate_rule_id=validate_rule.id,
-                                            validate_rule_name=validate_rule.name, operation='missing',
-                                            session=session)
-                if 'error' in type_names:
-                    is_error, msg = ValidateInter.error(collect_r)
+                    if record_id:
+                        validate_record_ids.append(record_id)
         else:
             record.is_success = False
             record.reason = u"错误原因：采集规则为空"
@@ -63,7 +49,7 @@ def generate_task(task_id):
         record.task_id = task_obj.id
         record.task_name = task_obj.name
     except Exception as exc:
-        print("task error: %s " % str(exc))
+        logging.error("task error: %s " % str(exc))
 
         task_status = 'failed'
         error_msg = str(exc)
@@ -73,7 +59,7 @@ def generate_task(task_id):
         record.is_success = False
         record.reason = str(exc)
     else:
-        print("task running success ....  value: %s" % task_obj)
+        logging.info("task running success ....  value: %s" % task_obj)
 
         task_status = 'success' if record.is_success else 'failed'
         error_msg = '' if record.is_success else record.reason
@@ -81,6 +67,9 @@ def generate_task(task_id):
     PeriodTask.update_task_status_by_id(task_id, task_status, error_msg, session=session)  # 设置task的状态
 
     TaskRecord.create_record_by_obj(record, session=session)    # 创建任务记录
+
+    if task_obj.alarm_rule:
+        AlarmInter.alarm(task_obj.alarm_rule, task_obj.name, record.id, validate_record_ids, session)
 
     session.commit()
     session.close()

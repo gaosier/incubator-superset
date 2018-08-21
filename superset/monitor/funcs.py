@@ -8,15 +8,16 @@ import logging
 import datetime
 
 from odps.df import DataFrame
-from odps.df.expr.groupby import GroupBy, CollectionExpr
-from odps.df.backends.frame import ResultFrame
 
 from sqlalchemy.orm import load_only
 
 from .base import get_odps
 from .collections.models import CollectRecord
-from .validates.models import ValidateRecord
+from .validates.models import ValidateRecord, ValidateErrorRule
 from superset.models.core_ext import MProject, MPage
+from .utils import to_html, send_mail, report_template
+from .validates.models import ValidateRecord
+from .tasks.models import TaskRecord
 
 odps_app = get_odps()
 
@@ -28,14 +29,53 @@ class GenRecord(object):
     @classmethod
     def create_record(cls, cls_name, **kwargs):
         if cls_name in cls._record_cls:
-            cls._record_cls.get(cls_name).add_task_record(**kwargs)
+            record_id = cls._record_cls.get(cls_name).add_task_record(**kwargs)
+        else:
+            record_id = None
+        return record_id
 
 
 class AlarmInter(object):
 
     @classmethod
-    def send_mail(cls, users):
-        pass
+    def alarm(cls, alarm, task_name, task_record_id, validate_record_ids, session):
+        content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
+        cls.alarm_send_mail(alarm.users, content)
+
+    @classmethod
+    def alarm_send_mail(cls, users, html):
+        to_mails = [user.email for user in users]
+        send_mail(html, to_mails)
+
+    @classmethod
+    def gen_mail_html(cls, task_name, task_record_id, validate_record_ids, session):
+        task_record_html = cls.gen_task_record_html(task_record_id, session)
+        validate_record_html = cls.gen_validate_record_html(validate_record_ids, session)
+        html = report_template(task_name, task_record_html, validate_record_html)
+        return html
+
+    @classmethod
+    def gen_task_record_html(cls, record_id, session):
+        columns = ['task_name', 'is_success', 'exec_duration', 'reason']
+        record = TaskRecord.get_task_record_by_id(record_id, session)
+        record_list = []
+        for col in columns:
+            record_list.append(getattr(record, col))
+        record_html = to_html([u'任务名称', u'执行结果', u'执行时长', u'详情'], [record_list])
+        return record_html
+
+    @classmethod
+    def gen_validate_record_html(cls, record_ids, session):
+        columns = ['task_name',  'validate_rule_name', 'operation', 'is_success', 'reason']
+        values = []
+        for record_id in record_ids:
+            record_list = []
+            record = ValidateRecord.get_records_by_id(record_id, session)
+            for col in columns:
+                record_list.append(getattr(record, col))
+            values.append(record_list)
+        record_html = to_html([u'任务名称', u"校验规则", u"校验类型", u'执行结果', u'详情'], values)
+        return record_html
 
 
 class CollectInter(object):
@@ -89,51 +129,61 @@ class ValidateInter(object):
     def __get_pro_table_name(cls, pro_name, tb_name):
         return "%s.%s" % (pro_name, tb_name)
 
-    @classmethod
-    def __is_validate_error(cls, pro_name, table_name):
-        """
-        判断一个表是否配置了错误校验
-        """
-        pass
 
     @classmethod
-    def __get_validate_error(cls, pro_name, table_name):
+    def __get_validate_error(cls, pro_name, table_name, session):
         """
         获取一个表的错误校验配置
         """
-        pass
+        return ValidateErrorRule.get_table_error_conf(pro_name, table_name, session)
 
     @classmethod
-    def repeat(cls, df, fields):
+    def get_execute_result(cls, sql, name, operation='repeat', field=None):
+        is_missing = False
+
+        msg = "[%s] has no %s value. sql: %s" % (name, operation, sql)
+        if field:
+            msg = "[%s] in table [%s] has no error value. sql: %s" % (field, name, sql)
+
+        try:
+            instance = odps_app.execute_sql(sql)
+
+            with instance.open_reader() as reader:
+                for record in reader:
+                    values = record.values
+                    logging.info("record values: %s" % values)
+                    if values[0] > 1:
+                        is_missing = True
+                        msg = "[%s] has %s value, error number is %s. sql: %s" % (name, operation, values[0], sql)
+                        if field:
+                            msg = "[%s] in table [%s] has error value, error number is %s. sql: %s" % (field, name,
+                                                                                                       values[0], sql)
+                    break
+        except Exception as exc:
+            msg = "get execute result error:sql: %s        %s" % (sql, str(exc))
+
+        return is_missing, msg
+
+    @classmethod
+    def repeat(cls, collect, **kwargs):
         """
         重复数据校验
         """
-        is_repeat = False
-        detail_info = None
-        logging.info("repeat fields: %s " % fields)
+        partition = collect.partition
+        fields = collect.repeat_fields
 
-        result = df.groupby(fields).agg(count=df.count()).sort('count', ascending=False).head(5)
-        logging.info("repeat result: %s " % result)
+        pro_tb_name = cls.__get_pro_table_name(collect.pro_name, collect.table_name)
 
-        for item in result:
-            values = item.tolist()
-            if values[-1] > 1:
-                is_repeat = True
-            break
-
-        if is_repeat:
-            detail_info = result.to_html()
-
-        return is_repeat, detail_info
+        sql = "select count(*) as num from %s where %s GROUP BY %s HAVING num > 1 limit 1;" % (pro_tb_name, partition,
+                                                                                         ','.join(fields))
+        is_error, msg = cls.get_execute_result(sql, pro_tb_name, 'repeat')
+        return is_error, msg
 
     @classmethod
-    def missing(cls, collect):
+    def missing(cls, collect, **kwargs):
         """
         缺失数据
         """
-        is_missing = False
-        msg = ''
-
         partition = collect.partition
         fields = collect.missing_fields
         filters = ""
@@ -143,21 +193,11 @@ class ValidateInter(object):
         filters = filters[: -3]
         logging.info("missing: filter: %s" % filters)
 
-        sql = "select count(*) from %s where %s and (%s) ;" % (cls.__get_pro_table_name(collect.pro_name,
-                                                                                        collect.table_name),
-                                                               partition, filters)
-        logging.info("missing: sql: %s" % sql)
+        pro_tb_name = cls.__get_pro_table_name(collect.pro_name, collect.table_name)
 
-        instance = odps_app.execute_sql(sql)
-
-        with instance.open_reader() as reader:
-            for record in reader:
-                values = record.values
-                logging.info("missing: values: %s" % values)
-                if values[0] > 0:
-                    is_missing = True
-                    msg = "%s has null value, total error number is %s. sql: %s" % (fields, values[0], sql)
-        return is_missing, msg
+        sql = "select count(*) from %s where %s and (%s) ;" % ( pro_tb_name, partition, filters)
+        is_error, msg = cls.get_execute_result(sql, pro_tb_name, 'missing')
+        return is_error, msg
 
     @classmethod
     def tb_count(cls, rule):
@@ -174,129 +214,98 @@ class ValidateInter(object):
         print('database table count ....')
 
     @classmethod
-    def error(cls, collect):
+    def error(cls, collect, session=None):
         """
         错误校验 
         """
-        logging.info("error validate: pro_name: %s   table_name: %s" % (collect.pro_name, collect.table_name))
-        if cls.__is_validate_error(collect.pro_name, collect.table_name):
-            error_conf = cls.__get_validate_error(collect.pro_name, collect.table_name)
+        detail = {}
+        key = "%s.%s" % (collect.pro_name, collect.table_name)
+        detail[key] = {}
+        total_result = True
+
+        error_conf = cls.__get_validate_error(collect.pro_name, collect.table_name, session)
+        if error_conf:
             try:
                 conf = json.loads(error_conf.rule)
             except Exception as e:
-                pass    ## 添加校验记录
+                msg = "[%s] error validate error: error rule: %s     msg: %s" % (key, error_conf.rule, str(e))
             else:
-                if isinstance(conf, dict):
-                    for field, func in conf.items():
-                        getattr(cls, func)(field)
+
+                for field, func in conf.items():
+                    is_error, msg_ = getattr(cls, func)(collect, field, session=session)
+                    detail[func] = [is_error, msg_]
+                    if not is_error:
+                        total_result = False
+                msg = json.dumps(detail)
+        else:
+            msg = '[%s] has no error validate rule.' % (key)
+        return total_result, msg
 
     @classmethod
-    def validate_user_id(cls, collect, length=10):
+    def validate_user_id(cls, collect, field, length=10, **kwargs):
         """
         校验用户ID
         :return: 
         """
-        is_error = False
-        msg = ''
-
         partition = collect.partition
+        pro_tab_name = cls.__get_pro_table_name(collect.pro_name,collect.table_name)
 
-        sql = "select count(*) from %s where %s and (LENGTH(uid) > %s or uid rlike '[^0-9]*[0-9]+[^0-9]*') ;" % (cls.__get_pro_table_name(collect.pro_name,
-                                                                                                    collect.table_name),
-                                                                           partition, length)
+        sql = "select count(*) from %s where %s and (LENGTH(%s) > %s or %s rlike '[^0-9]*[0-9]+[^0-9]*') ;" % (
+            pro_tab_name, partition, field, length, field)
         logging.info("validate_user_id: sql: %s" % sql)
-
-        instance = odps_app.execute_sql(sql)
-
-        with instance.open_reader() as reader:
-            for record in reader:
-                values = record.values
-                if values[0] > 0:
-                    is_error = True
-                    msg = "[uid] of table %s has error value, total error number %s. sql: %s" % (collect.table_name,
-                                                                                                values[0], sql)
+        is_error, msg = cls.get_execute_result(sql, pro_tab_name, '', field)
         return is_error, msg
 
+
     @classmethod
-    def validate_pro_id(cls, collect, session):
+    def validate_pro_id(cls, collect, field, session=None):
         """
         校验项目ID
         :return: 
         """
-        is_error = False
-        msg = ''
         pds = cls.__get_md_pds(session)
+        pro_tab_name = cls.__get_pro_table_name(collect.pro_name, collect.table_name)
 
         partition = collect.partition
-        sql = "select count(*) from %s where %s and pd not in %s ;" % (cls.__get_pro_table_name(collect.pro_name,
-                                                                                              collect.table_name
-                                               ), partition, pds)
+        sql = "select count(*) from %s where %s and pd not in %s ;" % (pro_tab_name, partition, pds)
         logging.info("validate_pro_id: sql: %s" % sql)
 
-        instance = odps_app.execute_sql(sql)
-
-        with instance.open_reader() as reader:
-            for record in reader:
-                values = record.values
-                if values[0] > 0:
-                    is_error = True
-                    msg = "[pd] of table %s has error value, total error number %s. sql: %s" % (collect.table_name,
-                                                                                                 values[0], sql)
+        is_error, msg = cls.get_execute_result(sql, pro_tab_name, '', field)
         return is_error, msg
 
     @classmethod
-    def validate_page_id(cls, collect, session):
+    def validate_page_id(cls, collect, field, session=None):
         """
         校验页面ID
         :return: 
         """
-        is_error = False
-        msg = ''
         pads = cls.__get_md_pads(session)
-
+        pro_tab_name = cls.__get_pro_table_name(collect.pro_name, collect.table_name)
         partition = collect.partition
-        sql = "select count(*) from %s where %s and pad not in %s ;" % (cls.__get_pro_table_name(collect.pro_name,
-                                                                                                collect.table_name
-                                                                                                ), partition, pads)
+        sql = "select count(*) from %s where %s and pad not in %s ;" % (pro_tab_name, partition, pads)
         logging.info("validate_page_id: sql: %s" % sql)
 
-        instance = odps_app.execute_sql(sql)
-
-        with instance.open_reader() as reader:
-            for record in reader:
-                values = record.values
-                if values[0] > 0:
-                    is_error = True
-                    msg = "[pd] of table %s has error value, total error number %s. sql: %s" % (collect.table_name,
-                                                                                                values[0], sql)
+        is_error, msg = cls.get_execute_result(sql, pro_tab_name, '', field)
         return is_error, msg
 
     @classmethod
-    def validate_time(cls, collect):
+    def validate_time(cls, collect, field, **kwargs):
         """
         校验时间戳
         :return: 
         """
-        is_error = False
-        msg = ''
-
         partition = collect.partition
         min_time = '1970-01-01 00:00:00'
         max_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        sql = "select count(*) from %s where %s and (from_unixtime(st/1000) < %s or from_unixtime(st/1000) > %s );" % \
-              (cls.__get_pro_table_name(collect.pro_name,collect.table_name), partition, min_time, max_time)
-        logging.info("validate_page_id: sql: %s" % sql)
+        pro_tab_name = cls.__get_pro_table_name(collect.pro_name,collect.table_name)
 
-        instance = odps_app.execute_sql(sql)
+        sql = "select count(*) from %s where %s and (from_unixtime(%s/1000) < %s or from_unixtime(%s/1000) > %s );" % \
+              (pro_tab_name, partition, field, min_time, field, max_time)
+        logging.info("validate_time: sql: %s" % sql)
 
-        with instance.open_reader() as reader:
-            for record in reader:
-                values = record.values
-                if values[0]:
-                    is_error = True
-                    msg = "[st] of table %s has error value, total error number %s. sql: %s" % (collect.table_name,
-                                                                                                values[0], sql)
+        is_error, msg = cls.get_execute_result(sql, pro_tab_name, '', field)
         return is_error, msg
+
 
     @classmethod
     def logic_validate(cls):

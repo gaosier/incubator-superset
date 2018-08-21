@@ -17,12 +17,17 @@ class BaseRecordModel(AuditMixinNullable):
 
     @classmethod
     def add_task_record(cls, session=None, **kwargs):
+        record_id = None
         try:
             if kwargs.get('task_id') and kwargs.get('task_name'):
                 task = cls(**kwargs)
                 session.add(task)
+                session.commit()
+
+                record_id = task.id
         except Exception as exc:
             raise ValueError("add_taks_record error: %s" % str(exc))
+        return record_id
 
     @renders('is_success')
     def result(self):

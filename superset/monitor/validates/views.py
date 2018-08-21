@@ -108,10 +108,6 @@ class ValidateErrorRuleModelView(MonitorModelView, DeleteMixin):
         'comment': '备注',
     }
 
-    def post_update(self, item):
-        CollectInter.collect_tb_data(1, '测试任务', item)
-
-
 appbuilder.add_view(ValidateErrorRuleModelView, 'ValidateErrorRule',
                     label='错误校验规则',
                     icon='fa-bookmark',
