@@ -67,14 +67,25 @@ class CollectRule(Model, AuditMixinNullable):
     def partition(self):
         result = None
         if self.partion_format:
-            values = self.partion_format.split('=')
-            if len(values) == 2:
-                name, _format = values
-                if not self.collect_day:
-                    day = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(_format)
-                else:
-                    day = self.collect_day.strftime(_format)
-                result = "%s=%s" % (name, day)
+            if ">=" not in self.partion_format:
+                values = self.partion_format.split('=')
+                if len(values) == 2:
+                    name, _format = values
+                    if not self.collect_day:
+                        day = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(_format)
+                    else:
+                        day = self.collect_day.strftime(_format)
+                    result = "%s=%s" % (name, day)
+            else:
+                values = self.partion_format.split(">=")
+                if len(values) == 2:
+                    name, _format = values
+                    end_time = datetime.datetime.now().strftime(_format)
+                    if not self.collect_day:
+                        day = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(_format)
+                    else:
+                        day = self.collect_day.strftime(_format)
+                    result = "(%s>='%s' and %s<'%s')" % (name, day, name, end_time)
         return result
 
 

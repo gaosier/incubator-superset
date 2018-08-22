@@ -2,6 +2,8 @@
 # __author__ = majing
 import json
 import logging
+import datetime
+
 from superset import celery_app, db
 from celery.schedules import crontab
 from celery_once import QueueOnce
@@ -19,10 +21,15 @@ def generate_task(task_id):
     生成定时任务
     """
     session = db.create_scoped_session()
-    # 添加任务记录
-    record = TaskRecord(is_success=True, reason='')
+
     task_obj = PeriodTask.get_task_by_id(task_id, session=session)
     logging.info("task running ....  value: %s" % task_obj)
+
+    # 添加任务记录
+    is_success = True
+    reason = ''
+    task_record_id = TaskRecord.add_task_record(task_id=task_obj.id, task_name=task_obj.name, is_success=is_success,
+                                           created_on=datetime.datetime.now(), session=session)
     validate_record_ids = []
     try:
         PeriodTask.update_task_status_by_id(task_id, session=session)      # 设置task的状态为running
@@ -43,33 +50,28 @@ def generate_task(task_id):
                     if record_id:
                         validate_record_ids.append(record_id)
         else:
-            record.is_success = False
-            record.reason = u"错误原因：采集规则为空"
-
-        record.task_id = task_obj.id
-        record.task_name = task_obj.name
+            is_success = False
+            reason = u"错误原因：采集规则为空"
     except Exception as exc:
         logging.error("task error: %s " % str(exc))
 
         task_status = 'failed'
         error_msg = str(exc)
 
-        record.task_id = -1
-        record.task_name = 'NULL'
-        record.is_success = False
-        record.reason = str(exc)
+        is_success = False
+        reason = str(exc)
     else:
         logging.info("task running success ....  value: %s" % task_obj)
 
-        task_status = 'success' if record.is_success else 'failed'
-        error_msg = '' if record.is_success else record.reason
+        task_status = 'success' if is_success else 'failed'
+        error_msg = '' if is_success else reason
 
     PeriodTask.update_task_status_by_id(task_id, task_status, error_msg, session=session)  # 设置task的状态
 
-    TaskRecord.create_record_by_obj(record, session=session)    # 创建任务记录
+    TaskRecord.update_record_by_id(task_record_id, is_success=is_success, detail=reason, session=session)    # 创建任务记录
 
     if task_obj.alarm_rule:
-        AlarmInter.alarm(task_obj.alarm_rule, task_obj.name, record.id, validate_record_ids, session)
+        AlarmInter.alarm(task_obj.alarm_rule, task_obj.name, task_record_id, validate_record_ids, session)
 
     session.commit()
     session.close()

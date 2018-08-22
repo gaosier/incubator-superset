@@ -77,6 +77,11 @@ class TaskRecord(Model, BaseRecordModel):
     def get_task_record_by_id(cls, record_id, session=None):
         return session.query(cls).filter(cls.id == record_id).first()
 
+    @classmethod
+    def update_record_by_id(cls, record_id, is_success=None, detail='', session=None):
+        session.query(cls).filter(cls.id == record_id).update({cls.is_success: is_success, cls.reason: detail})
+        session.commit()
+
 
 class CeleryRestartRecord(Model, BaseRecordModel):
     """

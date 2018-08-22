@@ -40,7 +40,7 @@ class AlarmInter(object):
     @classmethod
     def alarm(cls, alarm, task_name, task_record_id, validate_record_ids, session):
         content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
-        cls.alarm_send_mail(alarm.users, content)
+        cls.alarm_send_mail(alarm.user, content)
 
     @classmethod
     def alarm_send_mail(cls, users, html):
@@ -56,11 +56,15 @@ class AlarmInter(object):
 
     @classmethod
     def gen_task_record_html(cls, record_id, session):
-        columns = ['task_name', 'is_success', 'exec_duration', 'reason']
+        columns = ['task_name', 'is_success', 'duration', 'reason']
         record = TaskRecord.get_task_record_by_id(record_id, session)
         record_list = []
         for col in columns:
-            record_list.append(getattr(record, col))
+            if col == 'duration':
+                value = getattr(record, 'changed_on') - getattr(record, 'created_on')
+            else:
+                value = getattr(record, col)
+            record_list.append(value)
         record_html = to_html([u'任务名称', u'执行结果', u'执行时长', u'详情'], [record_list])
         return record_html
 
@@ -115,20 +119,21 @@ class ValidateInter(object):
 
     @classmethod
     def __get_md_pds(cls, session):
-        values = session.query(MProject).options(load_only("id")).distinct()
+        querys = session.query(MProject).all()
+        values = [query.id for query in querys]
         logging.info("project id: %s" % values)
-        return values
+        return tuple(values)
 
     @classmethod
     def __get_md_pads(cls, session):
-        values = session.query(MPage).options(load_only("page_id")).distinct()
+        querys = session.query(MPage).all()
+        values = [query.page_id for query in querys]
         logging.info("project page id: %s" % values)
-        return values
+        return tuple(values)
 
     @classmethod
     def __get_pro_table_name(cls, pro_name, tb_name):
         return "%s.%s" % (pro_name, tb_name)
-
 
     @classmethod
     def __get_validate_error(cls, pro_name, table_name, session):
@@ -163,6 +168,18 @@ class ValidateInter(object):
             msg = "get execute result error:sql: %s        %s" % (sql, str(exc))
 
         return is_missing, msg
+
+    @classmethod
+    def get_table_partition_count(cls, sql, name, partition):
+        count = 0
+        instance = odps_app.execute_sql(sql)
+
+        with instance.open_reader() as reader:
+            for record in reader:
+                values = record.values
+                logging.info("[%s] in [%s]  total count: %s" % (name, partition, values))
+                count = values[0]
+        return count
 
     @classmethod
     def repeat(cls, collect, **kwargs):
@@ -220,7 +237,6 @@ class ValidateInter(object):
         """
         detail = {}
         key = "%s.%s" % (collect.pro_name, collect.table_name)
-        detail[key] = {}
         total_result = True
 
         error_conf = cls.__get_validate_error(collect.pro_name, collect.table_name, session)
@@ -250,7 +266,7 @@ class ValidateInter(object):
         partition = collect.partition
         pro_tab_name = cls.__get_pro_table_name(collect.pro_name,collect.table_name)
 
-        sql = "select count(*) from %s where %s and (LENGTH(%s) > %s or %s rlike '[^0-9]*[0-9]+[^0-9]*') ;" % (
+        sql = "select count(*) from %s where %s and (LENGTH(%s) > %s or %s rlike '([^0-9]+[0-9]+[^0-9]*)|([0-9]+[^0-9]+[^0-9]*)|([^0-9]*+[0-9]+[^0-9]+)') ;" % (
             pro_tab_name, partition, field, length, field)
         logging.info("validate_user_id: sql: %s" % sql)
         is_error, msg = cls.get_execute_result(sql, pro_tab_name, '', field)
@@ -299,18 +315,48 @@ class ValidateInter(object):
         max_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         pro_tab_name = cls.__get_pro_table_name(collect.pro_name,collect.table_name)
 
-        sql = "select count(*) from %s where %s and (from_unixtime(%s/1000) < %s or from_unixtime(%s/1000) > %s );" % \
+        sql = "select count(*) from %s where %s and (from_unixtime(%s/1000)<'%s' or from_unixtime(%s/1000)>'%s' );" % \
               (pro_tab_name, partition, field, min_time, field, max_time)
         logging.info("validate_time: sql: %s" % sql)
 
         is_error, msg = cls.get_execute_result(sql, pro_tab_name, '', field)
         return is_error, msg
 
-
     @classmethod
-    def logic_validate(cls):
+    def logic_validate(cls, collect, **kwargs):
         """
         逻辑校验
         :return: 
         """
-        pass
+        old_total_count = 0
+        new_total_count = 0
+        end_time = (datetime.datetime.now() - datetime.timedelta(days=2)).strftime("%Y%m%d")
+        start_time = (datetime.datetime.now() - datetime.timedelta(days=8)).strftime("%Y%m%d")
+        pro_tab_name = cls.__get_pro_table_name(collect.pro_name, collect.table_name)
+        table = odps_app.get_table(collect.table_name, project=collect.pro_name)
+        if 'dm' in table.name and table.schema.partitions:
+            partition = "day>=%s and day<=%s" % (start_time, end_time)
+            sql = "select count(*) from %s WHERE %s;" % (pro_tab_name, partition)
+            old_total_count += cls.get_table_partition_count(sql, pro_tab_name, partition)
+
+            new_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m%d")
+            partition = "day=%s" % new_date
+            sql = "select count(*) from %s WHERE %s;" % (pro_tab_name, partition)
+            new_total_count += cls.get_table_partition_count(sql, pro_tab_name, partition)
+
+            avg = old_total_count/7.0
+            if int(avg * 0.5) <= new_total_count <= int(avg * 1.5):
+                is_error = True
+                msg = "表[%s]的[%s]数据总量再7天平均值[%s]的0.5~1.5倍之间.表的数据量为[%s]" % (pro_tab_name, partition, avg,
+                                                                           new_total_count)
+            else:
+                is_error = False
+                msg = "表[%s]的[%s]数据总量不再7天平均值[%s]的0.5~1.5倍之间.表的数据量为[%s]" % (pro_tab_name, partition, avg,
+                                                                           new_total_count)
+        else:
+            is_error = True
+            msg = "只有集市表进行逻辑校验.表[%s]不是集市表" % pro_tab_name
+        return is_error, msg
+
+
+
