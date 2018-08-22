@@ -67,7 +67,7 @@ def report_template(*args):
 
         　　<meta http-equiv='Content-Type' content="text/html; charset=UTF-8" />
 
-        　　<title>%s</title>
+        　　<title>数仓监控</title>
 
         　　<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
@@ -90,9 +90,9 @@ def report_template(*args):
         </style>
 
         <body style="margin: 0; padding: 0;">
-             <h2> 数据校验结果 </h2>
-        　　　<p> 定时任务运行记录：%s </p>
-             <p> 校验记录：%s </p>
+             <h2 style="color:red"> [%s]数据校验结果 </h2>
+        　　　<p style="color:green"> 定时任务运行记录： <p>%s</P> </p>
+             <p style="color:green"> 校验记录：<p>%s</p> </p>
         </body>
 
     </html>
@@ -118,10 +118,8 @@ def send_mail(content, to_mails):
                 }
         form_data['sign'] = _get_sign(form_data)
         resp = _send_mail(form_data)
-        if resp.status_code == 200:
-            logging.info(u'send email to [%s] success' % mail)
-        else:
-            logging.error(u'send email to [%s] fail: %s ' % (mail, resp.content))
+        if resp.status_code != 200:
+            raise ValueError("send email error: %s,   users: %s" % (resp.content, to_mails))
 
 
 def _get_sign(form_data):

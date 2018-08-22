@@ -57,7 +57,7 @@ class AlarmRecordModelView(MonitorModelView, DeleteMixin):
     list_title = '告警规则记录列表'
 
     search_columns = ('task_name', 'alarm_name', 'created_on')
-    list_columns = ['task_name', 'alarm_name', 'result', 'step', 'detail','reason', 'created_on', 'changed_on']
+    list_columns = ['task_name', 'alarm_name', 'result', 'reason', 'created_on']
     order_columns = ['task_name', 'created_on']
     base_order = ('changed_on', 'desc')
 
@@ -65,11 +65,10 @@ class AlarmRecordModelView(MonitorModelView, DeleteMixin):
     label_columns = {
         'task_name': '任务名称',
         'alarm_name': '告警规则名称',
-        'result': '校验结果',
+        'result': '告警结果',
         'reason': '失败详情',
-        'step': '告警过程',
         'detail': '告警详情',
-        'created_on': '开始时间',
+        'created_on': '告警时间',
         'changed_on': '结束时间',
     }
 

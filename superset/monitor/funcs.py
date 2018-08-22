@@ -9,22 +9,21 @@ import datetime
 
 from odps.df import DataFrame
 
-from sqlalchemy.orm import load_only
-
 from .base import get_odps
 from .collections.models import CollectRecord
-from .validates.models import ValidateRecord, ValidateErrorRule
+from .validates.models import ValidateErrorRule
 from superset.models.core_ext import MProject, MPage
 from .utils import to_html, send_mail, report_template
 from .validates.models import ValidateRecord
 from .tasks.models import TaskRecord
+from .alarms.models import AlarmRecord
 
 odps_app = get_odps()
 
 
 class GenRecord(object):
 
-    _record_cls = {'CollectRecord': CollectRecord, "ValidateRecord": ValidateRecord}
+    _record_cls = {'CollectRecord': CollectRecord, "ValidateRecord": ValidateRecord, "AlarmRecord": AlarmRecord}
 
     @classmethod
     def create_record(cls, cls_name, **kwargs):
@@ -39,8 +38,12 @@ class AlarmInter(object):
 
     @classmethod
     def alarm(cls, alarm, task_name, task_record_id, validate_record_ids, session):
-        content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
-        cls.alarm_send_mail(alarm.user, content)
+        try:
+            content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
+            cls.alarm_send_mail(alarm.user, content)
+        except Exception as exc:
+            return False, str(exc)
+        return True, ''
 
     @classmethod
     def alarm_send_mail(cls, users, html):
@@ -146,9 +149,9 @@ class ValidateInter(object):
     def get_execute_result(cls, sql, name, operation='repeat', field=None):
         is_missing = False
 
-        msg = "[%s] has no %s value. sql: %s" % (name, operation, sql)
+        msg = "[%s] has no %s value.\n sql: %s" % (name, operation, sql)
         if field:
-            msg = "[%s] in table [%s] has no error value. sql: %s" % (field, name, sql)
+            msg = "[%s] in table [%s] has no error value.\n sql: %s" % (field, name, sql)
 
         try:
             instance = odps_app.execute_sql(sql)
@@ -159,9 +162,9 @@ class ValidateInter(object):
                     logging.info("record values: %s" % values)
                     if values[0] > 1:
                         is_missing = True
-                        msg = "[%s] has %s value, error number is %s. sql: %s" % (name, operation, values[0], sql)
+                        msg = "[%s] has %s value, error number is %s.\n sql: %s" % (name, operation, values[0], sql)
                         if field:
-                            msg = "[%s] in table [%s] has error value, error number is %s. sql: %s" % (field, name,
+                            msg = "[%s] in table [%s] has error value, error number is %s.\n sql: %s" % (field, name,
                                                                                                        values[0], sql)
                     break
         except Exception as exc:
@@ -238,6 +241,7 @@ class ValidateInter(object):
         detail = {}
         key = "%s.%s" % (collect.pro_name, collect.table_name)
         total_result = True
+        msg = ''
 
         error_conf = cls.__get_validate_error(collect.pro_name, collect.table_name, session)
         if error_conf:
@@ -249,10 +253,9 @@ class ValidateInter(object):
 
                 for field, func in conf.items():
                     is_error, msg_ = getattr(cls, func)(collect, field, session=session)
-                    detail[func] = [is_error, msg_]
+                    msg += "%s: %s\n\n" % (func, msg_)
                     if not is_error:
                         total_result = False
-                msg = json.dumps(detail)
         else:
             msg = '[%s] has no error validate rule.' % (key)
         return total_result, msg

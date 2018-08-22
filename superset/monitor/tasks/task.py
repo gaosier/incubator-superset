@@ -71,7 +71,13 @@ def generate_task(task_id):
     TaskRecord.update_record_by_id(task_record_id, is_success=is_success, detail=reason, session=session)    # 创建任务记录
 
     if task_obj.alarm_rule:
-        AlarmInter.alarm(task_obj.alarm_rule, task_obj.name, task_record_id, validate_record_ids, session)
+        is_email, msg_ = AlarmInter.alarm(task_obj.alarm_rule, task_obj.name, task_record_id, validate_record_ids,
+                                          session)
+
+        GenRecord.create_record('AlarmRecord', task_id=task_id, task_name=task_obj.name,
+                                is_success=is_email, reason=msg_, alarm_id=task_obj.alarm_rule.id,
+                                alarm_name=task_obj.alarm_rule.name,
+                                session=session)
 
     session.commit()
     session.close()
@@ -109,7 +115,7 @@ def get_new_celery_pids():
 
 def get_tasks():
     task_infos = []
-    tasks = db.session.query(PeriodTask).all()
+    tasks = db.session.query(PeriodTask).filter(PeriodTask.is_active == 1).all()
     for item in tasks:
         interval = item.interval.split()
         scheduler = crontab(minute=interval[0], hour=interval[1], day_of_month=interval[2], month_of_year=interval[3],

@@ -25,7 +25,7 @@ class TaskModelView(MonitorModelView):
     search_columns = ('name', 'status')
     list_columns = ['name', 'collect_rule', 'validate_rule', 'alarm_rule', 'interval', 'status', 'detail', 'modified']
     order_columns = ['name', 'modified']
-    edit_columns = ['name', 'collect_rule', 'validate_rule', 'alarm_rule', 'interval', 'status', 'comment']
+    edit_columns = ['name', 'collect_rule', 'validate_rule', 'alarm_rule', 'interval', 'status', 'is_active', 'comment']
     add_columns = edit_columns
     base_order = ('changed_on', 'desc')
 
@@ -42,7 +42,8 @@ class TaskModelView(MonitorModelView):
         'comment': '备注',
         'interval': '时间间隔',
         'status': '任务状态',
-        'detail': '任务详情'
+        'detail': '任务详情',
+        'is_active': '是否启用'
     }
 
 appbuilder.add_view(TaskModelView, 'Tasks',

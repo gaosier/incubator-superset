@@ -6,7 +6,7 @@ from concurrent.futures import ProcessPoolExecutor
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 import sqlalchemy as sqla
 
@@ -39,6 +39,7 @@ class PeriodTask(Model, AuditMixinNullable):
     status = Column(String(20), default='pending', nullable=False, comment=u"定时任务状态 pending|running|success|failed")
     detail = Column(Text, comment=u"任务详情")
     comment = Column(Text, comment=u"备注")
+    is_active = Column(Boolean, default=True, comment=u"禁用启用")
 
     def __str__(self):
         return self.name

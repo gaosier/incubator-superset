@@ -48,7 +48,6 @@ class AlarmRecord(Model, BaseRecordModel):
 
     alarm_id = Column(Integer, comment=u"告警规则ID")
     alarm_name = Column(String(60), comment=u"告警规则名称")
-    step = Column(String(20), comment=u"告警过程")
     detail = Column(Text, comment=u"告警详情")
 
     def __str__(self):
