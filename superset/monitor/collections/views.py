@@ -6,7 +6,6 @@ from superset import appbuilder
 from .models import CollectRule, CollectRecord
 from ..base import MonitorModelView, DeleteMixin
 from ..base_filters import CommonFilter
-from ..funcs import CollectInter
 
 
 class CollectRuleModelView(MonitorModelView, DeleteMixin):
@@ -44,9 +43,9 @@ class CollectRuleModelView(MonitorModelView, DeleteMixin):
 
     description_columns = {
         "rule_type": "db(数据库)| tb(表)两种类型；如果是db类型,后面的选项可以不用填",
-        "fields": "{'repeat': ['name'], 'missing': ['id'], 'error': [], 'count': []}",
+        "fields": "如果是tb类型：{'repeat': ['col_name'], 'missing': ['col_name']}；否则{'tb_name':{'pt':'day', 'fm':'%Y%m%d'}}",
         "partion_format": "如果规则类型是tb, 分区类型必须填写",
-        "collect_day": "如果不填，默认采集前一天的数据"
+        "collect_day": "如果想采集固定某一天的数据，请选择日期；否则不要选择日期"
     }
 
 

@@ -2,14 +2,20 @@
 # __author__ = majing
 import json
 import datetime
+import enum
 
 from flask_appbuilder import Model
-from sqlalchemy import Column, Integer,String, Text, DateTime
+from sqlalchemy import Column, Integer,String, Text, DateTime, Enum
 
 from superset.monitor.helpers import AuditMixinNullable
 from superset import db
 
 from ..base_models import BaseRecordModel
+
+
+class AlarmEnum(enum.Enum):
+    table = 'table'
+    database = 'database'
 
 
 class CollectRule(Model, AuditMixinNullable):
@@ -20,7 +26,7 @@ class CollectRule(Model, AuditMixinNullable):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False, unique=True, comment=u"规则名称")
-    rule_type = Column(String(20), nullable=False, default='tb', comment=u"tb(表) | db(数据库)")
+    rule_type = Column(Enum(AlarmEnum), nullable=False, default='table', comment=u"table(表) | database(数据库)")
     pro_name = Column(String(50), comment=u"项目名称")
     table_name = Column(String(50), comment=u"表名称")
     fields = Column(Text, comment=u"需要采集数据的字段")
@@ -39,7 +45,9 @@ class CollectRule(Model, AuditMixinNullable):
 
     @property
     def columns(self):
-        return json.loads(self.fields)
+        if self.rule_type == 'tb':
+            return json.loads(self.fields)
+        return {}
 
     @property
     def all_fields(self):

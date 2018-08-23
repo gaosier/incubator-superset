@@ -7,7 +7,6 @@ from superset import appbuilder
 from .models import ValidateRule, ValidateErrorRule, ValidateRecord, ValidateType
 from ..base import MonitorModelView, DeleteMixin
 from ..base_filters import CommonFilter
-from ..funcs import CollectInter
 
 
 class ValidateRuleModelView(MonitorModelView, DeleteMixin):

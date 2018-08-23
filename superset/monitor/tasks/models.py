@@ -116,14 +116,6 @@ def async_restart_celery(mapper, connection, target):
     session = db.create_scoped_session()
     old_pids = get_celery_beat_worker_pid()
 
-    count = 0       #
-    while session.query(func.count(PeriodTask.id)).filter(PeriodTask.status == 'running').scalar() > 0:
-        time.sleep(60)
-        count += 1
-
-        if count == 10:
-            break
-
     CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, is_restart="undefined", reason='',
                                         old_pids=json.dumps(old_pids), session=session)
     session.commit()

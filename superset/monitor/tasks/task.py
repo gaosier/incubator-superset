@@ -1,16 +1,14 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
+import datetime
 import json
 import logging
-import datetime
 
-from superset import celery_app, db
 from celery.schedules import crontab
 from celery_once import QueueOnce
 
-from ..funcs import CollectInter, ValidateInter, GenRecord, AlarmInter
-
-
+from superset import celery_app, db
+from superset.monitor.interface.funcs import ValidateInter, GenRecord, AlarmInter
 from .models import PeriodTask, TaskRecord, CeleryRestartRecord
 from ..utils import get_celery_beat_worker_pid
 

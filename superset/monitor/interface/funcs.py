@@ -9,14 +9,16 @@ import datetime
 
 from odps.df import DataFrame
 
-from .base import get_odps
-from .collections.models import CollectRecord
-from .validates.models import ValidateErrorRule
+from superset.monitor.base import get_odps
+from superset.monitor.collections.models import CollectRecord
+from superset.monitor.validates.models import ValidateErrorRule
 from superset.models.core_ext import MProject, MPage
-from .utils import to_html, send_mail, report_template
-from .validates.models import ValidateRecord
-from .tasks.models import TaskRecord
-from .alarms.models import AlarmRecord
+from superset.monitor.utils import to_html, send_mail, report_template
+from superset.monitor.validates.models import ValidateRecord
+from superset.monitor.tasks.models import TaskRecord
+from superset.monitor.alarms.models import AlarmRecord
+
+from .sync_king import SupersetMemcached
 
 odps_app = get_odps()
 
@@ -349,17 +351,52 @@ class ValidateInter(object):
 
             avg = old_total_count/7.0
             if int(avg * 0.5) <= new_total_count <= int(avg * 1.5):
-                is_error = True
+                is_error = False
                 msg = "表[%s]的[%s]数据总量再7天平均值[%s]的0.5~1.5倍之间.表的数据量为[%s]" % (pro_tab_name, partition, avg,
                                                                            new_total_count)
             else:
-                is_error = False
+                is_error = True
                 msg = "表[%s]的[%s]数据总量不再7天平均值[%s]的0.5~1.5倍之间.表的数据量为[%s]" % (pro_tab_name, partition, avg,
                                                                            new_total_count)
         else:
             is_error = True
             msg = "只有集市表进行逻辑校验.表[%s]不是集市表" % pro_tab_name
         return is_error, msg
+
+    @classmethod
+    def sync_king_minute(cls, collect, session=None, **kwargs):
+        is_error = False
+        msg = '金刚缓存每5分钟同步成功'
+        try:
+            superset = SupersetMemcached(table_conf=json.loads(collect.fields), session=session)
+            error_add_tabs, error_add_columns = superset.set_minute()
+            if error_add_tabs or error_add_columns:
+                is_error = True
+                msg = "添加失败的表: %s\n   添加失败的列: %s" % (error_add_tabs, error_add_columns)
+
+        except Exception as exc:
+            is_error = True
+            msg = u"金刚缓存同步失败：%s" % str(exc)
+
+        return is_error, msg
+
+    @classmethod
+    def sync_king_day(cls, collect, session=None, **kwargs):
+        try:
+            superset = SupersetMemcached(table_conf=json.loads(collect.fields), session=session)
+            error_update_info = superset.set_day()
+            if error_update_info:
+                is_error = True
+                msg = u"执行失败：更新失败的表和字段信息： %s" % error_update_info
+            else:
+                is_error = False
+                msg = u"金刚缓存每天同步成功"
+        except Exception as exc:
+            is_error = True
+            msg = u"金刚缓存每天同步失败：%s" % str(exc)
+        return is_error, msg
+
+
 
 
 
