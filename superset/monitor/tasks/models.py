@@ -1,12 +1,13 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
+import time
 import json
 from concurrent.futures import ProcessPoolExecutor
 
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, func
 from sqlalchemy.orm import relationship
 import sqlalchemy as sqla
 
@@ -115,6 +116,14 @@ def async_restart_celery(mapper, connection, target):
     session = db.create_scoped_session()
     old_pids = get_celery_beat_worker_pid()
 
+    count = 0       #
+    while session.query(func.count(PeriodTask.id)).filter(PeriodTask.status == 'running').scalar() > 0:
+        time.sleep(60)
+        count += 1
+
+        if count == 10:
+            break
+
     CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, is_restart="undefined", reason='',
                                         old_pids=json.dumps(old_pids), session=session)
     session.commit()
@@ -129,3 +138,6 @@ def async_restart_celery(mapper, connection, target):
 
 sqla.event.listen(PeriodTask, 'after_insert', async_restart_celery)
 sqla.event.listen(PeriodTask, 'after_update', async_restart_celery)
+sqla.event.listen(CollectRule, 'after_update', async_restart_celery)
+sqla.event.listen(AlarmRule, 'after_update', async_restart_celery)
+sqla.event.listen(ValidateRule, 'after_update', async_restart_celery)
