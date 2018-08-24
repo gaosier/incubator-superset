@@ -198,6 +198,9 @@ class SupersetMemcached(object):
         以及删除取消勾选的字段以及删除的表
         :return:
         """
+        if not self.is_connected():
+            raise ValueError("金刚缓存同步失败：连不上memached.memached只能在内网访问")
+
         tab_dict = self.get_tab_dict()
         memcached_tabs_cols_dict = self.mc.get('superset_memcached_tabs') or defaultdict(list)
         error_update_info = self.set_value_to_memcached(memcached_tabs_cols_dict)
@@ -240,6 +243,9 @@ class SupersetMemcached(object):
         每五分钟执行一次，用于缓存增加的字段以及增加的表
         :return:
         """
+        if not self.is_connected():
+            raise ValueError("金刚缓存同步失败：连不上memached.memached只能在内网访问")
+
         error_add_tbs = error_add_cols = None
         tab_dict = self.get_tab_dict()
         memcached_tabs_cols_dict = self.mc.get('superset_memcached_tabs')
@@ -297,3 +303,10 @@ class SupersetMemcached(object):
             errors = dist.get(tab)
             new[tab] = list(set(cols) - set(errors))
         return new
+
+    def is_connected(self):
+        res = self.mc.set('test', '1111')
+        if res:
+            self.mc.delete('test')
+            return True
+        return False

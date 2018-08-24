@@ -397,6 +397,3 @@ class ValidateInter(object):
         return is_error, msg
 
 
-
-
-
