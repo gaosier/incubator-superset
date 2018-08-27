@@ -13,7 +13,6 @@ import sqlalchemy as sqla
 
 from superset import db
 
-from ..collections.models import CollectRule
 from ..validates.models import ValidateRule
 from ..alarms.models import AlarmRule
 
@@ -30,8 +29,6 @@ class PeriodTask(Model, AuditMixinNullable):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(60), nullable=False, unique=True, comment=u"任务名称")
-    collect_rule_id = Column(Integer, ForeignKey('collect_rules.id'))
-    collect_rule = relationship(CollectRule)
     validate_rule_id = Column(Integer, ForeignKey('validate_rules.id'))
     validate_rule = relationship(ValidateRule)
     alarm_rule_id = Column(Integer, ForeignKey('alarm_rules.id'))
@@ -130,6 +127,5 @@ def async_restart_celery(mapper, connection, target):
 
 sqla.event.listen(PeriodTask, 'after_insert', async_restart_celery)
 sqla.event.listen(PeriodTask, 'after_update', async_restart_celery)
-sqla.event.listen(CollectRule, 'after_update', async_restart_celery)
 sqla.event.listen(AlarmRule, 'after_update', async_restart_celery)
 sqla.event.listen(ValidateRule, 'after_update', async_restart_celery)

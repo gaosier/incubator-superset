@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
-
+import json
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 
 from superset import appbuilder
-from .models import ValidateRule, ValidateErrorRule, ValidateRecord, ValidateType
+from .models import ValidateRule, ValidateErrorRule, ValidateRecord, ValidateFunc
 from ..base import MonitorModelView, DeleteMixin
 from ..base_filters import CommonFilter
 
@@ -20,22 +20,68 @@ class ValidateRuleModelView(MonitorModelView, DeleteMixin):
     add_title = '添加规则'
     edit_title = '编辑规则'
 
-    search_columns = ('types', 'name')
-    list_columns = ['name', 'typenames', 'comment', 'creator', 'modified']
+    search_columns = ('name', )
+    list_columns = ['name', 'classify', 'is_multi_days_ft','comment', 'creator', 'modified']
     order_columns = ['name', 'modified']
-    edit_columns = ['name', 'types', 'comment']
-    add_columns = edit_columns
     base_order = ('changed_on', 'desc')
 
+    add_fieldsets = [
+        ('共同配置',
+         {"fields": ['name', 'classify', 'is_multi_days', 'start_time', 'end_time', 'comment']}
+         ),
+        (
+            '函数类型',
+            {'fields': ['pro_name', 'tab_name', 'fields', 'funcs', 'pt_format']}
+        ),
+        (
+            'SQL语句',
+            {'fields': ['sql_expression', 'funcs', 'compare_v'], 'expanded': False}
+        ),
+        (
+            '其他类型',
+            {'fields': ['config', 'funcs'], 'expanded': False}
+        )
+    ]
+
+    edit_fieldsets = add_fieldsets
+    show_fieldsets = add_fieldsets
+
     base_filters = [['id', CommonFilter, lambda: []]]
+
     label_columns = {
         'name': '规则名称',
-        'types': '校验类型',
         'creator': '创建者',
         'modified': '修改时间',
         'comment': '备注',
-        'typenames': '校验类型',
+        'funcnames': '校验函数',
+        'classify': '校验类别',
+        'start_time': '开始时间',
+        'end_time': '结束时间',
+        'config': '配置信息',
+        'pro_name': '项目名称',
+        'tab_name': '表名',
+        'fields': '字段',
+        'funcs': '校验函数',
+        'sql_expression': 'sql语句',
+        'compare_v': '阈值',
+        'is_multi_days': '是否是多天',
+        'pt_format': '分区信息',
+        'is_multi_days_ft': '是否是多天'
     }
+
+    description_columns = {
+        "classify": "校验类型是必须字段.请选择与校验类别相同的分类,一次只能选择一个分类",
+        "is_multi_days": "如果是True,请选择开始时间和结束时间；否则开始时间和结束时间不需要填写，默认是前一天的数据",
+        "funcs": "必须选择和校验类别相同类型的校验函数"
+    }
+
+    def pre_add(self, item):
+        if item.is_multi_days:
+            if not item.start_time or not item.end_time:
+                raise ValueError(u"添加规则失败：开始时间和结束时间必须选择")
+
+    def pre_update(self, item):
+        self.pre_add(item)
 
 
 appbuilder.add_view(ValidateRuleModelView, 'ValidateRule',
@@ -96,6 +142,7 @@ class ValidateErrorRuleModelView(MonitorModelView, DeleteMixin):
     add_columns = edit_columns
     base_order = ('changed_on', 'desc')
 
+
     base_filters = [['id', CommonFilter, lambda: []]]
     label_columns = {
         'name': '规则名称',
@@ -116,31 +163,32 @@ appbuilder.add_view(ValidateErrorRuleModelView, 'ValidateErrorRule',
 
 
 class ValidateTypeModelView(MonitorModelView, DeleteMixin):
-    datamodel = SQLAInterface(ValidateType)
+    datamodel = SQLAInterface(ValidateFunc)
 
-    list_title = '校验规则类型列表'
+    list_title = '校验函数列表'
     show_title = '详情'
-    add_title = '添加规则'
-    edit_title = '编辑规则'
+    add_title = '添加校验函数'
+    edit_title = '编辑校验函数'
 
-    search_columns = ('name', )
-    list_columns = ['name', 'comment', 'creator', 'modified']
+    search_columns = ('name', 'classify')
+    list_columns = ['name', 'classify', 'comment', 'creator', 'modified']
     order_columns = ['name', 'modified']
-    edit_columns = ['name', 'comment']
+    edit_columns = ['name', 'classify', 'comment']
     add_columns = edit_columns
     base_order = ('changed_on', 'desc')
 
     base_filters = [['id', CommonFilter, lambda: []]]
     label_columns = {
-        'name': '规则名称',
+        'name': '函数名称',
         'creator': '创建者',
         'modified': '修改时间',
         'comment': '备注',
+        'classify': '类型'
     }
 
 
-appbuilder.add_view(ValidateTypeModelView, 'ValidateType',
-                    label='校验类型',
+appbuilder.add_view(ValidateTypeModelView, 'ValidateFunc',
+                    label='校验函数',
                     icon='fa-anchor',
                     category='Validate Manager',
                     category_label='数据校验',

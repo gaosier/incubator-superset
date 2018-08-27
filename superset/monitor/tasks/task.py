@@ -31,22 +31,20 @@ def generate_task(task_id):
     validate_record_ids = []
     try:
         PeriodTask.update_task_status_by_id(task_id, session=session)      # 设置task的状态为running
-        collect_r = task_obj.collect_rule
-        if collect_r:
-            # 校验数据
-            if task_obj.validate_rule_id:
-                validate_rule = task_obj.validate_rule
-                types = validate_rule.types
-                type_names = [item.name for item in types]
-                for name in type_names:
-                    is_repeat, detail = getattr(ValidateInter, name)(collect_r, session=session)
-                    logging.info("operation: %s   result: %s    detail: %s" % (name, is_repeat, detail))
-                    record_id = GenRecord.create_record('ValidateRecord', task_id=task_id, task_name=task_obj.name,
-                                            is_success=is_repeat, operation=name,
-                            reason=detail, validate_rule_id=validate_rule.id, validate_rule_name=validate_rule.name,
-                            session=session)
-                    if is_repeat and record_id:
-                        validate_record_ids.append(record_id)
+        # 校验数据
+        if task_obj.validate_rule_id:
+            validate_rule = task_obj.validate_rule
+            types = validate_rule.funcs
+            type_names = [item.name for item in types]
+            for name in type_names:
+                is_repeat, detail = getattr(ValidateInter, name)(task_obj.validate_rule, session=session)
+                logging.info("operation: %s   result: %s    detail: %s" % (name, is_repeat, detail))
+                record_id = GenRecord.create_record('ValidateRecord', task_id=task_id, task_name=task_obj.name,
+                                        is_success=is_repeat, operation=name,
+                        reason=detail, validate_rule_id=validate_rule.id, validate_rule_name=validate_rule.name,
+                        session=session)
+                if is_repeat and record_id:
+                    validate_record_ids.append(record_id)
         else:
             is_success = False
             reason = u"错误原因：采集规则为空"

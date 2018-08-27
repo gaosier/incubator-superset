@@ -23,9 +23,9 @@ class TaskModelView(MonitorModelView):
     edit_title = '编辑任务'
 
     search_columns = ('name', 'status')
-    list_columns = ['name', 'collect_rule', 'validate_rule', 'alarm_rule', 'interval', 'status', 'detail', 'modified']
+    list_columns = ['name', 'validate_rule', 'alarm_rule', 'interval', 'status', 'detail', 'modified']
     order_columns = ['name', 'modified']
-    edit_columns = ['name', 'collect_rule', 'validate_rule', 'alarm_rule', 'interval', 'status', 'is_active', 'comment']
+    edit_columns = ['name', 'validate_rule', 'alarm_rule', 'interval', 'is_active', 'comment']
     add_columns = edit_columns
     base_order = ('changed_on', 'desc')
 
@@ -36,7 +36,6 @@ class TaskModelView(MonitorModelView):
         'name': '任务名称',
         'creator': '创建者',
         'modified': '修改时间',
-        'collect_rule': '采集规则',
         'validate_rule': '校验规则',
         'alarm_rule': '告警规则',
         'comment': '备注',
