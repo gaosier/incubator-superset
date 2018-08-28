@@ -23,7 +23,7 @@ class TaskModelView(MonitorModelView):
     edit_title = '编辑任务'
 
     search_columns = ('name', 'status')
-    list_columns = ['name', 'validate_rule', 'alarm_rule', 'interval', 'status', 'detail', 'modified']
+    list_columns = ['name', 'validate_rule', 'alarm_rule', 'interval', 'status', 'detail', 'activate', 'modified']
     order_columns = ['name', 'modified']
     edit_columns = ['name', 'validate_rule', 'alarm_rule', 'interval', 'is_active', 'comment']
     add_columns = edit_columns
@@ -41,7 +41,8 @@ class TaskModelView(MonitorModelView):
         'comment': '备注',
         'interval': '时间间隔',
         'status': '任务状态',
-        'detail': '任务详情',
+        'detail': '错误详情',
+        'activate': '启用|禁用',
         'is_active': '是否启用'
     }
 

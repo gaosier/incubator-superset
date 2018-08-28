@@ -4,6 +4,7 @@ import enum
 import datetime
 import json
 import ast
+import logging
 
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
@@ -76,10 +77,11 @@ class ValidateRule(Model, AuditMixinNullable):
     @property
     def columns(self):
         field_infos = {}
-        if self.classify == 'func':
+        if self.classify is ValidateEnum.func:
             try:
                 field_infos = ast.literal_eval(self.fields)
-            except:
+            except Exception as exc:
+                logging.error("get all fields error: %s" % str(exc))
                 field_infos = json.loads(self.fields)
         return field_infos
 
@@ -108,19 +110,27 @@ class ValidateRule(Model, AuditMixinNullable):
         if self.is_multi_days:
             while start_time <= self.end_time:
                 _format = start_time.strftime(fmt)
-                pt = "%s%s%s" % (key, symbol, _format)
-                start_time = start_time + datetime.timedelta(days=1)
+                if symbol == '>=':
+                    _en_time = datetime.datetime.now().strftime(fmt)
+                    pt = "(%s>=%s and %s<%s)" % (key, _format, key, _en_time)
+                else:
+                    pt = "%s%s%s" % (key, symbol, _format)
                 pts.append(pt)
+                start_time = start_time + datetime.timedelta(days=1)
         else:
             _format = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(fmt)
-            pt = "%s%s%s" % (key, symbol, _format)
+            if symbol == '>=':
+                _en_time = datetime.datetime.now().strftime(fmt)
+                pt = "(%s>=%s and %s<%s)" % (key, _format, key, _en_time)
+            else:
+                pt = "%s%s%s" % (key, symbol, _format)
             pts.append(pt)
         return pts
 
     @property
     def partition(self):
         result = []
-        if self.classify == 'func' and self.pt_format:
+        if self.classify is ValidateEnum.func and self.pt_format:
             if ">=" not in self.pt_format:
                 values = self.pt_format.split('=')
                 symbol = "="

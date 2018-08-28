@@ -7,8 +7,7 @@ import json
 import logging
 import datetime
 
-from odps.df import DataFrame
-
+from odps.errors import ETParseError
 from superset.monitor.base import get_odps
 from superset.monitor.validates.models import ValidateErrorRule
 from superset.models.core_ext import MProject, MPage
@@ -119,11 +118,7 @@ class ValidateInter(object):
         获取校验函数中的sql的执行结果，调用此函数的校验函数属于func类型
         """
         is_missing = False
-
-        msg = "[%s] has no %s value.\n sql: %s" % (name, operation, sql)
-        if field:
-            msg = "[%s] in table [%s] has no error value.\n sql: %s" % (field, name, sql)
-
+        msg = ""
         try:
             instance = odps_app.execute_sql(sql)
 
@@ -133,12 +128,12 @@ class ValidateInter(object):
                     logging.info("record values: %s" % values)
                     if values[0] > 1:
                         is_missing = True
-                        msg = "[%s] has %s value, error number is %s.\n sql: %s" % (name, operation, values[0], sql)
+                        msg = "[%s] has %s value, error number is %s." % (name, operation, values[0])
                         if field:
-                            msg = "[%s] in table [%s] has error value, error number is %s.\n sql: %s" % (field, name,
-                                                                                                       values[0], sql)
+                            msg = "[%s] in table [%s] has error value, error number is %s." % (field, name,values[0])
+
                     break
-        except Exception as exc:
+        except (ETParseError, Exception) as exc:
             msg = "get execute result error:sql: %s        %s" % (sql, str(exc))
 
         return is_missing, msg
@@ -158,7 +153,7 @@ class ValidateInter(object):
                     logging.info("record values: %s" % values)
                     if values[0]:
                         value = values[0]
-        except Exception as exc:
+        except (ETParseError, Exception) as exc:
             raise ValueError(u"执行sql失败: %s" % str(exc))
 
         return value
@@ -181,26 +176,31 @@ class ValidateInter(object):
         重复数据校验
         """
         is_has_error = False
-        msgs = ''
-        partition = validate.partition
+        error_msg = ''
+        partitions = validate.partition
         fields = validate.repeat_fields
 
-        pro_tb_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
-        for item in fields:
-            sql = "select count(*) as num from %s where %s GROUP BY %s HAVING num > 1 limit 1;" % (pro_tb_name, partition,
-                                                                                             ','.join(item))
-            is_error, msg = cls.get_func_result(sql, pro_tb_name, 'repeat')
-            if is_error:
-                is_has_error = True
-            msgs += '%s\n' % msg
-        return is_has_error, msgs
+        pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
+        for pt in partitions:
+            for item in fields:
+                sql = "select count(*) as num from %s where %s GROUP BY %s HAVING num > 1 limit 1;" % (pro_tab_name, pt,
+                                                                                                 ','.join(item))
+                is_error, msg = cls.get_func_result(sql, pro_tab_name, 'repeat')
+                if is_error:
+                    is_has_error = True
+                    error_msg += '[分区]:%s   [字段]: %s   [错误值]:%s \n' % (pt, item, msg)
+        if not is_has_error:
+            error_msg = u"表[%s]的[%s]没有错误值.分区: %s" % (pro_tab_name, fields, partitions)
+        return is_has_error, error_msg
 
     @classmethod
     def missing(cls, validate, **kwargs):
         """
         缺失数据
         """
-        partition = validate.partition
+        is_has_error = False
+        error_msg = ''
+        partitions = validate.partition
         fields = validate.missing_fields
         filters = ""
         for name in fields:
@@ -209,11 +209,19 @@ class ValidateInter(object):
         filters = filters[: -3]
         logging.info("missing: filter: %s" % filters)
 
-        pro_tb_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
+        pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
 
-        sql = "select count(*) from %s where %s and (%s) ;" % ( pro_tb_name, partition, filters)
-        is_error, msg = cls.get_func_result(sql, pro_tb_name, 'missing')
-        return is_error, msg
+        for pt in partitions:
+            sql = "select count(*) from %s where %s and (%s) ;" % (pro_tab_name, pt, filters)
+            is_error, msg = cls.get_func_result(sql, pro_tab_name, 'missing')
+            if is_error:
+                is_has_error = True
+                error_msg += "[分区]：%s   [字段]:%s    [错误值]:%s \n" % (pt, fields, msg)
+
+        if not is_has_error:
+            error_msg = u"表[%s]的[%s]没有错误值.分区: %s" % (pro_tab_name, fields, partitions)
+
+        return is_has_error, error_msg
 
     @classmethod
     def tb_count(cls, rule):
@@ -234,27 +242,29 @@ class ValidateInter(object):
         """
         错误校验 
         """
-        detail = {}
         key = "%s.%s" % (validate.pro_name, validate.tab_name)
-        total_result = True
-        msg = ''
+        is_has_error = False
+        error_msg = ''
 
         error_conf = cls.__get_validate_error(validate.pro_name, validate.tab_name, session)
         if error_conf:
             try:
                 conf = json.loads(error_conf.rule)
             except Exception as e:
-                msg = "[%s] error validate error: error rule: %s     msg: %s" % (key, error_conf.rule, str(e))
+                error_msg = "[%s] error validate error: error rule: %s     msg: %s" % (key, error_conf.rule, str(e))
             else:
-
                 for field, func in conf.items():
                     is_error, msg_ = getattr(cls, func)(validate, field, session=session)
-                    msg += "%s: %s\n\n" % (func, msg_)
-                    if not is_error:
-                        total_result = False
+                    if is_error:
+                        is_has_error = True
+                        error_msg += "%s: %s\n" % (func, msg_)
+
+                if not is_has_error:
+                    error_msg = u"表[%s]没有错误值." % key
+
         else:
-            msg = '[%s] has no error validate rule.' % (key)
-        return total_result, msg
+            error_msg = u"表[%s]没有错误值." % key
+        return is_has_error, error_msg
 
     @classmethod
     def validate_user_id(cls, validate, field, length=10, **kwargs):
@@ -262,15 +272,21 @@ class ValidateInter(object):
         校验用户ID
         :return: 
         """
-        partition = validate.partition
+        is_has_error = False
+        error_msg = ''
+        partitions = validate.partition
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name,validate.tab_name)
 
-        sql = "select count(*) from %s where %s and (LENGTH(%s) > %s or %s rlike '([^0-9]+[0-9]+[^0-9]*)|([0-9]+[^0-9]+[^0-9]*)|([^0-9]*+[0-9]+[^0-9]+)') ;" % (
-            pro_tab_name, partition, field, length, field)
-        logging.info("validate_user_id: sql: %s" % sql)
-        is_error, msg = cls.get_func_result(sql, pro_tab_name, '', field)
-        return is_error, msg
-
+        for pt in partitions:
+            sql = "select count(*) from %s where %s and (LENGTH(%s) > %s or %s rlike '([^0-9]+[0-9]+[^0-9]*)|([0-9]+[^0-9]+[^0-9]*)|([^0-9]*+[0-9]+[^0-9]+)') ;" % (
+                pro_tab_name, pt, field, length, field)
+            is_error, msg = cls.get_func_result(sql, pro_tab_name, '', field)
+            if is_error:
+                is_has_error = True
+                error_msg += "[分区]：%s   [字段]:%s    [错误值]:%s \n" %(pt, field, msg)
+        if not is_has_error:
+            error_msg = u"表[%s]的[%s]没有错误值.分区: %s" % (pro_tab_name, field, partitions)
+        return is_has_error, error_msg
 
     @classmethod
     def validate_pro_id(cls, validate, field, session=None):
@@ -278,15 +294,23 @@ class ValidateInter(object):
         校验项目ID
         :return: 
         """
+        is_has_error = False
+        error_msg = ''
+
         pds = cls.__get_md_pds(session)
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
 
-        partition = validate.partition
-        sql = "select count(*) from %s where %s and pd not in %s ;" % (pro_tab_name, partition, pds)
-        logging.info("validate_pro_id: sql: %s" % sql)
+        partitions = validate.partition
 
-        is_error, msg = cls.get_func_result(sql, pro_tab_name, '', field)
-        return is_error, msg
+        for pt in partitions:
+            sql = "select count(*) from %s where %s and pd not in %s ;" % (pro_tab_name, pt, pds)
+            is_error, msg = cls.get_func_result(sql, pro_tab_name, '', field)
+            if is_error:
+                is_has_error = True
+                error_msg += "[分区]：%s   [字段]:%s    [错误值]:%s \n" %(pt, field, msg)
+        if not is_has_error:
+            error_msg = u"表[%s]的[%s]没有错误值.分区: %s" % (pro_tab_name, field, partitions)
+        return is_has_error, error_msg
 
     @classmethod
     def validate_page_id(cls, validate, field, session=None):
@@ -294,14 +318,22 @@ class ValidateInter(object):
         校验页面ID
         :return: 
         """
+        is_has_error = False
+        error_msg = ''
+
         pads = cls.__get_md_pads(session)
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
-        partition = validate.partition
-        sql = "select count(*) from %s where %s and pad not in %s ;" % (pro_tab_name, partition, pads)
-        logging.info("validate_page_id: sql: %s" % sql)
+        partitions = validate.partition
 
-        is_error, msg = cls.get_func_result(sql, pro_tab_name, '', field)
-        return is_error, msg
+        for pt in partitions:
+            sql = "select count(*) from %s where %s and pad not in %s ;" % (pro_tab_name, pt, pads)
+            is_error, msg = cls.get_func_result(sql, pro_tab_name, '', field)
+            if is_error:
+                is_has_error = True
+                error_msg += "[分区]：%s   [字段]:%s    [错误值]:%s \n" % (pt, field, msg)
+        if not is_has_error:
+            error_msg = u"表[%s]的[%s]没有错误值.分区: %s" % (pro_tab_name, field, partitions)
+        return is_has_error, error_msg
 
     @classmethod
     def validate_time(cls, validate, field, **kwargs):
@@ -309,17 +341,25 @@ class ValidateInter(object):
         校验时间戳
         :return: 
         """
-        partition = validate.partition
+        is_has_error = False
+        error_msg = ''
+
+        partitions = validate.partition
         min_time = '1970-01-01 00:00:00'
         max_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name,validate.tab_name)
 
-        sql = "select count(*) from %s where %s and (from_unixtime(%s/1000)<'%s' or from_unixtime(%s/1000)>'%s' );" % \
-              (pro_tab_name, partition, field, min_time, field, max_time)
-        logging.info("validate_time: sql: %s" % sql)
+        for pt in partitions:
+            sql = "select count(*) from %s where %s and (from_unixtime(%s/1000)<'%s' or from_unixtime(%s/1000)>'%s' );" % \
+                  (pro_tab_name, pt, field, min_time, field, max_time)
 
-        is_error, msg = cls.get_func_result(sql, pro_tab_name, '', field)
-        return is_error, msg
+            is_error, msg = cls.get_func_result(sql, pro_tab_name, '', field)
+            if is_error:
+                is_has_error = True
+                error_msg += "[分区]：%s   [字段]:%s    [错误值]:%s \n" % (pt, field, msg)
+        if not is_has_error:
+            error_msg = u"表[%s]的[%s]没有错误值.分区: %s" % (pro_tab_name, field, partitions)
+        return is_has_error, error_msg
 
     @classmethod
     def logic_validate(cls, validate, **kwargs):
@@ -327,35 +367,50 @@ class ValidateInter(object):
         逻辑校验
         :return: 
         """
-        old_total_count = 0
-        new_total_count = 0
-        end_time = (datetime.datetime.now() - datetime.timedelta(days=2)).strftime("%Y%m%d")
-        start_time = (datetime.datetime.now() - datetime.timedelta(days=8)).strftime("%Y%m%d")
+        is_has_error = False
+        error_msg = ''
+
+        old_total_count, new_total_count = (0, 0)
+        if validate.is_multi_days:
+            end_time = validate.end_time
+            start_time = validate.start_time
+        else:
+            end_time = datetime.datetime.now() - datetime.timedelta(days=1)
+            start_time = datetime.datetime.now() - datetime.timedelta(days=1)
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
         table = odps_app.get_table(validate.tab_name, project=validate.pro_name)
         if 'dm' in table.name and table.schema.partitions:
-            partition = "day>=%s and day<=%s" % (start_time, end_time)
-            sql = "select count(*) from %s WHERE %s;" % (pro_tab_name, partition)
-            old_total_count += cls.get_table_partition_count(sql, pro_tab_name, partition)
+            while start_time <= end_time:
+                pt_end_time = (start_time - datetime.timedelta(days=2)).strftime("%Y%m%d")
+                pt_start_time = (start_time - datetime.timedelta(days=8)).strftime("%Y%m%d")
+                partition = "day>=%s and day<=%s" % (pt_start_time, pt_end_time)
+                sql = "select count(*) from %s WHERE %s;" % (pro_tab_name, partition)
+                old_total_count += cls.get_table_partition_count(sql, pro_tab_name, partition)
 
-            new_date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m%d")
-            partition = "day=%s" % new_date
-            sql = "select count(*) from %s WHERE %s;" % (pro_tab_name, partition)
-            new_total_count += cls.get_table_partition_count(sql, pro_tab_name, partition)
+                new_date = (start_time - datetime.timedelta(days=1)).strftime("%Y%m%d")
+                partition = "day=%s" % new_date
+                sql = "select count(*) from %s WHERE %s;" % (pro_tab_name, partition)
+                new_total_count += cls.get_table_partition_count(sql, pro_tab_name, partition)
 
-            avg = old_total_count/7.0
-            if int(avg * 0.5) <= new_total_count <= int(avg * 1.5):
-                is_error = False
-                msg = "表[%s]的[%s]数据总量再7天平均值[%s]的0.5~1.5倍之间.表的数据量为[%s]" % (pro_tab_name, partition, avg,
-                                                                           new_total_count)
-            else:
-                is_error = True
-                msg = "表[%s]的[%s]数据总量不再7天平均值[%s]的0.5~1.5倍之间.表的数据量为[%s]" % (pro_tab_name, partition, avg,
-                                                                           new_total_count)
+                avg = old_total_count/7.0
+                if int(avg * 0.5) <= new_total_count <= int(avg * 1.5):
+                    start_time = start_time + datetime.timedelta(days=1)
+                    continue
+
+                is_has_error = True
+                msg = "[分区]:%s   [表名]:%s  [7天平均值]:%s [当天数据量]:%s" % (pro_tab_name, partition, avg,
+                                                                    new_total_count)
+                error_msg += "%s\n" % msg
+                start_time = start_time + datetime.timedelta(days=1)
         else:
-            is_error = True
-            msg = "只有集市表进行逻辑校验.表[%s]不是集市表" % pro_tab_name
-        return is_error, msg
+            is_has_error = True
+            error_msg = "只有集市表进行逻辑校验.表[%s]不是集市表或者表没有分区" % pro_tab_name
+
+        if not is_has_error:
+            error_msg = u"表[%s]在[%s ~ %s]没有错误值." % (pro_tab_name, start_time.strftime("%Y%m%d"),
+                                                    end_time.strftime("%Y%m%d"))
+
+        return is_has_error, error_msg
 
     @classmethod
     def sync_king_minute(cls, validate, session=None, **kwargs):

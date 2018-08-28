@@ -53,6 +53,10 @@ class PeriodTask(Model, AuditMixinNullable):
     def get_task_by_id(cls, task_id, session=None):
         return session.query(PeriodTask).filter(PeriodTask.id == task_id).first()
 
+    @renders('is_active')
+    def activate(self):
+        return u"启用" if self.is_active else u"禁用"
+
 
 class TaskRecord(Model, BaseRecordModel):
     """

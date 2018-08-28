@@ -120,7 +120,7 @@ class ValidateRecordModelView(MonitorModelView, DeleteMixin):
 
 
 appbuilder.add_view(ValidateRecordModelView, 'ValidateRecord',
-                    label='规则记录',
+                    label='校验记录',
                     icon='fa-list',
                     category='Validate Manager',
                     category_label='数据校验',
