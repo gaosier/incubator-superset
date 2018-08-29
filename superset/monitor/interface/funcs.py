@@ -113,6 +113,22 @@ class ValidateInter(object):
         return ValidateErrorRule.get_table_error_conf(pro_name, tab_name, session)
 
     @classmethod
+    def gen_result_and_message(cls, error_pt, opation='repeat', pro_tab_name=None, fields=None, partitions=None):
+        is_has_error = False
+
+        if opation == "repeat":
+            key = u"重复值"
+        elif opation == "missing":
+            key = u"缺失值"
+
+        if not error_pt:
+            error_msg = u"表[%s]的[%s]没有%s.分区: %s" % (pro_tab_name, fields, key, partitions)
+        else:
+            is_has_error = True
+            error_msg = u"表[%s]的[%s]在分区%s有%s." % (pro_tab_name, fields, key, partitions)
+        return is_has_error, error_msg
+
+    @classmethod
     def get_func_result(cls, sql):
         """
         获取校验函数中的sql的执行结果，调用此函数的校验函数属于func类型
@@ -171,7 +187,6 @@ class ValidateInter(object):
         """
         重复数据校验
         """
-        is_has_error = False
         error_pt = []
         partitions = validate.partition
         fields = validate.repeat_fields
@@ -185,11 +200,7 @@ class ValidateInter(object):
                 if is_error:
                     error_pt.append(pt)
 
-        if not error_pt:
-            error_msg = u"表[%s]的[%s]没有重复值.分区: %s" % (pro_tab_name, fields, partitions)
-        else:
-            is_has_error = True
-            error_msg = u"表[%s]的[%s]在分区%s有重复值." % (pro_tab_name, fields, partitions)
+        is_has_error, error_msg = cls.gen_result_and_message(error_pt, 'repeat', pro_tab_name, fields, partitions)
 
         return is_has_error, error_msg
 
@@ -198,7 +209,6 @@ class ValidateInter(object):
         """
         缺失数据
         """
-        is_has_error = False
         error_pt = []
         partitions = validate.partition
         fields = validate.missing_fields
@@ -217,11 +227,7 @@ class ValidateInter(object):
             if is_error:
                 error_pt.append(pt)
 
-        if not error_pt:
-            error_msg = u"表[%s]的[%s]没有缺失值.分区: %s" % (pro_tab_name, fields, partitions)
-        else:
-            is_has_error = True
-            error_msg = u"表[%s]的[%s]在分区%s有缺失值." % (pro_tab_name, fields, partitions)
+        is_has_error, error_msg = cls.gen_result_and_message(error_pt, 'missing', pro_tab_name, fields, partitions)
 
         return is_has_error, error_msg
 
@@ -272,7 +278,6 @@ class ValidateInter(object):
     def validate_user_id(cls, validate, field, length=10, **kwargs):
         """
         校验用户ID
-        :return: 
         """
         error_pt = []
         partitions = validate.partition
@@ -291,7 +296,6 @@ class ValidateInter(object):
     def validate_pro_id(cls, validate, field, session=None):
         """
         校验项目ID
-        :return: 
         """
         error_pt = []
 
@@ -302,7 +306,7 @@ class ValidateInter(object):
         logging.info("validate_pro_id: partitions: %s" % partitions)
 
         for pt in partitions:
-            sql = "select count(*) from %s where %s and pd not in %s ;" % (pro_tab_name, pt, pds)
+            sql = "select count(*) from %s where %s and %s not in %s ;" % (pro_tab_name, pt, field, pds)
             is_error = cls.get_func_result(sql)
             if is_error:
                 error_pt.append(pt)
@@ -311,8 +315,7 @@ class ValidateInter(object):
     @classmethod
     def validate_page_id(cls, validate, field, session=None):
         """
-        校验页面ID
-        :return: 
+        校验页面ID 
         """
         error_pt = []
 
@@ -322,7 +325,7 @@ class ValidateInter(object):
         logging.info("validate_page_id: partitions: %s" % partitions)
 
         for pt in partitions:
-            sql = "select count(*) from %s where %s and pad not in %s ;" % (pro_tab_name, pt, pads)
+            sql = "select count(*) from %s where %s and %s not in %s ;" % (pro_tab_name, pt, field, pads)
             is_error = cls.get_func_result(sql)
             if is_error:
                 error_pt.append(pt)
@@ -332,7 +335,6 @@ class ValidateInter(object):
     def validate_time(cls, validate, field, **kwargs):
         """
         校验时间戳
-        :return: 
         """
         error_pt = []
 
@@ -356,7 +358,6 @@ class ValidateInter(object):
     def logic_validate(cls, validate, **kwargs):
         """
         逻辑校验
-        :return: 
         """
         is_has_error = False
         error_msg = ''
