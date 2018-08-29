@@ -6,6 +6,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
 import functools
 import json
 import logging
@@ -207,8 +208,8 @@ class DeleteMixin(object):
 
 
 ODPS_INFO = {
-        "access_key": "kxvb9Hh1S7deJgyYRg79F0rvSf9vL5",
-        "access_id": "LTAIhNwQk5AplazR"
+        "access_key": os.environ.get("ODPS_ACCESS_KEY"),
+        "access_id": os.environ.get("ODPS_ACCESS_ID")
     }
 
 common_odps = None
@@ -216,6 +217,8 @@ common_odps = None
 def get_odps():
     global common_odps
     if not common_odps:
+        if not ODPS_INFO.get("access_id") or not ODPS_INFO.get("access_key"):
+            raise ValueError(u"请设置系统变量[ODPS_ACCESS_KEY, ODPS_ACCESS_ID]")
         common_odps = ODPS(ODPS_INFO.get('access_id'), ODPS_INFO.get('access_key'), 'sync_data')
     return common_odps
 
