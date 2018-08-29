@@ -111,8 +111,8 @@ class ValidateRule(Model, AuditMixinNullable):
             while start_time <= self.end_time:
                 _format = start_time.strftime(fmt)
                 if symbol == '>=':
-                    _en_time = datetime.datetime.now().strftime(fmt)
-                    pt = "(%s>=%s and %s<%s)" % (key, _format, key, _en_time)
+                    _en_time = (start_time + datetime.timedelta(days=1)).strftime(fmt)
+                    pt = "(%s>='%s' and %s<'%s')" % (key, _format, key, _en_time)
                 else:
                     pt = "%s%s%s" % (key, symbol, _format)
                 pts.append(pt)
@@ -121,7 +121,7 @@ class ValidateRule(Model, AuditMixinNullable):
             _format = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(fmt)
             if symbol == '>=':
                 _en_time = datetime.datetime.now().strftime(fmt)
-                pt = "(%s>=%s and %s<%s)" % (key, _format, key, _en_time)
+                pt = "(%s>='%s' and %s<'%s')" % (key, _format, key, _en_time)
             else:
                 pt = "%s%s%s" % (key, symbol, _format)
             pts.append(pt)
