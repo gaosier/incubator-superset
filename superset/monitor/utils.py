@@ -174,3 +174,66 @@ def to_html(columns, instances, is_need_parse=False):
         _table.add_row(item)
 
     return _table.get_html_string()
+
+
+"""
+ Logging configuration
+"""
+log_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "celery.log")
+logger = logging.getLogger('monitor')
+hander = logging.handlers.TimedRotatingFileHandler(filename=log_file_path, when='D',
+                                                   interval=1, backupCount=7)
+fmt = '%(asctime)s  %(levelname)s  %(filename)s:%(lineno)s  %(funcName)s  %(message)s'
+
+formatter = logging.Formatter(fmt)
+hander.setFormatter(formatter)
+logger.addHandler(hander)
+logger.setLevel(logging.INFO)
+
+tr_html = "<span style='color:red'>表[sync_data.ods_page] 字段[uid]没有错误值</span>"
+tr_html_1 = "<span style='color:green'>字段[pd]没有错误值<br></span>"
+
+test_html = """
+%s <br>
+
+%s <br>
+
+字段[pad]在分区["(pt&gt;='2018_08_30' and pt&lt;'2018_08_31')"]中有错误值<br>
+
+字段[st]没有错误值<br>
+"""  % (tr_html, tr_html_1)
+
+
+table_html = """
+<table>
+<tbody><tr>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+任务名称</td>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+校验规则</td>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+校验类型</td>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+执行结果</td>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+详情</td>
+</tr>
+<tr>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+埋点数据错误校验任务</td>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+埋点数据校验</td>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+error</td>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+True</td>
+<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
+
+%s  
+</td>
+</tr>
+</tbody></table>
+
+"""  % test_html
+
+

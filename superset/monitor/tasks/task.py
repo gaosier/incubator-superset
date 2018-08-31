@@ -2,7 +2,6 @@
 # __author__ = majing
 import datetime
 import json
-import logging
 
 from celery.schedules import crontab
 from celery_once import QueueOnce
@@ -10,7 +9,7 @@ from celery_once import QueueOnce
 from superset import celery_app, db
 from superset.monitor.interface.funcs import ValidateInter, GenRecord, AlarmInter
 from .models import PeriodTask, TaskRecord, CeleryRestartRecord
-from ..utils import get_celery_beat_worker_pid
+from ..utils import get_celery_beat_worker_pid, logger
 
 
 @celery_app.task(base=QueueOnce, once={'graceful': True}, ignore_result=True)
@@ -21,7 +20,7 @@ def generate_task(task_id):
     session = db.create_scoped_session()
 
     task_obj = PeriodTask.get_task_by_id(task_id, session=session)
-    logging.info("task running ....  value: %s" % task_obj)
+    logger.info("task running ....  value: %s" % task_obj)
 
     # 添加任务记录
     is_success = True
@@ -38,7 +37,7 @@ def generate_task(task_id):
             type_names = [item.name for item in types]
             for name in type_names:
                 is_repeat, detail = getattr(ValidateInter, name)(task_obj.validate_rule, session=session)
-                logging.info("operation: %s   result: %s    detail: %s" % (name, is_repeat, detail))
+                logger.info("operation: %s   result: %s    detail: %s" % (name, is_repeat, detail))
                 record_id = GenRecord.create_record('ValidateRecord', task_id=task_id, task_name=task_obj.name,
                                         is_success=is_repeat, operation=name,
                         reason=detail, validate_rule_id=validate_rule.id, validate_rule_name=validate_rule.name,
@@ -49,7 +48,7 @@ def generate_task(task_id):
             is_success = False
             reason = u"错误原因：采集规则为空"
     except Exception as exc:
-        logging.error("task error: %s " % str(exc))
+        logger.error("task error: %s " % str(exc))
 
         task_status = 'failed'
         error_msg = str(exc)
@@ -57,7 +56,7 @@ def generate_task(task_id):
         is_success = False
         reason = str(exc)
     else:
-        logging.info("task running success ....  value: %s" % task_obj)
+        logger.info("task running success ....  value: %s" % task_obj)
 
         task_status = 'success' if is_success else 'failed'
         error_msg = '' if is_success else reason
@@ -83,7 +82,7 @@ def generate_task(task_id):
 @celery_app.task(base=QueueOnce, once={'graceful': True}, ignore_result=True)
 def get_new_celery_pids():
     new_pids = get_celery_beat_worker_pid()
-    logging.info("get_new_celery_pids:  new_pids: ", new_pids)
+    logger.info("get_new_celery_pids:  new_pids: ", new_pids)
     if new_pids:
         session = db.create_scoped_session()
         records = session.query(CeleryRestartRecord).filter(CeleryRestartRecord.status == 'running').all()

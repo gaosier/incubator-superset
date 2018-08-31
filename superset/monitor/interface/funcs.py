@@ -4,14 +4,13 @@
 具体采集，校验函数
 """
 import json
-import logging
 import datetime
 
 from odps.errors import ETParseError
 from superset.monitor.base import get_odps
 from superset.monitor.validates.models import ValidateErrorRule
 from superset.models.core_ext import MProject, MPage
-from superset.monitor.utils import to_html, send_mail, report_template
+from superset.monitor.utils import to_html, send_mail, report_template, logger
 from superset.monitor.validates.models import ValidateRecord
 from superset.monitor.tasks.models import TaskRecord
 from superset.monitor.alarms.models import AlarmRecord
@@ -39,7 +38,9 @@ class AlarmInter(object):
     @classmethod
     def alarm(cls, alarm, task_name, task_record_id, validate_record_ids, session):
         try:
-            content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
+            # content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
+            from ..utils import table_html
+            content = table_html
             cls.alarm_send_mail(alarm.user, content)
         except Exception as exc:
             return False, str(exc)
@@ -91,14 +92,14 @@ class ValidateInter(object):
     def __get_md_pds(cls, session):
         querys = session.query(MProject).all()
         values = [query.id for query in querys]
-        logging.info("project id:  count:%s       values:%s" % (len(values), values))
+        logger.info("project id:  count:%s       values:%s" % (len(values), values))
         return tuple(values)
 
     @classmethod
     def __get_md_pads(cls, session):
         querys = session.query(MPage).all()
         values = [query.page_id for query in querys]
-        logging.info("project page id: count:%s   values:%s" % (len(values), values))
+        logger.info("project page id: count:%s   values:%s" % (len(values), values))
         return tuple(values)
 
     @classmethod
@@ -125,7 +126,7 @@ class ValidateInter(object):
             error_msg = u"表[%s]的[%s]没有%s.分区: %s" % (pro_tab_name, fields, key, partitions)
         else:
             is_has_error = True
-            error_msg = u"表[%s]的[%s]在分区%s有%s." % (pro_tab_name, fields, key, partitions)
+            error_msg = u'表[%s]的[%s]在分区%s有%s.' % (pro_tab_name, fields, key, partitions)
         return is_has_error, error_msg
 
     @classmethod
@@ -134,14 +135,14 @@ class ValidateInter(object):
         获取校验函数中的sql的执行结果，调用此函数的校验函数属于func类型
         """
         is_error = False
-        logging.info("execute sql: %s" % sql)
+        logger.info("get_func_result: %s" % sql)
         try:
             instance = odps_app.execute_sql(sql)
 
             with instance.open_reader() as reader:
                 for record in reader:
                     values = record.values
-                    logging.info("record values: %s" % values)
+                    logger.info("get_func_result values: %s" % values)
                     if values[0] > 1:
                         is_error = True
                     break
@@ -155,18 +156,19 @@ class ValidateInter(object):
         """
         获取校验函数的sql的执行结果，调用此函数的校验函数属于sql类型
         """
-        value = None
+        value = 0
+        logger.info("get_sql_result: sql: %s" % sql)
         try:
             instance = odps_app.execute_sql(sql)
 
             with instance.open_reader() as reader:
                 for record in reader:
                     values = record.values
-                    logging.info("record values: %s" % values)
+                    logger.info("get_sql_result: %s" % values)
                     if values[0]:
                         value = values[0]
         except (ETParseError, Exception) as exc:
-            raise ValueError(u"执行sql失败: %s" % str(exc))
+            raise ValueError(u"get_sql_result执行sql失败: %s" % str(exc))
 
         return value
 
@@ -178,7 +180,7 @@ class ValidateInter(object):
         with instance.open_reader() as reader:
             for record in reader:
                 values = record.values
-                logging.info("[%s] in [%s]  total count: %s" % (name, partition, values))
+                logger.info("[%s] in [%s]  total count: %s" % (name, partition, values))
                 count = values[0]
         return count
 
@@ -201,7 +203,6 @@ class ValidateInter(object):
                     error_pt.append(pt)
 
         is_has_error, error_msg = cls.gen_result_and_message(error_pt, 'repeat', pro_tab_name, fields, partitions)
-
         return is_has_error, error_msg
 
     @classmethod
@@ -217,7 +218,7 @@ class ValidateInter(object):
             filters += "(%s is NULL) or " % name
         filters = filters.lstrip()
         filters = filters[: -3]
-        logging.info("missing: filter: %s" % filters)
+        logger.info("missing: filter: %s" % filters)
 
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
 
@@ -261,7 +262,7 @@ class ValidateInter(object):
             except Exception as e:
                 error_msg = "[%s] error validate error: error rule: %s     msg: %s" % (key, error_conf.rule, str(e))
             else:
-                logging.info("error conf: %s" % conf)
+                logger.info("error conf: %s" % conf)
                 for field, func in conf.items():
                     result = getattr(cls, func)(validate, field, session=session)
                     if result:
@@ -281,7 +282,7 @@ class ValidateInter(object):
         """
         error_pt = []
         partitions = validate.partition
-        logging.info("validate_user_id: partitions: %s" % partitions)
+        logger.info("validate_user_id: partitions: %s" % partitions)
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name,validate.tab_name)
 
         for pt in partitions:
@@ -303,7 +304,7 @@ class ValidateInter(object):
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
 
         partitions = validate.partition
-        logging.info("validate_pro_id: partitions: %s" % partitions)
+        logger.info("validate_pro_id: partitions: %s" % partitions)
 
         for pt in partitions:
             sql = "select count(*) from %s where %s and %s not in %s ;" % (pro_tab_name, pt, field, pds)
@@ -322,7 +323,7 @@ class ValidateInter(object):
         pads = cls.__get_md_pads(session)
         pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
         partitions = validate.partition
-        logging.info("validate_page_id: partitions: %s" % partitions)
+        logger.info("validate_page_id: partitions: %s" % partitions)
 
         for pt in partitions:
             sql = "select count(*) from %s where %s and %s not in %s ;" % (pro_tab_name, pt, field, pads)
@@ -339,7 +340,7 @@ class ValidateInter(object):
         error_pt = []
 
         partitions = validate.partition
-        logging.info("validate_time: partitions: %s" % partitions)
+        logger.info("validate_time: partitions: %s" % partitions)
 
         min_time = '1970-01-01 00:00:00'
         max_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -441,13 +442,26 @@ class ValidateInter(object):
     @classmethod
     def execute_sql(cls, validate, **kwargs):
         is_error = False
-        msg = '[%s]没有有错误值' % validate.name
+        msg = '[%s]没有错误值' % validate.name
         if validate.sql_expression:
             value = cls.get_sql_result(validate.sql_expression)
-            if value > validate.compare_v:
-                is_error = True
-                msg = '[%s]有错误值' % validate.name
+            if validate.min_compare_v:
+                if value < validate.min_compare_v:
+                    is_error = True
+                    msg = '[%s]<FONT color= #FF0000>有错误值' % validate.name
+
+                    return is_error, msg
+
+            if validate.max_compare_v:
+                if value > validate.max_compare_v:
+                    is_error = True
+                    msg = '[%s]有错误值' % validate.name
+
         return is_error, msg
+
+    @classmethod
+    def get_all_task_details(cls):
+        pass
             
 
 

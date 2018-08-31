@@ -35,7 +35,7 @@ class ValidateRuleModelView(MonitorModelView, DeleteMixin):
         ),
         (
             'SQL语句',
-            {'fields': ['sql_expression', 'funcs', 'compare_v'], 'expanded': False}
+            {'fields': ['sql_expression', 'funcs', 'min_compare_v', 'max_compare_v'], 'expanded': False}
         ),
         (
             '其他类型',
@@ -63,7 +63,8 @@ class ValidateRuleModelView(MonitorModelView, DeleteMixin):
         'fields': '字段',
         'funcs': '校验函数',
         'sql_expression': 'sql语句',
-        'compare_v': '阈值',
+        'min_compare_v': '最小值',
+        'max_compare_v': '最大值',
         'is_multi_days': '是否是多天',
         'pt_format': '分区信息',
         'is_multi_days_ft': '是否是多天'
