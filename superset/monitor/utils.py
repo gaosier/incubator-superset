@@ -147,6 +147,48 @@ def _send_mail(mail_data):
     return resp
 
 
+class MyPrettyTable(PrettyTable):
+    def _get_simple_html_string(self, options):
+
+        lines = []
+        if options["xhtml"]:
+            linebreak = "<br/>"
+        else:
+            linebreak = "<br>"
+
+        open_tag = []
+        open_tag.append("<table")
+        if options["attributes"]:
+            for attr_name in options["attributes"]:
+                open_tag.append(" %s=\"%s\"" % (attr_name, options["attributes"][attr_name]))
+        open_tag.append(">")
+        lines.append("".join(open_tag))
+
+        # Headers
+        if options["header"]:
+            lines.append("    <tr>")
+            for field in self._field_names:
+                if options["fields"] and field not in options["fields"]:
+                    continue
+                lines.append("        <th>%s</th>" % field.replace("\n", linebreak))
+            lines.append("    </tr>")
+
+        # Data
+        rows = self._get_rows(options)
+        formatted_rows = self._format_rows(rows, options)
+        for row in formatted_rows:
+            lines.append("    <tr>")
+            for field, datum in zip(self._field_names, row):
+                if options["fields"] and field not in options["fields"]:
+                    continue
+                lines.append("        <td>%s</td>" % datum.replace("\n", linebreak))
+            lines.append("    </tr>")
+
+        lines.append("</table>")
+
+        return self._unicode("\n").join(lines)
+
+
 def to_html(columns, instances, is_need_parse=False):
     """
     输出一个table html
@@ -155,7 +197,7 @@ def to_html(columns, instances, is_need_parse=False):
         raise ValueError(u'参数columns不能为空')
 
     values = []
-    _table = PrettyTable()
+    _table = MyPrettyTable()
     _table.field_names = columns
 
     if is_need_parse:
@@ -189,51 +231,5 @@ formatter = logging.Formatter(fmt)
 hander.setFormatter(formatter)
 logger.addHandler(hander)
 logger.setLevel(logging.INFO)
-
-tr_html = "<span style='color:red'>表[sync_data.ods_page] 字段[uid]没有错误值</span>"
-tr_html_1 = "<span style='color:green'>字段[pd]没有错误值<br></span>"
-
-test_html = """
-%s <br>
-
-%s <br>
-
-字段[pad]在分区["(pt&gt;='2018_08_30' and pt&lt;'2018_08_31')"]中有错误值<br>
-
-字段[st]没有错误值<br>
-"""  % (tr_html, tr_html_1)
-
-
-table_html = """
-<table>
-<tbody><tr>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-任务名称</td>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-校验规则</td>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-校验类型</td>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-执行结果</td>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-详情</td>
-</tr>
-<tr>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-埋点数据错误校验任务</td>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-埋点数据校验</td>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-error</td>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-True</td>
-<td align="left" style="text-align:justify;padding:10px;border:1px solid #CCCCCC;">
-
-%s  
-</td>
-</tr>
-</tbody></table>
-
-"""  % test_html
 
 

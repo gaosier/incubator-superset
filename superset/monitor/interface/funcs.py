@@ -38,9 +38,9 @@ class AlarmInter(object):
     @classmethod
     def alarm(cls, alarm, task_name, task_record_id, validate_record_ids, session):
         try:
-            # content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
-            from ..utils import table_html
-            content = table_html
+            content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
+            # from ..utils import table_html
+            # content = table_html
             cls.alarm_send_mail(alarm.user, content)
         except Exception as exc:
             return False, str(exc)
@@ -123,10 +123,10 @@ class ValidateInter(object):
             key = u"缺失值"
 
         if not error_pt:
-            error_msg = u"表[%s]的[%s]没有%s.分区: %s" % (pro_tab_name, fields, key, partitions)
+            error_msg = u"表[%s]的字段[%s]<span style='color:green'>没有%s</span>.分区: %s " % (pro_tab_name, fields, key, partitions)
         else:
             is_has_error = True
-            error_msg = u'表[%s]的[%s]在分区%s有%s.' % (pro_tab_name, fields, key, partitions)
+            error_msg = u"表[%s]的字段[%s]在分区%s<span style='color:red'>有%s</span>. " % (pro_tab_name, fields, partitions, key)
         return is_has_error, error_msg
 
     @classmethod
@@ -253,26 +253,27 @@ class ValidateInter(object):
         """
         key = "%s.%s" % (validate.pro_name, validate.tab_name)
         is_has_error = False
-        error_msg = "表[%s]  " % key
+        error_msg = "表[%s]:\n" % key
 
         error_conf = cls.__get_validate_error(validate.pro_name, validate.tab_name, session)
         if error_conf:
             try:
                 conf = json.loads(error_conf.rule)
             except Exception as e:
-                error_msg = "[%s] error validate error: error rule: %s     msg: %s" % (key, error_conf.rule, str(e))
+                error_msg = "[%s] error validate: error rule: %s     error msg: <span style='color:red'>%s</span>" % \
+                            (key, error_conf.rule, str(e))
             else:
                 logger.info("error conf: %s" % conf)
                 for field, func in conf.items():
                     result = getattr(cls, func)(validate, field, session=session)
                     if result:
                         is_has_error = True
-                        error_msg += "字段[%s]在分区%s中有错误值\n" % (field, result)
+                        error_msg += "<span style='color:red'>字段[%s]在分区%s中有错误值</span>\n" % (field, result)
                     else:
-                        error_msg += "字段[%s]没有错误值\n" % field
+                        error_msg += "<span style='color:green'>字段[%s]没有错误值</span>\n" % field
 
         else:
-            error_msg = u"表[%s]没有配置错误校验规则." % key
+            error_msg = u"<span style='color:red'>表[%s]没有配置错误校验规则</span>." % key
         return is_has_error, error_msg
 
     @classmethod
