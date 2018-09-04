@@ -27,6 +27,7 @@ class ValidateEnum(enum.Enum):
     func = '函数'
     sql = 'sql语句'
     other = '其他'
+    email = '汇总邮件'
 
 
 class ValidateFunc(Model, AuditMixinNullable):
@@ -105,6 +106,12 @@ class ValidateRule(Model, AuditMixinNullable):
     def missing_fields(self):
         return self.columns.get('missing', [])
 
+    @property
+    def is_email_classify(self):
+        if self.classify is ValidateEnum.email:
+            return True
+        return False
+
     def get_partitions(self, key, fmt, symbol='='):
         pts = []
         start_time = self.start_time
@@ -143,6 +150,16 @@ class ValidateRule(Model, AuditMixinNullable):
                 result = self.get_partitions(name, _format, symbol=symbol)
         return result
 
+    @property
+    def classify_name(self):
+        if self.classify is ValidateEnum.func:
+            return 'func'
+        elif self.classify is ValidateEnum.email:
+            return 'email'
+        elif self.classify is ValidateEnum.other:
+            return 'other'
+        elif self.classify is ValidateEnum.sql:
+            return 'sql'
 
 class ValidateErrorRule(Model, AuditMixinNullable):
     __tablename__ = 'validate_error_rule'

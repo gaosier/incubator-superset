@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
-# -*- coding: utf-8 -*-
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -12,6 +12,7 @@ import json
 import logging
 import traceback
 from datetime import datetime
+from sqlalchemy import create_engine
 
 import yaml
 from flask import abort, flash, g, get_flashed_messages, redirect, Response
@@ -26,6 +27,7 @@ from odps import ODPS
 from superset.views.base import SupersetModelView as ModelView
 from superset import conf, security_manager, utils
 from superset.translations.utils import get_language_pack
+from superset.config_ext import SQLALCHEMY_DATABASE_URI
 
 FRONTEND_CONF_KEYS = (
     'SUPERSET_WEBSERVER_TIMEOUT',
@@ -214,6 +216,7 @@ ODPS_INFO = {
 
 common_odps = None
 
+
 def get_odps():
     global common_odps
     if not common_odps:
@@ -221,5 +224,14 @@ def get_odps():
             raise ValueError(u"请设置系统变量[ODPS_ACCESS_KEY, ODPS_ACCESS_ID]")
         common_odps = ODPS(ODPS_INFO.get('access_id'), ODPS_INFO.get('access_key'), 'sync_data')
     return common_odps
+
+engine = None
+
+
+def get_engine():
+    global engine
+    if not engine:
+        engine = create_engine(SQLALCHEMY_DATABASE_URI, echo=True)
+    return engine
 
 

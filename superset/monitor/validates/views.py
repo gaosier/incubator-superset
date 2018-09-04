@@ -40,6 +40,10 @@ class ValidateRuleModelView(MonitorModelView, DeleteMixin):
         (
             '其他类型',
             {'fields': ['config', 'funcs'], 'expanded': False}
+        ),
+        (
+            '汇总邮件',
+            {'fields': ['funcs'], 'expanded': False}
         )
     ]
 
