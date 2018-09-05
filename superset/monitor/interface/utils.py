@@ -4,9 +4,11 @@
 """
 发邮件，生成记录接口
 """
-from superset.monitor.utils import to_html, send_mail, report_template
+import datetime
+
+from superset.monitor.utils import to_html, send_mail, report_template, gen_summary_tasks_template
 from superset.monitor.validates.models import ValidateRecord
-from superset.monitor.tasks.models import TaskRecord
+from superset.monitor.tasks.models import TaskRecord, PeriodTask
 from superset.monitor.alarms.models import AlarmRecord
 
 
@@ -30,37 +32,37 @@ class AlarmInter(object):
         try:
             content = cls.gen_mail_html(task_name, task_record_id, validate_record_ids, session)
             if content:
-                cls.alarm_send_mail(alarm.user, content)
+                cls.alarm_send_mail([item.email for item in alarm.user], content)
         except Exception as exc:
             return False, str(exc)
         return True, ''
 
     @classmethod
-    def alarm_table_html(cls, alarm, htmls):
+    def alarm_table_html(cls, alarm, htmls, session=None):
+        users = alarm.user
+        user_id_email_map = {user.id: user.email for user in users}
         try:
             if htmls:
-                cls.alarm_send_mail(alarm.user, htmls)
+                for content in htmls:
+                    if 'all' in content:
+                        if content.get('all'):
+                            tab_html = content.get('all')
+                            last_html = cls.gen_summary_tasks_html(html=tab_html, session=session)
+                            cls.alarm_send_mail([item.email for item in users], last_html)
+                    else:
+                        for user_id, value in content.items():
+                            if value:
+                                to_mails = user_id_email_map.get(user_id)
+                                tab_html = content.get(user_id)
+                                last_html = cls.gen_summary_tasks_html(html=tab_html, session=session)
+                                cls.alarm_send_mail(to_mails, last_html)
         except Exception as exc:
             return False, str(exc)
         return True, ''
 
     @classmethod
-    def alarm_send_mail(cls, users, html):
-        user_id_email_map = {user.id: user.email for user in users}
-        if isinstance(html, list):
-            for content in html:
-                if 'all' in content:
-                    to_mails = [user.email for user in users]
-                    if content.get('all'):
-                        send_mail(content.get('all'), to_mails)
-                else:
-                    for user_id, value in content.items():
-                        if value:
-                            to_mails = [user_id_email_map.get(user_id)]
-                            send_mail(value, to_mails)
-        else:
-            to_mails = [user.email for user in users]
-            send_mail(html, to_mails)
+    def alarm_send_mail(cls, to_mails, html):
+        send_mail(html, to_mails)
 
     @classmethod
     def gen_mail_html(cls, task_name, task_record_id, validate_record_ids, session):
@@ -95,6 +97,28 @@ class AlarmInter(object):
             values.append(record_list)
         record_html = to_html([u'任务名称', u"校验规则", u"校验类型", u'执行结果', u'详情'], values)
         return record_html
+
+    @classmethod
+    def get_tasks_total_and_actual_count(cls, user_id=None, session=None):
+        now = datetime.datetime.now()
+        filter_time = datetime.datetime(year=now.year, month=now.month, day=now.day).strftime("%Y%m%d")
+        if not user_id:
+            total_count = PeriodTask.get_total_tasks(session)
+            actual_count = TaskRecord.get_actual_tasks(filter_time, session)
+        else:
+            total_count = PeriodTask.get_user_total_tasks(user_id, session)
+            actual_count = TaskRecord.get_user_actual_tasks(filter_time, user_id, session)
+
+        return filter_time, total_count, actual_count
+
+    @classmethod
+    def gen_summary_tasks_html(cls, user_id=None, html=None, session=None):
+        filter_time, total_count, actual_count = cls.get_tasks_total_and_actual_count(user_id, session)
+        html = gen_summary_tasks_template(filter_time, total_count, actual_count, html)
+        return html
+
+
+
 
 
 

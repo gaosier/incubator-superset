@@ -10,6 +10,7 @@ from flask_appbuilder.models.decorators import renders
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, func
 from sqlalchemy.orm import relationship
 import sqlalchemy as sqla
+from sqlalchemy import func, distinct
 
 from superset import db
 
@@ -53,6 +54,14 @@ class PeriodTask(Model, AuditMixinNullable):
     def get_task_by_id(cls, task_id, session=None):
         return session.query(PeriodTask).filter(PeriodTask.id == task_id).first()
 
+    @classmethod
+    def get_total_tasks(cls, session=None):
+        return session.query(func.count(cls.id)).filter(cls.is_active == 1).scalar()
+
+    @classmethod
+    def get_user_total_tasks(cls, user_id, session=None):
+        return session.query(func.count(cls.id)).filter(cls.is_active == 1, cls.created_by_fk == user_id).scalar()
+
     @renders('is_active')
     def activate(self):
         return u"启用" if self.is_active else u"禁用"
@@ -84,6 +93,15 @@ class TaskRecord(Model, BaseRecordModel):
     def update_record_by_id(cls, record_id, is_success=None, detail='', session=None):
         session.query(cls).filter(cls.id == record_id).update({cls.is_success: is_success, cls.reason: detail})
         session.commit()
+
+    @classmethod
+    def get_actual_tasks(cls, filter_time, session=None):
+        return session.query(func.count(distinct(cls.task_name))).filter(cls.changed_on >= filter_time).scalar()
+
+    @classmethod
+    def get_user_actual_tasks(cls, filter_time, user_id, session=None):
+        return session.query(func.count(distinct(cls.task_name))).filter(cls.changed_on >= filter_time,
+                                                                         cls.created_by_fk == user_id).scalar()
 
 
 class CeleryRestartRecord(Model, BaseRecordModel):

@@ -102,6 +102,50 @@ def report_template(*args):
     return html
 
 
+def gen_summary_tasks_template(*args):
+    html = u"""
+    <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+    <html xmlns='http://www.w3.org/1999/xhtml'>
+        <head>
+
+        　　<meta http-equiv='Content-Type' content="text/html; charset=UTF-8" />
+
+        　　<title>数仓监控</title>
+
+        　　<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        </head>
+        <style>
+          table {
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+          }
+          tr:nth-child(even) {
+            background-color: #eee;
+          }
+          tr:nth-child(odd) {
+            background-color: #fff;
+          }            
+        </style>
+
+        <body style="margin: 0; padding: 0;">
+             <h2 style="color:red">[%s]任务运行记录汇总 </h2>
+        　　　<p style="color:green">总共的定时任务数：%s  </p>       
+             <p style="color:green"> 实际运行的定时任务：%s </p>
+             <p style="color:green">定时任务运行详情：<p>%s</p> </p>
+        </body>
+
+    </html>
+
+
+    """ % args
+    return html
+
+
 def send_mail(content, to_mails):
     if isinstance(to_mails, str):
         to_mails = to_mails.split(',')

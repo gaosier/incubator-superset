@@ -41,10 +41,12 @@ def get_email_info(task_obj, session):
     email_infos = []
     alarm_rule = task_obj.alarm_rule
     validate_rule = task_obj.validate_rule
-    types = validate_rule.funcs
-    type_names = [item.name for item in types]
-    for name in type_names:
-        is_success, detail, table_html = getattr(ValidateInter, name)(user=alarm_rule.user)
+    funcs = validate_rule.funcs
+    func_names = [item.name for item in funcs]
+    cls = VALIDATE_TYPE_MAP.get(validate_rule.classify_name)
+    user_ids = [user.id for user in alarm_rule.user]
+    for name in func_names:
+        is_success, detail, table_html = getattr(cls, name)(user_ids=user_ids)
         logger.info("operation: %s   result: %s    detail: %s" % (name, is_success, detail))
         GenRecord.create_record('ValidateRecord', task_id=task_obj.id, task_name=task_obj.name,
                                             is_success=is_success, operation=name,
@@ -70,7 +72,7 @@ def generate_task(task_id):
     is_success = True
     reason = ''
     task_record_id = TaskRecord.add_task_record(task_id=task_obj.id, task_name=task_obj.name, is_success=is_success,
-                                           created_on=datetime.datetime.now(), session=session)
+                                                created_by_fk=task_obj.created_by_fk, session=session)
     validate_record_ids = []
     try:
         PeriodTask.update_task_status_by_id(task_id, session=session)      # 设置task的状态为running
@@ -105,7 +107,7 @@ def generate_task(task_id):
 
             GenRecord.create_record('AlarmRecord', task_id=task_id, task_name=task_obj.name,
                                     is_success=is_email, reason=msg_, alarm_id=task_obj.alarm_rule.id,
-                                    alarm_name=task_obj.alarm_rule.name,
+                                    alarm_name=task_obj.alarm_rule.name, created_by_fk=task_obj.created_by_fk,
                                     session=session)
 
     session.commit()
@@ -156,7 +158,7 @@ def generate_special_task(task_id):
     is_success = True
     reason = ''
     task_record_id = TaskRecord.add_task_record(task_id=task_obj.id, task_name=task_obj.name, is_success=is_success,
-                                           created_on=datetime.datetime.now(), session=session)
+                                                created_by_fk=task_obj.created_by_fk, session=session)
     table_htmls = []
     try:
         PeriodTask.update_task_status_by_id(task_id, session=session)      # 设置task的状态为running
@@ -187,11 +189,11 @@ def generate_special_task(task_id):
 
     if task_obj.alarm_rule:
         if table_htmls:
-            is_email, msg_ = AlarmInter.alarm_table_html(task_obj.alarm_rule, table_htmls)
+            is_email, msg_ = AlarmInter.alarm_table_html(task_obj.alarm_rule, table_htmls, session=session)
 
             GenRecord.create_record('AlarmRecord', task_id=task_id, task_name=task_obj.name,
                                     is_success=is_email, reason=msg_, alarm_id=task_obj.alarm_rule.id,
-                                    alarm_name=task_obj.alarm_rule.name,
+                                    alarm_name=task_obj.alarm_rule.name, created_by_fk=task_obj.created_by_fk,
                                     session=session)
 
     session.commit()

@@ -20,7 +20,7 @@ class ValidateEmailInter(ValidateInter):
 
     @classmethod
     def get_all_task_details(cls, **kwargs):
-        table_htmls, msg, is_success = ({}, '', True)
+        table_htmls, msg, is_success = ({}, '', False)
         now = datetime.datetime.now()
         start_time = datetime.datetime(year=now.year, day=now.day, month=now.month).strftime('%Y-%m-%d')
         fields = ['task_name', 'validate_rule_name', 'operation', 'is_success']
@@ -28,13 +28,17 @@ class ValidateEmailInter(ValidateInter):
         try:
             sql = "select %s from %s where changed_on>='%s'" % (','.join(fields), table_name, start_time)
             df = pd.read_sql_query(sql, con=engine)
-            df = df.pivot_table(df, index=['task_name', 'validate_rule_name', 'operation'], aggfunc=np.sum)
-            logger.info("df: %s" % df)
+            df = df.pivot_table(index=['task_name', 'validate_rule_name', 'operation'], values='is_success',
+                                aggfunc=np.sum)
+
             df['is_success'] = df['is_success'].map(cls.format_col)
-            logger.info("df.index: %s" % df.index)
-            logger.info("df.columns: %s" % df.columns)
+            df.columns = df.columns.__class__(['是否有错误'], dtype='object')
+            df.index.names = [u"任务名称", u"校验规则", u"校验函数"]
+
+            logger.info("[get_all_task_details]   df: %s" % df)
+
         except Exception as exc:
-            is_success = False
+            is_success = True
             msg = "失败原因: %s" % str(exc)
         else:
             table_html = df.to_html()
@@ -44,11 +48,12 @@ class ValidateEmailInter(ValidateInter):
 
     @classmethod
     def get_task_details_by_user(cls, user_ids=None, **kwargs):
-        table_htmls, msg, is_success = ({}, '', True)
+        table_htmls, msg, is_success = ({}, '', False)
         now = datetime.datetime.now()
         start_time = datetime.datetime(year=now.year, day=now.day, month=now.month).strftime('%Y-%m-%d')
         fields = ['task_name', 'validate_rule_name', 'operation', 'is_success']
         table_name = 'validate_record'
+        logger.info("get_task_details_by_user:  user_ids: %s" % user_ids)
 
         if user_ids:
             for user_id in user_ids:
@@ -57,10 +62,16 @@ class ValidateEmailInter(ValidateInter):
                                                                                              table_name, start_time,
                                                                                              user_id)
                     df = pd.read_sql_query(sql, con=engine)
-                    df = df.pivot_table(df, index=['task_name', 'validate_rule_name', 'operation'], aggfunc=np.sum)
-                    logger.info("df: %s" % df)
+                    df = df.pivot_table(index=['task_name', 'validate_rule_name', 'operation'], values='is_success',
+                                        aggfunc=np.sum)
+
+                    df['is_success'] = df['is_success'].map(cls.format_col)
+                    df.columns = df.columns.__class__(['是否有错误'], dtype='object')
+                    df.index.names = [u"任务名称", u"校验规则", u"校验函数"]
+
+                    logger.info("[get_task_details_by_user] df: %s" % df)
                 except Exception as exc:
-                    is_success = False
+                    is_success = True
                     msg = "失败原因: %s" % str(exc)
                 else:
                     table_html = df.to_html()
