@@ -63,7 +63,7 @@ class ValidateEmailInter(ValidateInter):
                                                                                              user_id)
                     df = pd.read_sql_query(sql, con=engine)
                     logger.info("get_task_details_by_user: df: %s" % df)
-                    if df:
+                    if not df.empty():
                         df = df.pivot_table(index=['task_name', 'validate_rule_name', 'operation'], values='is_success',
                                             aggfunc=np.sum)
 

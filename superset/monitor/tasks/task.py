@@ -29,7 +29,7 @@ def get_validate_error_records(task_obj, session):
         record_id = GenRecord.create_record('ValidateRecord', task_id=task_obj.id, task_name=task_obj.name,
                                             is_success=is_repeat, operation=name,
                                             reason=detail, validate_rule_id=validate_rule.id,
-                                            validate_rule_name=validate_rule.name,
+                                            validate_rule_name=validate_rule.name, created_by_fk=task_obj.created_by_fk,
                                             session=session)
 
         if is_repeat and record_id:
@@ -51,7 +51,7 @@ def get_email_info(task_obj, session):
         GenRecord.create_record('ValidateRecord', task_id=task_obj.id, task_name=task_obj.name,
                                             is_success=is_success, operation=name,
                                             reason=detail, validate_rule_id=validate_rule.id,
-                                            validate_rule_name=validate_rule.name,
+                                            validate_rule_name=validate_rule.name, created_by_fk=task_obj.created_by_fk,
                                             session=session)
         email_infos.append(table_html)
 
