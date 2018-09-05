@@ -22,7 +22,7 @@ class ValidateFuncInter(ValidateInter):
         partitions = validate.partition
         fields = validate.repeat_fields
 
-        pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
+        pro_tab_name = cls._get_pro_table_name(validate.pro_name, validate.tab_name)
         for pt in partitions:
             for item in fields:
                 sql = "select count(*) as num from %s where %s GROUP BY %s HAVING num > 1 limit 1;" % (pro_tab_name, pt,
@@ -49,7 +49,7 @@ class ValidateFuncInter(ValidateInter):
         filters = filters[: -3]
         logger.info("missing: filter: %s" % filters)
 
-        pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
+        pro_tab_name = cls._get_pro_table_name(validate.pro_name, validate.tab_name)
 
         for pt in partitions:
             sql = "select count(*) from %s where %s and (%s) ;" % (pro_tab_name, pt, filters)
@@ -70,7 +70,7 @@ class ValidateFuncInter(ValidateInter):
         is_has_error = False
         error_msg = "表[%s]:\n" % key
 
-        error_conf = cls.__get_validate_error(validate.pro_name, validate.tab_name, session)
+        error_conf = cls._get_validate_error(validate.pro_name, validate.tab_name, session)
         if error_conf:
             try:
                 conf = json.loads(error_conf.rule)
@@ -99,7 +99,7 @@ class ValidateFuncInter(ValidateInter):
         error_pt = []
         partitions = validate.partition
         logger.info("validate_user_id: partitions: %s" % partitions)
-        pro_tab_name = cls.__get_pro_table_name(validate.pro_name,validate.tab_name)
+        pro_tab_name = cls._get_pro_table_name(validate.pro_name,validate.tab_name)
 
         for pt in partitions:
             sql = "select count(*) from %s where %s and (LENGTH(%s) > %s or %s rlike '([^0-9]+[0-9]+[^0-9]*)|([0-9]+[^0-9]+[^0-9]*)|([^0-9]*+[0-9]+[^0-9]+)') ;" % (
@@ -116,8 +116,8 @@ class ValidateFuncInter(ValidateInter):
         """
         error_pt = []
 
-        pds = cls.__get_md_pds(session)
-        pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
+        pds = cls._get_md_pds(session)
+        pro_tab_name = cls._get_pro_table_name(validate.pro_name, validate.tab_name)
 
         partitions = validate.partition
         logger.info("validate_pro_id: partitions: %s" % partitions)
@@ -136,8 +136,8 @@ class ValidateFuncInter(ValidateInter):
         """
         error_pt = []
 
-        pads = cls.__get_md_pads(session)
-        pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
+        pads = cls._get_md_pads(session)
+        pro_tab_name = cls._get_pro_table_name(validate.pro_name, validate.tab_name)
         partitions = validate.partition
         logger.info("validate_page_id: partitions: %s" % partitions)
 
@@ -160,7 +160,7 @@ class ValidateFuncInter(ValidateInter):
 
         min_time = '1970-01-01 00:00:00'
         max_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        pro_tab_name = cls.__get_pro_table_name(validate.pro_name,validate.tab_name)
+        pro_tab_name = cls._get_pro_table_name(validate.pro_name,validate.tab_name)
 
         for pt in partitions:
             sql = "select count(*) from %s where %s and (from_unixtime(%s/1000)<'%s' or from_unixtime(%s/1000)>'%s' );" % \
@@ -187,7 +187,7 @@ class ValidateFuncInter(ValidateInter):
             end_time = datetime.datetime.now() - datetime.timedelta(days=1)
             start_time = datetime.datetime.now() - datetime.timedelta(days=1)
         do_start_time = start_time
-        pro_tab_name = cls.__get_pro_table_name(validate.pro_name, validate.tab_name)
+        pro_tab_name = cls._get_pro_table_name(validate.pro_name, validate.tab_name)
         table = odps_app.get_table(validate.tab_name, project=validate.pro_name)
         if 'dm' in table.name and table.schema.partitions:
             while do_start_time <= end_time:

@@ -13,25 +13,25 @@ odps_app = get_odps()
 class ValidateInter(object):
 
     @classmethod
-    def __get_md_pds(cls, session):
+    def _get_md_pds(cls, session):
         querys = session.query(MProject).all()
         values = [query.id for query in querys]
         logger.info("project id:  count:%s       values:%s" % (len(values), values))
         return tuple(values)
 
     @classmethod
-    def __get_md_pads(cls, session):
+    def _get_md_pads(cls, session):
         querys = session.query(MPage).all()
         values = [query.page_id for query in querys]
         logger.info("project page id: count:%s   values:%s" % (len(values), values))
         return tuple(values)
 
     @classmethod
-    def __get_pro_table_name(cls, pro_name, tb_name):
+    def _get_pro_table_name(cls, pro_name, tb_name):
         return "%s.%s" % (pro_name, tb_name)
 
     @classmethod
-    def __get_validate_error(cls, pro_name, tab_name, session):
+    def _get_validate_error(cls, pro_name, tab_name, session):
         """
         获取一个表的错误校验配置
         """

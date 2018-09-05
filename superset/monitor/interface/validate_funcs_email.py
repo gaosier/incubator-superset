@@ -26,7 +26,7 @@ class ValidateEmailInter(ValidateInter):
         fields = ['task_name', 'validate_rule_name', 'operation', 'is_success']
         table_name = 'validate_record'
         try:
-            sql = "select %s from %s where changed_on>='%s'" % (','.join(fields), table_name, start_time)
+            sql = "select %s from %s where changed_on>='%s' ;" % (','.join(fields), table_name, start_time)
             df = pd.read_sql_query(sql, con=engine)
             df = df.pivot_table(index=['task_name', 'validate_rule_name', 'operation'], values='is_success',
                                 aggfunc=np.sum)
@@ -58,18 +58,20 @@ class ValidateEmailInter(ValidateInter):
         if user_ids:
             for user_id in user_ids:
                 try:
-                    sql = "select %s from %s where changed_on>='%s' and created_by_fk=%s" % (','.join(fields),
+                    sql = "select %s from %s where changed_on>='%s' and created_by_fk=%s ;" % (','.join(fields),
                                                                                              table_name, start_time,
                                                                                              user_id)
                     df = pd.read_sql_query(sql, con=engine)
-                    df = df.pivot_table(index=['task_name', 'validate_rule_name', 'operation'], values='is_success',
-                                        aggfunc=np.sum)
+                    logger.info("get_task_details_by_user: df: %s" % df)
+                    if df:
+                        df = df.pivot_table(index=['task_name', 'validate_rule_name', 'operation'], values='is_success',
+                                            aggfunc=np.sum)
 
-                    df['is_success'] = df['is_success'].map(cls.format_col)
-                    df.columns = df.columns.__class__(['是否有错误'], dtype='object')
-                    df.index.names = [u"任务名称", u"校验规则", u"校验函数"]
+                        df['is_success'] = df['is_success'].map(cls.format_col)
+                        df.columns = df.columns.__class__(['是否有错误'], dtype='object')
+                        df.index.names = [u"任务名称", u"校验规则", u"校验函数"]
 
-                    logger.info("[get_task_details_by_user] df: %s" % df)
+                        logger.info("[get_task_details_by_user] df: %s" % df)
                 except Exception as exc:
                     is_success = True
                     msg = "失败原因: %s" % str(exc)
