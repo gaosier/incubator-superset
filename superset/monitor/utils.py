@@ -43,7 +43,7 @@ def get_celery_beat_worker_pid():
 
 
 def pkill_celery():
-    kill_cmd = ['pkill',  '-9',  '-f', 'celery beat']
+    kill_cmd = ['pkill',  '-TERM',  '-f', 'celery']
     subprocess.Popen(kill_cmd)
 
 
@@ -54,7 +54,7 @@ def restart_celery_beat():
 
 
 def restart_celery_worker():
-    cmd_worker = 'celery multi restart worker --workdir=%s -A superset.celery_app --loglevel=INFO  -D  --concurrency=4 --pidfile=%s --logfile=%s'
+    cmd_worker = 'celery multi start worker --workdir=%s -A superset.celery_app --loglevel=INFO  -D  --concurrency=4 --pidfile=%s --logfile=%s'
     cmd_work_args = list(map(deal_cmd, cmd_worker.split()))
     subprocess.Popen(cmd_work_args)
 
