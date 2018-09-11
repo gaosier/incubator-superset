@@ -7,7 +7,7 @@ from concurrent.futures import ProcessPoolExecutor
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean, func
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 import sqlalchemy as sqla
 from sqlalchemy import func, distinct
@@ -19,7 +19,7 @@ from ..alarms.models import AlarmRule
 
 from ..helpers import AuditMixinNullable
 from ..base_models import BaseRecordModel
-from ..utils import get_celery_beat_worker_pid, pkill_celery, restart_celery_beat, restart_celery_worker
+from ..utils import get_celery_beat_pid, pkill_celery_beat, restart_celery_beat
 
 
 class PeriodTask(Model, AuditMixinNullable):
@@ -142,18 +142,17 @@ def async_restart_celery(mapper, connection, target):
     session = db.create_scoped_session()
 
     if not PeriodTask.is_has_running_tasks(session):
-        old_pids = get_celery_beat_worker_pid()
+        old_pids = get_celery_beat_pid()
 
         CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, is_restart="undefined", reason='',
                                             old_pids=json.dumps(old_pids), session=session)
         session.commit()
         session.close()
 
-        pkill_celery()
+        pkill_celery_beat()
 
-        with ProcessPoolExecutor(2) as executor:
+        with ProcessPoolExecutor(1) as executor:
             executor.submit(restart_celery_beat)
-            executor.submit(restart_celery_worker)
 
 
 sqla.event.listen(PeriodTask, 'after_insert', async_restart_celery)

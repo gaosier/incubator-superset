@@ -35,15 +35,14 @@ def get_pid(filepath):
     return pid
 
 
-def get_celery_beat_worker_pid():
+def get_celery_beat_pid():
     pids = {}
     pids['beat'] = get_pid(beat_pid_file)
-    pids['worker'] = get_pid(pid_file)
     return pids
 
 
-def pkill_celery():
-    kill_cmd = ['pkill',  '-9',  '-f', 'celery']
+def pkill_celery_beat():
+    kill_cmd = ['pkill',  '-9',  '-f', 'beat']
     subprocess.Popen(kill_cmd)
 
 

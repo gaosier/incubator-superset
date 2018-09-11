@@ -10,7 +10,7 @@ from superset import celery_app, db
 from superset.monitor.interface import GenRecord, AlarmInter, ValidateEmailInter, ValidateFuncInter, ValidateSqlInter, \
     ValidateOtherInter
 from .models import PeriodTask, TaskRecord, CeleryRestartRecord
-from ..utils import get_celery_beat_worker_pid, logger
+from ..utils import get_celery_beat_pid, logger
 
 
 VALIDATE_TYPE_MAP = {"func": ValidateFuncInter, "email": ValidateEmailInter, "sql": ValidateSqlInter,
@@ -116,7 +116,7 @@ def generate_task(task_id):
 
 @celery_app.task(base=QueueOnce, once={'graceful': True}, ignore_result=True)
 def get_new_celery_pids():
-    new_pids = get_celery_beat_worker_pid()
+    new_pids = get_celery_beat_pid()
     logger.info("get_new_celery_pids:  new_pids: ", new_pids)
     if new_pids:
         session = db.create_scoped_session()
