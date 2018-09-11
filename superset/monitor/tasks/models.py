@@ -64,7 +64,7 @@ class PeriodTask(Model, AuditMixinNullable):
 
     @classmethod
     def is_has_running_tasks(cls, session=None):
-        num = session.query(func.count(cls.id)).filter(cls.status == "running").scalar()
+        num = session.query(func.count(cls.id)).filter(cls.is_active == 1, cls.status == "running").scalar()
         if num > 0:
             return True
         return False
@@ -140,14 +140,15 @@ def async_restart_celery(mapper, connection, target):
     :param operation:  
     """
     session = db.create_scoped_session()
-    old_pids = get_celery_beat_worker_pid()
-
-    CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, is_restart="undefined", reason='',
-                                        old_pids=json.dumps(old_pids), session=session)
-    session.commit()
-    session.close()
 
     if not PeriodTask.is_has_running_tasks(session):
+        old_pids = get_celery_beat_worker_pid()
+
+        CeleryRestartRecord.add_task_record(task_id=target.id, task_name=target.name, is_restart="undefined", reason='',
+                                            old_pids=json.dumps(old_pids), session=session)
+        session.commit()
+        session.close()
+
         pkill_celery()
 
         with ProcessPoolExecutor(2) as executor:
