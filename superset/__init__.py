@@ -41,7 +41,7 @@ celery_app = utils.get_celery_app(conf)
 celery_app.conf.ONCE = {
   'backend': 'celery_once.backends.Redis',
   'settings': {
-    'url': 'redis://localhost:6379/0',
+    'url': 'redis://localhost:6379/1',
     'default_timeout': 60 * 60
   }
 }
