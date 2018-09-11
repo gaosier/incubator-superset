@@ -62,6 +62,13 @@ class PeriodTask(Model, AuditMixinNullable):
     def get_user_total_tasks(cls, user_id, session=None):
         return session.query(func.count(cls.id)).filter(cls.is_active == 1, cls.created_by_fk == user_id).scalar()
 
+    @classmethod
+    def is_has_running_tasks(cls, session=None):
+        num = session.query(func.count(cls.id)).filter(cls.status == "running").scalar()
+        if num > 0:
+            return True
+        return False
+
     @renders('is_active')
     def activate(self):
         return u"启用" if self.is_active else u"禁用"
@@ -140,11 +147,12 @@ def async_restart_celery(mapper, connection, target):
     session.commit()
     session.close()
 
-    pkill_celery()
+    if not PeriodTask.is_has_running_tasks(session):
+        pkill_celery()
 
-    with ProcessPoolExecutor(2) as executor:
-        executor.submit(restart_celery_beat)
-        executor.submit(restart_celery_worker)
+        with ProcessPoolExecutor(2) as executor:
+            executor.submit(restart_celery_beat)
+            executor.submit(restart_celery_worker)
 
 
 sqla.event.listen(PeriodTask, 'after_insert', async_restart_celery)

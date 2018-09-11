@@ -43,7 +43,7 @@ def get_celery_beat_worker_pid():
 
 
 def pkill_celery():
-    kill_cmd = ['pkill',  '-TERM',  '-f', 'celery']
+    kill_cmd = ['pkill',  '-9',  '-f', 'celery']
     subprocess.Popen(kill_cmd)
 
 
