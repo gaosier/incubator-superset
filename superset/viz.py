@@ -518,6 +518,58 @@ class BaseViz(object):
     def json_data(self):
         return json.dumps(self.data)
 
+    def get_special_sort_data(self, groupby, columns):
+        # 获取需要特殊处理的字段的信息
+        special_sort_cols = None
+        cols_in_index_or_column = None     # 判断特殊排序字段在index还是column中
+        if self.datasource.has_special_sort_cols:
+            # 获取表需要处理的特殊字段信息
+            special_sort_cols = self.datasource.get_sort_columns()  # {"grade_name": {}}
+
+            if special_sort_cols:
+                i_intersection = list(set(groupby) & set(special_sort_cols.keys()))
+                c_intersection = list(set(columns) & set(special_sort_cols.keys()))
+                if i_intersection:
+                    cols_in_index_or_column = ('index', i_intersection)
+                elif c_intersection:
+                    cols_in_index_or_column = ('column', c_intersection)
+        return cols_in_index_or_column, special_sort_cols
+
+    def deal_sort(self, df, cols_in_index_or_column, special_sort_cols, groupby):
+        if cols_in_index_or_column[0] == 'index':
+            if len(groupby) == 1:
+                col_name = cols_in_index_or_column[1][0]
+                sort_info = special_sort_cols.get(col_name)
+                r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
+                index_1 = df.index.tolist()
+                if 'All' in index_1:
+                    r_sort_info.update({'All': 'All'})
+                index_1 = [r_sort_info.get(item, item) for item in index_1]
+                df.index = Index(index_1, name=df.index.name)
+            else:
+                for item in cols_in_index_or_column[1]:
+                    ix = df.index.names.index(item)
+                    index_1 = df.index.levels[ix].tolist()
+                    sort_info = special_sort_cols.get(item)
+                    r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
+                    if 'All' in index_1:
+                        r_sort_info.update({'All': 'All'})
+
+                    index_1 = [r_sort_info.get(item, item) for item in index_1]
+                    df.index = df.index.set_levels(index_1, level=ix)
+        else:
+            for item in cols_in_index_or_column[1]:
+                ix = df.columns.names.index(item)
+                col_1 = df.columns.levels[ix].tolist()
+                sort_info = special_sort_cols.get(item)
+                r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
+                if 'All' in col_1:
+                    r_sort_info.update({'All': 'All'})
+                col_1 = [r_sort_info.get(item, item) for item in col_1]
+                df.columns = df.columns.set_levels(col_1, level=ix)
+
+        return df
+
 
 class TableViz(BaseViz):
 
@@ -765,23 +817,6 @@ class PivotTableViz(BaseViz):
                     'table-condensed table-hover').split(' ')),
         )
 
-    def get_special_sort_data(self, groupby, columns):
-        # 获取需要特殊处理的字段的信息
-        special_sort_cols = None
-        cols_in_index_or_column = None     # 判断特殊排序字段在index还是column中
-        if self.datasource.has_special_sort_cols:
-            # 获取表需要处理的特殊字段信息
-            special_sort_cols = self.datasource.get_sort_columns()  # {"grade_name": {}}
-
-            if special_sort_cols:
-                i_intersection = list(set(groupby) & set(special_sort_cols.keys()))
-                c_intersection = list(set(columns) & set(special_sort_cols.keys()))
-                if i_intersection:
-                    cols_in_index_or_column = ('index', i_intersection)
-                elif c_intersection:
-                    cols_in_index_or_column = ('column', c_intersection)
-        return cols_in_index_or_column, special_sort_cols
-
     def deal_groupby_sum(self, df, groupby):
         """
         分别对分类进行求和
@@ -808,47 +843,6 @@ class PivotTableViz(BaseViz):
                 new_df = pd.concat([new_df, df.ix[["All"]]])
             df = new_df
 
-        # a = df.index
-        # if type(df.columns) == MultiIndex:
-        #     df = df.reindex(index=a, columns=df[self.form_data.get('metrics')].columns)
-        # else:
-        #     df = df.reindex(index=a, columns=self.form_data.get('metrics'))
-        #
-
-        return df
-
-    def deal_sort(self, df, cols_in_index_or_column, special_sort_cols, groupby):
-        if cols_in_index_or_column[0] == 'index':
-            if len(groupby) == 1:
-                col_name = cols_in_index_or_column[1][0]
-                sort_info = special_sort_cols.get(col_name)
-                r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
-                index_1 = df.index.tolist()
-                if 'All' in index_1:
-                    r_sort_info.update({'All': 'All'})
-                index_1 = [r_sort_info.get(item, item) for item in index_1]
-                df.index = Index(index_1, name=df.index.name)
-            else:
-                for item in cols_in_index_or_column[1]:
-                    ix = df.index.names.index(item)
-                    index_1 = df.index.levels[ix].tolist()
-                    sort_info = special_sort_cols.get(item)
-                    r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
-                    if 'All' in index_1:
-                        r_sort_info.update({'All': 'All'})
-
-                    index_1 = [r_sort_info.get(item, item) for item in index_1]
-                    df.index = df.index.set_levels(index_1, level=ix)
-        else:
-            for item in cols_in_index_or_column[1]:
-                ix = df.columns.names.index(item)
-                col_1 = df.columns.levels[ix].tolist()
-                sort_info = special_sort_cols.get(item)
-                r_sort_info = {v: k for k, v in zip(sort_info.keys(), sort_info.values())}
-                if 'All' in col_1:
-                    r_sort_info.update({'All': 'All'})
-                col_1 = [r_sort_info.get(item, item) for item in col_1]
-                df.columns = df.columns.set_levels(col_1, level=ix)
         return df
 
 
@@ -1649,17 +1643,26 @@ class DistributionBarViz(DistributionPieViz):
         else:
             index=self.reorder_columns(index)
             columns=self.reorder_columns(columns,type=2)
-        row = df.groupby(self.groupby).sum()[self.metrics[0]].copy()
-        # row.sort_values(ascending=False, inplace=True)
+
+        cols_in_index_or_column, special_sort_cols = self.get_special_sort_data(index, columns)
+
+        if cols_in_index_or_column:
+            for col in cols_in_index_or_column[1]:
+                df[col] = df[col].replace(special_sort_cols.get(col))  # 替换df
+
         pt = df.pivot_table(
             index=index,
             columns=columns,
             values=self.metrics)
+
+        if cols_in_index_or_column:   # 特殊字段排序
+            pt = self.deal_sort(pt, cols_in_index_or_column, special_sort_cols, index)
+
         if fd.get('contribution'):
             pt = pt.fillna(0)
             pt = pt.T
             pt = (pt / pt.sum()).T
-        pt = pt.reindex(row.index)
+
         chart_data = []
         for name, ys in pt.items():
             if pt[name].dtype.kind not in 'biufc' or name in self.groupby:
@@ -1671,6 +1674,7 @@ class DistributionBarViz(DistributionPieViz):
             else:
                 l = [str(s) for s in name[1:]]  # noqa: E741
                 series_title = ', '.join(l)
+
             values = []
             for i, v in ys.items():
                 x = i
