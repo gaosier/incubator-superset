@@ -1655,7 +1655,7 @@ class DistributionBarViz(DistributionPieViz):
             columns=columns,
             values=self.metrics)
 
-        if not columns:
+        if not columns and not cols_in_index_or_column:
             pt.sort_values(self.metrics[0], inplace=True, ascending=True)
 
         if cols_in_index_or_column:   # 特殊字段排序
