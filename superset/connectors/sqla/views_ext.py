@@ -1,4 +1,5 @@
 # -*-coding:utf-8-*-
+import json
 from flask import request
 from flask_appbuilder.views import GeneralView,ModelView,MasterDetailView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
@@ -8,7 +9,7 @@ from superset import appbuilder
 from . import models,models_ext
 from .views import TableModelView,TableColumnInlineView,SqlMetricInlineView
 from superset.views.core_ext import TableColumnFilter
-from superset.views.core import check_ownership
+from superset.views.core import check_ownership, json_success, json_error_response
 
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access
@@ -87,6 +88,16 @@ class TableGroupView(MasterDetailView):
     base_order = ('sort_id', 'asc')
 
     list_columns = ['name']
+
+    @expose('/menu/<int:parent_id>/')
+    def menus(self, parent_id):
+        """
+        获取数据集分类
+        """
+        if parent_id is None:
+            return json_error_response(u"参数paren_id为空")
+        data = models_ext.SqlTableGroup.get_group_menus(parent_id)
+        return json_success(json.dumps({"data": data}))
 
 
 appbuilder.add_view(
