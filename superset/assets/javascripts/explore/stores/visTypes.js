@@ -298,6 +298,243 @@ export const visTypes = {
     },
   },
 
+  bubble: {
+    label: t('Bubble Chart'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['series', 'entity'],
+          ['limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['show_legend', null],
+        ],
+      },
+      {
+        label: t('Bubbles'),
+        controlSetRows: [
+          ['size', 'max_bubble_size'],
+        ],
+      },
+      {
+        label: t('X Axis'),
+        expanded: true,
+        controlSetRows: [
+          ['x_axis_label', 'left_margin'],
+          ['x', 'x_axis_format'],
+          ['x_log_scale', 'x_axis_showminmax'],
+        ],
+      },
+      {
+        label: t('Y Axis'),
+        expanded: true,
+        controlSetRows: [
+          ['y_axis_label', 'bottom_margin'],
+          ['y', 'y_axis_format'],
+          ['y_log_scale', 'y_axis_showminmax'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      x_axis_format: {
+        default: '.3s',
+      },
+      color_scheme: {
+        renderTrigger: false,
+      },
+    },
+  },
+
+  box_plot: {
+    label: t('Box Plot'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metrics'],
+          ['groupby', 'limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['whisker_options'],
+        ],
+      },
+    ],
+  },
+
+  treemap: {
+    label: t('Treemap'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metrics'],
+          ['groupby'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['treemap_ratio'],
+          ['number_format'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      color_scheme: {
+        renderTrigger: false,
+      },
+    },
+  },
+  sunburst: {
+    label: t('Sunburst'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby'],
+          ['metric', 'secondary_metric'],
+          ['row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      metric: {
+        label: t('Primary Metric'),
+        description: t('The primary metric is used to define the arc segment sizes'),
+      },
+      secondary_metric: {
+        label: t('Secondary Metric'),
+        default: null,
+        description: t('[optional] this secondary metric is used to ' +
+        'define the color as a ratio against the primary metric. ' +
+        'When omitted, the color is categorical and based on labels'),
+      },
+      groupby: {
+        label: t('Hierarchy'),
+        description: t('This defines the level of the hierarchy'),
+      },
+    },
+  },
+
+  sankey: {
+    label: t('Sankey'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby'],
+          ['metric'],
+          ['row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      groupby: {
+        label: t('Source / Target'),
+        description: t('Choose a source and a target'),
+      },
+    },
+  },
+
+  directed_force: {
+    label: t('Directed Force Layout'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby'],
+          ['metric'],
+          ['row_limit'],
+        ],
+      },
+      {
+        label: t('Options'),
+        controlSetRows: [
+          ['link_length'],
+          ['charge'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      groupby: {
+        label: t('Source / Target'),
+        description: t('Choose a source and a target'),
+      },
+    },
+  },
+  chord: {
+    label: t('Chord Diagram'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby', 'columns'],
+          ['metric', 'row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['y_axis_format', null],
+          ['color_scheme'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      y_axis_format: {
+        label: t('Number format'),
+        description: t('Choose a number format'),
+      },
+      groupby: {
+        label: t('Source'),
+        multi: false,
+        validators: [v.nonEmpty],
+        description: t('Choose a source'),
+      },
+      columns: {
+        label: t('Target'),
+        multi: false,
+        validators: [v.nonEmpty],
+        description: t('Choose a target'),
+      },
+    },
+  },
+
   time_pivot: {
     label: t('Time Series - Periodicity Pivot'),
     showOnExplore: true,
@@ -922,34 +1159,6 @@ export const visTypes = {
     ],
   },
 
-  treemap: {
-    label: t('Treemap'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metrics'],
-          ['groupby'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-          ['treemap_ratio'],
-          ['number_format'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      color_scheme: {
-        renderTrigger: false,
-      },
-    },
-  },
-
   cal_heatmap: {
     label: t('Calendar Heatmap'),
     requiresTime: true,
@@ -969,82 +1178,6 @@ export const visTypes = {
         ],
       },
     ],
-  },
-
-  box_plot: {
-    label: t('Box Plot'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metrics'],
-          ['groupby', 'limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-          ['whisker_options'],
-        ],
-      },
-    ],
-  },
-
-  bubble: {
-    label: t('Bubble Chart'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['series', 'entity'],
-          ['size', 'limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-          ['show_legend', null],
-        ],
-      },
-      {
-        label: t('Bubbles'),
-        controlSetRows: [
-          ['size', 'max_bubble_size'],
-        ],
-      },
-      {
-        label: t('X Axis'),
-        expanded: true,
-        controlSetRows: [
-          ['x_axis_label', 'left_margin'],
-          ['x', 'x_axis_format'],
-          ['x_log_scale', 'x_axis_showminmax'],
-        ],
-      },
-      {
-        label: t('Y Axis'),
-        expanded: true,
-        controlSetRows: [
-          ['y_axis_label', 'bottom_margin'],
-          ['y', 'y_axis_format'],
-          ['y_log_scale', 'y_axis_showminmax'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      x_axis_format: {
-        default: '.3s',
-      },
-      color_scheme: {
-        renderTrigger: false,
-      },
-    },
   },
 
   bullet: {
@@ -1158,139 +1291,6 @@ export const visTypes = {
     },
   },
 
-  sunburst: {
-    label: t('Sunburst'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metric', 'secondary_metric'],
-          ['row_limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      metric: {
-        label: t('Primary Metric'),
-        description: t('The primary metric is used to define the arc segment sizes'),
-      },
-      secondary_metric: {
-        label: t('Secondary Metric'),
-        default: null,
-        description: t('[optional] this secondary metric is used to ' +
-        'define the color as a ratio against the primary metric. ' +
-        'When omitted, the color is categorical and based on labels'),
-      },
-      groupby: {
-        label: t('Hierarchy'),
-        description: t('This defines the level of the hierarchy'),
-      },
-    },
-  },
-
-  sankey: {
-    label: t('Sankey'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metric'],
-          ['row_limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      groupby: {
-        label: t('Source / Target'),
-        description: t('Choose a source and a target'),
-      },
-    },
-  },
-
-  directed_force: {
-    label: t('Directed Force Layout'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metric'],
-          ['row_limit'],
-        ],
-      },
-      {
-        label: t('Options'),
-        controlSetRows: [
-          ['link_length'],
-          ['charge'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      groupby: {
-        label: t('Source / Target'),
-        description: t('Choose a source and a target'),
-      },
-    },
-  },
-  chord: {
-    label: t('Chord Diagram'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby', 'columns'],
-          ['metric', 'row_limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['y_axis_format', null],
-          ['color_scheme'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      y_axis_format: {
-        label: t('Number format'),
-        description: t('Choose a number format'),
-      },
-      groupby: {
-        label: t('Source'),
-        multi: false,
-        validators: [v.nonEmpty],
-        description: t('Choose a source'),
-      },
-      columns: {
-        label: t('Target'),
-        multi: false,
-        validators: [v.nonEmpty],
-        description: t('Choose a target'),
-      },
-    },
-  },
   country_map: {
     label: t('Country Map'),
     controlPanelSections: [
