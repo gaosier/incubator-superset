@@ -289,17 +289,18 @@ export const controls = {
   },
 
   metric: {
-    type: 'MetricsControl',
+    type: 'SelectControl',
     multi: false,
     label: t('Metric'),
     labelKey: 'verbose_name', // 很重要，用于拖动排序的key值
+    valueKey: 'metric_name',
     clearable: false,
     validators: [v.nonEmpty],
-    default: c => mainMetric(c.options),
+    optionRenderer: m => <MetricOption metric={m} />,
+    valueRenderer: m => <MetricOption metric={m} />,
+    default: c => c.options && c.options.length > 0 ? c.options[0].metric_name : null,
     mapStateToProps: state => ({
-      columns: state.datasource ? state.datasource.columns : [],
-      savedMetrics: state.datasource ? state.datasource.metrics : [],
-      datasourceType: state.datasource && state.datasource.type,
+      options: (state.datasource) ? state.datasource.metrics : [],
     }),
   },
 
