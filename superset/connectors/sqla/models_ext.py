@@ -21,6 +21,11 @@ class SqlTableGroup(Model):
         query = db.session.query(cls.id, cls.name).filter(cls.parent_id == parent_id).order_by(cls.sort_id).all()
         return query
 
+    @classmethod
+    def get_name(cls, group_id):
+        query = db.session.query(cls.name).filter(cls.id == group_id).scalar()
+        return query
+
 
 class SqlTableColumnSort(Model):
     __tablename__ = 'table_column_sort'
