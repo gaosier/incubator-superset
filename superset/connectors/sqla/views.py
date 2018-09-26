@@ -369,7 +369,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
                          **args):
         group_id = filters.get_filter_value('group')
         if group_id is not None:
-            group_name = models_ext.SqlTableGroup.get_name(group_id)
+            group_name = models_ext.SqlTableGroup.name
             self.list_title = group_name
         return super(TableModelView, self)._get_list_widget(filters,
                          actions=None,
