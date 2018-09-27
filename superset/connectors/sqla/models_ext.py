@@ -18,7 +18,8 @@ class SqlTableGroup(Model):
 
     @classmethod
     def get_group_menus(cls, parent_id):
-        query = db.session.query(cls.id, cls.name).filter(cls.parent_id == parent_id).order_by(cls.sort_id).all()
+        query = db.session.query(cls.id, cls.name, cls.parent_id).filter(cls.parent_id == parent_id).\
+            order_by(cls.sort_id).all()
         return query
 
     @classmethod
