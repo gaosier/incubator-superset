@@ -2130,5 +2130,27 @@ export const controls = {
     description: t('Whether to normalize the histogram'),
     default: false,
   },
+
+  groupby_one: {
+      type: 'SelectControl',
+      label: t('Groupby One '),
+      default: c => c.choices && c.choices.length > 0 ? c.choices[0][0] : null,
+      validators: [v.nonEmpty],
+      description: t('This defines the element to be plotted on the chart'),
+      mapStateToProps: state => ({
+          choices: (state.datasource) ? state.datasource.gb_cols : [],
+      }),
+  },
+
+  column: {
+    type: 'SelectControl',
+    label: t('Column'),
+    default: c => c.choices && c.choices.length > 1 ? c.choices[1][0] : null,
+    validators: [v.nonEmpty],
+    description: t('This defines the element to be plotted on the chart'),
+    mapStateToProps: state => ({
+      choices: (state.datasource) ? state.datasource.gb_cols : [],
+    }),
+  },
 };
 export default controls;

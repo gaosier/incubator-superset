@@ -529,7 +529,7 @@ export const visTypes = {
         label: t('Query'),
         expanded: true,
         controlSetRows: [
-          ['groupby', 'columns'],
+          ['groupby_one', 'column'],
           ['metric', 'row_limit'],
         ],
       },
@@ -547,13 +547,13 @@ export const visTypes = {
         label: t('Number format'),
         description: t('Choose a number format'),
       },
-      groupby: {
+      groupby_one: {
         label: t('Source'),
         multi: false,
         validators: [v.nonEmpty],
         description: t('Choose a source'),
       },
-      columns: {
+      column: {
         label: t('Target'),
         multi: false,
         validators: [v.nonEmpty],

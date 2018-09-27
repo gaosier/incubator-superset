@@ -1655,6 +1655,10 @@ class SankeyViz(BaseViz):
 
         hierarchy = defaultdict(set)
         for row in recs:
+            if row['source'] == '':
+                row['source'] = 'undefined'
+            if row['target'] == '':
+                row['target'] = 'null'
             hierarchy[row['source']].add(row['target'])
 
         def find_cycle(g):
@@ -1714,7 +1718,7 @@ class ChordViz(BaseViz):
     def query_obj(self):
         qry = super(ChordViz, self).query_obj()
         fd = self.form_data
-        qry['groupby'] = [fd.get('groupby'), fd.get('columns')]
+        qry['groupby'] = [fd.get('groupby_one'), fd.get('column')]
         qry['metrics'] = [fd.get('metric')]
         return qry
 
