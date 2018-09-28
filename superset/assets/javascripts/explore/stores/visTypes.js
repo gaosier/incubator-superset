@@ -885,7 +885,7 @@ export const visTypes = {
         label: t('Query'),
         expanded: true,
         controlSetRows: [
-          ['metric'],
+          ['metric', 'row_limit'],
         ],
       },
       {

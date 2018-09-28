@@ -298,7 +298,7 @@ export const controls = {
     validators: [v.nonEmpty],
     optionRenderer: m => <MetricOption metric={m} />,
     valueRenderer: m => <MetricOption metric={m} />,
-    default: c => c.options && c.options.length > 0 ? c.options[0].metric_name : null,
+    default: c => c.options && c.options.length > 1 ? c.options[1].metric_name : null,
     mapStateToProps: state => ({
       options: (state.datasource) ? state.datasource.metrics : [],
     }),
