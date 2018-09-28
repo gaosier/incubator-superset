@@ -1115,6 +1115,12 @@ class BubbleViz(NVD3Viz):
         df['shape'] = 'circle'
         df['group'] = df[[self.series]]
 
+        print("df: ", df)
+
+        # df.columns = self.get_col_verbose_name(df.columns)
+
+        print("new df: ", df)
+
         series = defaultdict(list)
         for row in df.to_dict(orient='records'):
             series[row['group']].append(row)
@@ -1123,7 +1129,13 @@ class BubbleViz(NVD3Viz):
             chart_data.append({
                 'key': k,
                 'values': v})
+        print("chart_data: ", chart_data)
         return chart_data
+
+    def get_col_verbose_name(self, columns):
+        col_names = {col.column_name: col.verbose_name or col.column_name for col in self.datasource.columns}
+        col_names.update({col.metric_name: col.verbose_name or col.metric_name for col in self.datasource.metrics})
+        return [col_names.get(name) or name for name in columns]
 
 
 class BulletViz(NVD3Viz):
@@ -1700,7 +1712,7 @@ class DistributionBarViz(DistributionPieViz):
 
 class SunburstViz(BaseViz):
 
-    """A multi level sunburst chart"""
+    """A multi level sunburst chart 环状层次图"""
 
     viz_type = 'sunburst'
     verbose_name = _('Sunburst')
@@ -1752,6 +1764,10 @@ class SankeyViz(BaseViz):
 
         hierarchy = defaultdict(set)
         for row in recs:
+            if row['source'] == '':
+                row['source'] = 'undefined'
+            if row['target'] == '':
+                row['target'] = 'null'
             hierarchy[row['source']].add(row['target'])
 
         def find_cycle(g):
@@ -1811,7 +1827,7 @@ class ChordViz(BaseViz):
     def query_obj(self):
         qry = super(ChordViz, self).query_obj()
         fd = self.form_data
-        qry['groupby'] = [fd.get('groupby'), fd.get('columns')]
+        qry['groupby'] = [fd.get('groupby_one'), fd.get('column')]
         qry['metrics'] = [fd.get('metric')]
         return qry
 

@@ -289,17 +289,18 @@ export const controls = {
   },
 
   metric: {
-    type: 'MetricsControl',
+    type: 'SelectControl',
     multi: false,
     label: t('Metric'),
     labelKey: 'verbose_name', // 很重要，用于拖动排序的key值
+    valueKey: 'metric_name',
     clearable: false,
     validators: [v.nonEmpty],
-    default: c => mainMetric(c.options),
+    optionRenderer: m => <MetricOption metric={m} />,
+    valueRenderer: m => <MetricOption metric={m} />,
+    default: c => c.options && c.options.length > 1 ? c.options[1].metric_name : null,
     mapStateToProps: state => ({
-      columns: state.datasource ? state.datasource.columns : [],
-      savedMetrics: state.datasource ? state.datasource.metrics : [],
-      datasourceType: state.datasource && state.datasource.type,
+      options: (state.datasource) ? state.datasource.metrics : [],
     }),
   },
 
@@ -772,7 +773,7 @@ export const controls = {
     freeForm: true,
     label: t('Left Margin'),
     choices: formatSelectOptions(['auto', 50, 75, 100, 125, 150, 200]),
-    default: 'auto',
+    default: 50,
     renderTrigger: true,
     description: t('Left margin, in pixels, allowing for more room for axis labels'),
   },
@@ -985,6 +986,7 @@ export const controls = {
     freeForm: true,
     label: t('Series limit'),
     validators: [v.integer],
+    default: 10,
     choices: formatSelectOptions(SERIES_LIMITS),
     description: t(
       'Limits the number of time series that get displayed. A sub query ' +
@@ -1059,7 +1061,7 @@ export const controls = {
   series: {
     type: 'SelectControl',
     label: t('Series'),
-    default: null,
+    default: c => c.choices && c.choices.length > 0 ? c.choices[0][0] : null,
     description: t('Defines the grouping of entities. ' +
     'Each series is shown as a specific color on the chart and ' +
     'has a legend toggle'),
@@ -1071,7 +1073,7 @@ export const controls = {
   entity: {
     type: 'SelectControl',
     label: t('Entity'),
-    default: null,
+    default: c => c.choices && c.choices.length > 0 ? c.choices[0][0] : null,
     validators: [v.nonEmpty],
     description: t('This defines the element to be plotted on the chart'),
     mapStateToProps: state => ({
@@ -1083,7 +1085,7 @@ export const controls = {
     type: 'SelectControl',
     label: t('X Axis'),
     description: t('Metric assigned to the [X] axis'),
-    default: null,
+    default: c => c.options && c.options.length > 0 ? c.options[0].metric_name : null,
     validators: [v.nonEmpty],
     optionRenderer: m => <MetricOption metric={m} showType />,
     valueRenderer: m => <MetricOption metric={m} />,
@@ -1096,7 +1098,7 @@ export const controls = {
   y: {
     type: 'SelectControl',
     label: t('Y Axis'),
-    default: null,
+    default: c => c.options && c.options.length > 1 ? c.options[1].metric_name : null,
     validators: [v.nonEmpty],
     description: t('Metric assigned to the [Y] axis'),
     optionRenderer: m => <MetricOption metric={m} showType />,
@@ -1110,7 +1112,7 @@ export const controls = {
   size: {
     type: 'SelectControl',
     label: t('Bubble Size'),
-    default: null,
+    default: c => c.options && c.options.length > 2 ? c.options[2].metric_name : null,
     validators: [v.nonEmpty],
     optionRenderer: m => <MetricOption metric={m} showType />,
     valueRenderer: m => <MetricOption metric={m} />,
@@ -2128,18 +2130,43 @@ export const controls = {
     description: t('Whether to normalize the histogram'),
     default: false,
   },
+
   pandas_fill_column: {          // customer add fill column
-    type: 'SelectControl',
-    label: t('Fill Column'),
-    clearable: false,
-    choices: formatSelectOptions([
-      '',
-      '0',
-      '-',
-      'NA',
-    ]),
-    default: '',
-    description: t('fill pandas column'),
+      type: 'SelectControl',
+      label: t('Fill Column'),
+      clearable: false,
+      choices: formatSelectOptions([
+          '',
+          '0',
+          '-',
+          'NA',
+      ]),
+      default: '',
+      description: t('fill pandas column'),
   },
+
+  groupby_one: {
+      type: 'SelectControl',
+      label: t('Groupby One '),
+      default: c => c.choices && c.choices.length > 0 ? c.choices[0][0] : null,
+      validators: [v.nonEmpty],
+      description: t('This defines the element to be plotted on the chart'),
+      mapStateToProps: state => ({
+          choices: (state.datasource) ? state.datasource.gb_cols : [],
+      }),
+  },
+
+  column: {
+    type: 'SelectControl',
+    label: t('Column'),
+    default: c => c.choices && c.choices.length > 1 ? c.choices[1][0] : null,
+    validators: [v.nonEmpty],
+    description: t('This defines the element to be plotted on the chart'),
+    mapStateToProps: state => ({
+      choices: (state.datasource) ? state.datasource.gb_cols : [],
+    }),
+
+  },
+
 };
 export default controls;

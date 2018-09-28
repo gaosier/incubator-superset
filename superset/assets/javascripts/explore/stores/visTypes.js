@@ -256,6 +256,270 @@ export const visTypes = {
     },
   },
 
+  bubble: {
+    label: t('Bubble Chart'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['series', 'entity'],
+          ['limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['show_legend', null],
+        ],
+      },
+      {
+        label: t('Bubbles'),
+        controlSetRows: [
+          ['size', 'max_bubble_size'],
+        ],
+      },
+      {
+        label: t('X Axis'),
+        expanded: true,
+        controlSetRows: [
+          ['x_axis_label', 'left_margin'],
+          ['x', 'x_axis_format'],
+          ['x_log_scale', 'x_axis_showminmax'],
+        ],
+      },
+      {
+        label: t('Y Axis'),
+        expanded: true,
+        controlSetRows: [
+          ['y_axis_label', 'bottom_margin'],
+          ['y', 'y_axis_format'],
+          ['y_log_scale', 'y_axis_showminmax'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      x_axis_format: {
+        default: '.3s',
+      },
+      color_scheme: {
+        renderTrigger: false,
+      },
+    },
+  },
+
+  box_plot: {
+    label: t('Box Plot'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metrics'],
+          ['groupby', 'limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['whisker_options'],
+        ],
+      },
+    ],
+  },
+
+  treemap: {
+    label: t('Treemap'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metrics'],
+          ['groupby', 'row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['treemap_ratio'],
+          ['number_format'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      color_scheme: {
+        renderTrigger: false,
+      },
+    },
+  },
+  sunburst: {
+    label: t('Sunburst'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby'],
+          ['metric', 'secondary_metric'],
+          ['row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      metric: {
+        label: t('Primary Metric'),
+        description: t('The primary metric is used to define the arc segment sizes'),
+      },
+      secondary_metric: {
+        label: t('Secondary Metric'),
+        default: null,
+        description: t('[optional] this secondary metric is used to ' +
+        'define the color as a ratio against the primary metric. ' +
+        'When omitted, the color is categorical and based on labels'),
+      },
+      groupby: {
+        label: t('Hierarchy'),
+        description: t('This defines the level of the hierarchy'),
+      },
+    },
+  },
+
+  partition: {
+    label: t('Partition Diagram'),
+    showOnExplore: true,
+    controlPanelSections: [
+      sections.NVD3TimeSeries[0],
+      {
+        label: t('Time Series Options'),
+        expanded: true,
+        controlSetRows: [
+          ['time_series_option'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['number_format', 'date_time_format'],
+          ['partition_limit', 'partition_threshold'],
+          ['log_scale', 'equal_date_size'],
+          ['rich_tooltip'],
+        ],
+      },
+      sections.NVD3TimeSeries[1],
+    ],
+  },
+
+  sankey: {
+    label: t('Sankey'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby'],
+          ['metric'],
+          ['row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      groupby: {
+        label: t('Source / Target'),
+        description: t('Choose a source and a target'),
+      },
+    },
+  },
+
+  directed_force: {
+    label: t('Directed Force Layout'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby'],
+          ['metric'],
+          ['row_limit'],
+        ],
+      },
+      {
+        label: t('Options'),
+        controlSetRows: [
+          ['link_length'],
+          ['charge'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      groupby: {
+        label: t('Source / Target'),
+        description: t('Choose a source and a target'),
+      },
+    },
+  },
+  chord: {
+    label: t('Chord Diagram'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby_one', 'column'],
+          ['metric', 'row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['y_axis_format', null],
+          ['color_scheme'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      y_axis_format: {
+        label: t('Number format'),
+        description: t('Choose a number format'),
+      },
+      groupby_one: {
+        label: t('Source'),
+        multi: false,
+        validators: [v.nonEmpty],
+        description: t('Choose a source'),
+      },
+      column: {
+        label: t('Target'),
+        multi: false,
+        validators: [v.nonEmpty],
+        description: t('Choose a target'),
+      },
+    },
+  },
+
   line: {
     label: t('Time Series - Line Chart'),
     showOnExplore: true,
@@ -447,6 +711,225 @@ export const visTypes = {
       x_axis_format: {
         choices: D3_TIME_FORMAT_OPTIONS,
         default: 'smart_date',
+      },
+    },
+  },
+
+  area: {
+    label: t('Time Series - Stacked'),
+    requiresTime: true,
+    controlPanelSections: [
+      sections.NVD3TimeSeries[0],
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['show_brush', 'show_legend'],
+          ['line_interpolation', 'stacked_style'],
+          ['color_scheme'],
+          ['rich_tooltip', 'show_controls'],
+        ],
+      },
+      {
+        label: t('Axes'),
+        expanded: true,
+        controlSetRows: [
+          ['x_axis_format', 'x_axis_showminmax'],
+          ['y_axis_format', 'y_axis_bounds'],
+          ['y_log_scale', null],
+        ],
+      },
+      sections.NVD3TimeSeries[1],
+      sections.annotations,
+    ],
+    controlOverrides: {
+      x_axis_format: {
+        default: 'smart_date',
+        choices: D3_TIME_FORMAT_OPTIONS,
+      },
+      color_scheme: {
+        renderTrigger: false,
+      },
+    },
+  },
+
+  time_table: {
+    label: t('Time Series Table'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby', 'metrics'],
+          ['limit'],
+          ['column_collection'],
+          ['url'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      groupby: {
+        multiple: false,
+      },
+      url: {
+        description: t(
+          "Templated link, it's possible to include {{ metric }} " +
+          'or other values coming from the controls.'),
+      },
+    },
+  },
+
+  histogram: {
+    label: t('Histogram'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['all_columns_x'],
+          ['row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['link_length'],
+          ['x_axis_label', 'y_axis_label'],
+          ['normalized'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      all_columns_x: {
+        label: t('Numeric Column'),
+        description: t('Select the numeric column to draw the histogram'),
+      },
+      link_length: {
+        label: t('No of Bins'),
+        description: t('Select number of bins for the histogram'),
+        default: 5,
+      },
+    },
+  },
+
+  paired_ttest: {
+    label: t('Time Series - Paired t-test'),
+    showOnExplore: true,
+    requiresTime: true,
+    controlPanelSections: [
+      sections.NVD3TimeSeries[0],
+      {
+        label: t('Paired t-test'),
+        expanded: false,
+        controlSetRows: [
+          ['significance_level'],
+          ['pvalue_precision'],
+          ['liftvalue_precision'],
+        ],
+      },
+    ],
+  },
+
+  word_cloud: {
+    label: t('Word Cloud'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['series', 'metric'],
+          ['row_limit', null],
+        ],
+      },
+      {
+        label: t('Options'),
+        controlSetRows: [
+          ['size_from', 'size_to'],
+          ['rotation'],
+          ['color_scheme'],
+        ],
+      },
+    ],
+  },
+
+  big_number: {
+    label: t('Big Number with Trendline'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metric'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['compare_lag', 'compare_suffix'],
+          ['y_axis_format', null],
+        ],
+      },
+    ],
+    controlOverrides: {
+      y_axis_format: {
+        label: t('Number format'),
+      },
+    },
+  },
+
+  big_number_total: {
+    label: t('Big Number'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metric', 'row_limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['subheader'],
+          ['y_axis_format'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      y_axis_format: {
+        label: t('Number format'),
+      },
+    },
+  },
+
+  filter_box: {
+    label: t('Filter Box'),
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['groupby'],
+          ['metric'],
+          ['date_filter', 'instant_filtering'],
+          ['show_sqla_time_granularity', 'show_sqla_time_column'],
+          ['show_druid_time_granularity', 'show_druid_time_origin'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      groupby: {
+        label: t('Filter controls'),
+        description: t(
+          'The controls you want to filter on. Note that only columns ' +
+          'checked as "filterable" will show up on this list.'),
+        mapStateToProps: state => ({
+          options: (state.datasource) ? state.datasource.columns.filter(c => c.filterable) : [],
+        }),
       },
     },
   },
@@ -803,69 +1286,6 @@ export const visTypes = {
     },
   },
 
-  area: {
-    label: t('Time Series - Stacked'),
-    requiresTime: true,
-    controlPanelSections: [
-      sections.NVD3TimeSeries[0],
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['show_brush', 'show_legend'],
-          ['line_interpolation', 'stacked_style'],
-          ['color_scheme'],
-          ['rich_tooltip', 'show_controls'],
-        ],
-      },
-      {
-        label: t('Axes'),
-        expanded: true,
-        controlSetRows: [
-          ['x_axis_format', 'x_axis_showminmax'],
-          ['y_axis_format', 'y_axis_bounds'],
-          ['y_log_scale', null],
-        ],
-      },
-      sections.NVD3TimeSeries[1],
-      sections.annotations,
-    ],
-    controlOverrides: {
-      x_axis_format: {
-        default: 'smart_date',
-        choices: D3_TIME_FORMAT_OPTIONS,
-      },
-      color_scheme: {
-        renderTrigger: false,
-      },
-    },
-  },
-  time_table: {
-    label: t('Time Series Table'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby', 'metrics'],
-          ['limit'],
-          ['column_collection'],
-          ['url'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      groupby: {
-        multiple: false,
-      },
-      url: {
-        description: t(
-          "Templated link, it's possible to include {{ metric }} " +
-          'or other values coming from the controls.'),
-      },
-    },
-  },
-
   markup: {
     label: t('Markup'),
     controlPanelSections: [
@@ -902,56 +1322,6 @@ export const visTypes = {
     },
   },
 
-  word_cloud: {
-    label: t('Word Cloud'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['series', 'metric'],
-          ['row_limit', null],
-        ],
-      },
-      {
-        label: t('Options'),
-        controlSetRows: [
-          ['size_from', 'size_to'],
-          ['rotation'],
-          ['color_scheme'],
-        ],
-      },
-    ],
-  },
-
-  treemap: {
-    label: t('Treemap'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metrics'],
-          ['groupby'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-          ['treemap_ratio'],
-          ['number_format'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      color_scheme: {
-        renderTrigger: false,
-      },
-    },
-  },
-
   cal_heatmap: {
     label: t('Calendar Heatmap'),
     requiresTime: true,
@@ -971,82 +1341,6 @@ export const visTypes = {
         ],
       },
     ],
-  },
-
-  box_plot: {
-    label: t('Box Plot'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metrics'],
-          ['groupby', 'limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-          ['whisker_options'],
-        ],
-      },
-    ],
-  },
-
-  bubble: {
-    label: t('Bubble Chart'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['series', 'entity'],
-          ['size', 'limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-          ['show_legend', null],
-        ],
-      },
-      {
-        label: t('Bubbles'),
-        controlSetRows: [
-          ['size', 'max_bubble_size'],
-        ],
-      },
-      {
-        label: t('X Axis'),
-        expanded: true,
-        controlSetRows: [
-          ['x_axis_label', 'left_margin'],
-          ['x', 'x_axis_format'],
-          ['x_log_scale', 'x_axis_showminmax'],
-        ],
-      },
-      {
-        label: t('Y Axis'),
-        expanded: true,
-        controlSetRows: [
-          ['y_axis_label', 'bottom_margin'],
-          ['y', 'y_axis_format'],
-          ['y_log_scale', 'y_axis_showminmax'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      x_axis_format: {
-        default: '.3s',
-      },
-      color_scheme: {
-        renderTrigger: false,
-      },
-    },
   },
 
   bullet: {
@@ -1073,226 +1367,6 @@ export const visTypes = {
     ],
   },
 
-  big_number: {
-    label: t('Big Number with Trendline'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metric'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['compare_lag', 'compare_suffix'],
-          ['y_axis_format', null],
-        ],
-      },
-    ],
-    controlOverrides: {
-      y_axis_format: {
-        label: t('Number format'),
-      },
-    },
-  },
-
-  big_number_total: {
-    label: t('Big Number'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metric'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['subheader'],
-          ['y_axis_format'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      y_axis_format: {
-        label: t('Number format'),
-      },
-    },
-  },
-
-  histogram: {
-    label: t('Histogram'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['all_columns_x'],
-          ['row_limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-          ['link_length'],
-          ['x_axis_label', 'y_axis_label'],
-          ['normalized'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      all_columns_x: {
-        label: t('Numeric Column'),
-        description: t('Select the numeric column to draw the histogram'),
-      },
-      link_length: {
-        label: t('No of Bins'),
-        description: t('Select number of bins for the histogram'),
-        default: 5,
-      },
-    },
-  },
-
-  sunburst: {
-    label: t('Sunburst'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metric', 'secondary_metric'],
-          ['row_limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      metric: {
-        label: t('Primary Metric'),
-        description: t('The primary metric is used to define the arc segment sizes'),
-      },
-      secondary_metric: {
-        label: t('Secondary Metric'),
-        default: null,
-        description: t('[optional] this secondary metric is used to ' +
-        'define the color as a ratio against the primary metric. ' +
-        'When omitted, the color is categorical and based on labels'),
-      },
-      groupby: {
-        label: t('Hierarchy'),
-        description: t('This defines the level of the hierarchy'),
-      },
-    },
-  },
-
-  sankey: {
-    label: t('Sankey'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metric'],
-          ['row_limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      groupby: {
-        label: t('Source / Target'),
-        description: t('Choose a source and a target'),
-      },
-    },
-  },
-
-  directed_force: {
-    label: t('Directed Force Layout'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metric'],
-          ['row_limit'],
-        ],
-      },
-      {
-        label: t('Options'),
-        controlSetRows: [
-          ['link_length'],
-          ['charge'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      groupby: {
-        label: t('Source / Target'),
-        description: t('Choose a source and a target'),
-      },
-    },
-  },
-  chord: {
-    label: t('Chord Diagram'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby', 'columns'],
-          ['metric', 'row_limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['y_axis_format', null],
-          ['color_scheme'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      y_axis_format: {
-        label: t('Number format'),
-        description: t('Choose a number format'),
-      },
-      groupby: {
-        label: t('Source'),
-        multi: false,
-        validators: [v.nonEmpty],
-        description: t('Choose a source'),
-      },
-      columns: {
-        label: t('Target'),
-        multi: false,
-        validators: [v.nonEmpty],
-        description: t('Choose a target'),
-      },
-    },
-  },
   country_map: {
     label: t('Country Map'),
     controlPanelSections: [
@@ -1360,34 +1434,6 @@ export const visTypes = {
       secondary_metric: {
         label: t('Bubble size'),
         description: t('Metric that defines the size of the bubble'),
-      },
-    },
-  },
-
-  filter_box: {
-    label: t('Filter Box'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['groupby'],
-          ['metric'],
-          ['date_filter', 'instant_filtering'],
-          ['show_sqla_time_granularity', 'show_sqla_time_column'],
-          ['show_druid_time_granularity', 'show_druid_time_origin'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      groupby: {
-        label: t('Filter controls'),
-        description: t(
-          'The controls you want to filter on. Note that only columns ' +
-          'checked as "filterable" will show up on this list.'),
-        mapStateToProps: state => ({
-          options: (state.datasource) ? state.datasource.columns.filter(c => c.filterable) : [],
-        }),
       },
     },
   },
@@ -1602,24 +1648,6 @@ export const visTypes = {
     },
   },
 
-  paired_ttest: {
-    label: t('Time Series - Paired t-test'),
-    showOnExplore: true,
-    requiresTime: true,
-    controlPanelSections: [
-      sections.NVD3TimeSeries[0],
-      {
-        label: t('Paired t-test'),
-        expanded: false,
-        controlSetRows: [
-          ['significance_level'],
-          ['pvalue_precision'],
-          ['liftvalue_precision'],
-        ],
-      },
-    ],
-  },
-
   rose: {
     label: t('Time Series - Nightingale Rose Chart'),
     showOnExplore: true,
@@ -1633,33 +1661,6 @@ export const visTypes = {
           ['color_scheme'],
           ['number_format', 'date_time_format'],
           ['rich_tooltip', 'rose_area_proportion'],
-        ],
-      },
-      sections.NVD3TimeSeries[1],
-    ],
-  },
-
-  partition: {
-    label: 'Partition Diagram',
-    showOnExplore: true,
-    controlPanelSections: [
-      sections.NVD3TimeSeries[0],
-      {
-        label: t('Time Series Options'),
-        expanded: true,
-        controlSetRows: [
-          ['time_series_option'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['color_scheme'],
-          ['number_format', 'date_time_format'],
-          ['partition_limit', 'partition_threshold'],
-          ['log_scale', 'equal_date_size'],
-          ['rich_tooltip'],
         ],
       },
       sections.NVD3TimeSeries[1],
