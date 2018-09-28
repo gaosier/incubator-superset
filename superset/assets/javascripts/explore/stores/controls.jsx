@@ -1073,7 +1073,7 @@ export const controls = {
   entity: {
     type: 'SelectControl',
     label: t('Entity'),
-    default: c => c.choices && c.choices.length > 0 ? c.choices[0][0] : null,
+    default: c => c.choices && c.choices.length > 0 ? c.choices[1][0] : null,
     validators: [v.nonEmpty],
     description: t('This defines the element to be plotted on the chart'),
     mapStateToProps: state => ({

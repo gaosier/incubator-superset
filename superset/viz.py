@@ -1115,11 +1115,7 @@ class BubbleViz(NVD3Viz):
         df['shape'] = 'circle'
         df['group'] = df[[self.series]]
 
-        print("df: ", df)
-
         # df.columns = self.get_col_verbose_name(df.columns)
-
-        print("new df: ", df)
 
         series = defaultdict(list)
         for row in df.to_dict(orient='records'):
@@ -1129,7 +1125,6 @@ class BubbleViz(NVD3Viz):
             chart_data.append({
                 'key': k,
                 'values': v})
-        print("chart_data: ", chart_data)
         return chart_data
 
     def get_col_verbose_name(self, columns):
