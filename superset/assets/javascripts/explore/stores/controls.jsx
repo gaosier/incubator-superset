@@ -1061,7 +1061,7 @@ export const controls = {
   series: {
     type: 'SelectControl',
     label: t('Series'),
-    default: null,
+    default: c => c.choices && c.choices.length > 0 ? c.choices[0][0] : null,
     description: t('Defines the grouping of entities. ' +
     'Each series is shown as a specific color on the chart and ' +
     'has a legend toggle'),
