@@ -870,6 +870,8 @@ export const visTypes = {
         controlSetRows: [
           ['compare_lag', 'compare_suffix'],
           ['y_axis_format', null],
+          ['show_trend_line', 'start_y_axis_at_zero'],
+          ['color_picker', null],
         ],
       },
     ],
