@@ -1307,16 +1307,17 @@ class NVD3TimeSeriesViz(NVD3Viz):
         df = df.fillna(0)
         if fd.get('granularity') == 'all':
             raise Exception(_('Pick a time granularity for your time series'))
+
         if not aggregate:
             df = df.pivot_table(
                 index=DTTM_ALIAS,
                 columns=fd.get('groupby'),
-                values=utils.get_metric_names(fd.get('metrics')))
+                values=utils.get_metric_names(fd.get('metrics') or [fd.get('metric')]))
         else:
             df = df.pivot_table(
                 index=DTTM_ALIAS,
                 columns=fd.get('groupby'),
-                values=utils.get_metric_names(fd.get('metrics')),
+                values=utils.get_metric_names(fd.get('metrics') or [fd.get('metric')]),
                 fill_value=0,
                 aggfunc=sum)
 

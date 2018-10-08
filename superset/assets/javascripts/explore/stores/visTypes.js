@@ -574,6 +574,7 @@ export const visTypes = {
         expanded: true,
         controlSetRows: [
           ['metric', 'freq'],
+          ['row_limit'],
         ],
       },
       {
@@ -854,59 +855,59 @@ export const visTypes = {
     ],
   },
 
-  big_number: {
-    label: t('Big Number with Trendline'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metric'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['compare_lag', 'compare_suffix'],
-          ['y_axis_format', null],
-          ['show_trend_line', 'start_y_axis_at_zero'],
-          ['color_picker', null],
-        ],
-      },
-    ],
-    controlOverrides: {
-      y_axis_format: {
-        label: t('Number format'),
-      },
-    },
-  },
+  // big_number: {
+  //   label: t('Big Number with Trendline'),
+  //   controlPanelSections: [
+  //     {
+  //       label: t('Query'),
+  //       expanded: true,
+  //       controlSetRows: [
+  //         ['metric'],
+  //       ],
+  //     },
+  //     {
+  //       label: t('Chart Options'),
+  //       expanded: true,
+  //       controlSetRows: [
+  //         ['compare_lag', 'compare_suffix'],
+  //         ['y_axis_format', null],
+  //         ['show_trend_line', 'start_y_axis_at_zero'],
+  //         ['color_picker', null],
+  //       ],
+  //     },
+  //   ],
+  //   controlOverrides: {
+  //     y_axis_format: {
+  //       label: t('Number format'),
+  //     },
+  //   },
+  // },
 
-  big_number_total: {
-    label: t('Big Number'),
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metric', 'row_limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        expanded: true,
-        controlSetRows: [
-          ['subheader'],
-          ['y_axis_format'],
-        ],
-      },
-    ],
-    controlOverrides: {
-      y_axis_format: {
-        label: t('Number format'),
-      },
-    },
-  },
+  // big_number_total: {
+  //   label: t('Big Number'),
+  //   controlPanelSections: [
+  //     {
+  //       label: t('Query'),
+  //       expanded: true,
+  //       controlSetRows: [
+  //         ['metric', 'row_limit'],
+  //       ],
+  //     },
+  //     {
+  //       label: t('Chart Options'),
+  //       expanded: true,
+  //       controlSetRows: [
+  //         ['subheader'],
+  //         ['y_axis_format'],
+  //       ],
+  //     },
+  //   ],
+  //   controlOverrides: {
+  //     y_axis_format: {
+  //       label: t('Number format'),
+  //     },
+  //   },
+  // },
 
   filter_box: {
     label: t('Filter Box'),
