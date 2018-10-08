@@ -307,7 +307,7 @@ export const controls = {
   metric_2: {
     type: 'SelectControl',
     label: t('Right Axis Metric'),
-    default: null,
+    default:c => c.options && c.options.length > 1 ? c.options[0].metric_name : null,
     validators: [v.nonEmpty],
     clearable: true,
     description: t('Choose a metric for right axis'),
