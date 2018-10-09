@@ -3,45 +3,51 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from copy import copy, deepcopy
 from datetime import date, datetime
-import functools
-import json
-import logging
-import textwrap
 
-from flask import escape, g, Markup, request
+from flask import escape, g, Markup
 from flask_appbuilder import Model
-from flask_appbuilder.models.decorators import renders
 from future.standard_library import install_aliases
-import numpy
-import pandas as pd
 import sqlalchemy as sqla
 from sqlalchemy import (
     Boolean, Column, create_engine, Date, DateTime, ForeignKey, Integer,
     MetaData, select, String, Table, Text,SmallInteger
 )
-from sqlalchemy.engine import url
-from sqlalchemy.engine.url import make_url
-from sqlalchemy.orm import relationship, subqueryload
-from sqlalchemy.orm.session import make_transient
-from sqlalchemy.pool import NullPool
-from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy.sql import text
-from sqlalchemy.sql.expression import TextAsFrom
-from sqlalchemy_utils import EncryptedType
 
-from superset import app, db, db_engine_specs, security_manager, utils
-from superset.connectors.connector_registry import ConnectorRegistry
-from superset.models.helpers import AuditMixinNullable, ImportMixin, set_perm
-from superset.viz import viz_types
+from sqlalchemy.orm import relationship
+
+from superset import app, db, security_manager
+from superset.models.helpers import merge_perm
+
 install_aliases()
-from urllib import parse  # noqa
 
 config = app.config
 custom_password_store = config.get('SQLALCHEMY_CUSTOM_PASSWORD_STORE')
 stats_logger = config.get('STATS_LOGGER')
 metadata = Model.metadata  # pylint: disable=no-member
+
+
+def set_perm(mapper, connection, target):  # noqa
+    """
+    添加埋点项目权限
+    """
+    link_table = target.__table__
+    if target.perm != target.get_perm():
+
+        connection.execute(
+            link_table.update()
+            .where(link_table.c.id == target.id)
+            .values(perm=target.get_perm()),
+        )
+
+    # add to view menu if not already exists
+    if link_table.name == 'm_project':
+        perm_name = 'maidian_access'
+    elif link_table.name == 'm_page':
+        perm_name = 'maidian_page_access'
+    elif link_table.name == 'm_element':
+        perm_name = 'maidian_btn_access'
+    merge_perm(security_manager, perm_name, target.get_perm(), connection)
 
 
 class JingYouUser(Model):
@@ -74,21 +80,23 @@ class JingYouUser(Model):
 
 class MProject(Model):
     __tablename__='m_project'
-    id=Column(String(32),primary_key=True,nullable=False)
-    name=Column(String(64),nullable=True)
-    full_id=Column(String(64),nullable=True)
-    describe=Column('m_describe',String(255),nullable=True)
-    pm_owner=Column(String(64),nullable=True)
-    tech_owner=Column(String(64),nullable=True)
+    id = Column(String(32),primary_key=True,nullable=False)
+    name = Column(String(64),nullable=True)
+    full_id = Column(String(64),nullable=True)
+    describe = Column('m_describe',String(255),nullable=True)
+    pm_owner = Column(String(64),nullable=True)
+    tech_owner = Column(String(64),nullable=True)
     status = Column(Boolean, default=False)
     create_time = Column(DateTime, default=datetime.now, nullable=True)
     update_time = Column(
         DateTime, default=datetime.now,
         onupdate=datetime.now, nullable=True)
-    name_type=Column(String(64),nullable=True)
-    ## m_page=relationship('MPage',back_populates="m_project")
+    name_type = Column(String(64),nullable=True)
+    perm = Column(String(90), nullable=True)
+
     def __repr__(self):
         return self.name
+
     @property
     def page_or_element_button(self):
         params = '_flt_0_m_project=%s' % self.id
@@ -110,7 +118,6 @@ class MProject(Model):
 
     @property
     def get_status(self):
-        str_btn = ''
         if not self.status :
             str_btn = '<a type="button" class="btn btn-primary disabled btn-xs">正常</a>'
         else:
@@ -133,6 +140,14 @@ class MProject(Model):
     def element_link(self):
         return Markup('<a href="{url}">{url}</a>'.format(url='/melementview/list/'))
 
+    def get_perm(self):
+        return (
+            '[{obj.name}].(id:{obj.id})').format(obj=self)
+
+
+sqla.event.listen(MProject, 'after_insert', set_perm)
+sqla.event.listen(MProject, 'after_update', set_perm)
+
 
 mpage_mproject = Table(
     'mpage_mproject', metadata,
@@ -140,6 +155,7 @@ mpage_mproject = Table(
     Column('mproject_id', String(32), ForeignKey('m_project.id')),
     Column('mpage_id', Integer, ForeignKey('m_page.id')),
 )
+
 class MpageMproject(Model):
     __tablename__ = 'mpage_mproject'
 
@@ -151,6 +167,7 @@ class MpageMproject(Model):
 
     def __repr__(self):
         return '%s-%s'%(self.mproject.name,self.mpage.page_id)
+
 
 melement_mpage_mproject=Table(
     'melement_mpage_mproject', metadata,
@@ -193,7 +210,7 @@ class MPage(Model):
         DateTime, default=datetime.now,
         onupdate=datetime.now, nullable=True)
     melement_url = Column(String(2048), nullable=True)
-
+    perm = Column(String(90), nullable=True)
 
     @property
     def melement_url_btn(self):
@@ -231,6 +248,15 @@ class MPage(Model):
             st+='<div>%s</div>'%(str(i))
         return st
 
+    def get_perm(self):
+        return (
+            '[{obj.name}].(id:{obj.page_id})').format(obj=self)
+
+
+sqla.event.listen(MPage, 'after_insert', set_perm)
+sqla.event.listen(MPage, 'after_update', set_perm)
+
+
 class MElement(Model):
     __tablename__ = 'm_element'
 
@@ -253,10 +279,11 @@ class MElement(Model):
     update_time = Column(
         DateTime, default=datetime.now,
         onupdate=datetime.now, nullable=True)
+    perm = Column(String(200), nullable=True)
 
     @property
     def mproject(self):
-        return [ i.mproject_id for i in self.mpage_mproject]
+        return [i.mproject_id for i in self.mpage_mproject]
 
     @property
     def mpage(self):
@@ -284,3 +311,10 @@ class MElement(Model):
         for i in self.mpage_mproject:
             st+='<div>%s</div>'%(str(i))
         return st
+
+    def get_perm(self):
+        return (
+            '[{obj.name}].(id:{obj.element_id})').format(obj=self)
+
+sqla.event.listen(MElement, 'after_insert', set_perm)
+sqla.event.listen(MElement, 'after_update', set_perm)

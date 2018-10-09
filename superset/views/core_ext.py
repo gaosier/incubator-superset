@@ -133,13 +133,14 @@ class JingYouModelView(SupersetModelView):
         item = db.session.execute(sql).first()
         if item[0] !=obj.cookies:
             obj.status=2
-# appbuilder.add_view(
-#     JingYouModelView,
-#     "Jing You User",
-#     label="菁优用户",
-#     icon="fa-table",
-#     category="",
-#     category_icon='',)
+
+
+class ProjectFilter(SupersetFilter):
+    def apply(self, query, func):  # noqa
+        if self.has_role(['Admin', 'Alpha']):
+            return query
+        perms = self.get_view_menus('maidian_access')
+        return query.filter(MProject.perm.in_(perms))
 
 
 class MProjectView(SupersetModelView):
@@ -149,12 +150,16 @@ class MProjectView(SupersetModelView):
     show_title = '项目信息'
     add_title = '添加项目'
     edit_title = '编辑项目'
-    add_columns = ['id','name','name_type','full_id','describe','status']
-    show_columns = ['id','name','name_type','full_id','describe','status']
-    list_columns = ['id','name','project_type_link','get_status','page_or_element_button']
-    edit_columns = ['id','name','full_id','describe','status']
-    search_columns = ['id','name','name_type']
-    order_columns=['id']
+
+    add_columns = ['id', 'name', 'name_type', 'full_id', 'describe', 'status']
+    show_columns = ['id', 'name', 'name_type', 'full_id', 'describe', 'status']
+    list_columns = ['id', 'name', 'project_type_link', 'get_status', 'page_or_element_button']
+    edit_columns = ['id', 'name', 'full_id', 'describe', 'status']
+
+    search_columns = ['id', 'name', 'name_type']
+    order_columns = ['id']
+    base_filters = [ ['id', ProjectFilter, '']]
+
     label_columns = {
         'id': "项目id",
         'name': "项目名称",
@@ -196,9 +201,12 @@ appbuilder.add_view(
     category_icon='',)
 
 
-class MPageFilter(BaseFilter):
+class MPageFilter(SupersetFilter):
     def apply(self, query, func):  # noqa
-        return query
+        if self.has_role(['Admin', 'Alpha']):
+            return query
+        perms = self.get_view_menus('maidian_page_access')
+        return query.filter(MPage.perm.in_(perms))
 
 
 class MPageView(SupersetModelView):
@@ -314,6 +322,14 @@ class MPageView(SupersetModelView):
 appbuilder.add_view_no_menu(MPageView)
 
 
+class ElementFilter(SupersetFilter):
+    def apply(self, query, func):  # noqa
+        if self.has_role(['Admin', 'Alpha']):
+            return query
+        perms = self.get_view_menus('maidian_btn_access')
+        return query.filter(MElement.perm.in_(perms))
+
+
 class MElementView(SupersetModelView):
     datamodel = SQLAInterface(MElement)
     validators_columns = {"element_id": [Regexp(r'^[a-z]+\d+_\d+$', message=u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')],
@@ -327,6 +343,8 @@ class MElementView(SupersetModelView):
     search_columns=['element_id','mpage_mproject','name','del_status']
     edit_columns = add_columns
     show_columns = add_columns+['status','create_time','update_time']
+    base_filters = [['id', ElementFilter, '']]
+
     description_columns = {
         'status': "1表示未修改，2表示已修改",
         'del_status': "勾选表示删除",
