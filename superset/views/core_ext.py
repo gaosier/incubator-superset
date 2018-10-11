@@ -211,7 +211,7 @@ class MPageFilter(SupersetFilter):
 
 class MPageView(SupersetModelView):
     datamodel = SQLAInterface(MPage)
-    validators_columns = {"page_id": [Regexp(r'^[a-z]+\d+$', message=u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')],
+    validators_columns = {"page_id": [Regexp(r'^[0-9A-Za-z_]+$', message=u'页面ID不合法,请输入字母数字下划线的组合')],
                           "name": [DataRequired()], "m_project": [DataRequired()]}
     list_title = '页面列表'
     show_title = '页面详情'
@@ -332,7 +332,7 @@ class ElementFilter(SupersetFilter):
 
 class MElementView(SupersetModelView):
     datamodel = SQLAInterface(MElement)
-    validators_columns = {"element_id": [Regexp(r'^[a-z]+\d+_\d+$', message=u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')],
+    validators_columns = {"element_id": [Regexp(r'^[0-9A-Za-z_]+$', message=u'按钮ID不合法,请输入字母数字下划线的组合')],
                           "name": [DataRequired()]}
     list_title = '点击列表'
     show_title = '点击详情'
