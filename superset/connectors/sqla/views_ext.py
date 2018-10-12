@@ -88,6 +88,8 @@ class TableGroupView(MasterDetailView):
 
     list_columns = ['name']
 
+    page_size = 20
+
 
 appbuilder.add_view(
     TableGroupView,
