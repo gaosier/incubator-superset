@@ -352,7 +352,7 @@ class ElementFilter(SupersetFilter):
 class MElementView(SupersetModelView):
     datamodel = SQLAInterface(MElement)
     validators_columns = {"element_id": [Regexp(r'^[0-9A-Za-z_]+$', message=u'按钮ID不合法,请输入字母数字下划线的组合')],
-                          "name": [DataRequired()]}
+                          "name": [DataRequired()], "mpage_mproject": [DataRequired()]}
     list_title = '点击列表'
     show_title = '点击详情'
     add_title = '添加点击信息'
