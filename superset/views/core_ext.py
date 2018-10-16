@@ -10,6 +10,7 @@ from flask import (
      g, request, redirect, flash, Response, render_template, Markup,
     abort, url_for,send_from_directory,send_file)
 from flask_babel import gettext as __
+from sqlalchemy import and_
 
 from superset import (
     app, appbuilder, cache, db, results_backend, security, sql_lab, utils,
@@ -21,7 +22,7 @@ from flask_appbuilder.models.sqla.filters import BaseFilter
 
 from flask_appbuilder.security.decorators import has_access, has_access_api
 import superset.models.core as models
-from superset.models.core_ext import MPage,MpageMproject,MElement,JingYouUser,MProject
+from superset.models.core_ext import MPage,MpageMproject,MElement,JingYouUser,MProject, mpage_mproject
 from superset.models.sql_lab import Query
 from .core import get_datasource_access_error_msg
 from flask_appbuilder import expose, SimpleFormView
@@ -205,8 +206,16 @@ class MPageFilter(SupersetFilter):
     def apply(self, query, func):  # noqa
         if self.has_role(['Admin', 'Alpha']):
             return query
-        perms = self.get_view_menus('maidian_page_access')
-        return query.filter(MPage.perm.in_(perms))
+        perms = self.get_view_menus('maidian_access')
+        pro_ids = db.session.query(MProject.id).filter(MProject.perm.in_(perms))
+
+        page_id = (db.session.query(MPage.id)
+        .distinct()
+        .join(MPage.m_project)
+        .filter(MProject.id.in_(pro_ids)))
+
+        query = query.filter(MPage.id.in_(page_id))
+        return query
 
 
 class MPageView(SupersetModelView):
@@ -326,8 +335,18 @@ class ElementFilter(SupersetFilter):
     def apply(self, query, func):  # noqa
         if self.has_role(['Admin', 'Alpha']):
             return query
-        perms = self.get_view_menus('maidian_btn_access')
-        return query.filter(MElement.perm.in_(perms))
+        perms = self.get_view_menus('maidian_access')
+        pro_ids = db.session.query(MProject.id).filter(MProject.perm.in_(perms))
+
+        mpage_mproject_ids = db.session.query(MpageMproject.id).filter(MpageMproject.mproject_id.in_(pro_ids))
+
+        ele_ids = (db.session.query(MElement.id)
+        .distinct()
+        .join(MElement.mpage_mproject)
+        .filter(MpageMproject.id.in_(mpage_mproject_ids)))
+
+        query = query.filter(MElement.id.in_(ele_ids))
+        return query
 
 
 class MElementView(SupersetModelView):
