@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { CompactPicker } from 'react-color';
 import { Button } from 'react-bootstrap';
+import { t } from '../../../locales';
 
 import $ from 'jquery';
 import mathjs from 'mathjs';

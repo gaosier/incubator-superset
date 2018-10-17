@@ -1,6 +1,5 @@
 # -*-coding:utf-8-*-
 from sqlalchemy import Column, Integer, String, Text
-from sqlalchemy.orm import load_only
 from flask_appbuilder import Model
 
 from superset import db
@@ -18,9 +17,10 @@ class SqlTableGroup(Model):
 
     @classmethod
     def get_group_menus(cls, parent_id):
-        query = db.session.query(cls.id, cls.name, cls.parent_id).filter(cls.parent_id == parent_id).\
+        query = db.session.query(cls.id, cls.name).filter(cls.parent_id == parent_id).\
             order_by(cls.sort_id).all()
-        return query
+        data = [{"id": item[0], "name": item[1]} for item in query]
+        return data
 
     @classmethod
     def get_name(cls, group_id):

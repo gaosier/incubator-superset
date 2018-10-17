@@ -84,7 +84,7 @@ function countryMapChart(slice, payload) {
       if (feature.properties.ID_2) {
         name = feature.properties.NAME_2;
       } else {
-        name = feature.properties.NAME_1;
+        name = feature.properties.NL_NAME_1;
       }
     }
     bigText.text(name);

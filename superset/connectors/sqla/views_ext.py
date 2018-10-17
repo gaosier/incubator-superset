@@ -6,7 +6,7 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext as __
 
 from superset import appbuilder
-from . import models,models_ext
+from . import models_ext, models
 from .views import TableModelView,TableColumnInlineView,SqlMetricInlineView
 from superset.views.core_ext import TableColumnFilter
 from superset.views.core import check_ownership, json_success, json_error_response
@@ -88,6 +88,7 @@ class TableGroupView(MasterDetailView):
     base_order = ('sort_id', 'asc')
 
     list_columns = ['name']
+    page_size = 20
 
     @expose('/menu/<int:parent_id>/')
     def menus(self, parent_id):
@@ -98,6 +99,17 @@ class TableGroupView(MasterDetailView):
             return json_error_response(u"参数paren_id为空")
         data = models_ext.SqlTableGroup.get_group_menus(parent_id)
         return json_success(json.dumps({"data": data}))
+
+    @expose('/list/')
+    @expose('/list/<pk>')
+    @has_access
+    def list(self, pk=None):
+        if pk is None:
+            return json_error_response(u"参数pk为空")
+        data = models.SqlaTable.get_table_list(pk)
+        return json_success(json.dumps(data))
+
+
 
 
 appbuilder.add_view(

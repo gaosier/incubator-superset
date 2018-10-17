@@ -10,6 +10,7 @@ from flask import (
      g, request, redirect, flash, Response, render_template, Markup,
     abort, url_for,send_from_directory,send_file)
 from flask_babel import gettext as __
+from sqlalchemy import and_
 
 from superset import (
     app, appbuilder, cache, db, results_backend, security, sql_lab, utils,
@@ -21,7 +22,7 @@ from flask_appbuilder.models.sqla.filters import BaseFilter
 
 from flask_appbuilder.security.decorators import has_access, has_access_api
 import superset.models.core as models
-from superset.models.core_ext import MPage,MpageMproject,MElement,JingYouUser,MProject
+from superset.models.core_ext import MPage,MpageMproject,MElement,JingYouUser,MProject, mpage_mproject
 from superset.models.sql_lab import Query
 from .core import get_datasource_access_error_msg
 from flask_appbuilder import expose, SimpleFormView
@@ -133,13 +134,14 @@ class JingYouModelView(SupersetModelView):
         item = db.session.execute(sql).first()
         if item[0] !=obj.cookies:
             obj.status=2
-# appbuilder.add_view(
-#     JingYouModelView,
-#     "Jing You User",
-#     label="菁优用户",
-#     icon="fa-table",
-#     category="",
-#     category_icon='',)
+
+
+class ProjectFilter(SupersetFilter):
+    def apply(self, query, func):  # noqa
+        if self.has_role(['Admin', 'Alpha']):
+            return query
+        perms = self.get_view_menus('maidian_access')
+        return query.filter(MProject.perm.in_(perms))
 
 
 class MProjectView(SupersetModelView):
@@ -149,12 +151,16 @@ class MProjectView(SupersetModelView):
     show_title = '项目信息'
     add_title = '添加项目'
     edit_title = '编辑项目'
-    add_columns = ['id','name','name_type','full_id','describe','status']
-    show_columns = ['id','name','name_type','full_id','describe','status']
-    list_columns = ['id','name','project_type_link','get_status','page_or_element_button']
-    edit_columns = ['id','name','full_id','describe','status']
-    search_columns = ['id','name','name_type']
-    order_columns=['id']
+
+    add_columns = ['id', 'name', 'name_type', 'full_id', 'describe', 'status']
+    show_columns = ['id', 'name', 'name_type', 'full_id', 'describe', 'status']
+    list_columns = ['id', 'name', 'project_type_link', 'get_status', 'page_or_element_button']
+    edit_columns = ['id', 'name', 'full_id', 'describe', 'status']
+
+    search_columns = ['id', 'name', 'name_type']
+    order_columns = ['id']
+    base_filters = [ ['id', ProjectFilter, '']]
+
     label_columns = {
         'id': "项目id",
         'name': "项目名称",
@@ -196,14 +202,25 @@ appbuilder.add_view(
     category_icon='',)
 
 
-class MPageFilter(BaseFilter):
+class MPageFilter(SupersetFilter):
     def apply(self, query, func):  # noqa
+        if self.has_role(['Admin', 'Alpha']):
+            return query
+        perms = self.get_view_menus('maidian_access')
+        pro_ids = db.session.query(MProject.id).filter(MProject.perm.in_(perms))
+
+        page_id = (db.session.query(MPage.id)
+        .distinct()
+        .join(MPage.m_project)
+        .filter(MProject.id.in_(pro_ids)))
+
+        query = query.filter(MPage.id.in_(page_id))
         return query
 
 
 class MPageView(SupersetModelView):
     datamodel = SQLAInterface(MPage)
-    validators_columns = {"page_id": [Regexp(r'^[a-z]+\d+$', message=u'页面ID不合法.仅包含字符数字,请以(a-z)中的字母开头,以数字结尾')],
+    validators_columns = {"page_id": [Regexp(r'^[0-9A-Za-z_]+$', message=u'页面ID不合法,请输入字母数字下划线的组合')],
                           "name": [DataRequired()], "m_project": [DataRequired()]}
     list_title = '页面列表'
     show_title = '页面详情'
@@ -314,10 +331,28 @@ class MPageView(SupersetModelView):
 appbuilder.add_view_no_menu(MPageView)
 
 
+class ElementFilter(SupersetFilter):
+    def apply(self, query, func):  # noqa
+        if self.has_role(['Admin', 'Alpha']):
+            return query
+        perms = self.get_view_menus('maidian_access')
+        pro_ids = db.session.query(MProject.id).filter(MProject.perm.in_(perms))
+
+        mpage_mproject_ids = db.session.query(MpageMproject.id).filter(MpageMproject.mproject_id.in_(pro_ids))
+
+        ele_ids = (db.session.query(MElement.id)
+        .distinct()
+        .join(MElement.mpage_mproject)
+        .filter(MpageMproject.id.in_(mpage_mproject_ids)))
+
+        query = query.filter(MElement.id.in_(ele_ids))
+        return query
+
+
 class MElementView(SupersetModelView):
     datamodel = SQLAInterface(MElement)
-    validators_columns = {"element_id": [Regexp(r'^[a-z]+\d+_\d+$', message=u'按钮ID不合法,请以(a-z)中的字母开头,以_数字结尾')],
-                          "name": [DataRequired()]}
+    validators_columns = {"element_id": [Regexp(r'^[0-9A-Za-z_]+$', message=u'按钮ID不合法,请输入字母数字下划线的组合')],
+                          "name": [DataRequired()], "mpage_mproject": [DataRequired()]}
     list_title = '点击列表'
     show_title = '点击详情'
     add_title = '添加点击信息'
@@ -327,6 +362,8 @@ class MElementView(SupersetModelView):
     search_columns=['element_id','mpage_mproject','name','del_status']
     edit_columns = add_columns
     show_columns = add_columns+['status','create_time','update_time']
+    base_filters = [['id', ElementFilter, '']]
+
     description_columns = {
         'status': "1表示未修改，2表示已修改",
         'del_status': "勾选表示删除",
