@@ -43,6 +43,11 @@ from superset.utils import DTTM_ALIAS, JS_MAX_INTEGER, merge_extra_filters
 config = app.config
 stats_logger = config.get('STATS_LOGGER')
 
+METRIC_KEYS = [
+    'metric', 'metrics', 'percent_metrics', 'metric_2', 'secondary_metric',
+    'x', 'y', 'size',
+]
+
 
 class BaseViz(object):
 
@@ -111,9 +116,9 @@ class BaseViz(object):
         if isinstance(metric, dict):
             return metric.get('label')
 
-    def reorder_columns(self, columns,type=1):
+    def reorder_columns(self, columns, type=1):
         fd = self.form_data
-        if type==1:
+        if type == 1:
             if fd.get('include_time'):
                 columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
         else:
@@ -984,6 +989,16 @@ class NVD3Viz(BaseViz):
     credits = '<a href="http://nvd3.org/">NVD3.org</a>'
     viz_type = None
     verbose_name = 'Base NVD3 Viz'
+    is_timeseries = False
+
+
+class HighChartsViz(BaseViz):
+
+    """Base class for all highcharts vizs"""
+
+    credits = '<a href="https://www.highcharts.com/">highcharts.org</a>'
+    viz_type = None
+    verbose_name = 'Base Highcharts Viz'
     is_timeseries = False
 
 
@@ -2742,6 +2757,57 @@ class PartitionViz(NVD3TimeSeriesViz):
         else:
             levels = self.levels_for('agg_sum', [DTTM_ALIAS] + groups, df)
         return self.nest_values(levels)
+
+
+class HCPieViz(HighChartsViz):
+
+    """用highcharts实现的饼图，能实现图表的向下钻取功能"""
+
+    viz_type = 'hc_pie'
+    verbose_name = _('HighCharts - Pie Chart')
+    is_timeseries = False
+
+    def query_obj(self):
+        d = super(HighChartsViz, self).query_obj()
+        fd = self.form_data
+        order_by_metric = fd.get('order_by_metric') or []
+        d['orderby'] = self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
+
+        if self.viz_type =='hc_pie':
+            if len(self.form_data.get("metrics")) !=1:
+                raise Exception(_("The number of metric should be only one"))
+        d['is_timeseries'] = self.should_be_timeseries()
+
+        # 获取当前钻取的层
+        level_name = fd.get('drill_level_name')
+        groupby = d.get('groupby')
+        inx = groupby.index(level_name)
+        d['groupby'] = groupby[:inx+1]
+        return d
+
+    def get_data(self, df):
+        drill_down = False
+        index = self.reorder_columns(self.groupby)
+
+        df = df.pivot_table(
+            index=index,
+            values=[self.metrics[0]])
+
+        df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
+        df = df.reset_index()
+
+        if len(index) > 1 :   #分组多选时，将其进行拼接
+            se = df[index[0]].astype('str')
+            for i in index[1:]:
+                se = se + '/' + df[i].astype('str')
+            df.insert(0, 'new_x', se)
+            df = df.drop(index, axis=1)
+        df.columns = ['x', 'y']
+
+        data = zip(df.x.tolist(), df.y.tolist())
+        if self.groupby < self.form_data.get('groupby'):
+            drill_down = True
+        return {"data": data, "drill_down": drill_down}
 
 
 viz_types = {
