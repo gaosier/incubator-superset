@@ -89,6 +89,8 @@ class TableGroupView(MasterDetailView):
     base_order = ('sort_id', 'asc')
 
     list_columns = ['name']
+    entry='datacenter'
+    list_template = 'superset/datacenter/datacenter.html'
     page_size = 20
 
     @has_access
