@@ -12,7 +12,8 @@ from superset.views.core_ext import TableColumnFilter
 from superset.views.core import check_ownership, json_success, json_error_response
 
 from flask_appbuilder import expose
-from flask_appbuilder.security.decorators import has_access
+from flask_appbuilder.baseviews import expose_api
+from flask_appbuilder.security.decorators import has_access, has_access_api
 from past.builtins import basestring
 
 
@@ -90,8 +91,9 @@ class TableGroupView(MasterDetailView):
     list_columns = ['name']
     page_size = 20
 
+    @has_access
     @expose('/menu/<int:parent_id>/')
-    def menus(self, parent_id):
+    def menu(self, parent_id):
         """
         获取数据集分类
         """
@@ -100,16 +102,13 @@ class TableGroupView(MasterDetailView):
         data = models_ext.SqlTableGroup.get_group_menus(parent_id)
         return json_success(json.dumps({"data": data}))
 
-    @expose('/list/')
-    @expose('/list/<pk>')
     @has_access
-    def list(self, pk=None):
+    @expose('/tables/<pk>')
+    def tables(self, pk=None):
         if pk is None:
             return json_error_response(u"参数pk为空")
         data = models.SqlaTable.get_table_list(pk)
         return json_success(json.dumps(data))
-
-
 
 
 appbuilder.add_view(
