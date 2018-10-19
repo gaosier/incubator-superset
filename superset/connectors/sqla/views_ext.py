@@ -4,6 +4,7 @@ from flask import request
 from flask_appbuilder.views import GeneralView,ModelView,MasterDetailView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import gettext as __
+from flask_appbuilder.urltools import get_page_args, get_page_size_args, get_order_args
 
 from superset import appbuilder
 from . import models_ext, models
@@ -89,7 +90,6 @@ class TableGroupView(MasterDetailView):
     base_order = ('sort_id', 'asc')
 
     list_columns = ['name']
-    entry='datacenter'
     list_template = 'superset/datacenter/datacenter.html'
     page_size = 20
 
@@ -111,6 +111,30 @@ class TableGroupView(MasterDetailView):
             return json_error_response(u"参数pk为空")
         data = models.SqlaTable.get_table_list(pk)
         return json_success(json.dumps(data))
+
+    @expose('/list/')
+    @expose('/list/<pk>')
+    @has_access
+    def list(self, pk=None):
+        pages = get_page_args()
+        page_sizes = get_page_size_args()
+        orders = get_order_args()
+
+        widgets = self._list()
+        if pk:
+            item = self.datamodel.get(pk)
+            widgets = self._get_related_views_widgets(item, orders=orders,
+                                                      pages=pages, page_sizes=page_sizes, widgets=widgets)
+            related_views = self._related_views
+        else:
+            related_views = []
+
+        return self.render_template(self.list_template,
+                                    title=self.list_title,
+                                    widgets=widgets,
+                                    entry='datacenter',
+                                    related_views=related_views,
+                                    master_div_width=self.master_div_width)
 
 
 appbuilder.add_view(
