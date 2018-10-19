@@ -30,7 +30,6 @@ export default class App extends Component {
             dataType: "json",
             timeout: 2000,
             success: function (data) {
-                console.log('成功获取第一层层级关系');
                 this.setState({ treeData: data['data'] });  // 将第一层级数据赋值给状态机
             }.bind(this),
             error: function (xhr, status, err) {
@@ -38,7 +37,6 @@ export default class App extends Component {
             complete: function (XMLHttpRequest, status) {  // 请求完成后最终执行参数
                 if (status === 'timeout') {  // 超时,status,success,error等值的情况
                     ajaxTimeOut.abort();  // 取消请求
-                    console.log('网络不稳定');
                 }
             }
         });
@@ -119,15 +117,19 @@ export default class App extends Component {
                     treeData: [...this.state.treeData],
                     info: [...this.state.infos]
                 });
-                console.log(this.state);
                 resolve();
             }, 1000);
         });
     };
 
     onSelect(expandedKeys,e) {
-        this.getKnowInfo(expandedKeys);
-        this.setState({ title: e.selectedNodes[0].props.title })
+        if(expandedKeys.length==0) {
+
+        }
+        else {
+            this.getKnowInfo(expandedKeys);
+            this.setState({title: e.selectedNodes[0].props.title})
+        }
     };
 
 
