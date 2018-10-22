@@ -17,10 +17,12 @@ export default class App extends Component {
             TreeNodeData: [], //存放获取的子菜单内容
             infos: [], //存放右侧数据
             title: '用户数据中心', //存放右侧数据title
+            expandedKeys:[]
         };
         this.onLoadData = this.onLoadData.bind(this);
         this.onSelect = this.onSelect.bind(this);
         this.renderTreeNodes = this.renderTreeNodes.bind(this);
+        this.onExpand = this.onExpand.bind(this);
     }
     // 通过id获取第一层层级关系
     getKnowledgeStorageFirstLayer() {
@@ -87,19 +89,6 @@ export default class App extends Component {
         })
     }
 
-    renderTreeNodes(data) {
-        return data.map((item) => {
-            if (item.children) {
-                return (
-                    <TreeNode title={item.name} key={item.id} dataRef={item}>
-                        {this.renderTreeNodes(item.children)}
-                    </TreeNode>
-                );
-            }
-            return <TreeNode key={item.id} title={item.name} dataRef={item} />;
-        });
-    }
-
     componentDidMount() {
         this.getKnowledgeStorageFirstLayer(); //获取第一层级菜单内容
         this.getKnowInfo();
@@ -115,22 +104,37 @@ export default class App extends Component {
                 ];
                 this.setState({
                     treeData: [...this.state.treeData],
-                    info: [...this.state.infos]
                 });
                 resolve();
             }, 1000);
         });
     };
 
-    onSelect(expandedKeys,e) {
-        if(expandedKeys.length==0) {
+    onSelect(selectedKeys,e) {
+        if(selectedKeys.length==0) {
 
         }
         else {
-            this.getKnowInfo(expandedKeys);
-            this.setState({title: e.selectedNodes[0].props.title})
+            this.getKnowInfo(selectedKeys);
+            this.setState({title: e.selectedNodes[0].props.title});
+        }
+        const { expandedKeys } = this.state;
+        const key = selectedKeys[0];
+        if(expandedKeys.includes(key)){
+            this.setState({
+                expandedKeys: expandedKeys.filter(k => k !== key)
+            })
+        }else{
+            this.setState({
+                expandedKeys: [...expandedKeys, key]
+            })
         }
     };
+
+    onExpand(expandedKeys){
+        this.setState({expandedKeys})
+    }
+
 
 
     renderTreeNodes(data) {
@@ -156,7 +160,13 @@ export default class App extends Component {
                                 <h4 className="panel-title">数据集分类</h4>
                             </div>
                             <div className="list-group">
-                                <Tree loadData={ this.onLoadData } onSelect={ this.onSelect }>
+                                <Tree
+                                    loadData={ this.onLoadData }
+                                    onSelect={ this.onSelect }
+                                    onExpand={ this.onExpand }
+                                    expandedKeys={ this.state.expandedKeys}
+                                    selectedKeys={[]}
+                                >
                                     { this.renderTreeNodes(this.state.treeData) }
                                 </Tree>
                             </div>
