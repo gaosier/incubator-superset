@@ -1420,7 +1420,6 @@ class NVD3TimeSeriesViz(NVD3Viz):
         if self._extra_chart_data:
             chart_data += self._extra_chart_data
             chart_data = sorted(chart_data, key=lambda x: tuple(x['key']))
-
         return chart_data
 
 
@@ -2808,6 +2807,96 @@ class HCPieViz(HighChartsViz):
         if self.groupby < self.form_data.get('groupby'):
             drill_down = True
         return {"data": data, "drill_down": drill_down}
+
+
+class HCColumnViz(DistributionPieViz):
+
+    """highcharts 柱状图"""
+
+    viz_type = 'hc_column'
+    verbose_name = _('HighCharts - Column')
+    is_timeseries = False
+
+    def query_obj(self):
+        d = super(HCColumnViz, self).query_obj()
+        fd = self.form_data
+        if (
+            len(d['groupby']) <
+            len(fd.get('groupby') or []) + len(fd.get('columns') or [])
+        ):
+            raise Exception(
+                _("Can't have overlap between Series and Breakdowns"))
+        if not fd.get('metrics'):
+            raise Exception(_("Pick at least one metric"))
+        if not fd.get('groupby') and not fd.get('include_time'):
+            raise Exception(_("Pick at least one field for [Series]"))
+        if fd.get('include_time') and fd.get('include_time_2'):
+            raise Exception(_("You can only choose one include_time"))
+        return d
+
+    def get_data(self, df):
+        fd = self.form_data
+
+        columns = fd.get('columns') or []
+        index = self.groupby
+        if not self.should_be_timeseries() and DTTM_ALIAS in df:
+            del df[DTTM_ALIAS]
+        else:
+            index=self.reorder_columns(index)
+            columns=self.reorder_columns(columns,type=2)
+
+        cols_in_index_or_column, special_sort_cols = self.get_special_sort_data(index, columns)
+
+        if cols_in_index_or_column:
+            for col in cols_in_index_or_column[1]:
+                df[col] = df[col].replace(special_sort_cols.get(col))  # 替换df
+
+        pt = df.pivot_table(
+            index=index,
+            columns=columns,
+            values=self.metrics)
+
+        if not columns and not cols_in_index_or_column:
+            pt.sort_values(self.metrics[0], inplace=True, ascending=True)
+
+        if cols_in_index_or_column:   # 特殊字段排序
+            pt = self.deal_sort(pt, cols_in_index_or_column, special_sort_cols, index)
+
+        if fd.get('contribution'):
+            pt = pt.fillna(0)
+            pt = pt.T
+            pt = (pt / pt.sum()).T
+
+        chart_data = []
+        for name, ys in pt.items():
+            if pt[name].dtype.kind not in 'biufc' or name in self.groupby:
+                continue
+            if isinstance(name, string_types):
+                series_title = name
+            elif len(self.metrics) > 1:
+                series_title = ', '.join(name)
+            else:
+                l = [str(s) for s in name[1:]]
+                series_title = ', '.join(l)
+
+            values = []
+            for i, v in ys.items():
+                x = i
+                if isinstance(x, (tuple, list)):
+                    x = ', '.join([text_type(s) for s in x])
+                else:
+                    x = text_type(x)
+                values.append({
+                    'x': x,
+                    'y': v,
+                })
+
+            d = {
+                'key': series_title,
+                'values': values,
+            }
+            chart_data.append(d)
+        return chart_data
 
 
 viz_types = {
