@@ -71,6 +71,7 @@ class BaseViz(object):
         self.query = ''
         self.token = self.form_data.get(
             'token', 'token_' + uuid.uuid4().hex[:8])
+
         metrics = self.form_data.get('metrics') or []
         self.metrics = []
         for metric in metrics:
@@ -1001,6 +1002,21 @@ class HighChartsViz(BaseViz):
     verbose_name = 'Base Highcharts Viz'
     is_timeseries = False
 
+    def get_drill_cols(self, d, fd):
+        """
+        获取下钻时grouby的字段
+        :param d: 处理之后的form_data
+        :param fd: self.form_data
+        """
+        groupby = d.get('groupby')
+        if fd.get("extra_filters"):
+            filters = fd.get("extra_filters")[0]
+            level_name = filters.get("col")
+            inx = groupby.index(level_name)
+            d['groupby'] = groupby[:inx + 2]
+        else:
+            d['groupby'] = groupby[0]
+
 
 class BoxPlotViz(NVD3Viz):
 
@@ -1660,6 +1676,7 @@ class DistributionBarViz(DistributionPieViz):
 
         columns = fd.get('columns') or []
         index = self.groupby
+
         if not self.should_be_timeseries() and DTTM_ALIAS in df:
             del df[DTTM_ALIAS]
         else:
@@ -2772,16 +2789,12 @@ class HCPieViz(HighChartsViz):
         order_by_metric = fd.get('order_by_metric') or []
         d['orderby'] = self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
 
-        if self.viz_type =='hc_pie':
+        if self.viz_type == 'hc_pie':
             if len(self.form_data.get("metrics")) !=1:
                 raise Exception(_("The number of metric should be only one"))
         d['is_timeseries'] = self.should_be_timeseries()
 
-        # 获取当前钻取的层
-        level_name = fd.get('drill_level_name')
-        groupby = d.get('groupby')
-        inx = groupby.index(level_name)
-        d['groupby'] = groupby[:inx+1]
+        self.get_drill_cols(d, fd)
         return d
 
     def get_data(self, df):
@@ -2795,7 +2808,7 @@ class HCPieViz(HighChartsViz):
         df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
         df = df.reset_index()
 
-        if len(index) > 1 :   #分组多选时，将其进行拼接
+        if len(index) > 1 :   # 分组多选时，将其进行拼接
             se = df[index[0]].astype('str')
             for i in index[1:]:
                 se = se + '/' + df[i].astype('str')
@@ -2803,13 +2816,13 @@ class HCPieViz(HighChartsViz):
             df = df.drop(index, axis=1)
         df.columns = ['x', 'y']
 
-        data = zip(df.x.tolist(), df.y.tolist())
+        chart_data = [{"name": item[0], "y": item[1]} for item in zip(df.x.tolist(), df.y.tolist())]
         if self.groupby < self.form_data.get('groupby'):
             drill_down = True
-        return {"data": data, "drill_down": drill_down}
+        return {"data": chart_data, "drill_down": drill_down}
 
 
-class HCColumnViz(DistributionPieViz):
+class HCColumnViz(HighChartsViz):
 
     """highcharts 柱状图"""
 
@@ -2832,20 +2845,21 @@ class HCColumnViz(DistributionPieViz):
             raise Exception(_("Pick at least one field for [Series]"))
         if fd.get('include_time') and fd.get('include_time_2'):
             raise Exception(_("You can only choose one include_time"))
+
+        self.get_drill_cols(d, fd)
         return d
 
     def get_data(self, df):
+        drill_down = False
         fd = self.form_data
-
-        columns = fd.get('columns') or []
         index = self.groupby
+
         if not self.should_be_timeseries() and DTTM_ALIAS in df:
             del df[DTTM_ALIAS]
         else:
             index=self.reorder_columns(index)
-            columns=self.reorder_columns(columns,type=2)
 
-        cols_in_index_or_column, special_sort_cols = self.get_special_sort_data(index, columns)
+        cols_in_index_or_column, special_sort_cols = self.get_special_sort_data(index, [])
 
         if cols_in_index_or_column:
             for col in cols_in_index_or_column[1]:
@@ -2853,11 +2867,7 @@ class HCColumnViz(DistributionPieViz):
 
         pt = df.pivot_table(
             index=index,
-            columns=columns,
             values=self.metrics)
-
-        if not columns and not cols_in_index_or_column:
-            pt.sort_values(self.metrics[0], inplace=True, ascending=True)
 
         if cols_in_index_or_column:   # 特殊字段排序
             pt = self.deal_sort(pt, cols_in_index_or_column, special_sort_cols, index)
@@ -2867,36 +2877,13 @@ class HCColumnViz(DistributionPieViz):
             pt = pt.T
             pt = (pt / pt.sum()).T
 
-        chart_data = []
-        for name, ys in pt.items():
-            if pt[name].dtype.kind not in 'biufc' or name in self.groupby:
-                continue
-            if isinstance(name, string_types):
-                series_title = name
-            elif len(self.metrics) > 1:
-                series_title = ', '.join(name)
-            else:
-                l = [str(s) for s in name[1:]]
-                series_title = ', '.join(l)
+        x_name = index[-1]
+        y_name = self.metrics[0]
 
-            values = []
-            for i, v in ys.items():
-                x = i
-                if isinstance(x, (tuple, list)):
-                    x = ', '.join([text_type(s) for s in x])
-                else:
-                    x = text_type(x)
-                values.append({
-                    'x': x,
-                    'y': v,
-                })
-
-            d = {
-                'key': series_title,
-                'values': values,
-            }
-            chart_data.append(d)
-        return chart_data
+        chart_data = [{"name": item[0], "y": item[1]} for item in zip(df[x_name].tolist(), df[y_name].tolist())]
+        if self.groupby < self.form_data.get('groupby'):
+            drill_down = True
+        return {"data": chart_data, "drill_down": drill_down}
 
 
 viz_types = {
