@@ -45,7 +45,7 @@ export default class App extends Component {
 
     }
     // 通过id获取下一层层级关系
-    getKnowledgeStorageNextLayer(knowid) {
+    getKnowledgeStorageNextLayer(knowid,treeNode) {
         return new Promise((resolve) => {
             let ajaxTimeOut = $.ajax({
                 url: "/tablegroupview/menu/" + knowid,
@@ -57,6 +57,14 @@ export default class App extends Component {
                     }
                     else {
                         this.setState({ TreeNodeData: data['data'] }); //将下一层级菜单内容赋值给状态机
+                        treeNode.props.dataRef.children = [
+                            /*根据id设置子节点 数据格式:{ title: '数学', key: `${treeNode.props.eventKey}-0` }*/
+                            ...this.state.TreeNodeData
+                        ];
+                        this.setState({
+                            treeData: [...this.state.treeData],
+                        });
+                        resolve();
                     }
                 }.bind(this),
                 error: function (xhr, status, err) {
@@ -96,17 +104,8 @@ export default class App extends Component {
 
     onLoadData(treeNode) {
         return new Promise((resolve) => {
-            this.getKnowledgeStorageNextLayer(treeNode.props.eventKey);
-            setTimeout(() => {
-                treeNode.props.dataRef.children = [
-                    /*根据id设置子节点 数据格式:{ title: '数学', key: `${treeNode.props.eventKey}-0` }*/
-                    ...this.state.TreeNodeData
-                ];
-                this.setState({
-                    treeData: [...this.state.treeData],
-                });
-                resolve();
-            }, 1000);
+            this.getKnowledgeStorageNextLayer(treeNode.props.eventKey,treeNode);
+            resolve();
         });
     };
 
