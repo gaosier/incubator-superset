@@ -36,19 +36,13 @@ export default class App extends Component {
             }.bind(this),
             error: function (xhr, status, err) {
             },
-            complete: function (XMLHttpRequest, status) {  // 请求完成后最终执行参数
-                if (status === 'timeout') {  // 超时,status,success,error等值的情况
-                    ajaxTimeOut.abort();  // 取消请求
-                }
-            }
         });
 
     }
     // 通过id获取下一层层级关系
     getKnowledgeStorageNextLayer(knowid,treeNode) {
-        return new Promise((resolve) => {
             let ajaxTimeOut = $.ajax({
-                url: "/tablegroupview/menu/" + knowid,
+                url: "/tablegroupview/menu/" + knowid + "/",
                 type: "GET",
                 dataType: "json",
                 timeout: 2000,
@@ -64,18 +58,11 @@ export default class App extends Component {
                         this.setState({
                             treeData: [...this.state.treeData],
                         });
-                        resolve();
                     }
                 }.bind(this),
                 error: function (xhr, status, err) {
                 },
-                complete: function (XMLHttpRequest, status) { //请求完成后最终执行参数
-                    if (status === 'timeout') {  //超时,status,success,error等值的情况
-                        ajaxTimeOut.abort(); //取消请求
-                    }
-                }
             });
-        })
     }
 
     getKnowInfo(knowid=1) {
@@ -89,11 +76,6 @@ export default class App extends Component {
             }.bind(this),
             error: function (xhr, status, err) {
             },
-            complete: function (XMLHttpRequest, status) {
-                            if (status === 'timeout') {
-                                ajaxTimeOut.abort();
-                            }
-                        }
         })
     }
 
