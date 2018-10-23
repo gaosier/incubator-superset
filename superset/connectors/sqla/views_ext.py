@@ -9,6 +9,7 @@ from flask_appbuilder.urltools import get_page_args, get_page_size_args, get_ord
 from superset import appbuilder
 from . import models_ext, models
 from .views import TableModelView,TableColumnInlineView,SqlMetricInlineView
+from superset.views.base_ext import PermManager
 from superset.views.core_ext import TableColumnFilter
 from superset.views.core import check_ownership, json_success, json_error_response
 
@@ -101,6 +102,11 @@ class TableGroupView(MasterDetailView):
         """
         if parent_id is None:
             return json_error_response(u"参数paren_id为空")
+
+        permission = PermManager()
+        if not permission.has_perm('can_list', 'TableGroupView'):
+            return json_error_response('you do not have permission to access the menu')
+
         data = models_ext.SqlTableGroup.get_group_menus(parent_id)
         return json_success(json.dumps({"data": data}))
 
@@ -109,7 +115,14 @@ class TableGroupView(MasterDetailView):
     def tables(self, pk=None):
         if pk is None:
             return json_error_response(u"参数pk为空")
-        data = models.SqlaTable.get_table_list(pk)
+
+        permission = PermManager()
+        if permission.has_all_datasource_access():
+            perms = []
+        else:
+            perms = permission.get_view_menus('datasource_access')
+
+        data = models.SqlaTable.get_table_list(pk, perms)
         return json_success(json.dumps(data))
 
     @expose('/list/')

@@ -962,9 +962,9 @@ class SqlaTable(Model, BaseDatasource):
         return exp
 
     @classmethod
-    def get_table_list(cls, group_id):
+    def get_table_list(cls, group_id, perms):
         data = []
-        querys = db.session.query(cls).filter(cls.group_id == group_id)
+        querys = db.session.query(cls).filter(cls.group_id == group_id).filter(cls.perm.in_(perms))
         for query in querys:
             table = {}
             table['id'] = query.id
