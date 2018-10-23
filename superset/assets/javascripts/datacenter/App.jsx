@@ -27,7 +27,7 @@ export default class App extends Component {
     // 通过id获取第一层层级关系
     getKnowledgeStorageFirstLayer() {
         let ajaxTimeOut = $.ajax({
-            url: "/tablegroupview/menu/0",
+            url: "/tablegroupview/menu/0/",
             type: "GET",
             dataType: "json",
             timeout: 2000,
