@@ -367,6 +367,7 @@ def deliver_slice(schedule):
 
 @celery_app.task(name='email_reports.send', bind=True, soft_time_limit=300)
 def schedule_email_report(task, report_type, schedule_id, recipients=None):
+    logging.info("enter into schedule_email_report ......")
     model_cls = get_scheduler_model(report_type)
     dbsession = db.create_scoped_session()
     schedule = dbsession.query(model_cls).get(schedule_id)
@@ -436,7 +437,7 @@ def schedule_window(report_type, start_at, stop_at, resolution):
 @celery_app.task(name='email_reports.schedule_hourly')
 def schedule_hourly():
     """ Celery beat job meant to be invoked hourly """
-
+    logging.info("enter into schedule_hourly ....")
     if not config.get('ENABLE_SCHEDULED_EMAIL_REPORTS'):
         logging.info('Scheduled email reports not enabled in config')
         return
@@ -444,7 +445,9 @@ def schedule_hourly():
     resolution = config.get('EMAIL_REPORTS_CRON_RESOLUTION', 0) * 60
 
     # Get the top of the hour
-    start_at = datetime.now(tzlocal()).replace(microsecond=0, second=0, minute=0)
+    start_at = datetime.now().replace(microsecond=0, second=0, minute=0)
+    print("start_at: ", start_at)
     stop_at = start_at + timedelta(seconds=3600)
+    print("stop_at: ", stop_at)
     schedule_window(ScheduleType.dashboard.value, start_at, stop_at, resolution)
     schedule_window(ScheduleType.slice.value, start_at, stop_at, resolution)

@@ -338,13 +338,13 @@ ENABLE_ACCESS_REQUEST = False
 
 # smtp server configuration
 EMAIL_NOTIFICATIONS = False  # all the emails are sent using dryrun
-SMTP_HOST = 'localhost'
+SMTP_HOST = 'mail.gaosiedu.com'
 SMTP_STARTTLS = True
 SMTP_SSL = False
-SMTP_USER = 'superset'
-SMTP_PORT = 25
-SMTP_PASSWORD = 'superset'
-SMTP_MAIL_FROM = 'superset@superset.com'
+SMTP_USER = 'bj\\axxsyfxbg'
+SMTP_PORT = 465
+SMTP_PASSWORD = 'axxsyfxbg'
+SMTP_MAIL_FROM = 'axxsyfxbg@gaosiedu.com'
 
 if not CACHE_DEFAULT_TIMEOUT:
     CACHE_DEFAULT_TIMEOUT = CACHE_CONFIG.get('CACHE_DEFAULT_TIMEOUT')

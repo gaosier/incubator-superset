@@ -1,21 +1,44 @@
 #-*-coding:utf-8-*-
 import os
-# import wrapcache
+from celery.schedules import crontab
 from werkzeug.contrib.cache import RedisCache
+
 from superset.custom_user.sec import MySecurityManager
 
 from superset.config import DATA_DIR
+
 SQLALCHEMY_DATABASE_URI = os.environ['KINGKONG_DB']
 APP_ICON = "/static/assets/images/logo.png" 
 
+
 class CeleryConfig(object):
-    BROKER_URL = 'redis://localhost:6379/1'
+    BROKER_URL = 'redis://localhost:6379/0'
     CELERY_IMPORTS = ('superset.sql_lab', )
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
-    CELERY_ANNOTATIONS = {'tasks.add': {'rate_limit': '10/s'}}
+
     CELERYD_LOG_LEVEL = 'DEBUG'
     CELERYD_PREFETCH_MULTIPLIER = 1 
     CELERY_ACKS_LATE = True
+
+    CELERY_ANNOTATIONS = {
+        'sql_lab.get_sql_results': {
+            'rate_limit': '100/s',
+        },
+        'email_reports.send': {
+            'rate_limit': '1/s',
+            'time_limit': 120,
+            'soft_time_limit': 150,
+            'ignore_result': True,
+        },
+    }
+    CELERYBEAT_SCHEDULE = {
+        'email_reports.schedule_hourly': {
+            'task': 'email_reports.schedule_hourly',
+            'schedule': crontab(minute=5, hour='*'),
+        },
+    }
+
+
 CELERY_CONFIG = CeleryConfig
 RESULTS_BACKEND = RedisCache(
             host='localhost', port=6379, key_prefix='superset_results')
@@ -32,3 +55,6 @@ SUPERSET_MEMCACHED={
 }
 
 BABEL_DEFAULT_LOCALE = 'zh'
+
+ENABLE_SCHEDULED_EMAIL_REPORTS = True
+EMAIL_REPORTS_CRON_RESOLUTION = 1

@@ -42,3 +42,5 @@ venv
 @eaDir/
 *.log
 log
+*.pid
+celerybeat-schedule
