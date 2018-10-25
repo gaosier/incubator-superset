@@ -1015,7 +1015,9 @@ class HighChartsViz(BaseViz):
             inx = groupby.index(level_name)
             d['groupby'] = groupby[:inx + 2]
         else:
-            d['groupby'] = groupby[0]
+            d['groupby'] = [groupby[0]]
+
+        self.groupby = d['groupby']
 
 
 class BoxPlotViz(NVD3Viz):
