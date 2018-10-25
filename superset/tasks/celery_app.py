@@ -10,6 +10,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from celery.schedules import crontab
+
 from superset import app
 from superset.utils import get_celery_app
 

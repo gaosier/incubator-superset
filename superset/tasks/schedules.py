@@ -162,6 +162,7 @@ def create_webdriver():
     # Some webdrivers need an initial hit to the welcome URL
     # before we set the cookie
     welcome_url = _get_url_path('Superset.welcome')
+    logging.info("welcome_url: %s" % welcome_url)
 
     # Hit the welcome URL and check if we were asked to login
     driver.get(welcome_url)
@@ -174,6 +175,7 @@ def create_webdriver():
     # Set the cookies in the driver
     for cookie in _get_auth_cookies():
         info = dict(name='session', value=cookie)
+        logging.info("info: %s" % info)
         driver.add_cookie(info)
 
     return driver
@@ -216,10 +218,10 @@ def deliver_dashboard(schedule):
 
     # Set up a function to retry once for the element.
     # This is buggy in certain selenium versions with firefox driver
-    get_element = getattr(driver, 'find_element_by_class_name')
+    get_element = getattr(driver, 'find_element_by_id')
     element = retry_call(
         get_element,
-        fargs=['grid-container'],
+        fargs=['dashboard-container'],
         tries=2,
         delay=PAGE_RENDER_WAIT,
     )
@@ -416,7 +418,9 @@ def schedule_window(report_type, start_at, stop_at, resolution):
     each of them with a specific ETA (determined by parsing
     the cron schedule for the schedule)
     """
+    logging.info("report_type: %s, start_at:%s,  stop_at:%s, resolution:%s" % (report_type, start_at, stop_at, resolution))
     model_cls = get_scheduler_model(report_type)
+    logging.info("model_cls: %s" % model_cls)
     dbsession = db.create_scoped_session()
     schedules = dbsession.query(model_cls).filter(model_cls.active.is_(True))
 
@@ -425,13 +429,14 @@ def schedule_window(report_type, start_at, stop_at, resolution):
             report_type,
             schedule.id,
         )
-
+        logging.info("report_type: %s   schedule.id：%s  schedule.crontab:%s  " % (report_type, schedule.id, schedule.crontab))
         # Schedule the job for the specified time window
-        for eta in next_schedules(schedule.crontab,
-                                  start_at,
-                                  stop_at,
-                                  resolution=resolution):
-            schedule_email_report.apply_async(args, eta=eta)
+        # for eta in next_schedules(schedule.crontab,
+        #                           start_at,
+        #                           stop_at,
+        #                           resolution=resolution):
+        #     logging.info("eta: %s" % eta)
+        schedule_email_report.apply_async(args)
 
 
 @celery_app.task(name='email_reports.schedule_hourly')
@@ -446,8 +451,14 @@ def schedule_hourly():
 
     # Get the top of the hour
     start_at = datetime.now().replace(microsecond=0, second=0, minute=0)
-    print("start_at: ", start_at)
     stop_at = start_at + timedelta(seconds=3600)
-    print("stop_at: ", stop_at)
     schedule_window(ScheduleType.dashboard.value, start_at, stop_at, resolution)
     schedule_window(ScheduleType.slice.value, start_at, stop_at, resolution)
+
+
+@celery_app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    # Calls test('hello') every 10 seconds.
+    # sender.add_periodic_task(10.0, test.s('hello'), name='add every 10')
+
+    sender.add_periodic_task(120, schedule_hourly.s())

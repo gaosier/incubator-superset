@@ -9,6 +9,7 @@ from builtins import object
 from datetime import date, datetime, time, timedelta
 import decimal
 from email.mime.application import MIMEApplication
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
@@ -573,14 +574,19 @@ def notify_user_about_perm_udate(
                     dryrun=not config.get('EMAIL_NOTIFICATIONS'))
 
 
-def send_email_smtp(to, subject, html_content, config, files=None,
-                    dryrun=False, cc=None, bcc=None, mime_subtype='mixed'):
+def send_email_smtp(to, subject, html_content, config,
+                    files=None, data=None, images=None, dryrun=False,
+                    cc=None, bcc=None, mime_subtype='mixed'):
     """
     Send an email with html content, eg:
     send_email_smtp(
         'test@example.com', 'foo', '<b>Foo</b> bar',['/dev/null'], dryrun=True)
     """
+    logging.info("send_email_smtp: subject:%s  to:%s  " % (subject, to))
     smtp_mail_from = config.get('SMTP_MAIL_FROM')
+
+    logging.info("smtp_mail_from: %s" % smtp_mail_from)
+    logging.info("data:%s" % data)
 
     to = get_email_address_list(to)
 
@@ -588,6 +594,8 @@ def send_email_smtp(to, subject, html_content, config, files=None,
     msg['Subject'] = subject
     msg['From'] = smtp_mail_from
     msg['To'] = ', '.join(to)
+    msg.preamble = 'This is a multi-part message in MIME format.'
+
     recipients = to
     if cc:
         cc = get_email_address_list(cc)
@@ -611,6 +619,24 @@ def send_email_smtp(to, subject, html_content, config, files=None,
                     f.read(),
                     Content_Disposition="attachment; filename='%s'" % basename,
                     Name=basename))
+
+
+    # Attach any files passed directly
+    for name, body in (data or {}).items():
+        msg.attach(
+            MIMEApplication(
+                body,
+                Content_Disposition="attachment; filename='%s'" % name,
+                Name=name,
+            ))
+     # Attach any inline images, which may be required for display in
+    # HTML content (inline)
+    for msgid, body in (images or {}).items():
+        logging.info("msgid: %s" % msgid)
+        image = MIMEImage(body)
+        image.add_header('Content-ID', '<%s>' % msgid)
+        image.add_header('Content-Disposition', 'inline')
+        msg.attach(image)
 
     send_MIME_email(smtp_mail_from, recipients, msg, config, dryrun=dryrun)
 
@@ -642,11 +668,13 @@ def get_email_address_list(address_string):
     if isinstance(address_string, basestring):
         if ',' in address_string:
             address_string = address_string.split(',')
+        elif '\n' in address_string:
+            address_string = address_string.split('\n')
         elif ';' in address_string:
             address_string = address_string.split(';')
         else:
             address_string = [address_string]
-    return address_string
+    return [x.strip() for x in address_string]
 
 
 def choicify(values):
