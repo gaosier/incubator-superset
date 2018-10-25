@@ -19,13 +19,17 @@ import { appSetup } from '../common';
 import './main.css';
 import '../../stylesheets/reactable-pagination.css';
 
-appSetup();
-initJQueryAjax();
+appSetup();  // 加载ajax
+initJQueryAjax(); // 设置token
 
 const exploreViewContainer = document.getElementById('app');
-const bootstrapData = JSON.parse(exploreViewContainer.getAttribute('data-bootstrap'));
+const bootstrapData = JSON.parse(exploreViewContainer.getAttribute('data-bootstrap'));  // 后端传给前端的数据
+console.log('bootstrapData',bootstrapData);
+console.log('------>', bootstrapData.form_data);
 const controls = getControlsState(bootstrapData, bootstrapData.form_data);
+console.log('controls',controls);
 const rawFormData = { ...bootstrapData.form_data };
+console.log('rawFormData',rawFormData);
 delete bootstrapData.form_data;
 delete bootstrapData.common.locale;
 delete bootstrapData.common.language_pack;
@@ -40,6 +44,7 @@ const bootstrappedState = Object.assign(
     isStarred: false,
   },
 );
+console.log('bootstrappedState',bootstrappedState);
 const slice = bootstrappedState.slice;
 const sliceFormData = slice ?
   getFormDataFromControls(getControlsState(bootstrapData, slice.form_data))

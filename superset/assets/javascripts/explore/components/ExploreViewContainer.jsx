@@ -34,7 +34,9 @@ const propTypes = {
 
 class ExploreViewContainer extends React.Component {
   constructor(props) {
+    console.log('pppppppppppp',props);
     super(props);
+    console.log('-------------',this);
     this.firstLoad = true;
     this.loadingLog = new ActionLog({
       impressionId: props.impressionId,
@@ -264,6 +266,7 @@ class ExploreViewContainer extends React.Component {
       }
         <div className="row">
           <div className="col-sm-4">
+            {/*查询和保存两个按钮*/}
             <QueryAndSaveBtns
               canAdd="True"
               onQuery={this.onQuery.bind(this)}
@@ -274,6 +277,7 @@ class ExploreViewContainer extends React.Component {
               errorMessage={this.renderErrorMessage()}
             />
             <br />
+            {/*数据和样式*/}
             <ControlPanelsContainer
               actions={this.props.actions}
               form_data={this.props.form_data}
@@ -283,6 +287,7 @@ class ExploreViewContainer extends React.Component {
             />
           </div>
           <div className="col-sm-8">
+            {/*右侧图表*/}
             {this.renderChartContainer()}
           </div>
         </div>

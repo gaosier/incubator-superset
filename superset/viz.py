@@ -436,7 +436,6 @@ class BaseViz(object):
                     logging.error('Error reading cache: ' +
                                   utils.error_msg_from_exception(e))
                 logging.info('Serving from cache')
-
         if query_obj and not is_loaded:
             try:
                 df = self.get_df(query_obj)
@@ -1018,6 +1017,7 @@ class HighChartsViz(BaseViz):
             d['groupby'] = [groupby[0]]
 
         self.groupby = d['groupby']
+
 
 
 class BoxPlotViz(NVD3Viz):
@@ -2801,7 +2801,7 @@ class HCPieViz(HighChartsViz):
 
     def get_data(self, df):
         drill_down = False
-        index = self.reorder_columns(self.groupby)
+        index = self.reorder_columns([self.groupby[0]])
 
         df = df.pivot_table(
             index=index,
@@ -2823,6 +2823,20 @@ class HCPieViz(HighChartsViz):
             drill_down = True
         return {"data": chart_data, "drill_down": drill_down}
 
+class EchartsFunnelViz(BaseViz):
+
+    """ Funnel Chart"""
+    viz_type = 'echarts_funnel'
+    is_timeseries = False
+
+    def get_data(self, df):
+        df = df.pivot_table(
+        index=self.groupby,
+        values=[self.metrics[0]])
+        df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
+        df = df.reset_index()
+        df.columns = ['name', 'value']
+        return df.to_dict(orient='records')
 
 class HCColumnViz(HighChartsViz):
 
@@ -2849,6 +2863,7 @@ class HCColumnViz(HighChartsViz):
             raise Exception(_("You can only choose one include_time"))
 
         self.get_drill_cols(d, fd)
+
         return d
 
     def get_data(self, df):

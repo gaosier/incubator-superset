@@ -936,6 +936,125 @@ export const visTypes = {
       },
     },
   },
+    pie: {
+    label: t('Pie Chart'),
+    showOnExplore: true,
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metrics'],
+          ['groupby'],
+          ['order_by_metric'],
+          ['row_limit'],
+          // ['limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['pie_label_type'],
+          ['donut', 'show_legend'],
+          ['labels_outside'],
+          ['color_scheme'],
+        ],
+      },
+    ],
+  },
+  hc_column: {
+    label: t('Distribution - Bar Drilldown Chart'),
+    showOnExplore: true,
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metrics'],
+          ['groupby'],
+          ['columns'],
+          ['order_by_metric'],
+          // ['limit'],
+          ['row_limit'],
+          ['contribution'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['color_scheme'],
+          ['show_legend', 'show_bar_value'],
+          ['bar_stacked', 'order_bars'],
+          ['y_axis_format', 'bottom_margin'],
+          ['x_axis_label', 'y_axis_label'],
+          ['reduce_x_ticks', 'show_controls'],
+        ],
+      },
+    ],
+    controlOverrides: {
+      groupby: {
+        label: t('Series'),
+      },
+      columns: {
+        label: t('Breakdowns'),
+        description: t('Defines how each series is broken down'),
+        validators: [],
+        default:[],
+      },
+    },
+  },
+  hc_pie: {
+    label: t('Pie Drilldown Chart'),
+    showOnExplore: true,
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metrics'],
+          ['groupby'],
+          ['order_by_metric'],
+          ['row_limit'],
+          // ['limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        expanded: true,
+        controlSetRows: [
+          ['pie_label_type'],
+          ['donut', 'show_legend'],
+          ['labels_outside'],
+          ['color_scheme'],
+        ],
+      },
+    ],
+  },
+    // 新类型---start
+  echarts_funnel: {
+    label: t('Funnel View'),
+    showOnExplore: true,
+    controlPanelSections: [
+      {
+        label: t('Query'),
+        expanded: true,
+        controlSetRows: [
+          ['metrics','groupby'],
+          ['limit'],
+        ],
+      },
+      {
+        label: t('Chart Options'),
+        controlSetRows: [
+          ['color_scheme'],
+        ],
+      },
+    ],
+  },
+// 新类型--end
+
 
   deck_multi: {
     label: t('Deck.gl - Multiple Layers'),

@@ -19,6 +19,7 @@ export function fetchDashboards(userId) {
       type: 'GET',
       url,
       success: (data) => {
+        console.log(1111,data);
         const choices = [];
         for (let i = 0; i < data.pks.length; i++) {
           choices.push({ value: data.pks[i], label: data.result[i].dashboard_title });
@@ -62,6 +63,7 @@ export function saveSlice(formData, requestParams) {
         form_data: JSON.stringify(payload),
       },
       success: ((data) => {
+        console.log(22222,data);
         dispatch(saveSliceSuccess(data));
       }),
       error: (() => {
