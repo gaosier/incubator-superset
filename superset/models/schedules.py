@@ -1,11 +1,14 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
+# pylint: disable=no-member
 
-"""Models for scheduled execution of jobs"""
+"""定时发送邮件模块"""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+
 import enum
 from flask_appbuilder import Model
 from sqlalchemy import (
@@ -17,7 +20,7 @@ from sqlalchemy.orm import relationship
 from superset import security_manager
 from superset.models.helpers import AuditMixinNullable, ImportMixin
 
-metadata = Model.metadata  # pylint: disable=no-member
+metadata = Model.metadata
 
 
 class ScheduleType(enum.Enum):
@@ -37,12 +40,14 @@ class SliceEmailReportFormat(enum.Enum):
 
 class EmailSchedule(object):
     """
-      Schedules for emailing slices / dashboards
+      发送邮件
     """
     __tablename__ = 'email_schedules'
     id = Column(Integer, primary_key=True)
+    name = Column(String(60), nullable=False)
     active = Column(Boolean, default=True, index=True)
     crontab = Column(String(50))
+    comment = Column(Text)
 
     @declared_attr
     def user_id(self):
@@ -64,6 +69,9 @@ class DashboardEmailSchedule(Model,
                              AuditMixinNullable,
                              ImportMixin,
                              EmailSchedule):
+    """
+    发送看板邮件
+    """
     __tablename__ = 'dashboard_email_schedules'
     dashboard_id = Column(Integer, ForeignKey('dashboards.id'))
     dashboard = relationship(

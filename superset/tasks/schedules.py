@@ -29,6 +29,7 @@ from selenium.webdriver import chrome, firefox
 import simplejson as json
 from six.moves import urllib
 from werkzeug.utils import parse_cookie
+from celery.schedules import crontab
 
 # Superset framework imports
 from superset import app, db, security_manager
@@ -367,8 +368,7 @@ def deliver_slice(schedule):
     _deliver_email(schedule, subject, email)
 
 
-@celery_app.task(name='email_reports.send', bind=True, soft_time_limit=300)
-def schedule_email_report(task, report_type, schedule_id, recipients=None):
+def schedule_email_report(report_type, schedule_id, recipients=None):
     logging.info("enter into schedule_email_report ......")
     model_cls = get_scheduler_model(report_type)
     dbsession = db.create_scoped_session()
@@ -429,17 +429,17 @@ def schedule_window(report_type, start_at, stop_at, resolution):
             report_type,
             schedule.id,
         )
-        logging.info("report_type: %s   schedule.id：%s  schedule.crontab:%s  " % (report_type, schedule.id, schedule.crontab))
+        logging.info(
+            "report_type: %s   schedule.id：%s  schedule.crontab:%s  " % (report_type, schedule.id, schedule.crontab))
         # Schedule the job for the specified time window
-        # for eta in next_schedules(schedule.crontab,
-        #                           start_at,
-        #                           stop_at,
-        #                           resolution=resolution):
-        #     logging.info("eta: %s" % eta)
-        schedule_email_report.apply_async(args)
+        for eta in next_schedules(schedule.crontab,
+                                  start_at,
+                                  stop_at,
+                                  resolution=resolution):
+            logging.info("eta: %s     type(eta): %s" %(eta, type(eta)))
+            schedule_email_report.apply_async(args, eta=eta)
 
 
-@celery_app.task(name='email_reports.schedule_hourly')
 def schedule_hourly():
     """ Celery beat job meant to be invoked hourly """
     logging.info("enter into schedule_hourly ....")
@@ -456,9 +456,4 @@ def schedule_hourly():
     schedule_window(ScheduleType.slice.value, start_at, stop_at, resolution)
 
 
-@celery_app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    # Calls test('hello') every 10 seconds.
-    # sender.add_periodic_task(10.0, test.s('hello'), name='add every 10')
 
-    sender.add_periodic_task(120, schedule_hourly.s())

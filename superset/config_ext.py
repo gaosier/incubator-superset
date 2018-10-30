@@ -31,12 +31,6 @@ class CeleryConfig(object):
             'ignore_result': True,
         },
     }
-    # CELERYBEAT_SCHEDULE = {
-    #     'email_reports.schedule_hourly': {
-    #         'task': 'email_reports.schedule_hourly',
-    #         'schedule': crontab(minute=3, hour='*'),
-    #     },
-    # }
 
 
 CELERY_CONFIG = CeleryConfig
@@ -56,28 +50,29 @@ SUPERSET_MEMCACHED={
 
 BABEL_DEFAULT_LOCALE = 'zh'
 
-ENABLE_SCHEDULED_EMAIL_REPORTS = True
-EMAIL_REPORTS_CRON_RESOLUTION = 1
 timezone = 'Asia/Shanghai'
 
 # 邮件配置
 
 # Enable / disable scheduled email reports
 ENABLE_SCHEDULED_EMAIL_REPORTS = True
- # Email reports - minimum time resolution (in minutes) for the crontab
+
+# Email reports - minimum time resolution (in minutes) for the crontab
 EMAIL_REPORTS_CRON_RESOLUTION = 15
- # Email report configuration
+
+# Email report configuration
 # From address in emails
 EMAIL_REPORT_FROM_ADDRESS = 'reports@superset.org'
- # Send bcc of all reports to this address. Set to None to disable.
+
+# Send bcc of all reports to this address. Set to None to disable.
 # This is useful for maintaining an audit trail of all email deliveries.
 EMAIL_REPORT_BCC_ADDRESS = None
+
  # User credentials to use for generating reports
 # This user should have permissions to browse all the dashboards and
 # slices.
-# TODO: In the future, login as the owner of the item to generate reports
 EMAIL_REPORTS_USER = 'admin'
-EMAIL_REPORTS_SUBJECT_PREFIX = '[Report] '
+EMAIL_REPORTS_SUBJECT_PREFIX = '数据分析报告-'
  # The webdriver to use for generating reports. Use one of the following
 # firefox
 #   Requires: geckodriver and firefox installations
@@ -86,7 +81,8 @@ EMAIL_REPORTS_SUBJECT_PREFIX = '[Report] '
 #   Requires: headless chrome
 #   Limitations: unable to generate screenshots of elements
 EMAIL_REPORTS_WEBDRIVER = 'chrome'
- # Window size - this will impact the rendering of the data
+
+# Window size - this will impact the rendering of the data
 WEBDRIVER_WINDOW = {
     'dashboard': (1600, 2000),
     'slice': (3000, 1200),

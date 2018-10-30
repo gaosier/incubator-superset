@@ -16,8 +16,9 @@ from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
 import simplejson as json
 from wtforms import BooleanField, StringField
+from apscheduler.triggers.cron import CronTrigger
 
-from superset import app, appbuilder, db, security_manager
+from superset import app, appbuilder, db, security_manager, flask_scheduler
 from superset.exceptions import SupersetException
 from superset.models.core import Dashboard, Slice
 from superset.models.schedules import (
@@ -32,10 +33,6 @@ from .base import DeleteMixin, SupersetModelView
 
 
 class EmailScheduleView(SupersetModelView, DeleteMixin):
-    _extra_data = {
-        'test_email': False,
-        'test_email_recipients': None,
-    }
 
     schedule_type = None
     schedule_type_model = None
@@ -49,32 +46,10 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
     ]
     edit_exclude_columns = add_exclude_columns
     description_columns = {
-        'deliver_as_group': 'If enabled, send a single email to all '
-        'recipients (in email/To: field)',
-        'crontab': 'Unix style crontab schedule to deliver emails',
-        'delivery_type': 'Indicates how the rendered content is delivered',
+        'deliver_as_group': '如果选择了，邮件的接收人是所有的成员',
+        'crontab': 'Unix crontab 表达式',
+        'delivery_type': 'Inline:在正文里   Attachment:附件',
     }
-
-    add_form_extra_fields = {
-        'test_email': BooleanField(
-            'Send Test Email',
-            default=False,
-            description='If enabled, we send a test mail on create / update',
-        ),
-        'test_email_recipients': StringField(
-            'Test Email Recipients',
-            default=None,
-            description='List of recipients to send test email to. '
-                'If empty, we send it to the original recipients'
-        )
-    }
-
-    edit_form_extra_fields = add_form_extra_fields
-
-    def process_form(self, form, is_created):
-        recipients = form.test_email_recipients.data.strip() or None
-        self._extra_data['test_email'] = form.test_email.data
-        self._extra_data['test_email_recipients'] = recipients
 
     def pre_add(self, obj):
         try:
@@ -90,18 +65,36 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
         self.pre_add(obj)
 
     def post_add(self, obj):
-        # Schedule a test mail if the user requested for it.
-        if self._extra_data['test_email']:
-            recipients = self._extra_data['test_email_recipients']
+        if obj.active:
+            recipients = obj.recipients
             args = (self.schedule_type, obj.id)
             kwargs = dict(recipients=recipients)
-            schedule_email_report.apply_async(args=args, kwargs=kwargs)
 
-        if obj.active:
-            flash('Schedule changes will get applied in one hour', 'warning')
+            job_id = "%s_%s" % (obj.name, obj.id)
+            try:
+                flask_scheduler.add_job(job_id, schedule_email_report, args=args, kwargs=kwargs, replace_existing=True,
+                                        trigger=CronTrigger.from_crontab(obj.crontab))
+            except Exception as exc:
+                flash("添加定时任务失败: %s " % exc, 'warning')
 
     def post_update(self, obj):
+        """
+        先删除原来的任务，在添加新的任务
+        """
+        if obj.active:
+            job_id = "%s_%s" % (obj.name, obj.id)
+            if flask_scheduler.get_job(job_id):
+                flask_scheduler.remove_job(job_id)
         self.post_add(obj)
+
+    def post_delete(self, item):
+        """
+        删除定时任务时，删除apscheduler中的job
+        """
+        job_id = '%s_%s' % (item.name, item.id)
+        job = flask_scheduler.get_job(job_id)
+        if job:
+            flask_scheduler.remove_job(job_id)
 
     @has_access
     @expose('/fetch/<int:item_id>/', methods=['GET'])
@@ -127,12 +120,13 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
 class DashboardEmailScheduleView(EmailScheduleView):
     schedule_type = ScheduleType.dashboard.name
     schedule_type_model = Dashboard
-    add_title = 'Schedule Email Reports for Dashboards'
-    edit_title = add_title
-    list_title = 'Manage Email Reports for Dashboards'
+    add_title = '添加看板定时邮件'
+    edit_title = '编辑看板定时邮件'
+    list_title = "看板定时邮件"
     datamodel = SQLAInterface(DashboardEmailSchedule)
     order_columns = ['user', 'dashboard', 'created_on']
     list_columns = [
+        'name',
         'dashboard',
         'active',
         'crontab',
@@ -142,14 +136,14 @@ class DashboardEmailScheduleView(EmailScheduleView):
     ]
 
     add_columns = [
+        'name',
         'dashboard',
         'active',
         'crontab',
         'recipients',
         'deliver_as_group',
         'delivery_type',
-        'test_email',
-        'test_email_recipients'
+        'comment'
     ]
     edit_columns = add_columns
 
@@ -161,6 +155,7 @@ class DashboardEmailScheduleView(EmailScheduleView):
         'delivery_type',
     ]
     label_columns = {
+        'name': _('Name'),
         'dashboard': _('Dashboard'),
         'created_on': _('Created On'),
         'changed_on': _('Changed On'),
@@ -170,6 +165,7 @@ class DashboardEmailScheduleView(EmailScheduleView):
         'recipients': _('Recipients'),
         'deliver_as_group': _('Deliver As Group'),
         'delivery_type': _('Delivery Type'),
+        'comment': _('Comment')
     }
 
     def pre_add(self, obj):
@@ -181,12 +177,13 @@ class DashboardEmailScheduleView(EmailScheduleView):
 class SliceEmailScheduleView(EmailScheduleView):
     schedule_type = ScheduleType.slice.name
     schedule_type_model = Slice
-    add_title = 'Schedule Email Reports for Charts'
-    edit_title = add_title
-    list_title = 'Manage Email Reports for Charts'
+    add_title = '添加报表定时邮件'
+    edit_title = '编辑报表定时邮件'
+    list_title = '报表定时邮件'
     datamodel = SQLAInterface(SliceEmailSchedule)
     order_columns = ['user', 'slice', 'created_on']
     list_columns = [
+        'name',
         'slice',
         'active',
         'crontab',
@@ -197,6 +194,7 @@ class SliceEmailScheduleView(EmailScheduleView):
     ]
 
     add_columns = [
+        'name',
         'slice',
         'active',
         'crontab',
@@ -204,8 +202,7 @@ class SliceEmailScheduleView(EmailScheduleView):
         'deliver_as_group',
         'delivery_type',
         'email_format',
-        'test_email',
-        'test_email_recipients'
+        'comment',
     ]
     edit_columns = add_columns
 
@@ -228,6 +225,7 @@ class SliceEmailScheduleView(EmailScheduleView):
         'deliver_as_group': _('Deliver As Group'),
         'delivery_type': _('Delivery Type'),
         'email_format': _('Email Format'),
+        'comment': _('Comment')
     }
 
     def pre_add(self, obj):
@@ -240,15 +238,15 @@ def _register_schedule_menus():
     appbuilder.add_separator('Manage')
     appbuilder.add_view(
         DashboardEmailScheduleView,
-        'Dashboard Email Schedules',
+        'Dashboard Emails',
         label=__('Dashboard Emails'),
         category='Manage',
         category_label=__('Manage'),
         icon='fa-search')
     appbuilder.add_view(
         SliceEmailScheduleView,
-        'Chart Emails',
-        label=__('Chart Email Schedules'),
+        'Chart Email',
+        label=__('Chart Email'),
         category='Manage',
         category_label=__('Manage'),
         icon='fa-search')
