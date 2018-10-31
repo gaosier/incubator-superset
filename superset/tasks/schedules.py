@@ -11,14 +11,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from collections import namedtuple
-from datetime import datetime, timedelta
 from email.utils import make_msgid, parseaddr
-import logging
 import time
 
-
-import croniter
-from dateutil.tz import tzlocal
 from flask import render_template, Response, session, url_for
 from flask_babel import gettext as __
 from flask_login import login_user
@@ -29,17 +24,15 @@ from selenium.webdriver import chrome, firefox
 import simplejson as json
 from six.moves import urllib
 from werkzeug.utils import parse_cookie
-from celery.schedules import crontab
 
-# Superset framework imports
-from superset import app, db, security_manager
+from superset import app, db, security_manager, aps_logger
 from superset.models.schedules import (
     EmailDeliveryType,
     get_scheduler_model,
     ScheduleType,
     SliceEmailReportFormat,
 )
-from superset.tasks.celery_app import app as celery_app
+
 from superset.utils import (
     get_email_address_list,
     send_email_smtp,
@@ -47,7 +40,6 @@ from superset.utils import (
 
 # Globals
 config = app.config
-logging.getLogger('tasks.email_reports').setLevel(logging.INFO)
 
 # Time in seconds, we will wait for the page to load and render
 PAGE_RENDER_WAIT = 30
@@ -163,7 +155,7 @@ def create_webdriver():
     # Some webdrivers need an initial hit to the welcome URL
     # before we set the cookie
     welcome_url = _get_url_path('Superset.welcome')
-    logging.info("welcome_url: %s" % welcome_url)
+    aps_logger.info("welcome_url: %s" % welcome_url)
 
     # Hit the welcome URL and check if we were asked to login
     driver.get(welcome_url)
@@ -176,7 +168,7 @@ def create_webdriver():
     # Set the cookies in the driver
     for cookie in _get_auth_cookies():
         info = dict(name='session', value=cookie)
-        logging.info("info: %s" % info)
+        aps_logger.info("info: %s" % info)
         driver.add_cookie(info)
 
     return driver
@@ -369,14 +361,13 @@ def deliver_slice(schedule):
 
 
 def schedule_email_report(report_type, schedule_id, recipients=None):
-    logging.info("enter into schedule_email_report ......")
     model_cls = get_scheduler_model(report_type)
     dbsession = db.create_scoped_session()
     schedule = dbsession.query(model_cls).get(schedule_id)
 
     # The user may have disabled the schedule. If so, ignore this
     if not schedule or not schedule.active:
-        logging.info('Ignoring deactivated schedule')
+        aps_logger.info('Ignoring deactivated schedule')
         return
 
     # TODO: Detach the schedule object from the db session
@@ -390,70 +381,6 @@ def schedule_email_report(report_type, schedule_id, recipients=None):
         deliver_slice(schedule)
     else:
         raise RuntimeError('Unknown report type')
-
-
-def next_schedules(crontab, start_at, stop_at, resolution=0):
-    crons = croniter.croniter(crontab, start_at - timedelta(seconds=1))
-    previous = start_at - timedelta(days=1)
-
-    for eta in crons.all_next(datetime):
-        # Do not cross the time boundary
-        if eta >= stop_at:
-            break
-
-        if eta < start_at:
-            continue
-
-        # Do not allow very frequent tasks
-        if eta - previous < timedelta(seconds=resolution):
-            continue
-
-        yield eta
-        previous = eta
-
-
-def schedule_window(report_type, start_at, stop_at, resolution):
-    """
-    Find all active schedules and schedule celery tasks for
-    each of them with a specific ETA (determined by parsing
-    the cron schedule for the schedule)
-    """
-    logging.info("report_type: %s, start_at:%s,  stop_at:%s, resolution:%s" % (report_type, start_at, stop_at, resolution))
-    model_cls = get_scheduler_model(report_type)
-    logging.info("model_cls: %s" % model_cls)
-    dbsession = db.create_scoped_session()
-    schedules = dbsession.query(model_cls).filter(model_cls.active.is_(True))
-
-    for schedule in schedules:
-        args = (
-            report_type,
-            schedule.id,
-        )
-        logging.info(
-            "report_type: %s   schedule.id：%s  schedule.crontab:%s  " % (report_type, schedule.id, schedule.crontab))
-        # Schedule the job for the specified time window
-        for eta in next_schedules(schedule.crontab,
-                                  start_at,
-                                  stop_at,
-                                  resolution=resolution):
-            logging.info("eta: %s     type(eta): %s" %(eta, type(eta)))
-            schedule_email_report.apply_async(args, eta=eta)
-
-
-def schedule_hourly():
-    """ Celery beat job meant to be invoked hourly """
-    logging.info("enter into schedule_hourly ....")
-    if not config.get('ENABLE_SCHEDULED_EMAIL_REPORTS'):
-        logging.info('Scheduled email reports not enabled in config')
-        return
-
-    resolution = config.get('EMAIL_REPORTS_CRON_RESOLUTION', 0) * 60
-
-    # Get the top of the hour
-    start_at = datetime.now().replace(microsecond=0, second=0, minute=0)
-    stop_at = start_at + timedelta(seconds=3600)
-    schedule_window(ScheduleType.dashboard.value, start_at, stop_at, resolution)
-    schedule_window(ScheduleType.slice.value, start_at, stop_at, resolution)
 
 
 

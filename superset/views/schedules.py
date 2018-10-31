@@ -15,10 +15,9 @@ from flask_appbuilder.security.decorators import has_access
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
 import simplejson as json
-from wtforms import BooleanField, StringField
 from apscheduler.triggers.cron import CronTrigger
 
-from superset import app, appbuilder, db, security_manager, flask_scheduler
+from superset import app, appbuilder, db, security_manager, flask_scheduler, aps_logger
 from superset.exceptions import SupersetException
 from superset.models.core import Dashboard, Slice
 from superset.models.schedules import (
@@ -74,17 +73,15 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
             try:
                 flask_scheduler.add_job(job_id, schedule_email_report, args=args, kwargs=kwargs, replace_existing=True,
                                         trigger=CronTrigger.from_crontab(obj.crontab))
+                aps_logger.info("添加定时任务成功: job_id: %s" % job_id)
             except Exception as exc:
+                aps_logger.error("添加定时任务失败：job_id: %s  msg:%s" %(job_id, exc))
                 flash("添加定时任务失败: %s " % exc, 'warning')
 
     def post_update(self, obj):
         """
-        先删除原来的任务，在添加新的任务
+        更新的任务
         """
-        if obj.active:
-            job_id = "%s_%s" % (obj.name, obj.id)
-            if flask_scheduler.get_job(job_id):
-                flask_scheduler.remove_job(job_id)
         self.post_add(obj)
 
     def post_delete(self, item):

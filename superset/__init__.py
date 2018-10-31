@@ -177,6 +177,22 @@ security_manager = appbuilder.sm
 results_backend = app.config.get('RESULTS_BACKEND')
 
 # ################# apscheduler config  #############################
+if os.environ.get("APS_LOG_FILE"):
+    APS_LOG_FILE = os.environ.get("APS_LOG_FILE")
+else:
+    APS_LOG_FILE = os.path.join(os.path.dirname(APP_DIR), 'apscheduler.log')
+aps_logger = logging.getLogger('flask_apscheduler')
+aps_logger.setLevel(app.config.get('TIME_ROTATE_LOG_LEVEL'))
+handler = TimedRotatingFileHandler(
+    APS_LOG_FILE,
+    when=app.config.get('ROLLOVER'),
+    interval=app.config.get('INTERVAL'),
+    backupCount=app.config.get('BACKUP_COUNT'))
+
+formatter = logging.Formatter('%(asctime)s  %(filename)s : %(levelname)s [%(funcName)s]:%(lineno)s  %(message)s')
+handler.setFormatter(formatter)
+
+aps_logger.addHandler(handler)
 
 jobstore_url = os.environ['KINGKONG_DB']
 if jobstore_url:
