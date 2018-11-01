@@ -137,11 +137,13 @@ def create_webdriver():
     if config.get('EMAIL_REPORTS_WEBDRIVER') == 'firefox':
         driver_class = firefox.webdriver.WebDriver
         options = firefox.options.Options()
+        options.add_argument('--headless')
     elif config.get('EMAIL_REPORTS_WEBDRIVER') == 'chrome':
         driver_class = chrome.webdriver.WebDriver
         options = chrome.options.Options()
-
-    options.add_argument('--headless')
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
 
     # Prepare args for the webdriver init
     kwargs = dict(

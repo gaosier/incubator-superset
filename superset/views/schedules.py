@@ -25,7 +25,7 @@ from superset.models.schedules import (
     ScheduleType,
     SliceEmailSchedule,
 )
-from superset.tasks.schedules import schedule_email_report
+
 from superset.utils import get_email_address_list, json_iso_dttm_ser
 from superset.views.core import json_success
 from .base import DeleteMixin, SupersetModelView
@@ -64,6 +64,7 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
         self.pre_add(obj)
 
     def post_add(self, obj):
+        from superset.tasks.schedules import schedule_email_report
         if obj.active:
             recipients = obj.recipients
             args = (self.schedule_type, obj.id)
@@ -86,6 +87,7 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
             job_id = "%s_%s" % (obj.name, obj.id)
             if flask_scheduler.get_job(job_id):
                 flask_scheduler.remove_job(job_id)
+                aps_logger.info("remove job: %s" % job_id)
         self.post_add(obj)
 
     def post_delete(self, item):
