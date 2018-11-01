@@ -1029,13 +1029,6 @@ export const visTypes = {
         ],
       },
     ],
-    controlOverrides: {
-      metrics: {
-        // multi: false,
-        validators: [v.nonEmpty],
-        default:[],
-      },
-    },
   },
     // 新类型---start
   echarts_funnel: {
