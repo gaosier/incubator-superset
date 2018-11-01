@@ -34,9 +34,7 @@ const propTypes = {
 
 class ExploreViewContainer extends React.Component {
   constructor(props) {
-    console.log('pppppppppppp',props);
     super(props);
-    console.log('-------------',this);
     this.firstLoad = true;
     this.loadingLog = new ActionLog({
       impressionId: props.impressionId,

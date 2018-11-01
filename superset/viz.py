@@ -278,7 +278,7 @@ class BaseViz(object):
 
     def query_obj(self):
         """Building a query object"""
-        form_data = self.form_data
+        form_data = copy.deepcopy(self.form_data)
         gb = form_data.get('groupby') or []
         metrics = form_data.get('metrics') or []
         columns = form_data.get('columns') or []
@@ -294,6 +294,7 @@ class BaseViz(object):
 
         # Add extra filters into the query form data
         merge_extra_filters(form_data)
+
 
         granularity = (
             form_data.get('granularity') or
@@ -2796,13 +2797,13 @@ class HCPieViz(HighChartsViz):
                 raise Exception(_("The number of metric should be only one"))
         d['is_timeseries'] = self.should_be_timeseries()
 
+
         self.get_drill_cols(d, fd)
         return d
 
     def get_data(self, df):
         drill_down = False
-        index = self.reorder_columns([self.groupby[0]])
-
+        index = self.reorder_columns(self.groupby)
         df = df.pivot_table(
             index=index,
             values=[self.metrics[0]])

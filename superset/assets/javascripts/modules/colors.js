@@ -146,7 +146,6 @@ export const getColorFromScheme = (function () {
     let stringifyS = String(s).toLowerCase();
     // next line is for superset series that should have the same color
     stringifyS = stringifyS.replace('---', '');
-
     if (forcedColor && !forcedColors[stringifyS]) {
       forcedColors[stringifyS] = forcedColor;
     }
@@ -192,3 +191,11 @@ export function hexToRGB(hex, alpha = 255) {
   const b = parseInt(hex.slice(5, 7), 16);
   return [r, g, b, alpha];
 }
+
+
+export const getColor =  function(scheme){
+
+  const selectedSchemecolor = scheme ? ALL_COLOR_SCHEMES[scheme] : ALL_COLOR_SCHEMES.bnbColors;
+  return selectedSchemecolor
+
+};

@@ -985,11 +985,9 @@ export const visTypes = {
         expanded: true,
         controlSetRows: [
           ['color_scheme'],
-          ['show_legend', 'show_bar_value'],
-          ['bar_stacked', 'order_bars'],
-          ['y_axis_format', 'bottom_margin'],
+          ['show_legend'],
+          ['y_axis_format'],
           ['x_axis_label', 'y_axis_label'],
-          ['reduce_x_ticks', 'show_controls'],
         ],
       },
     ],
@@ -1013,7 +1011,7 @@ export const visTypes = {
         label: t('Query'),
         expanded: true,
         controlSetRows: [
-          ['metrics'],
+          ['metric'],
           ['groupby'],
           ['order_by_metric'],
           ['row_limit'],
@@ -1031,6 +1029,13 @@ export const visTypes = {
         ],
       },
     ],
+    controlOverrides: {
+      metrics: {
+        // multi: false,
+        validators: [v.nonEmpty],
+        default:[],
+      },
+    },
   },
     // 新类型---start
   echarts_funnel: {
