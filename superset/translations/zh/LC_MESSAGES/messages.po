@@ -3427,6 +3427,30 @@ msgstr "有特殊排序列"
 msgid "If there are any columns that need to be sorted, check them out."
 msgstr "如果有需要进行特殊排序的列，就勾选"
 
+msgid "Active"
+msgstr "激活"
+
+msgid "Crontab"
+msgstr "调度时间"
+
+msgid "Recipients"
+msgstr "邮件接收人"
+
+msgid "Deliver As Group"
+msgstr "是否按组发送"
+
+msgid "Delivery Type"
+msgstr "邮件类型"
+
+msgid "Comment"
+msgstr "备注"
+
+msgid "Dashboard Emails"
+msgstr "看板邮件"
+
+msgid "Chart Email"
+msgstr "报表邮件"
+
 
 
 

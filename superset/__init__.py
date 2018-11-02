@@ -18,9 +18,13 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.contrib.fixers import ProxyFix
 
+from flask_apscheduler import APScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.jobstores.memory import MemoryJobStore
+
 from superset import config, utils
 from superset.connectors.connector_registry import ConnectorRegistry
-from superset import utils, config  # noqa
+from superset import utils, config
 from superset.fab.base import SupersetAppBuilder as AppBuilder
 from superset.security import SupersetSecurityManager
 
@@ -171,6 +175,51 @@ appbuilder = AppBuilder(
 security_manager = appbuilder.sm
 
 results_backend = app.config.get('RESULTS_BACKEND')
+
+# ################# apscheduler config  #############################
+if os.environ.get("APS_LOG_FILE"):
+    APS_LOG_FILE = os.environ.get("APS_LOG_FILE")
+else:
+    APS_LOG_FILE = os.path.join(os.path.dirname(APP_DIR), 'apscheduler.log')
+aps_logger = logging.getLogger('flask_apscheduler')
+aps_logger.setLevel(app.config.get('TIME_ROTATE_LOG_LEVEL'))
+handler = TimedRotatingFileHandler(
+    APS_LOG_FILE,
+    when=app.config.get('ROLLOVER'),
+    interval=app.config.get('INTERVAL'),
+    backupCount=app.config.get('BACKUP_COUNT'))
+
+formatter = logging.Formatter('%(asctime)s  %(filename)s : %(levelname)s [%(funcName)s]:%(lineno)s  %(message)s')
+handler.setFormatter(formatter)
+
+aps_logger.addHandler(handler)
+
+jobstore_url = os.environ['KINGKONG_DB']
+if jobstore_url:
+    jobstores = {
+        'default': SQLAlchemyJobStore(url=jobstore_url)
+    }
+else:
+    jobstores = {
+        'default': MemoryJobStore()
+    }
+
+executors = {
+    'default': {'type': 'threadpool', 'max_workers': 20},
+}
+
+job_defaults = {
+    'coalesce': False,
+    'max_instances': 3
+}
+
+flask_scheduler = APScheduler(app=app)
+flask_scheduler.init_app(app)
+flask_scheduler.scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
+flask_scheduler.start()
+
+# ################### end ############################
+
 
 # Registering sources
 module_datasource_map = app.config.get('DEFAULT_MODULE_DS_MAP')

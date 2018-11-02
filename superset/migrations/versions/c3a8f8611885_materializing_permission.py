@@ -40,7 +40,7 @@ def upgrade():
             slc.perm = slc.datasource.perm
             session.merge(slc)
             session.commit()
-    db.session.close()
+    session.close()
 
 
 def downgrade():

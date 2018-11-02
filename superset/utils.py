@@ -9,6 +9,7 @@ from builtins import object
 from datetime import date, datetime, time, timedelta
 import decimal
 from email.mime.application import MIMEApplication
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
@@ -41,8 +42,10 @@ from sqlalchemy.types import TEXT, TypeDecorator
 
 from superset.exceptions import SupersetException, SupersetTimeoutException
 
-
 logging.getLogger('MARKDOWN').setLevel(logging.INFO)
+
+aps_logger = logging.getLogger('flask_apscheduler')
+aps_logger.setLevel(logging.INFO)
 
 PY3K = sys.version_info >= (3, 0)
 EPOCH = datetime(1970, 1, 1)
@@ -57,9 +60,9 @@ def flasher(msg, severity=None):
         flash(msg, severity)
     except RuntimeError:
         if severity == 'danger':
-            logging.error(msg)
+            aps_logger.error(msg)
         else:
-            logging.info(msg)
+            aps_logger.info(msg)
 
 
 class _memoized(object):  # noqa
@@ -201,7 +204,7 @@ def parse_human_datetime(s):
                 parsed_dttm = parsed_dttm.replace(hour=0, minute=0, second=0)
             dttm = dttm_from_timtuple(parsed_dttm.utctimetuple())
         except Exception as e:
-            logging.exception(e)
+            aps_logger.exception(e)
             raise ValueError("Couldn't parse date string [{}]".format(s))
     return dttm
 
@@ -494,7 +497,7 @@ class timeout(object):
         self.error_message = error_message
 
     def handle_timeout(self, signum, frame):
-        logging.error('Process timed out')
+        aps_logger.error('Process timed out')
         raise SupersetTimeoutException(self.error_message)
 
     def __enter__(self):
@@ -502,14 +505,14 @@ class timeout(object):
             signal.signal(signal.SIGALRM, self.handle_timeout)
             signal.alarm(self.seconds)
         except ValueError as e:
-            logging.warning("timeout can't be used in the current context")
+            aps_logger.warning("timeout can't be used in the current context")
             logging.exception(e)
 
     def __exit__(self, type, value, traceback):
         try:
             signal.alarm(0)
         except ValueError as e:
-            logging.warning("timeout can't be used in the current context")
+            aps_logger.warning("timeout can't be used in the current context")
             logging.exception(e)
 
 
@@ -566,21 +569,25 @@ def notify_user_about_perm_udate(
         granter, user, role, datasource, tpl_name, config):
     msg = render_template(tpl_name, granter=granter, user=user, role=role,
                           datasource=datasource)
-    logging.info(msg)
+    aps_logger.info(msg)
     subject = __('[Superset] Access to the datasource %(name)s was granted',
                  name=datasource.full_name)
     send_email_smtp(user.email, subject, msg, config, bcc=granter.email,
                     dryrun=not config.get('EMAIL_NOTIFICATIONS'))
 
 
-def send_email_smtp(to, subject, html_content, config, files=None,
-                    dryrun=False, cc=None, bcc=None, mime_subtype='mixed'):
+def send_email_smtp(to, subject, html_content, config,
+                    files=None, data=None, images=None, dryrun=False,
+                    cc=None, bcc=None, mime_subtype='mixed'):
     """
     Send an email with html content, eg:
     send_email_smtp(
         'test@example.com', 'foo', '<b>Foo</b> bar',['/dev/null'], dryrun=True)
     """
+    aps_logger.info("send_email_smtp: subject:%s  to:%s  " % (subject, to))
     smtp_mail_from = config.get('SMTP_MAIL_FROM')
+
+    aps_logger.info("smtp_mail_from: %s" % smtp_mail_from)
 
     to = get_email_address_list(to)
 
@@ -588,6 +595,8 @@ def send_email_smtp(to, subject, html_content, config, files=None,
     msg['Subject'] = subject
     msg['From'] = smtp_mail_from
     msg['To'] = ', '.join(to)
+    msg.preamble = 'This is a multi-part message in MIME format.'
+
     recipients = to
     if cc:
         cc = get_email_address_list(cc)
@@ -612,6 +621,24 @@ def send_email_smtp(to, subject, html_content, config, files=None,
                     Content_Disposition="attachment; filename='%s'" % basename,
                     Name=basename))
 
+
+    # Attach any files passed directly
+    for name, body in (data or {}).items():
+        msg.attach(
+            MIMEApplication(
+                body,
+                Content_Disposition="attachment; filename='%s'" % name,
+                Name=name,
+            ))
+     # Attach any inline images, which may be required for display in
+    # HTML content (inline)
+    for msgid, body in (images or {}).items():
+        aps_logger.info("msgid: %s" % msgid)
+        image = MIMEImage(body)
+        image.add_header('Content-ID', '<%s>' % msgid)
+        image.add_header('Content-Disposition', 'inline')
+        msg.attach(image)
+
     send_MIME_email(smtp_mail_from, recipients, msg, config, dryrun=dryrun)
 
 
@@ -630,23 +657,25 @@ def send_MIME_email(e_from, e_to, mime_msg, config, dryrun=False):
             s.starttls()
         if SMTP_USER and SMTP_PASSWORD:
             s.login(SMTP_USER, SMTP_PASSWORD)
-        logging.info('Sent an alert email to ' + str(e_to))
+        aps_logger.info('Sent an report email to ' + str(e_to))
         s.sendmail(e_from, e_to, mime_msg.as_string())
         s.quit()
     else:
-        logging.info('Dryrun enabled, email notification content is below:')
-        logging.info(mime_msg.as_string())
+        aps_logger.info('Dryrun enabled, email notification content is below:')
+        aps_logger.info(mime_msg.as_string())
 
 
 def get_email_address_list(address_string):
     if isinstance(address_string, basestring):
         if ',' in address_string:
             address_string = address_string.split(',')
+        elif '\n' in address_string:
+            address_string = address_string.split('\n')
         elif ';' in address_string:
             address_string = address_string.split(';')
         else:
             address_string = [address_string]
-    return address_string
+    return [x.strip() for x in address_string]
 
 
 def choicify(values):
@@ -788,7 +817,7 @@ def get_or_create_main_db():
     from superset import conf, db
     from superset.models import core as models
 
-    logging.info('Creating database reference')
+    aps_logger.info('Creating database reference')
     dbobj = (
         db.session.query(models.Database)
         .filter_by(database_name='main')
