@@ -78,7 +78,7 @@ def _generate_mail_content(schedule, screenshot, name, url):
             'screenshot.png': screenshot,
         }
         body = __(
-            '<b><a href="%(url)s">Explore in Superset</a></b><p></p>',
+            '',
             name=name,
             url=url,
         )
@@ -94,7 +94,6 @@ def _generate_mail_content(schedule, screenshot, name, url):
         data = None
         body = __(
             """
-            <b><a href="%(url)s">Explore in Superset</a></b><p></p>
             <img src="cid:%(msgid)s">
             """,
             name=name, url=url, msgid=msgid,

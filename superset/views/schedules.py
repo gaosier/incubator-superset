@@ -70,7 +70,7 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
             args = (self.schedule_type, obj.id)
             kwargs = dict(recipients=recipients)
 
-            job_id = "%s_%s" % (obj.name, obj.id)
+            job_id = "%s_%s_%s" % (obj.name, self.schedule_type, obj.id)
             try:
                 flask_scheduler.add_job(job_id, schedule_email_report, args=args, kwargs=kwargs, replace_existing=True,
                                         trigger=CronTrigger.from_crontab(obj.crontab))
@@ -89,7 +89,7 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
         """
         删除定时任务时，删除apscheduler中的job
         """
-        job_id = '%s_%s' % (item.name, item.id)
+        job_id = "%s_%s_%s" % (item.name, self.schedule_type, item.id)
         job = flask_scheduler.get_job(job_id)
         if job:
             flask_scheduler.remove_job(job_id)
