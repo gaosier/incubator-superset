@@ -133,7 +133,9 @@ def _get_url_path(view, **kwargs):
 
 
 def create_webdriver():
-    # Create a webdriver for use in fetching reports
+    """
+    创建 webdriver
+    """
     if config.get('EMAIL_REPORTS_WEBDRIVER') == 'firefox':
         driver_class = firefox.webdriver.WebDriver
         options = firefox.options.Options()
@@ -151,16 +153,16 @@ def create_webdriver():
     )
     kwargs.update(config.get('WEBDRIVER_CONFIGURATION'))
 
-    # Initialize the driver
     driver = driver_class(**kwargs)
 
-    # Some webdrivers need an initial hit to the welcome URL
-    # before we set the cookie
     welcome_url = _get_url_path('Superset.welcome')
     aps_logger.info("welcome_url: %s" % welcome_url)
 
-    # Hit the welcome URL and check if we were asked to login
-    driver.get(welcome_url)
+    try:
+        driver.get(welcome_url)
+    except Exception as exc:
+        aps_logger.error("open the url error: %s" % str(exc))
+        raise ValueError(exc)
     elements = driver.find_elements_by_id('loginbox')
 
     # This indicates that we were not prompted for a login box.
@@ -170,7 +172,7 @@ def create_webdriver():
     # Set the cookies in the driver
     for cookie in _get_auth_cookies():
         info = dict(name='session', value=cookie)
-        aps_logger.info("info: %s" % info)
+        aps_logger.info("session info: %s" % info)
         driver.add_cookie(info)
 
     return driver
@@ -237,6 +239,7 @@ def deliver_dashboard(schedule):
         dashboard.dashboard_title,
         dashboard_url,
     )
+    aps_logger.info("Generate the email success !!!")
 
     subject = __(
         '%(prefix)s %(title)s',
@@ -367,12 +370,10 @@ def schedule_email_report(report_type, schedule_id, recipients=None):
     dbsession = db.create_scoped_session()
     schedule = dbsession.query(model_cls).get(schedule_id)
 
-    # The user may have disabled the schedule. If so, ignore this
     if not schedule or not schedule.active:
         aps_logger.info('Ignoring deactivated schedule')
         return
 
-    # TODO: Detach the schedule object from the db session
     if recipients is not None:
         schedule.id = schedule_id
         schedule.recipients = recipients

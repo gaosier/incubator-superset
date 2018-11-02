@@ -83,11 +83,6 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
         """
         更新的任务
         """
-        if obj.active:
-            job_id = "%s_%s" % (obj.name, obj.id)
-            if flask_scheduler.get_job(job_id):
-                flask_scheduler.remove_job(job_id)
-                aps_logger.info("remove job: %s" % job_id)
         self.post_add(obj)
 
     def post_delete(self, item):

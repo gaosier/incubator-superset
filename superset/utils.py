@@ -588,7 +588,6 @@ def send_email_smtp(to, subject, html_content, config,
     smtp_mail_from = config.get('SMTP_MAIL_FROM')
 
     aps_logger.info("smtp_mail_from: %s" % smtp_mail_from)
-    aps_logger.info("data:%s" % data)
 
     to = get_email_address_list(to)
 
@@ -658,7 +657,7 @@ def send_MIME_email(e_from, e_to, mime_msg, config, dryrun=False):
             s.starttls()
         if SMTP_USER and SMTP_PASSWORD:
             s.login(SMTP_USER, SMTP_PASSWORD)
-        aps_logger.info('Sent an alert email to ' + str(e_to))
+        aps_logger.info('Sent an report email to ' + str(e_to))
         s.sendmail(e_from, e_to, mime_msg.as_string())
         s.quit()
     else:
