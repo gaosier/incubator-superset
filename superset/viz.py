@@ -43,6 +43,11 @@ from superset.utils import DTTM_ALIAS, JS_MAX_INTEGER, merge_extra_filters
 config = app.config
 stats_logger = config.get('STATS_LOGGER')
 
+METRIC_KEYS = [
+    'metric', 'metrics', 'percent_metrics', 'metric_2', 'secondary_metric',
+    'x', 'y', 'size',
+]
+
 
 class BaseViz(object):
 
@@ -66,6 +71,7 @@ class BaseViz(object):
         self.query = ''
         self.token = self.form_data.get(
             'token', 'token_' + uuid.uuid4().hex[:8])
+
         metrics = self.form_data.get('metrics') or []
         self.metrics = []
         for metric in metrics:
@@ -111,9 +117,9 @@ class BaseViz(object):
         if isinstance(metric, dict):
             return metric.get('label')
 
-    def reorder_columns(self, columns,type=1):
+    def reorder_columns(self, columns, type=1):
         fd = self.form_data
-        if type==1:
+        if type == 1:
             if fd.get('include_time'):
                 columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
         else:
@@ -987,6 +993,55 @@ class NVD3Viz(BaseViz):
     is_timeseries = False
 
 
+class HighChartsViz(BaseViz):
+
+    """Base class for all highcharts vizs"""
+
+    credits = '<a href="https://www.highcharts.com/">highcharts.org</a>'
+    viz_type = None
+    verbose_name = 'Base Highcharts Viz'
+    is_timeseries = False
+
+    def get_drill_cols(self, d, fd):
+        """
+        获取下钻时grouby的字段
+        :param d: 处理之后的form_data
+        :param fd: self.form_data
+        """
+        groupby = d.get('groupby')
+        if fd.get("extra_filters"):
+            filters = fd.get("extra_filters")[0]
+            level_name = filters.get("col")
+            inx = groupby.index(level_name)
+            d['groupby'] = groupby[:inx + 2]
+        else:
+            d['groupby'] = [groupby[0]]
+
+        self.groupby = d['groupby']
+
+    def get_query_string_response(self):
+        query = None
+        error_msg = ''
+        try:
+            query_obj = self.query_obj()
+            if query_obj:
+                query = self.datasource.get_query_str(query_obj)
+        except Exception as e:
+            logging.exception(e)
+            error_msg = str(e)
+            query_obj = None
+
+        if query_obj and query_obj['prequeries']:
+            query_obj['prequeries'].append(query)
+            query = ';\n\n'.join(query_obj['prequeries'])
+        if query:
+            query += ';'
+        else:
+            query = 'No query.'
+
+        return {'query': query, 'language': self.datasource.query_language, 'error': error_msg}
+
+
 class BoxPlotViz(NVD3Viz):
 
     """Box plot viz from ND3"""
@@ -1405,7 +1460,6 @@ class NVD3TimeSeriesViz(NVD3Viz):
         if self._extra_chart_data:
             chart_data += self._extra_chart_data
             chart_data = sorted(chart_data, key=lambda x: tuple(x['key']))
-
         return chart_data
 
 
@@ -1646,6 +1700,7 @@ class DistributionBarViz(DistributionPieViz):
 
         columns = fd.get('columns') or []
         index = self.groupby
+
         if not self.should_be_timeseries() and DTTM_ALIAS in df:
             del df[DTTM_ALIAS]
         else:
@@ -2742,6 +2797,125 @@ class PartitionViz(NVD3TimeSeriesViz):
         else:
             levels = self.levels_for('agg_sum', [DTTM_ALIAS] + groups, df)
         return self.nest_values(levels)
+
+
+class HCPieViz(HighChartsViz):
+
+    """用highcharts实现的饼图，能实现图表的向下钻取功能"""
+
+    viz_type = 'hc_pie'
+    verbose_name = _('HighCharts - Pie Chart')
+    is_timeseries = False
+
+    def query_obj(self):
+        d = super(HighChartsViz, self).query_obj()
+        fd = self.form_data
+        order_by_metric = fd.get('order_by_metric') or []
+        d['orderby'] = self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
+
+        if self.viz_type == 'hc_pie':
+            if len(self.form_data.get("metrics")) !=1:
+                raise Exception(_("The number of metric should be only one"))
+        d['is_timeseries'] = self.should_be_timeseries()
+
+        self.get_drill_cols(d, fd)
+        return d
+
+    def get_data(self, df):
+        drill_down = False
+        index = self.reorder_columns(self.groupby)
+
+        df = df.pivot_table(
+            index=index,
+            values=[self.metrics[0]])
+
+        df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
+        df = df.reset_index()
+
+        if len(index) > 1 :   # 分组多选时，将其进行拼接
+            se = df[index[0]].astype('str')
+            for i in index[1:]:
+                se = se + '/' + df[i].astype('str')
+            df.insert(0, 'new_x', se)
+            df = df.drop(index, axis=1)
+        df.columns = ['x', 'y']
+
+        chart_data = [{"name": item[0], "y": item[1]} for item in zip(df.x.tolist(), df.y.tolist())]
+        if self.groupby < self.form_data.get('groupby'):
+            drill_down = True
+
+        query_str = self.get_query_string_response()
+        payload = {"data": chart_data, "drill_down": drill_down}
+        payload.update(query_str)
+        return payload
+
+
+class HCColumnViz(HighChartsViz):
+
+    """highcharts 柱状图"""
+
+    viz_type = 'hc_column'
+    verbose_name = _('HighCharts - Column')
+    is_timeseries = False
+
+    def query_obj(self):
+        d = super(HCColumnViz, self).query_obj()
+        fd = self.form_data
+        if (
+            len(d['groupby']) <
+            len(fd.get('groupby') or []) + len(fd.get('columns') or [])
+        ):
+            raise Exception(
+                _("Can't have overlap between Series and Breakdowns"))
+        if not fd.get('metrics'):
+            raise Exception(_("Pick at least one metric"))
+        if not fd.get('groupby') and not fd.get('include_time'):
+            raise Exception(_("Pick at least one field for [Series]"))
+        if fd.get('include_time') and fd.get('include_time_2'):
+            raise Exception(_("You can only choose one include_time"))
+
+        self.get_drill_cols(d, fd)
+        return d
+
+    def get_data(self, df):
+        drill_down = False
+        fd = self.form_data
+        index = self.groupby
+
+        if not self.should_be_timeseries() and DTTM_ALIAS in df:
+            del df[DTTM_ALIAS]
+        else:
+            index=self.reorder_columns(index)
+
+        cols_in_index_or_column, special_sort_cols = self.get_special_sort_data(index, [])
+
+        if cols_in_index_or_column:
+            for col in cols_in_index_or_column[1]:
+                df[col] = df[col].replace(special_sort_cols.get(col))  # 替换df
+
+        pt = df.pivot_table(
+            index=index,
+            values=self.metrics)
+
+        if cols_in_index_or_column:   # 特殊字段排序
+            pt = self.deal_sort(pt, cols_in_index_or_column, special_sort_cols, index)
+
+        if fd.get('contribution'):
+            pt = pt.fillna(0)
+            pt = pt.T
+            pt = (pt / pt.sum()).T
+
+        x_name = index[-1]
+        y_name = self.metrics[0]
+
+        chart_data = [{"name": item[0], "y": item[1]} for item in zip(df[x_name].tolist(), df[y_name].tolist())]
+        if self.groupby < self.form_data.get('groupby'):
+            drill_down = True
+
+        query_str = self.get_query_string_response()
+        payload = {"data": chart_data, "drill_down": drill_down}
+        payload.update(query_str)
+        return payload
 
 
 viz_types = {
