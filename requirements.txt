@@ -82,3 +82,7 @@ redis
 DictObject
 xlsxwriter==1.0.5
 python-binary-memcached
+Flask-APScheduler
+croniter==0.3.25
+selenium==3.14.0
+retry==0.9.2

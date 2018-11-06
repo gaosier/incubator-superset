@@ -16,7 +16,7 @@ from flask_script import Manager
 from pathlib2 import Path
 import yaml
 
-from superset import app, data, db, dict_import_export_util, security_manager, utils
+from superset import app, data, db, dict_import_export_util, security_manager, utils, flask_scheduler
 
 config = app.config
 celery_app = utils.get_celery_app(config)

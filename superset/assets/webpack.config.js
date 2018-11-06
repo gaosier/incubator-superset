@@ -23,6 +23,7 @@ const config = {
     sqllab: ['babel-polyfill', APP_DIR + '/javascripts/SqlLab/index.jsx'],
     welcome: ['babel-polyfill', APP_DIR + '/javascripts/welcome/index.jsx'],
     profile: ['babel-polyfill', APP_DIR + '/javascripts/profile/index.jsx'],
+    datacenter: ['babel-polyfill', APP_DIR + '/javascripts/datacenter/index.jsx'],
   },
   output: {
     path: BUILD_DIR,

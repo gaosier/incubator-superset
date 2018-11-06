@@ -961,6 +961,23 @@ class SqlaTable(Model, BaseDatasource):
             logging.info('表{0}的排序参数不是合法的json'.format(self.id))
         return exp
 
+    @classmethod
+    def get_table_list(cls, group_id, perms):
+        data = []
+        if perms:
+            querys = db.session.query(cls).filter(cls.group_id == group_id).filter(cls.perm.in_(perms))
+        else:
+            querys = db.session.query(cls).filter(cls.group_id == group_id)
+        for query in querys:
+            table = {}
+            table['id'] = query.id
+            table['name'] = query.link
+            table['database'] = query.database.name
+            table['changed_by'] = query.changed_by_
+            table['modified'] = query.modified()
+            data.append(table)
+        return data
+
 
 sa.event.listen(SqlaTable, 'after_insert', set_perm)
 sa.event.listen(SqlaTable, 'after_update', set_perm)

@@ -5,3 +5,4 @@ from . import sql_lab  # noqa
 from . import annotations # noqa
 
 from . import core_ext  # noqa
+from . import schedules
