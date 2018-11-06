@@ -2823,7 +2823,6 @@ class HCPieViz(HighChartsViz):
 
 
         self.get_drill_cols(d, fd)
-        print('d',d)
         return d
 
     def get_data(self, df):

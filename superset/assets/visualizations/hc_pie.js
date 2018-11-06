@@ -23,6 +23,7 @@ Highcharts.setOptions({
 
 function hc_pie(slice, payload) {
     let a = 0;
+    let b = 0;
     const div = d3.select(slice.selector);
     const sliceId = 'hc_pie_slice_' + slice.formData.slice_id;
     const html = '<div id=' + sliceId + ' style="width:' + slice.width() + 'px;height:' + slice.height() + 'px;"></div>';
@@ -36,19 +37,65 @@ function hc_pie(slice, payload) {
         data.push(item);
     });
     let next_type = 'pie';
+    let query_sql = [payload.query];
     let dafaultMenuItem = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
     const chart = {
         subtitle: {
-            text: 'The tooltip should provide a HTML table where the table is closed in the footerFormat'
+            text: 'Drill down the pie chart'
+        },
+        chart: {
+            type: 'pie',
+            events: {
+                drillup: function (e) {
+                    // 上钻回调事件
+                    a -= 1;
+                    query_sql.pop();
+                    b -= 1;
+                },
+                drilldown: function (e) {
+                    if (!e.seriesOptions) {
+                        var chart = this;
+                        chart.showLoading('正在加载数据 ...');
+                        const formdata = fd;
+                        const val = e.point.name.split('/');
+                        formdata["extra_filters"] = [{
+                            "col": formdata.groupby[a],
+                            "op": "==",
+                            "val": val[val.length - 1]
+                        }];
+                        a += 1;
+                        $.ajax({
+                            url: encodeURI("/superset/explore_json/?form_data={\"slice_id\"\:" + formdata.slice_id + "}"),
+                            type: "POST",
+                            data: {form_data: JSON.stringify(formdata)},
+                            timeout: 15000,
+                            success: function (data) {
+                                const drill_down_data = [];
+                                data.data.data.forEach(function (item) {
+                                    item.drilldown = data.data.drill_down;
+                                    drill_down_data.push(item);
+                                });
+                                query_sql.push(data.query);
+                                b += 1;
+                                const drill_down = {
+                                    name: 'value',
+                                    type: next_type,
+                                    data: drill_down_data
+                                };
+                                const series = drill_down;
+                                chart.hideLoading();
+                                chart.addSeriesAsDrilldown(e.point, series);
+                            },
+                            error: function (xhr, status, err) {
+                                alert('数据获取失败,请重试');
+                            },
+                        });
+                    }
+                }
+            }
         },
         exporting: {
             buttons: {
-                exportButton: {
-                    y: 0 //默认是10
-                },
-                printButton: {
-                    y: 0
-                },
                 contextButton: {
                     // 自定义导出菜单项目及顺序
                     menuItems: [
@@ -95,7 +142,7 @@ function hc_pie(slice, payload) {
                                     this.parentNode.parentNode.parentNode.style.display = "none"; //这里时为了获得 modal_bc;
                                 }
 
-                                create_modal(false, "你确定要提交该单词么", commitResult);
+                                create_modal(false, query_sql, commitResult);
 
                                 function create_modal(alert_or_confirm, modal_contents, confirm_trigger_function) {
                                     let modal_bg = document.createElement("div");
@@ -124,7 +171,7 @@ function hc_pie(slice, payload) {
                                         "margin:10% auto;";
                                     modal_title.style.cssText = "color:black;" +
                                         "font-family: Helvetica, Arial;" +
-                                        "font-weight: 300;"+
+                                        "font-weight: 300;" +
                                         "text-align:center;" +
                                         "font-size: 18px;" +
                                         "width:100%;" +
@@ -151,8 +198,8 @@ function hc_pie(slice, payload) {
                                     document.body.appendChild(modal_bg);
 
                                     //给模态框添加相应的内容
-                                    modal_title.innerHTML = "聚合查询";
-                                    modal_little_content.innerHTML = modal_contents;
+                                    modal_title.innerHTML = "查询语句";
+                                    modal_little_content.innerHTML = modal_contents[b];
                                     // modal_footer.innerHTML = "This is a modal footer";
 
                                     // 制作关闭按钮
@@ -183,54 +230,6 @@ function hc_pie(slice, payload) {
                             }
                         }
                     ]
-                }
-            }
-        },
-        chart: {
-            type: 'pie',
-            events: {
-                drillup: function (e) {
-                    // 上钻回调事件
-                    a -= 1;
-                },
-                drilldown: function (e) {
-                    if (!e.seriesOptions) {
-                        var chart = this;
-                        chart.showLoading('正在加载数据 ...');
-                        const formdata = fd;
-                        const val = e.point.name.split('/');
-                        formdata["extra_filters"] = [{
-                            "col": formdata.groupby[a],
-                            "op": "==",
-                            "val": val[val.length - 1]
-                        }];
-                        a += 1;
-                        $.ajax({
-                            url: encodeURI("/superset/explore_json/?form_data={\"slice_id\"\:" + formdata.slice_id + "}"),
-                            type: "POST",
-                            data: {form_data: JSON.stringify(formdata)},
-                            timeout: 15000,
-                            success: function (data) {
-                                console.log(data);
-                                const drill_down_data = [];
-                                data.data.data.forEach(function (item) {
-                                    item.drilldown = data.data.drill_down;
-                                    drill_down_data.push(item);
-                                });
-                                const drill_down = {
-                                    name: 'value',
-                                    type: next_type,
-                                    data: drill_down_data
-                                };
-                                const series = drill_down;
-                                chart.hideLoading();
-                                chart.addSeriesAsDrilldown(e.point, series);
-                            },
-                            error: function (xhr, status, err) {
-                                alert('数据获取失败,请重试');
-                            },
-                        });
-                    }
                 }
             }
         },
