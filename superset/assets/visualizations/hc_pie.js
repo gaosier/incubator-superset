@@ -150,13 +150,15 @@ function hc_pie(slice, payload) {
 
                                     let modal_title = document.createElement("div");
                                     let modal_content = document.createElement("div");
-                                    let modal_little_content = document.createElement("div");
+                                    let modal_little_content = document.createElement("pre");
+                                    let modal_copy_btn = document.createElement('button');
                                     //设置id
                                     modal_bg.setAttribute("id", "modal_bg");
                                     modal_container.setAttribute("id", "modal_container");
                                     modal_title.setAttribute("id", "modal_title");
                                     modal_content.setAttribute("id", "modal_content");
                                     modal_little_content.setAttribute("id", "modal_little_content");
+                                    modal_copy_btn.setAttribute("id", "copy");
                                     //设置样式
                                     modal_bg.style.cssText = "display:block;" +
                                         "background-color: rgba(0,0,0,0.4);" +
@@ -187,21 +189,37 @@ function hc_pie(slice, payload) {
                                         "color:black;" +
                                         "width:500px;" +
                                         "height:210px;";
+                                    modal_copy_btn.style.cssText =
+                                        "border-width: 0px;" + /* 边框宽度 */
+                                        "border-radius: 3px;" + /* 边框半径 */
+                                        "cursor: pointer;" + /* 鼠标移入按钮范围时出现手势 */
+                                        "font-family: Microsoft YaHei;" + /* 设置字体 */
+
 
 
                                     modal_container.appendChild(modal_title);
                                     modal_container.appendChild(modal_content);
+                                    modal_content.appendChild(modal_copy_btn);
                                     modal_content.appendChild(modal_little_content);
-                                    // modal_container.appendChild(modal_footer);
                                     modal_bg.appendChild(modal_container);
                                     //将整个模态框添加到body中
                                     document.body.appendChild(modal_bg);
 
                                     //给模态框添加相应的内容
+                                    modal_copy_btn.innerHTML = "复制";
                                     modal_title.innerHTML = "查询语句";
                                     modal_little_content.innerHTML = modal_contents[b];
-                                    // modal_footer.innerHTML = "This is a modal footer";
 
+                                    modal_copy_btn.addEventListener('click',() => {
+                                        const input = document.createElement('input');
+                                        document.body.appendChild(input);
+                                        input.setAttribute('value', modal_contents[b]);
+                                        input.select();
+                                        if (document.execCommand('copy')) {
+                                            document.execCommand('copy');
+                                        }
+                                        document.body.removeChild(input);
+                                    });
                                     // 制作关闭按钮
                                     let close_button = document.createElement("span");
                                     close_button.innerHTML = "&times;";

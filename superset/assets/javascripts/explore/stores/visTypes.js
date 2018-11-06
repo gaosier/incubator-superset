@@ -1030,29 +1030,6 @@ export const visTypes = {
       },
     ],
   },
-    // 新类型---start
-  echarts_funnel: {
-    label: t('Funnel View'),
-    showOnExplore: true,
-    controlPanelSections: [
-      {
-        label: t('Query'),
-        expanded: true,
-        controlSetRows: [
-          ['metrics','groupby'],
-          ['limit'],
-        ],
-      },
-      {
-        label: t('Chart Options'),
-        controlSetRows: [
-          ['color_scheme'],
-        ],
-      },
-    ],
-  },
-// 新类型--end
-
 
   deck_multi: {
     label: t('Deck.gl - Multiple Layers'),

@@ -3433,13 +3433,6 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
 
-echarts@^4.2.0-rc.2:
-  version "4.2.0-rc.2"
-  resolved "http://registry.npm.taobao.org/echarts/download/echarts-4.2.0-rc.2.tgz#6a98397aafa81b65cbf0bc15d9afdbfb244df91e"
-  integrity sha1-apg5eq+oG2XL8LwV2a/b+yRN+R4=
-  dependencies:
-    zrender "4.0.5"
-
 editor@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/editor/-/editor-1.0.0.tgz#60c7f87bd62bcc6a894fa8ccd6afb7823a24f742"
@@ -11141,8 +11134,3 @@ zip@^1.2.0:
   integrity sha1-rQrUImUwm+QutW/IYZThfCTmapw=
   dependencies:
     bops "~0.1.1"
-
-zrender@4.0.5:
-  version "4.0.5"
-  resolved "http://registry.npm.taobao.org/zrender/download/zrender-4.0.5.tgz#6e8f738971ce2cd624aac82b2156729b1c0e5a82"
-  integrity sha1-bo9ziXHOLNYkqsgrIVZymxwOWoI=

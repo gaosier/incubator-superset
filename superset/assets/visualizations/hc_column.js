@@ -4,8 +4,8 @@ import $ from 'jquery';
 
 
 function hc_column(slice, payload) {
-    let f = 0;
-    let b = 0;
+    let f = 0; // 定义位于第几层，为了找到是第几层groupby
+    let b = 0; // 定义位于第几层,为了找到sql语句是第几个
     const div = d3.select(slice.selector);
     const sliceId = 'hc_column_slice_' + slice.formData.slice_id;
     const html = '<div id=' + sliceId + ' style="width:' + slice.width() + 'px;height:' + slice.height() + 'px;"></div>';
@@ -35,6 +35,7 @@ function hc_column(slice, payload) {
                     b -= 1;
                 },
                 drilldown: function (e) {
+                    // 下钻事件
                     if (!e.seriesOptions) {
                         var chart = this;
                         chart.showLoading('正在加载数据 ...');
@@ -50,7 +51,7 @@ function hc_column(slice, payload) {
                         $.ajax({
                             url: encodeURI("/superset/explore_json/?form_data={\"slice_id\"\:" + formdata.slice_id + "}"),
                             type: "POST",
-                            data: {form_data: JSON.stringify(formdata)},
+                            data: {form_data: JSON.stringify(formdata)}, // 构建form表单
                             timeout: 15000,
                             success: function (data) {
                                 const drill_down_data = [];
@@ -58,7 +59,7 @@ function hc_column(slice, payload) {
                                     item.drilldown = data.data.drill_down;
                                     drill_down_data.push(item);
                                 });
-                                query_sql.push(data.query);
+                                query_sql.push(data.query); // sql语句
                                 b += 1;
                                 const drill_down = {
                                     name: 'value',
@@ -120,6 +121,7 @@ function hc_column(slice, payload) {
                         dafaultMenuItem[1],
                         {
                             text: '查询语句',
+                            // 显示查询语句模态框
                             onclick: function () {
                                 function commitResult() { // 要出发的函数
                                     this.parentNode.parentNode.parentNode.style.display = "none"; //这里时为了获得 modal_bc;
@@ -133,13 +135,15 @@ function hc_column(slice, payload) {
 
                                     let modal_title = document.createElement("div");
                                     let modal_content = document.createElement("div");
-                                    let modal_little_content = document.createElement("div");
+                                    let modal_little_content = document.createElement("pre");
+                                    let modal_copy_btn = document.createElement('button');
                                     //设置id
                                     modal_bg.setAttribute("id", "modal_bg");
                                     modal_container.setAttribute("id", "modal_container");
                                     modal_title.setAttribute("id", "modal_title");
                                     modal_content.setAttribute("id", "modal_content");
                                     modal_little_content.setAttribute("id", "modal_little_content");
+                                    modal_copy_btn.setAttribute("id", "copy");
                                     //设置样式
                                     modal_bg.style.cssText = "display:block;" +
                                         "background-color: rgba(0,0,0,0.4);" +
@@ -170,19 +174,36 @@ function hc_column(slice, payload) {
                                         "color:black;" +
                                         "width:500px;" +
                                         "height:210px;";
-
+                                    modal_copy_btn.style.cssText =
+                                        "border-width: 0px;" + /* 边框宽度 */
+                                        "border-radius: 3px;" + /* 边框半径 */
+                                        "cursor: pointer;" + /* 鼠标移入按钮范围时出现手势 */
+                                        "font-family: Microsoft YaHei;" + /* 设置字体 */
 
                                     modal_container.appendChild(modal_title);
                                     modal_container.appendChild(modal_content);
+                                    modal_content.appendChild(modal_copy_btn);
                                     modal_content.appendChild(modal_little_content);
                                     modal_bg.appendChild(modal_container);
                                     //将整个模态框添加到body中
                                     document.body.appendChild(modal_bg);
 
                                     //给模态框添加相应的内容
+                                    modal_copy_btn.innerHTML = "复制";
                                     modal_title.innerHTML = "查询语句";
                                     modal_little_content.innerHTML = modal_contents[b];
-                                    // modal_footer.innerHTML = "This is a modal footer";
+
+                                    //复制按钮
+                                    modal_copy_btn.addEventListener('click',() => {
+                                        const input = document.createElement('input');
+                                        document.body.appendChild(input);
+                                        input.setAttribute('value', modal_contents[b]);
+                                        input.select();
+                                        if (document.execCommand('copy')) {
+                                            document.execCommand('copy');
+                                        }
+                                        document.body.removeChild(input);
+                                    });
 
                                     // 制作关闭按钮
                                     let close_button = document.createElement("span");
@@ -228,6 +249,7 @@ function hc_column(slice, payload) {
             title:{
                 text:fd.y_axis_label
             },
+            // 改变x轴刻度
             labels:{
                 formatter:function(){
                     if(fd.y_axis_format ==='.'){
@@ -250,15 +272,18 @@ function hc_column(slice, payload) {
             }
             }
         },
+        // 是否显示图例
         legend: {
             enabled: fd.show_legend,
         },
+        // 格式化显示信息
         tooltip: {
             formatter: function() {
             return '<b>'+ this.point.name +'</b>: ' +'('+
                          Highcharts.numberFormat(this.y, 0, ',') +' )';
          }
                     },
+        // 更改颜色
         colors :colorlist,
         plotOptions: {
             series: {

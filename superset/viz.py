@@ -2852,20 +2852,6 @@ class HCPieViz(HighChartsViz):
         payload.update(query_str)
         return payload
 
-class EchartsFunnelViz(BaseViz):
-
-    """ Funnel Chart"""
-    viz_type = 'echarts_funnel'
-    is_timeseries = False
-
-    def get_data(self, df):
-        df = df.pivot_table(
-        index=self.groupby,
-        values=[self.metrics[0]])
-        df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
-        df = df.reset_index()
-        df.columns = ['name', 'value']
-        return df.to_dict(orient='records')
 
 class HCColumnViz(HighChartsViz):
 
