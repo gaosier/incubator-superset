@@ -18,7 +18,7 @@ const propTypes = {
   warning: PropTypes.string,
   clickfunc: PropTypes.func,
   opts: PropTypes.array,
-  store: PropTypes.store,
+  // store: PropTypes.store, PropTypes.store不是proptype存在的
   sorttext: PropTypes.string,
   button: PropTypes.string,
 };

@@ -2790,15 +2790,18 @@ class HCPieViz(HighChartsViz):
         d = super(HighChartsViz, self).query_obj()
         fd = self.form_data
         order_by_metric = fd.get('order_by_metric') or []
+        metric = self.form_data.get('metric')
+        if not metric:
+            raise Exception(_('Pick a metric!'))
+        d['metrics'] = [self.form_data.get('metric')]
+        self.metric = metric
         d['orderby'] = self.filter_groupby_orderby(order_by_metric,d['metrics'],d['groupby'])
 
-        if self.viz_type == 'hc_pie':
-            if len(self.form_data.get("metrics")) !=1:
-                raise Exception(_("The number of metric should be only one"))
         d['is_timeseries'] = self.should_be_timeseries()
 
 
         self.get_drill_cols(d, fd)
+        print('d',d)
         return d
 
     def get_data(self, df):
@@ -2806,9 +2809,9 @@ class HCPieViz(HighChartsViz):
         index = self.reorder_columns(self.groupby)
         df = df.pivot_table(
             index=index,
-            values=[self.metrics[0]])
+            values=[self.metric])
 
-        df.sort_values(by=self.metrics[0], ascending=False, inplace=True)
+        df.sort_values(by=self.metric, ascending=False, inplace=True)
         df = df.reset_index()
 
         if len(index) > 1 :   # 分组多选时，将其进行拼接

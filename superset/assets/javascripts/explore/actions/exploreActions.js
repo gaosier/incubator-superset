@@ -106,7 +106,6 @@ export function fetchFaveStar(sliceId) {
   return function (dispatch) {
     const url = `${FAVESTAR_BASE_URL}/${sliceId}/count`;
     $.get(url, (data) => {
-      console.log('----->',data);
       if (data.count > 0) {
         dispatch(toggleFaveStar(true));
       }
