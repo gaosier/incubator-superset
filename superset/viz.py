@@ -1019,6 +1019,28 @@ class HighChartsViz(BaseViz):
 
         self.groupby = d['groupby']
 
+    def get_query_string_response(self):
+        query = None
+        error_msg = ''
+        try:
+            query_obj = self.query_obj()
+            if query_obj:
+                query = self.datasource.get_query_str(query_obj)
+        except Exception as e:
+            logging.exception(e)
+            error_msg = str(e)
+            query_obj = None
+
+        if query_obj and query_obj['prequeries']:
+            query_obj['prequeries'].append(query)
+            query = ';\n\n'.join(query_obj['prequeries'])
+        if query:
+            query += ';'
+        else:
+            query = 'No query.'
+
+        return {'query': query, 'language': self.datasource.query_language, 'error': error_msg}
+
 
 
 class BoxPlotViz(NVD3Viz):
@@ -2825,7 +2847,11 @@ class HCPieViz(HighChartsViz):
         chart_data = [{"name": item[0], "y": item[1]} for item in zip(df.x.tolist(), df.y.tolist())]
         if self.groupby < self.form_data.get('groupby'):
             drill_down = True
-        return {"data": chart_data, "drill_down": drill_down}
+
+        query_str = self.get_query_string_response()
+        payload = {"data": chart_data, "drill_down": drill_down}
+        payload.update(query_str)
+        return payload
 
 class EchartsFunnelViz(BaseViz):
 
@@ -2904,7 +2930,11 @@ class HCColumnViz(HighChartsViz):
         chart_data = [{"name": item[0], "y": item[1]} for item in zip(df[x_name].tolist(), df[y_name].tolist())]
         if self.groupby < self.form_data.get('groupby'):
             drill_down = True
-        return {"data": chart_data, "drill_down": drill_down}
+
+        query_str = self.get_query_string_response()
+        payload = {"data": chart_data, "drill_down": drill_down}
+        payload.update(query_str)
+        return payload
 
 
 viz_types = {
