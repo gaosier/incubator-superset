@@ -90,7 +90,7 @@ WEBDRIVER_WINDOW = {
  # Any config options to be passed as-is to the webdriver
 WEBDRIVER_CONFIGURATION = {}
  # The base URL to query for accessing the user interface
-WEBDRIVER_BASEURL = 'http://0.0.0.0:8088/'
+WEBDRIVER_BASEURL = 'http://kingkong.dev.aixuexi.com/'
 SCHEDULED_EMAIL_DEBUG_MODE = False
 
 # smtp server configuration
