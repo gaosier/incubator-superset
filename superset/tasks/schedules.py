@@ -60,6 +60,7 @@ def _get_recipients(schedule):
 
 
 def _deliver_email(schedule, subject, email):
+    aps_logger.info("deliver email: subject: %s" % subject)
     for (to, bcc) in _get_recipients(schedule):
         send_email_smtp(
             to, subject, email.body, config,
@@ -72,6 +73,7 @@ def _deliver_email(schedule, subject, email):
 
 
 def _generate_mail_content(schedule, screenshot, name, url):
+    aps_logger.info("generate mail content")
     if schedule.delivery_type == EmailDeliveryType.attachment:
         images = None
         data = {
@@ -162,6 +164,7 @@ def create_webdriver():
     except Exception as exc:
         aps_logger.error("open the url error: %s" % str(exc))
         raise ValueError(exc)
+    aps_logger.info("get welcome_url success !!!!")
     elements = driver.find_elements_by_id('loginbox')
 
     # This indicates that we were not prompted for a login box.
@@ -204,6 +207,7 @@ def deliver_dashboard(schedule):
         'Superset.dashboard',
         dashboard_id=dashboard.id,
     )
+    aps_logger.info("dashboard_url: %s" % dashboard_url)
 
     # Create a driver, fetch the page, wait for the page to render
     driver = create_webdriver()
@@ -222,6 +226,8 @@ def deliver_dashboard(schedule):
         delay=PAGE_RENDER_WAIT,
     )
 
+    if element:
+        aps_logger.info("dashboard find element ....")
     try:
         screenshot = element.screenshot_as_png
     except WebDriverException:
@@ -348,6 +354,7 @@ def deliver_slice(schedule):
     """
     Given a schedule, delivery the slice as an email report
     """
+    aps_logger.info("begin to get slice data or visualization")
     if schedule.email_format == SliceEmailReportFormat.data:
         email = _get_slice_data(schedule)
     elif schedule.email_format == SliceEmailReportFormat.visualization:
@@ -365,24 +372,29 @@ def deliver_slice(schedule):
 
 
 def schedule_email_report(report_type, schedule_id, recipients=None):
-    model_cls = get_scheduler_model(report_type)
-    dbsession = db.create_scoped_session()
-    schedule = dbsession.query(model_cls).get(schedule_id)
+    aps_logger.info("begin to schedule email report")
+    try:
+        model_cls = get_scheduler_model(report_type)
+        dbsession = db.create_scoped_session()
+        schedule = dbsession.query(model_cls).get(schedule_id)
 
-    if not schedule or not schedule.active:
-        aps_logger.info('Ignoring deactivated schedule')
-        return
+        if not schedule or not schedule.active:
+            aps_logger.info('Ignoring deactivated schedule')
+            return
 
-    if recipients is not None:
-        schedule.id = schedule_id
-        schedule.recipients = recipients
+        if recipients is not None:
+            schedule.id = schedule_id
+            schedule.recipients = recipients
 
-    if report_type == ScheduleType.dashboard.value:
-        deliver_dashboard(schedule)
-    elif report_type == ScheduleType.slice.value:
-        deliver_slice(schedule)
-    else:
-        raise RuntimeError('Unknown report type')
+        aps_logger.info("report_type: %s " % report_type)
 
+        if report_type == ScheduleType.dashboard.value:
+            deliver_dashboard(schedule)
+        elif report_type == ScheduleType.slice.value:
+            deliver_slice(schedule)
+        else:
+            raise RuntimeError('Unknown report type')
+    except Exception as exc:
+        aps_logger.error("send email error: %s" % str(exc))
 
 
