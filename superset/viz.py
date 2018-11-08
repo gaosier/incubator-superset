@@ -807,6 +807,11 @@ class PivotTableViz(BaseViz):
                     values.remove('All')
                     values.append('All')
                     df = df.reindex(index=old_index, columns=df[values].columns)
+        parsed_columns = list(map(
+            lambda x: list(map(str, x)) if type(x) == tuple else [x],
+            df.columns.values,
+        ))
+        print('parsed_columns:', parsed_columns)
 
         # 空值填充
         df = df.replace([np.inf, -np.inf, None], np.nan)
@@ -815,7 +820,8 @@ class PivotTableViz(BaseViz):
         if is_xlsx:
             return df
         return dict(
-            columns=list(df.columns),
+            # columns=list(df.columns),
+            columns=parsed_columns,
             html=df.to_html(
                 na_rep='',
                 classes=(
