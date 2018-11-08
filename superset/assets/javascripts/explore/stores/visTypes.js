@@ -127,6 +127,20 @@ export const visTypes = {
         ],
       },
       {
+        label: t('Column Configuration'),
+        description: t('Advanced configuration on columns'),
+        controlSetRows: [
+          ['column_configuration'],
+        ],
+      },
+        {
+            label: t('Row Configuration'),
+            description: t('Advanced configuration on rows'),
+            controlSetRows: [
+                ['row_configuration'],
+            ],
+        },
+      {
         label: t('Options'),
         expanded: true,
         controlSetRows: [
@@ -247,6 +261,21 @@ export const visTypes = {
           ['pandas_aggfunc', 'number_format'],
           ['pandas_fill_column', null],
           ['pivot_margins', 'combine_metric','pivot_group_sum'],
+          ['row_configuration_priority'],
+        ],
+      },
+      {
+        label: t('Column Configuration'),
+        description: 'Advanced configuration on columns',
+        controlSetRows: [
+          ['column_configuration'],
+        ],
+      },
+      {
+        label: 'Row Configuration',
+        description: 'Advanced configuration on rows',
+        controlSetRows: [
+          ['row_configuration'],
         ],
       },
     ],

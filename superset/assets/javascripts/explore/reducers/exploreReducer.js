@@ -56,6 +56,23 @@ export default function exploreReducer(state = {}, action) {
       }
       return Object.assign({}, state, changes);
     },
+    [actions.SET_FETCH_COLUMNS]() {
+      // transfer the columns in props to the control who has method updateOnFetch
+      const controls = Object.assign({}, state.controls);
+      let changed = false;
+      Object.keys(controls).forEach((key) => {
+        const control = controls[key];
+        if (control.updateOnFetch) {
+          controls[key] = Object.assign({}, control, control.updateOnFetch(action.queryResponse));
+          changed = true;
+        }
+      });
+      const changes = { controls };
+      if (changed) {
+        changes.triggerRender = true;
+      }
+      return Object.assign({}, state, changes);
+    },
     [actions.SET_EXPLORE_CONTROLS]() {
       const controls = getControlsState(state, action.formData);
       return Object.assign({}, state, { controls });
