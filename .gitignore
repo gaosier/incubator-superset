@@ -44,3 +44,4 @@ venv
 log
 *.pid
 celerybeat-schedule
+sqllab/

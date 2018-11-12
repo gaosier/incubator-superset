@@ -1,13 +1,17 @@
-#-*-coding:utf-8-*-
+# -*-coding:utf-8-*-
 import os
-from celery.schedules import crontab
 from werkzeug.contrib.cache import RedisCache
 
 from superset.custom_user.sec import MySecurityManager
 
 from superset.config import DATA_DIR
 
+# flask-sqlalchemy config
 SQLALCHEMY_DATABASE_URI = os.environ['KINGKONG_DB']
+SQLALCHEMY_POOL_SIZE = 50
+SQLALCHEMY_POOL_RECYCLE = 3600
+SQLALCHEMY_MAX_OVERFLOW = 10
+
 APP_ICON = "/static/assets/images/logo.png" 
 
 
