@@ -45,3 +45,4 @@ log
 *.pid
 celerybeat-schedule
 sqllab/
+*.log*
