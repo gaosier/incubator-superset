@@ -1344,8 +1344,11 @@ export const controls = {
     }),
     mapStateToProps: state => ({
       columns: (state.controls && state.controls.column_configuration &&
-        state.controls.column_configuration.columns) ?
-        state.controls.column_configuration.columns : [],
+                state.controls.column_configuration.columns) ?
+                state.controls.column_configuration.columns : [],
+      // options: (state.datasource) ? state.datasource.metrics : [],
+      // datasource: state.datasource,
+
     }),
   },
    row_configuration: {

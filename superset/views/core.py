@@ -1179,6 +1179,7 @@ class Superset(BaseSupersetView):
             columns = df.columns.tolist()
             columns = change_en_to_zh(columns, verbose_map)
             df.columns = df.columns.__class__(columns, dtype='object')
+        print(df)
         return df
 
     def get_xlsx_file(self, viz_obj):

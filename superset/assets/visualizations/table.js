@@ -15,7 +15,6 @@ function tableVis(slice, payload) {
 
   const data = payload.data;
   const fd = slice.formData;
-
   let metrics = fd.metrics || [];
   // Add percent metrics
   metrics = metrics.concat((fd.percent_metrics || []).map(m => '%' + m));
@@ -23,7 +22,19 @@ function tableVis(slice, payload) {
   metrics = metrics.filter(m => !isNaN(data.records[0][m]));
    // column on the top or metric on the top
   const combineMetric = fd.combine_metric;
-  const cols = payload.data.columns;
+  const cols = payload.data.columns; // 英文的
+  const verboseMap = slice.datasource.verbose_map;
+  const cols1 = data.columns.map((c) => {
+    if (verboseMap[c]) {
+      return verboseMap[c];
+    }
+    // Handle verbose names for percents
+    if (c[0] === '%') {
+      const cName = c.substring(1);
+      return '% ' + (verboseMap[cName] || cName);
+    }
+    return c;
+  });
   // get the metric of every column, with the consideration of combine_metric
   let metricForCols = cols;
   if (Array.isArray(cols[0])) {
@@ -62,18 +73,8 @@ function tableVis(slice, payload) {
       'table-condensed table-hover dataTable no-footer', true)
     .attr('width', '100%');
 
-  const verboseMap = slice.datasource.verbose_map;
-  // const cols = data.columns.map((c) => {
-  //   if (verboseMap[c]) {
-  //     return verboseMap[c];
-  //   }
-  //   // Handle verbose names for percents
-  //   if (c[0] === '%') {
-  //     const cName = c.substring(1);
-  //     return '% ' + (verboseMap[cName] || cName);
-  //   }
-  //   return c;
-  // });
+
+
     // to change the array to a string split by ','
   const transformToString = function (columnArray) {
     if (!Array.isArray(columnArray)) {
@@ -247,7 +248,7 @@ function tableVis(slice, payload) {
 
   table.append('thead').append('tr')
     .selectAll('th')
-    .data(cols)
+    .data(cols1)
     .enter()
     .append('th')
     .text(function (d) {

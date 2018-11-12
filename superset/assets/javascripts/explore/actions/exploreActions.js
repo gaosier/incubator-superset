@@ -85,7 +85,6 @@ export function fetchDatasources() {
       type: 'GET',
       url,
       success: (data) => {
-        console.log(data);
         dispatch(setDatasources(data));
         dispatch(fetchDatasourcesSucceeded());
       },

@@ -272,8 +272,8 @@ export const visTypes = {
         ],
       },
       {
-        label: 'Row Configuration',
-        description: 'Advanced configuration on rows',
+        label: t('Row Configuration'),
+        description: t('Advanced configuration on rows'),
         controlSetRows: [
           ['row_configuration'],
         ],

@@ -277,7 +277,7 @@ import { t } from '../../../locales';
                     bsSize="xs"
                     onClick={this.onCancel.bind(this, metric, 'coloringOption')}
                   >
-                    <i className="fa fa-close" /> Reset Color
+                    <i className="fa fa-close" /> 重置颜色
                   </Button>
                 </td>
               </tr>

@@ -1,0 +1,104 @@
+2018-11-08 17:00:00,068  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-08 17:00:00,089  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-08 17:00:00,097  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/91/
+2018-11-08 17:00:00,097  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-08 18:20:00,057  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-08 18:20:00,058  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-08 18:20:00,062  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-08 18:20:00,067  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/113/
+2018-11-08 18:20:00,067  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-08 18:20:00,069  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-08 18:20:00,076  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/113/
+2018-11-08 18:20:00,076  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-08 18:55:00,014  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-08 18:55:00,022  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-08 18:55:00,028  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-08 18:55:00,028  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-08 18:55:00,045  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-08 18:55:00,052  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-08 18:55:00,057  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-08 18:55:00,057  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 10:20:00,103  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 10:20:00,107  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 10:20:00,111  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 10:20:00,117  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/113/
+2018-11-09 10:20:00,117  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 10:20:00,128  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 10:20:00,144  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/113/
+2018-11-09 10:20:00,144  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 10:55:00,063  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 10:55:00,075  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 10:55:00,087  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-09 10:55:00,087  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 14:00:00,015  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 14:00:00,017  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 14:00:00,022  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 14:00:00,026  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/91/
+2018-11-09 14:00:00,026  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 14:00:00,034  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 14:00:00,040  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/91/
+2018-11-09 14:00:00,041  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 14:20:00,029  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 14:20:00,030  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 14:20:00,033  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 14:20:00,037  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/113/
+2018-11-09 14:20:00,037  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 14:20:00,038  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 14:20:00,042  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/113/
+2018-11-09 14:20:00,042  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 14:22:00,026  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 14:22:00,026  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 14:22:00,033  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 14:22:00,037  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/187/
+2018-11-09 14:22:00,037  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 14:22:00,042  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 14:22:00,045  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/187/
+2018-11-09 14:22:00,046  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 14:55:00,020  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 14:55:00,020  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 14:55:00,024  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 14:55:00,024  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 14:55:00,027  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-09 14:55:00,027  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-09 14:55:00,027  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 14:55:00,028  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 15:20:00,018  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 15:20:00,018  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 15:20:00,026  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 15:20:00,027  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 15:20:00,031  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/113/
+2018-11-09 15:20:00,031  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/113/
+2018-11-09 15:20:00,035  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 15:20:00,035  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 15:22:00,026  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 15:22:00,026  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 15:22:00,030  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 15:22:00,031  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 15:22:00,035  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/187/
+2018-11-09 15:22:00,035  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/187/
+2018-11-09 15:22:00,036  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 15:22:00,036  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 15:55:00,016  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 15:55:00,017  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 15:55:00,024  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 15:55:00,026  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 15:55:00,030  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-09 15:55:00,030  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 15:55:00,032  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-09 15:55:00,032  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 16:00:00,024  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 16:00:00,024  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 16:00:00,031  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 16:00:00,032  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 16:00:00,035  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/91/
+2018-11-09 16:00:00,035  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 16:00:00,036  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/91/
+2018-11-09 16:00:00,036  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 16:55:00,008  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 16:55:00,015  schedules.py : INFO [schedule_email_report]:375  begin to schedule email report
+2018-11-09 16:55:00,018  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 16:55:00,021  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-09 16:55:00,021  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
+2018-11-09 16:55:00,021  schedules.py : INFO [schedule_email_report]:389  report_type: dashboard 
+2018-11-09 16:55:00,024  schedules.py : INFO [deliver_dashboard]:210  dashboard_url: /superset/dashboard/51/
+2018-11-09 16:55:00,024  schedules.py : ERROR [schedule_email_report]:398  send email error: local variable 'options' referenced before assignment
