@@ -136,6 +136,21 @@ class Dashboard extends React.PureComponent {
   onSave() {
     this.onBeforeUnload(false);
     this.setState({ unsavedChanges: false });
+    function isEmptyObject(obj){
+      for(let n in obj) {
+        return false
+      }
+    return true;
+    }
+    if(isEmptyObject(this.props.filters)) {
+    }else{
+        let stateObject = {};
+        let url = window.location.href;
+        let newurl = url.split('=');
+        let title = "";
+        let new_url = newurl[0] + "=" + JSON.stringify(this.props.filters);
+        history.pushState(stateObject,title,encodeURI(new_url));
+    }
   }
 
   // return charts in array

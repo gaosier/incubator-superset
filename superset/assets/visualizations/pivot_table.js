@@ -34,9 +34,10 @@ module.exports = function (slice, payload) {
     const s = $(this)[0].textContent;
     $(this)[0].textContent = slice.datasource.verbose_map[s] || s;
   };
-  slice.container.find('thead tr:first th').each(replaceCell);
-  slice.container.find('thead tr:eq(1) th').each(replaceCell);
-  slice.container.find('thead tr th:first-child').each(replaceCell);
+  // slice.container.find('thead tr:first th').each(replaceCell);
+  // slice.container.find('thead tr:eq(1) th').each(replaceCell);
+  // slice.container.find('thead tr th:first-child').each(replaceCell);
+  slice.container.find('thead tr th').each(replaceCell);
 
     // to change the array to a string split by ','
   const transformToString = function (columnArray) {
