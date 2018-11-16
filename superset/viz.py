@@ -36,7 +36,7 @@ import simplejson as json
 from six import string_types, text_type
 from six.moves import cPickle as pkl, reduce
 
-from superset import app, cache, get_manifest_file, utils
+from superset import app, cache, get_manifest_file, utils, conf
 from superset.utils import DTTM_ALIAS, JS_MAX_INTEGER, merge_extra_filters
 
 
@@ -662,12 +662,16 @@ class TableViz(BaseViz):
                 percent_metrics,
             ):
                 del df[m]
-        #处理时间分组的位置，按照下拉框选择的顺序
+        # 处理时间分组的位置，按照下拉框选择的顺序
         columns = df.columns.tolist()
         if fd.get('include_time'):
             columns.remove(DTTM_ALIAS)
             columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
-        df=df[columns]
+        df = df[columns]
+        if fd.get('all_columns'):
+            row_limit = fd.get('row_limit')
+            if row_limit >= conf.get("TABLE_MAX_ROW_LIMIT", 10000):
+                df = df.head(conf.get("TABLE_DEFAULT_ROW_LIMIT", 1000))
         data = self.handle_js_int_overflow(
             dict(
                 records=df.to_dict(orient='records'),
