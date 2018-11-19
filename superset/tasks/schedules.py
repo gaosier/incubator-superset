@@ -42,7 +42,7 @@ from superset.utils import (
 config = app.config
 
 # Time in seconds, we will wait for the page to load and render
-PAGE_RENDER_WAIT = 30
+PAGE_RENDER_WAIT = 60
 
 
 EmailContent = namedtuple('EmailContent', ['body', 'data', 'images'])
@@ -189,12 +189,16 @@ def destroy_webdriver(driver):
     # and catch-all exceptions
     try:
         retry_call(driver.close, tries=2)
-    except Exception:
-        pass
+    except Exception as exc:
+        aps_logger.error("close driver error: %s" % str(exc))
+
+    aps_logger.info("destroy_webdriver: driver.close success !!!")
+
     try:
         driver.quit()
-    except Exception:
-        pass
+    except Exception as exc:
+        aps_logger.error("driver.quit error: %s" % str(exc))
+    aps_logger.info("destroy_webdriver: driver.quit success !!!")
 
 
 def deliver_dashboard(schedule):
