@@ -24,6 +24,7 @@ const config = {
     welcome: ['babel-polyfill', APP_DIR + '/javascripts/welcome/index.jsx'],
     profile: ['babel-polyfill', APP_DIR + '/javascripts/profile/index.jsx'],
     datacenter: ['babel-polyfill', APP_DIR + '/javascripts/datacenter/index.jsx'],
+    addAnalysis: ['babel-polyfill', APP_DIR + '/javascripts/addAnalysis/index.jsx'],
   },
   output: {
     path: BUILD_DIR,

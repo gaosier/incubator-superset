@@ -17,6 +17,7 @@ from superset.views.core import check_ownership
 from superset.connectors.connector_registry import ConnectorRegistry
 
 from superset.models.analysis import Analysis, SkModel
+from .base import BaseSupersetView
 
 
 class SkModelView(SupersetModelView, DeleteMixin):
@@ -142,4 +143,14 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
 
 appbuilder.add_view(AnalysisModelView, 'Analysis', icon="fa-comments", label=u"分析模型", category_icon="analytics", category=u"Online Analysis",
                     category_label=u"在线分析")
+
+
+class OnlineAnalysis(BaseSupersetView):
+    def versions(self):
+        """
+        获取分析模型的版本 
+        """
+        pass
+
+
 
