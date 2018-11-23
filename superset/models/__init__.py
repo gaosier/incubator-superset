@@ -3,3 +3,4 @@ from . import core  # noqa
 from . import sql_lab  # noqa
 from . import core_ext
 from . import schedules
+from . import analysis

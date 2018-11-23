@@ -6,3 +6,4 @@ from . import annotations # noqa
 
 from . import core_ext  # noqa
 from . import schedules
+from . import analysis
