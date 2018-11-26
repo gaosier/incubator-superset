@@ -14,18 +14,20 @@ from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
 from sqlalchemy import or_
 
-from superset import appbuilder, security_manager, db
+from superset import appbuilder, security_manager, db, app
 from superset.views.base import SupersetModelView, DeleteMixin, SupersetFilter, FORM_DATA_KEY_BLACKLIST, check_ownership
-from superset.utils import validate_json, merge_extra_filters, merge_request_params
+from superset.utils import validate_json, merge_extra_filters, merge_request_params, json_int_dttm_ser
 from superset.connectors.connector_registry import ConnectorRegistry
 
-from superset.models.core import Log, Url, Dashboard
+from superset.models.core import Log, Url
 from superset.models.analysis import Analysis, SkModel
 from .base import (BaseSupersetView, api, DATASOURCE_MISSING_ERR, get_datasource_access_error_msg, is_owner,
                    json_error_response, json_success)
 
 
 log_this = Log.log_this
+DATASOURCE_ACCESS_ERR = __("You don't have access to this datasource")
+config = app.config
 
 
 class SkModelView(SupersetModelView, DeleteMixin):
@@ -153,7 +155,7 @@ appbuilder.add_view(AnalysisModelView, 'Analysis', icon="fa-comments", label=u"�
                     category_label=u"在线分析")
 
 
-class OnlineAnalysis(BaseSupersetView):
+class Online(BaseSupersetView):
 
     @api
     @has_access_api
@@ -357,6 +359,51 @@ class OnlineAnalysis(BaseSupersetView):
             entry='analysis',
             title=title,
             standalone_mode=standalone)
+
+    @api
+    @has_access_api
+    @expose('/columns//<datasource_type>/<datasource_id>/')
+    def columns(self, datasource_type, datasource_id):
+        datasource = ConnectorRegistry.get_datasource(
+            datasource_type, datasource_id, db.session)
+        if not datasource:
+            return json_error_response(DATASOURCE_MISSING_ERR)
+        if not security_manager.datasource_access(datasource):
+            return json_error_response(DATASOURCE_ACCESS_ERR)
+
+        payload = json.dumps(datasource.column_names)
+        return json_success(payload)
+
+    @api
+    @has_access_api
+    @expose('/filter/<datasource_type>/<datasource_id>/<column>/')
+    def filter(self, datasource_type, datasource_id, column):
+        """
+        Endpoint to retrieve values for specified column.
+
+        :param datasource_type: Type of datasource e.g. table
+        :param datasource_id: Datasource id
+        :param column: Column name to retrieve values for
+        :return:
+        """
+        datasource = ConnectorRegistry.get_datasource(
+            datasource_type, datasource_id, db.session)
+        if not datasource:
+            return json_error_response(DATASOURCE_MISSING_ERR)
+        if not security_manager.datasource_access(datasource):
+            return json_error_response(DATASOURCE_ACCESS_ERR)
+
+        payload = json.dumps(
+            datasource.values_for_column(
+                column,
+                config.get('FILTER_SELECT_ROW_LIMIT', 10000),
+            ),
+            default=json_int_dttm_ser)
+        return json_success(payload)
+
+
+appbuilder.add_view_no_menu(Online)
+
 
 
 
