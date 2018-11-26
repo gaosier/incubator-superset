@@ -5,8 +5,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Panel, Grid, Row, Col } from 'react-bootstrap';
 import Select from 'react-virtualized-select';
-import visTypes from '../explore/stores/visTypes';
-import { t } from '../locales';
 
 const propTypes = {
   datasources: PropTypes.arrayOf(PropTypes.shape({
@@ -18,17 +16,13 @@ const propTypes = {
 export default class AddSliceContainer extends React.PureComponent {
   constructor(props) {
     super(props);
-    const visTypeKeys = Object.keys(visTypes);
-    this.vizTypeOptions = visTypeKeys.map(vt => ({ label: visTypes[vt].label, value: vt }));
     this.state = {
-      visType: 'table',
     };
   }
 
   exploreUrl() {
     const formData = encodeURIComponent(
       JSON.stringify({
-        viz_type: this.state.visType,
         datasource: this.state.datasourceValue,
       }));
     return `/superset/explore/?form_data=${formData}`;
@@ -46,12 +40,8 @@ export default class AddSliceContainer extends React.PureComponent {
     });
   }
 
-  changeVisType(e) {
-    this.setState({ visType: e.value });
-  }
-
   isBtnDisabled() {
-    return !(this.state.datasourceId && this.state.visType);
+    return !(this.state.datasourceId);
   }
 
   render() {
