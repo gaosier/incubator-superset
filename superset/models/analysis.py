@@ -3,6 +3,9 @@
 """
 在线分析模块
 """
+import json
+import logging
+
 import sqlalchemy as sqla
 
 from flask_appbuilder.models.sqla import Model
@@ -13,6 +16,7 @@ from sqlalchemy.orm import relationship
 from superset import security_manager, db, ConnectorRegistry
 from superset.models.helpers import AuditMixinNullable, ImportMixin
 from superset.models.core import set_related_perm
+from superset import utils
 
 metadata = Model.metadata
 
@@ -56,8 +60,8 @@ class Analysis(Model, AuditMixinNullable):
     datasource_id = Column(Integer, nullable=False, comment=u"资源ID")
     datasource_type = Column(String(20), nullable=False, default='table', comment=u"资源类型")
     datasource_name = Column(String(90), nullable=False, comment=u"资源名字")
-    owner = relationship(security_manager.user_model, secondary=analysis_owner)
-    show_user = relationship(security_manager.user_model, secondary=analysis_show_user)
+    owners = relationship(security_manager.user_model, secondary=analysis_owner)
+    show_users = relationship(security_manager.user_model, secondary=analysis_show_user)
     description = Column(Text, comment=u"分析模型描述")
     params = Column(Text, comment=u"模型参数")
     perm = Column(String(200), comment=u"权限")
@@ -96,8 +100,36 @@ class Analysis(Model, AuditMixinNullable):
         versions = [item.version for item in instances]
         return versions
 
+    @property
+    def form_data(self):
+        data = {}
+        if self.params:
+            data = json.loads(self.params)
+        return data
 
+    @property
+    def data(self):
+        """Data used to render slice in templates"""
+        d = {}
+        self.token = ''
+        try:
+            d = self.viz.data
+            self.token = d.get('token')
+        except Exception as e:
+            logging.exception(e)
+            d['error'] = str(e)
+        return {
+            'datasource': self.datasource_name,
+            'description': self.description,
+            'description_markeddown': self.description_markeddown,
+            'form_data': self.form_data,
+            'id': self.id,
+            'name': self.name,
+        }
 
+    @property
+    def description_markeddown(self):
+        return utils.markdown(self.description)
 
 
 sqla.event.listen(Analysis, 'before_insert', set_related_perm)

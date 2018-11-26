@@ -10,16 +10,19 @@ from flask import flash, redirect, request, g
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access, has_access_api
+from flask_babel import gettext as __
+from flask_babel import lazy_gettext as _
 from sqlalchemy import or_
 
 from superset import appbuilder, security_manager, db
 from superset.views.base import SupersetModelView, DeleteMixin, SupersetFilter, FORM_DATA_KEY_BLACKLIST, check_ownership
-from superset.utils import validate_json
+from superset.utils import validate_json, merge_extra_filters, merge_request_params
 from superset.connectors.connector_registry import ConnectorRegistry
 
-from superset.models.core import Log, Url
+from superset.models.core import Log, Url, Dashboard
 from superset.models.analysis import Analysis, SkModel
-from .base import BaseSupersetView, api
+from .base import (BaseSupersetView, api, DATASOURCE_MISSING_ERR, get_datasource_access_error_msg, is_owner,
+                   json_error_response, json_success)
 
 
 log_this = Log.log_this
@@ -96,16 +99,16 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
     edit_title = u"编辑模型"
 
     search_columns = (
-        'name', 'version', 'sk_model', 'datasource_name', 'owner', 'show_user'
+        'name', 'version', 'sk_model', 'datasource_name', 'owners', 'show_users'
     )
     list_columns = ['name', 'sk_model', 'datasource_link', 'creator', 'modified']
     order_columns = ['name', 'datasource_link', 'modified']
-    edit_columns = ['name', 'version', 'description', 'sk_model', 'owner', 'show_user', 'params']
+    edit_columns = ['name', 'version', 'description', 'sk_model', 'owners', 'show_users', 'params']
     base_order = ('changed_on', 'desc')
     description_columns = {
         'params': u"分析模型的参数，JSON格式",
-        'owner': u"模型的拥有者",
-        'show_user': u"模型的共享用户,只有看的权限没有编辑的权限"
+        'owners': u"模型的拥有者",
+        'show_users': u"模型的共享用户,只有看的权限没有编辑的权限"
     }
     base_filters = [['id', AnalysisFilter, lambda: []]]
     label_columns = {
@@ -113,8 +116,8 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
         'datasource_link': u"表",
         'description': u"描述",
         'modified': u"最后修改时间",
-        'owner': u"拥有者",
-        'show_user': u"共享用户",
+        'owners': u"拥有者",
+        'show_users': u"共享用户",
         'params': u"参数",
         'name': u"名称",
         'sk_model': u"机器学习模型",
@@ -195,25 +198,76 @@ class OnlineAnalysis(BaseSupersetView):
 
         # When a slice_id is present, load from DB and override
         # the form_data from the DB with the other form_data provided
-        slice_id = form_data.get('slice_id') or slice_id
+        analysis_id = form_data.get('analysis_id') or analysis_id
         slc = None
 
-        if slice_id:
-            slc = db.session.query(models.Slice).filter_by(id=slice_id).first()
-            slice_form_data = slc.form_data.copy()
-            # allow form_data in request override slice from_data
-            if form_data.get('viz_type'):
-                if slice_form_data.get('viz_type') == form_data.get('viz_type'):
-                    slice_form_data.update(form_data)
-                    form_data = slice_form_data
-                else:
-                    form_data = form_data
-            else:
-                slice_form_data.update(form_data)
-                form_data = slice_form_data
+        if analysis_id:
+            slc = db.session.query(Analysis).filter_by(id=analysis_id).first()
+            analysis_form_data = slc.form_data.copy()
+            analysis_form_data.update(form_data)
+            form_data = analysis_form_data
 
         return form_data, slc
 
+    @staticmethod
+    def datasource_info(datasource_id, datasource_type, form_data):
+        """Compatibility layer for handling of datasource info
+
+        datasource_id & datasource_type used to be passed in the URL
+        directory, now they should come as part of the form_data,
+        This function allows supporting both without duplicating code"""
+        datasource = form_data.get('datasource', '')
+        if '__' in datasource:
+            datasource_id, datasource_type = datasource.split('__')
+        datasource_id = int(datasource_id)
+        return datasource_id, datasource_type
+
+    def save_slice(self, slc):
+        session = db.session()
+        msg = 'Analysis [{}] has been saved'.format(slc.name)
+        session.add(slc)
+        session.commit()
+        flash(msg, 'info')
+
+    def overwrite_slice(self, slc):
+        session = db.session()
+        session.merge(slc)
+        session.commit()
+        msg = 'Analysis [{}] has been overwritten'.format(slc.name)
+        flash(msg, 'info')
+
+
+    def save_or_overwrite(
+            self, args, slc, slice_add_perm, slice_overwrite_perm, datasource_id, datasource_type, datasource_name):
+        """Save or overwrite a analysis"""
+        analysis_name = args.get('analysis_name')
+        action = args.get('action')
+        form_data, _ = self.get_form_data()
+
+        if action in ('saveas'):
+            if 'analysis_id' in form_data:
+                form_data.pop('analysis_id')
+            slc = Analysis(owners=[g.user] if g.user else [])
+
+        slc.params = json.dumps(form_data)
+        slc.datasource_name = datasource_name
+        slc.datasource_type = datasource_type
+        slc.datasource_id = datasource_id
+        slc.name = analysis_name
+
+        if action in ('saveas') and slice_add_perm:
+            self.save_slice(slc)
+        elif action == 'overwrite' and slice_overwrite_perm:
+            self.overwrite_slice(slc)
+
+        response = {
+            'can_add': slice_add_perm,
+            'can_overwrite': is_owner(slc, g.user),
+            'form_data': slc.form_data,
+            'slice': slc.data,
+        }
+
+        return json_success(json.dumps(response))
 
     @log_this
     @has_access
@@ -225,7 +279,7 @@ class OnlineAnalysis(BaseSupersetView):
         datasource_id, datasource_type = self.datasource_info(
             datasource_id, datasource_type, form_data)
 
-        error_redirect = '/slicemodelview/list/'
+        error_redirect = '/analysismodelview/list/'
         datasource = ConnectorRegistry.get_datasource(
             datasource_type, datasource_id, db.session)
         if not datasource:
@@ -242,15 +296,9 @@ class OnlineAnalysis(BaseSupersetView):
                 'datasource_id={datasource_id}&'
                 ''.format(**locals()))
 
-        viz_type = form_data.get('viz_type')
-        if not viz_type and datasource.default_endpoint:
-            return redirect(datasource.default_endpoint)
-
         # slc perms
-        slice_add_perm = security_manager.can_access('can_add', 'SliceModelView')
+        slice_add_perm = security_manager.can_access('can_add', 'AnalysisModelView')
         slice_overwrite_perm = is_owner(slc, g.user)
-        slice_download_perm = security_manager.can_access(
-            'can_download', 'SliceModelView')
 
         form_data['datasource'] = str(datasource_id) + '__' + datasource_type
 
@@ -271,25 +319,23 @@ class OnlineAnalysis(BaseSupersetView):
 
         if action == 'saveas' and not slice_add_perm:
             return json_error_response(
-                _('You don\'t have the rights to ') + _('create a ') + _('chart'),
+                _('You don\'t have the rights to ') + _('create a ') + _('analysis'),
                 status=400)
 
         if action in ('saveas', 'overwrite'):
-            return self.save_or_overwrite_slice(
+            return self.save_or_overwrite(
                 request.args,
                 slc, slice_add_perm,
                 slice_overwrite_perm,
-                slice_download_perm,
                 datasource_id,
                 datasource_type,
                 datasource.name)
         if slc:
             datasource.slice_users = [slc.created_by_fk, ]
-            self.deal_form_data(form_data, datasource)  # 过滤没有权限的字段
+
         standalone = request.args.get('standalone') == 'true'
         bootstrap_data = {
             'can_add': slice_add_perm,
-            'can_download': slice_download_perm,
             'can_overwrite': slice_overwrite_perm,
             'datasource': datasource.data,
             'form_data': form_data,
@@ -304,11 +350,11 @@ class OnlineAnalysis(BaseSupersetView):
         table_name = datasource.table_name \
             if datasource_type == 'table' \
             else datasource.datasource_name
-        title = slc.slice_name if slc else 'Explore - ' + table_name
+        title = slc.slice_name if slc else 'Analysis - ' + table_name
         return self.render_template(
             'superset/basic.html',
             bootstrap_data=json.dumps(bootstrap_data),
-            entry='explore',
+            entry='analysis',
             title=title,
             standalone_mode=standalone)
 

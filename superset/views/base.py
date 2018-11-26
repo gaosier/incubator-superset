@@ -38,6 +38,17 @@ if not conf.get('ENABLE_JAVASCRIPT_CONTROLS'):
     ]
 
 
+DATASOURCE_MISSING_ERR = __('The datasource seems to have been deleted')
+
+def get_datasource_access_error_msg(datasource_name):
+    return __('This endpoint requires the datasource %(name)s, database or '
+              '`all_datasource_access` permission', name=datasource_name)
+
+
+def is_owner(obj, user):
+    """ Check if user is owner of the slice """
+    return obj and user in obj.owners
+
 def check_ownership(obj, raise_if_false=True):
     """Meant to be used in `pre_update` hooks on models to enforce ownership
 
@@ -115,6 +126,9 @@ def json_error_response(msg=None, status=500, stacktrace=None, payload=None):
     return Response(
         json.dumps(payload, default=utils.json_iso_dttm_ser),
         status=status, mimetype='application/json')
+
+def json_success(json_msg, status=200):
+    return Response(json_msg, status=status, mimetype='application/json')
 
 
 def generate_download_headers(extension, filename=None):
