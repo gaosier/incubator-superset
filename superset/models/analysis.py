@@ -90,6 +90,15 @@ class Analysis(Model, AuditMixinNullable):
         datasource = self.datasource
         return datasource.link if datasource else None
 
+    @classmethod
+    def get_versions(cls, name):
+        instances = db.session.query(cls).filter(cls.name == name)
+        versions = [item.version for item in instances]
+        return versions
+
+
+
+
 
 sqla.event.listen(Analysis, 'before_insert', set_related_perm)
 sqla.event.listen(Analysis, 'before_update', set_related_perm)

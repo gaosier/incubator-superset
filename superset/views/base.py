@@ -20,14 +20,80 @@ from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
 import yaml
 
-from superset import conf, security_manager, utils
+from superset import conf, security_manager, utils, db
 from superset.translations.utils import get_language_pack
 from superset.fab.views import SupersetModelView as ModelView
+from superset.exceptions import SupersetSecurityException
 
 FRONTEND_CONF_KEYS = (
     'SUPERSET_WEBSERVER_TIMEOUT',
     'ENABLE_JAVASCRIPT_CONTROLS',
 )
+
+if not conf.get('ENABLE_JAVASCRIPT_CONTROLS'):
+    FORM_DATA_KEY_BLACKLIST = [
+        'js_tooltip',
+        'js_onclick_href',
+        'js_data_mutator',
+    ]
+
+
+def check_ownership(obj, raise_if_false=True):
+    """Meant to be used in `pre_update` hooks on models to enforce ownership
+
+    Admin have all access, and other users need to be referenced on either
+    the created_by field that comes with the ``AuditMixin``, or in a field
+    named ``owners`` which is expected to be a one-to-many with the User
+    model. It is meant to be used in the ModelView's pre_update hook in
+    which raising will abort the update.
+    """
+    if not obj:
+        return False
+
+    security_exception = SupersetSecurityException(
+        "您没有权限修改 [{}]".format(obj))
+
+    if g.user.is_anonymous():
+        if raise_if_false:
+            raise security_exception
+        return False
+    roles = (r.name for r in get_user_roles())
+    if 'Admin' in roles:
+        return True
+
+    session = db.create_scoped_session()
+    orig_obj = session.query(obj.__class__).filter_by(id=obj.id).first()
+    if hasattr(orig_obj, "owner") and orig_obj.owner:
+        owner_names = [orig_obj.owner.username]
+    elif hasattr(orig_obj, "owners") and orig_obj.owners:
+        owner_names = [item.username for item in orig_obj.owners]
+    else:
+        owner_names = []
+    if (
+            hasattr(orig_obj, 'created_by') and
+            orig_obj.created_by and
+            orig_obj.created_by.username == g.user.username):
+        return True
+
+    if (
+            hasattr(orig_obj, 'owner') and
+            g.user and
+            hasattr(g.user, 'username') and
+            g.user.username in owner_names):
+        return True
+
+    if (
+            hasattr(orig_obj, 'owners') and
+            g.user and
+            hasattr(g.user, 'username') and
+            g.user.username in owner_names):
+        return True
+
+
+    if raise_if_false:
+        raise security_exception
+    else:
+        return False
 
 
 def get_error_msg():

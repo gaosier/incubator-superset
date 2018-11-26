@@ -53,10 +53,11 @@ from superset.utils_ext import metric_format
 from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
 from .base import (
     api, BaseSupersetView, CsvResponse, DeleteMixin,
-    generate_download_headers, get_error_msg, get_user_roles,
-    json_error_response, SupersetFilter, SupersetModelView, YamlExportMixin,
+    generate_download_headers, get_error_msg, get_user_roles,FORM_DATA_KEY_BLACKLIST,
+    json_error_response, SupersetFilter, SupersetModelView, YamlExportMixin, check_ownership
 )
 from .utils import bootstrap_user_data
+
 
 config = app.config
 stats_logger = config.get('STATS_LOGGER')
@@ -79,14 +80,6 @@ if perms_instruction_link:
 else:
     DATASOURCE_ACCESS_ERR = __("You don't have access to this datasource")
 
-FORM_DATA_KEY_BLACKLIST = []
-if not config.get('ENABLE_JAVASCRIPT_CONTROLS'):
-    FORM_DATA_KEY_BLACKLIST = [
-        'js_tooltip',
-        'js_onclick_href',
-        'js_data_mutator',
-    ]
-
 
 def get_database_access_error_msg(database_name):
     return __('This view requires the database %(name)s or '
@@ -106,63 +99,6 @@ def is_owner(obj, user):
     """ Check if user is owner of the slice """
     return obj and user in obj.owners
 
-
-def check_ownership(obj, raise_if_false=True):
-    """Meant to be used in `pre_update` hooks on models to enforce ownership
-
-    Admin have all access, and other users need to be referenced on either
-    the created_by field that comes with the ``AuditMixin``, or in a field
-    named ``owners`` which is expected to be a one-to-many with the User
-    model. It is meant to be used in the ModelView's pre_update hook in
-    which raising will abort the update.
-    """
-    if not obj:
-        return False
-
-    security_exception = SupersetSecurityException(
-        "您没有权限修改 [{}]".format(obj))
-
-    if g.user.is_anonymous():
-        if raise_if_false:
-            raise security_exception
-        return False
-    roles = (r.name for r in get_user_roles())
-    if 'Admin' in roles:
-        return True
-
-    session = db.create_scoped_session()
-    orig_obj = session.query(obj.__class__).filter_by(id=obj.id).first()
-    if hasattr(orig_obj, "owner") and orig_obj.owner:
-        owner_names = [orig_obj.owner.username]
-    elif hasattr(orig_obj, "owners") and orig_obj.owners:
-        owner_names = [item.username for item in orig_obj.owners]
-    else:
-        owner_names = []
-    if (
-            hasattr(orig_obj, 'created_by') and
-            orig_obj.created_by and
-            orig_obj.created_by.username == g.user.username):
-        return True
-
-    if (
-            hasattr(orig_obj, 'owner') and
-            g.user and
-            hasattr(g.user, 'username') and
-            g.user.username in owner_names):
-        return True
-
-    if (
-            hasattr(orig_obj, 'owners') and
-            g.user and
-            hasattr(g.user, 'username') and
-            g.user.username in owner_names):
-        return True
-
-
-    if raise_if_false:
-        raise security_exception
-    else:
-        return False
 
 
 class SliceFilter(SupersetFilter):
