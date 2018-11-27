@@ -814,14 +814,14 @@ class SqlaTable(Model, BaseDatasource):
 
         return or_(*groups)
 
-    def query(self, query_obj, viz_type=None):
+    def query(self, query_obj, viz_type=None, special_sql=None):
         def format_time_grain(index, time_grain_sqla=None):
             if index.name == '__timestamp':
                 index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla))
             return index
         time_grain_sqla = query_obj["extras"].get('time_grain_sqla',None)
         qry_start_dttm = datetime.now()
-        sql = self.get_query_str(query_obj)
+        sql = special_sql if special_sql else self.get_query_str(query_obj)
         status = QueryStatus.SUCCESS
         error_message = None
         df = None
@@ -837,9 +837,10 @@ class SqlaTable(Model, BaseDatasource):
                 df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
 
         # if this is a main query with prequeries, combine them together
-        if not query_obj['is_prequery']:
-            query_obj['prequeries'].append(sql)
-            sql = ';\n\n'.join(query_obj['prequeries'])
+        if query_obj:
+            if not query_obj['is_prequery']:
+                query_obj['prequeries'].append(sql)
+                sql = ';\n\n'.join(query_obj['prequeries'])
         sql += ';'
 
         return QueryResult(

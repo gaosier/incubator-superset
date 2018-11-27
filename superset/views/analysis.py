@@ -6,7 +6,7 @@
 import json
 
 from urllib import parse
-from flask import flash, redirect, request, g
+from flask import flash, redirect, request, g, Response
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access, has_access_api
@@ -22,7 +22,7 @@ from superset.connectors.connector_registry import ConnectorRegistry
 from superset.models.core import Log, Url
 from superset.models.analysis import Analysis, SkModel
 from .base import (BaseSupersetView, api, DATASOURCE_MISSING_ERR, get_datasource_access_error_msg, is_owner,
-                   json_error_response, json_success)
+                   json_error_response, json_success, UserInfo)
 
 
 log_this = Log.log_this
@@ -159,7 +159,7 @@ class Online(BaseSupersetView):
 
     @api
     @has_access_api
-    @expose('/versions/name/')
+    @expose('/versions/<name>/')
     def versions(self, name):
         """
         获取分析模型的版本 
@@ -168,7 +168,8 @@ class Online(BaseSupersetView):
             raise ValueError("参数[name]不能为空")
 
         versions = Analysis.get_versions(name)
-        return versions
+        payload = json.dumps(versions)
+        return json_success(payload)
 
     def get_form_data(self, analysis_id=None):
         form_data = {}
@@ -362,8 +363,9 @@ class Online(BaseSupersetView):
 
     @api
     @has_access_api
-    @expose('/columns//<datasource_type>/<datasource_id>/')
+    @expose('/columns/<datasource_type>/<datasource_id>/')
     def columns(self, datasource_type, datasource_id):
+        data = []
         datasource = ConnectorRegistry.get_datasource(
             datasource_type, datasource_id, db.session)
         if not datasource:
@@ -371,7 +373,15 @@ class Online(BaseSupersetView):
         if not security_manager.datasource_access(datasource):
             return json_error_response(DATASOURCE_ACCESS_ERR)
 
-        payload = json.dumps(datasource.column_names)
+        columns = datasource.columns
+        for item in columns:
+            if item.filterable:
+                if item.owners:
+                    if g.user in item.owners:
+                        data.append({"name": item.column_name, "verbose_name": item.verbose_name})
+                else:
+                    data.append({"name": item.column_name, "verbose_name": item.verbose_name})
+        payload = json.dumps(data)
         return json_success(payload)
 
     @api
@@ -401,6 +411,31 @@ class Online(BaseSupersetView):
             default=json_int_dttm_ser)
         return json_success(payload)
 
+
+    @api
+    @has_access_api
+    @expose('/skmodels/')
+    def names(self):
+        data = SkModel.names()
+        payload = json.dumps(data)
+        return json_success(payload)
+
+    @api
+    @has_access_api
+    @expose('/datasources/')
+    def datasources(self):
+        datasources = ConnectorRegistry.get_all_datasources(db.session)
+        datasources = [o.name for o in datasources]
+
+        if UserInfo.has_all_datasource_access():
+            data = datasources
+        else:
+            perms = UserInfo.get_view_menus('datasource_access')
+            data = [item for item in datasources if item.get("perm") in perms]
+
+        datasources = sorted(data, key=lambda x: x)
+        datasources = json.dumps(datasources)
+        return json_success(datasources)
 
 appbuilder.add_view_no_menu(Online)
 

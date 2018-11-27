@@ -54,7 +54,7 @@ from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInte
 from .base import (
     api, BaseSupersetView, CsvResponse, DeleteMixin,
     generate_download_headers, get_error_msg, get_user_roles,FORM_DATA_KEY_BLACKLIST,
-    json_error_response, SupersetFilter, SupersetModelView, YamlExportMixin, check_ownership
+    json_error_response, SupersetFilter, SupersetModelView, YamlExportMixin, check_ownership, UserInfo
 )
 from .utils import bootstrap_user_data
 
@@ -410,9 +410,7 @@ class SliceModelView(SupersetModelView, DeleteMixin):  # noqa
     edit_title = _('Edit Chart')
 
     can_add = False
-    label_columns = {
-        'datasource_link': _('Datasource'),
-    }
+
     search_columns = (
         'slice_name', 'description', 'viz_type', 'datasource_name', 'owners','show_users'
     )
@@ -766,8 +764,15 @@ class Superset(BaseSupersetView):
     def datasources(self):
         datasources = ConnectorRegistry.get_all_datasources(db.session)
         datasources = [o.short_data for o in datasources]
-        datasources = sorted(datasources, key=lambda o: o['name'])
-        return self.json_response(datasources)
+
+        if UserInfo.has_all_datasource_access():
+            data = datasources
+        else:
+            perms = UserInfo.get_view_menus('datasource_access')
+            data = [item for item in datasources if item.get("perm") in perms]
+
+        data = sorted(data, key=lambda o: o['name'])
+        return self.json_response(data)
 
     @has_access_api
     @expose('/override_role_permissions/', methods=['POST'])

@@ -34,6 +34,12 @@ class SkModel(Model, AuditMixinNullable):
     def __repr__(self):
         return self.name
 
+    @classmethod
+    def names(cls):
+        data = db.session.query(cls.name).all()
+        data = [item[0] for item in data]
+        return data or []
+
 
 analysis_owner = Table('analysis_owner', metadata,
                     Column('id', Integer, primary_key=True),
