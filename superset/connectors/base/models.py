@@ -151,6 +151,7 @@ class BaseDatasource(AuditMixinNullable, ImportMixin):
             'type': self.type,
             'connection': self.connection,
             'creator': str(self.created_by),
+            'perm': self.perm
         }
 
     def filter_columns_metrics(self):

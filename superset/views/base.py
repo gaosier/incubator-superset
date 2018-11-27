@@ -344,3 +344,55 @@ class CsvResponse(Response):
     Override Response to take into account csv encoding from config.py
     """
     charset = conf.get('CSV_EXPORT').get('encoding', 'utf-8')
+
+
+class UserInfo(object):
+
+    """Add utility function to make BaseFilter easy and fast
+
+    These utility function exist in the SecurityManager, but would do
+    a database round trip at every check. Here we cache the role objects
+    to be able to make multiple checks but query the db only once
+    """
+
+    @classmethod
+    def get_user_roles(cls):
+        return get_user_roles()
+
+    @classmethod
+    def get_all_permissions(cls):
+        """Returns a set of tuples with the perm name and view menu name"""
+        perms = set()
+        for role in cls.get_user_roles():
+            for perm_view in role.permissions:
+                t = (perm_view.permission.name, perm_view.view_menu.name)
+                perms.add(t)
+        return perms
+
+    @classmethod
+    def has_role(cls, role_name_or_list):
+        """Whether the user has this role name"""
+        if not isinstance(role_name_or_list, list):
+            role_name_or_list = [role_name_or_list]
+        return any(
+            [r.name in role_name_or_list for r in cls.get_user_roles()])
+
+    @classmethod
+    def has_perm(cls, permission_name, view_menu_name):
+        """Whether the user has this perm"""
+        return (permission_name, view_menu_name) in cls.get_all_permissions()
+
+    @classmethod
+    def get_view_menus(cls, permission_name):
+        """Returns the details of view_menus for a perm name"""
+        vm = set()
+        for perm_name, vm_name in cls.get_all_permissions():
+            if perm_name == permission_name:
+                vm.add(vm_name)
+        return vm
+
+    @classmethod
+    def has_all_datasource_access(cls):
+        return (
+            cls.has_role(['Admin', 'Alpha']) or
+            cls.has_perm('all_datasource_access', 'all_datasource_access'))
