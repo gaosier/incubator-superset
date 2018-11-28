@@ -35,6 +35,7 @@ from six.moves import cPickle as pkl, reduce
 
 from superset import app, cache, get_manifest_file, utils, conf
 from superset.utils import DTTM_ALIAS, JS_MAX_INTEGER, merge_extra_filters
+from superset.exceptions import SupersetParamException
 
 
 config = app.config
@@ -73,29 +74,9 @@ class BaseSkModel(object):
         self.token = self.form_data.get(
             'token', 'token_' + uuid.uuid4().hex[:8])
 
-        self.time_shift = timedelta()
-
         self.status = None
         self.error_message = None
         self.force = force
-
-    def get_fillna_for_col(self, col):
-        """Returns the value for use as filler for a specific Column.type"""
-        if col:
-            if col.is_string:
-                return ' NULL'
-        return self.default_fillna
-
-    def get_fillna_for_columns(self, columns=None):
-        """Returns a dict or scalar that can be passed to DataFrame.fillna"""
-        if columns is None:
-            return self.default_fillna
-        columns_dict = {col.column_name: col for col in self.datasource.columns}
-        fillna = {
-            c: self.get_fillna_for_col(columns_dict.get(c))
-            for c in columns
-        }
-        return fillna
 
     def get_df(self, query_obj=None):
         """
@@ -114,77 +95,90 @@ class BaseSkModel(object):
             return pd.DataFrame()
         else:
             df.replace([np.inf, -np.inf], np.nan)
-            fillna = self.get_fillna_for_columns(df.columns)
-            df = df.fillna(fillna)
         return df
 
-    def get_json(self):
-        return json.dumps(
-            self.get_payload(),
-            default=utils.json_int_dttm_ser, ignore_nan=True)
+    def get_column_fillna(self, df, fills):
+        """
+        获取每一列需要填充的值
+        """
+        fillna = {}
+        for field, na in fills:
+            if na == 'median':     # 中位数
+                value = df[field].median()
 
-    def get_payload(self, query_obj=None):
-        """Returns a payload of metadata and data"""
-        payload = self.get_df_payload(query_obj)
+            elif na == 'mode':    # 众数
+                 mode = df[field].mode().tolist()
+                 value = mode[0]
 
-        df = payload.get('df')
-        if self.status != utils.QueryStatus.FAILED:
-            if df is not None and df.empty:
-                payload['error'] = 'No data'
+            elif na == 'mean':   # 平均值
+                value = df[field].mean()
+
             else:
-                payload['data'] = self.get_data(df)
-        if 'df' in payload:
-            del payload['df']
-        return payload
+                value = na
+            fillna[field] = value
+        return fillna
 
-    def get_df_payload(self, query_obj=None):
-        """Handles caching around the df payload retrieval"""
-        stacktrace = None
-        df = None
+    def deal_na(self, df):
+        """
+        缺失值处理
+        """
+        operate_info = self.form_data.get("null_operate")
+        operate = operate_info.get("operate")
+        if not operate:
+            raise SupersetParamException(u"参数[operate]不能为空")
+        detail = operate_info.get("detail")
+        fillna = self.get_column_fillna(df, detail)
 
-        try:
-            df = self.get_df(query_obj)
-            if self.status != utils.QueryStatus.FAILED:
-                stats_logger.incr('loaded_from_source')
-        except Exception as e:
-            logging.exception(e)
-            if not self.error_message:
-                self.error_message = escape('{}'.format(e))
-            self.status = utils.QueryStatus.FAILED
-            stacktrace = traceback.format_exc()
+        if operate == "fill":
+            df = df.fillna(fillna)
+        else:
+            df = df.dropna()
+        return df
 
-        return {
-            'df': df,
-            'error': self.error_message,
-            'form_data': self.form_data,
-            'query': self.query,
-            'status': self.status,
-            'stacktrace': stacktrace,
-            'rowcount': len(df.index) if df is not None else 0,
-        }
+    def deal_variable_box(self, df):
+        """
+        变量分箱处理
+        """
+        variable_box = self.form_data.get("variable_box")
+        for item in variable_box:
+            field = item.get("field")
+            bins = item.get("bins")
+            labels = item.get("labels")
+            if not field or (not bins) or (not labels):
+                return df
+            col = pd.cut(df[field], bins=bins, labels=labels)
+            df[field] = col
+        return df
 
-    def json_dumps(self, obj, sort_keys=False):
-        return json.dumps(
-            obj,
-            default=utils.json_int_dttm_ser,
-            ignore_nan=True,
-            sort_keys=sort_keys,
-        )
+    def deal_dummy_variable(self, df):
+        """
+        哑变量处理
+        """
+        dummy_variable = self.form_data.get("dummy_variable")
+        for field, value in dummy_variable.items():
+            df[field] = df[field].map(value)
+        return df
 
-    @property
-    def data(self):
-        """This is the data object serialized to the js layer"""
-        content = {
-            'form_data': self.form_data,
-            'token': self.token,
-            'viz_name': self.sk_type,
-            'filter_select_enabled': self.datasource.filter_select_enabled,
-        }
-        return content
+    def variable_describe(self, df):
+        """
+        变量分布
+        """
+        data = df.describe()
+        return data.to_html()
 
-    def get_data(self, df):
-        return []
 
-    @property
-    def json_data(self):
-        return json.dumps(self.data)
+
+
+
+
+
+class Lasso(BaseSkModel):
+    sk_type = 'lasso'
+
+
+sk_types = {
+    o.sk_type: o for o in globals().values()
+    if (
+        inspect.isclass(o) and
+        issubclass(o, BaseSkModel) and
+        o.sk_type not in config.get('VIZ_TYPE_BLACKLIST'))}

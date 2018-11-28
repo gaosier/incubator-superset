@@ -6,7 +6,7 @@
 import json
 
 from urllib import parse
-from flask import flash, redirect, request, g, Response
+from flask import flash, redirect, request, g
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access, has_access_api
@@ -18,11 +18,13 @@ from superset import appbuilder, security_manager, db, app
 from superset.views.base import SupersetModelView, DeleteMixin, SupersetFilter, FORM_DATA_KEY_BLACKLIST, check_ownership
 from superset.utils import validate_json, merge_extra_filters, merge_request_params, json_int_dttm_ser
 from superset.connectors.connector_registry import ConnectorRegistry
+from superset.exceptions import SupersetParamException
+from superset.sk_model import sk_types
 
 from superset.models.core import Log, Url
 from superset.models.analysis import Analysis, SkModel
 from .base import (BaseSupersetView, api, DATASOURCE_MISSING_ERR, get_datasource_access_error_msg, is_owner,
-                   json_error_response, json_success, UserInfo)
+                   json_error_response, json_success, UserInfo, REQ_PARAM_NULL_ERR)
 
 
 log_this = Log.log_this
@@ -340,15 +342,12 @@ class Online(BaseSupersetView):
         bootstrap_data = {
             'can_add': slice_add_perm,
             'can_overwrite': slice_overwrite_perm,
-            'datasource': datasource.data,
             'form_data': form_data,
             'datasource_id': datasource_id,
             'datasource_type': datasource_type,
-            'slice': slc.data if slc else None,
             'standalone': standalone,
             'user_id': user_id,
             'forced_height': request.args.get('height'),
-            'common': self.common_bootsrap_payload(),
         }
         table_name = datasource.table_name \
             if datasource_type == 'table' \
@@ -365,6 +364,9 @@ class Online(BaseSupersetView):
     @has_access_api
     @expose('/columns/<datasource_type>/<datasource_id>/')
     def columns(self, datasource_type, datasource_id):
+        """
+        获取用户有权限的表字段
+        """
         data = []
         datasource = ConnectorRegistry.get_datasource(
             datasource_type, datasource_id, db.session)
@@ -373,14 +375,16 @@ class Online(BaseSupersetView):
         if not security_manager.datasource_access(datasource):
             return json_error_response(DATASOURCE_ACCESS_ERR)
 
-        columns = datasource.columns
+        columns = [item for item in datasource.columns if item.filterable]
         for item in columns:
-            if item.filterable:
-                if item.owners:
+            if item.owners:    # 如果字段的owners属性有值，则有2种情况：如果是admin,可以访问；如果不是admin,user不在owners中，则不能访问
+                if UserInfo.has_role(['Admin', 'Alpha']):
+                    data.append({"name": item.column_name, "verbose_name": item.verbose_name})
+                else:
                     if g.user in item.owners:
                         data.append({"name": item.column_name, "verbose_name": item.verbose_name})
-                else:
-                    data.append({"name": item.column_name, "verbose_name": item.verbose_name})
+            else:
+                data.append({"name": item.column_name, "verbose_name": item.verbose_name})
         payload = json.dumps(data)
         return json_success(payload)
 
@@ -389,12 +393,7 @@ class Online(BaseSupersetView):
     @expose('/filter/<datasource_type>/<datasource_id>/<column>/')
     def filter(self, datasource_type, datasource_id, column):
         """
-        Endpoint to retrieve values for specified column.
-
-        :param datasource_type: Type of datasource e.g. table
-        :param datasource_id: Datasource id
-        :param column: Column name to retrieve values for
-        :return:
+        过滤用户有权限的表字段
         """
         datasource = ConnectorRegistry.get_datasource(
             datasource_type, datasource_id, db.session)
@@ -436,6 +435,40 @@ class Online(BaseSupersetView):
         datasources = sorted(data, key=lambda x: x)
         datasources = json.dumps(datasources)
         return json_success(datasources)
+
+    @api
+    @has_access_api
+    @expose('/dealna/<datasource_type>/<datasource_id>/', methods=['GET'])
+    def deal_null_value(self, datasource_type, datasource_id):
+        """
+        处理缺失值 
+        """
+        form_data = request.form.get("form_data")
+        sk_type = form_data.get("sk_type")
+        if not sk_type:
+            return json_error_response(REQ_PARAM_NULL_ERR % "sk_type")
+
+        datasource = ConnectorRegistry.get_datasource(
+            datasource_type, datasource_id, db.session)
+        if not datasource:
+            return json_error_response(DATASOURCE_MISSING_ERR)
+        if not security_manager.datasource_access(datasource):
+            return json_error_response(DATASOURCE_ACCESS_ERR)
+
+        sk = sk_types.get(sk_type)(datasource, form_data)
+        df = sk.get_df()
+        null_values = df.isnull().sum()
+        return json_success(null_values.to_json())
+
+
+    @api
+    @has_access_api
+    @expose('/download/')
+    def download(self):
+        """
+        下载处理之后的数据 
+        """
+        pass
 
 appbuilder.add_view_no_menu(Online)
 

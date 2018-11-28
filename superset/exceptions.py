@@ -28,3 +28,7 @@ class NoDataException(SupersetException):
 
 class SupersetTemplateException(SupersetException):
     pass
+
+
+class SupersetParamException(SupersetException):
+    pass
