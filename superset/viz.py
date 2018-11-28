@@ -669,9 +669,11 @@ class TableViz(BaseViz):
             columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
         df = df[columns]
         if fd.get('all_columns'):
-            row_limit = fd.get('row_limit')
-            if row_limit >= conf.get("TABLE_MAX_ROW_LIMIT", 10000):
-                df = df.head(conf.get("TABLE_DEFAULT_ROW_LIMIT", 1000))
+            row_limit = int(fd.get('row_limit'))
+            limit = int(conf.get("TABLE_MAX_ROW_LIMIT", 10000))
+            default = int(conf.get("TABLE_DEFAULT_ROW_LIMIT", 1000))
+            if row_limit >= limit:
+                df = df.head(default)
         data = self.handle_js_int_overflow(
             dict(
                 records=df.to_dict(orient='records'),
