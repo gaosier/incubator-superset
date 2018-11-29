@@ -46,7 +46,7 @@ class SkModel(Model, AuditMixinNullable):
         return instance
 
     @property
-    def params(self):
+    def json_params(self):
         data = json.loads(self.params)
         return data
 
