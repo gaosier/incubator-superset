@@ -172,13 +172,13 @@ LANGUAGES = {
 # Image and file configuration
 # ---------------------------------------------------
 # The file upload folder, when using models with files
-UPLOAD_FOLDER = BASE_DIR + '/app/static/uploads/'
+UPLOAD_FOLDER = BASE_DIR + '/static/uploads/file/'
 
 # The image upload folder, when using models with images
-IMG_UPLOAD_FOLDER = BASE_DIR + '/app/static/uploads/'
+IMG_UPLOAD_FOLDER = BASE_DIR + 'static/uploads/img/'
 
 # The image upload url, when using models with images
-IMG_UPLOAD_URL = '/static/uploads/'
+IMG_UPLOAD_URL = '/static/uploads/img/'
 # Setup image size default is (300, 200, True)
 # IMG_SIZE = (300, 200, True)
 
@@ -192,7 +192,8 @@ CORS_OPTIONS = {}
 
 # Allowed format types for upload on Database view
 # TODO: Add processing of other spreadsheet formats (xls, xlsx etc)
-ALLOWED_EXTENSIONS = set(['csv'])
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+ALLOWED_EXTENSIONS = set(['csv', 'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 # CSV Options: key/value pairs that will be passed as argument to DataFrame.to_csv method
 # note: index option should not be overridden

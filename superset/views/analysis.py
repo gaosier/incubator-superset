@@ -4,21 +4,26 @@
 在线分析视图函数
 """
 import json
+import os
+import uuid
+import time
 
 from urllib import parse
-from flask import flash, redirect, request, g
+from flask import flash, redirect, request, g, render_template, send_file
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access, has_access_api
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
 from sqlalchemy import or_
+from werkzeug.utils import secure_filename
+from pygments import highlight, lexers
+from pygments.formatters import HtmlFormatter
 
 from superset import appbuilder, security_manager, db, app
 from superset.views.base import SupersetModelView, DeleteMixin, SupersetFilter, FORM_DATA_KEY_BLACKLIST, check_ownership
 from superset.utils import validate_json, merge_extra_filters, merge_request_params, json_int_dttm_ser
 from superset.connectors.connector_registry import ConnectorRegistry
-from superset.exceptions import SupersetParamException
 from superset.sk_model import sk_types
 
 from superset.models.core import Log, Url
@@ -30,6 +35,9 @@ from .base import (BaseSupersetView, api, DATASOURCE_MISSING_ERR, get_datasource
 log_this = Log.log_this
 DATASOURCE_ACCESS_ERR = __("You don't have access to this datasource")
 config = app.config
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+SK_MODEL_PATH = os.path.join(CURRENT_DIR, "/sk_model.py")
 
 
 class SkModelView(SupersetModelView, DeleteMixin):
@@ -215,12 +223,7 @@ class Online(BaseSupersetView):
         return form_data, slc
 
     @staticmethod
-    def datasource_info(datasource_id, datasource_type, form_data):
-        """Compatibility layer for handling of datasource info
-
-        datasource_id & datasource_type used to be passed in the URL
-        directory, now they should come as part of the form_data,
-        This function allows supporting both without duplicating code"""
+    def datasource_info(form_data, datasource_id=None, datasource_type=None):
         datasource = form_data.get('datasource', '')
         if '__' in datasource:
             datasource_id, datasource_type = datasource.split('__')
@@ -410,7 +413,6 @@ class Online(BaseSupersetView):
             default=json_int_dttm_ser)
         return json_success(payload)
 
-
     @api
     @has_access_api
     @expose('/skmodels/')
@@ -424,7 +426,7 @@ class Online(BaseSupersetView):
     @expose('/datasources/')
     def datasources(self):
         datasources = ConnectorRegistry.get_all_datasources(db.session)
-        datasources = [o.name for o in datasources]
+        datasources = [{"name": o.name, "id": o.id, "perm": o.perm} for o in datasources]
 
         if UserInfo.has_all_datasource_access():
             data = datasources
@@ -432,21 +434,24 @@ class Online(BaseSupersetView):
             perms = UserInfo.get_view_menus('datasource_access')
             data = [item for item in datasources if item.get("perm") in perms]
 
+        data = [item.pop('perm') for item in data]
         datasources = sorted(data, key=lambda x: x)
         datasources = json.dumps(datasources)
         return json_success(datasources)
 
     @api
     @has_access_api
-    @expose('/dealna/<datasource_type>/<datasource_id>/', methods=['GET'])
-    def deal_null_value(self, datasource_type, datasource_id):
+    @expose('/dealna/', methods=['GET'])
+    def deal_null_value(self):
         """
         处理缺失值 
         """
-        form_data = request.form.get("form_data")
+        form_data, analysis = self.get_form_data()
         sk_type = form_data.get("sk_type")
-        if not sk_type:
-            return json_error_response(REQ_PARAM_NULL_ERR % "sk_type")
+        datasource_id, datasource_type = self.datasource_info(form_data)
+
+        if not sk_type or (not datasource_id) or (not datasource_type):
+            return json_error_response(REQ_PARAM_NULL_ERR % "sk_type, datasource_id, datasource_type")
 
         datasource = ConnectorRegistry.get_datasource(
             datasource_type, datasource_id, db.session)
@@ -460,6 +465,14 @@ class Online(BaseSupersetView):
         null_values = df.isnull().sum()
         return json_success(null_values.to_json())
 
+    def get_xlsx_file(self, df):
+        is_show_index = False  # execl表中是否显示index列
+
+        filename = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time())) + u'.xlsx'
+        filepath = os.path.join(app.config.get('SQLLAB_DATA_DIR'), filename)
+        df.to_excel(filepath, index=is_show_index, encoding='utf-8', engine='xlsxwriter')
+        return send_file(filepath, as_attachment=True,
+                         attachment_filename=parse.quote(filename))
 
     @api
     @has_access_api
@@ -468,7 +481,138 @@ class Online(BaseSupersetView):
         """
         下载处理之后的数据 
         """
-        pass
+        form_data, analysis = self.get_form_data()
+        sk_type = form_data.get("sk_type")
+        datasource_id, datasource_type = self.datasource_info(form_data)
+
+        if not sk_type or (not datasource_id) or (not datasource_type):
+            return json_error_response(REQ_PARAM_NULL_ERR % "sk_type, datasource_id, datasource_type")
+
+        datasource = ConnectorRegistry.get_datasource(
+            datasource_type, datasource_id, db.session)
+        if not datasource:
+            return json_error_response(DATASOURCE_MISSING_ERR)
+        if not security_manager.datasource_access(datasource):
+            return json_error_response(DATASOURCE_ACCESS_ERR)
+
+        sk = sk_types.get(sk_type)(datasource, form_data)
+        df = sk.get_df()
+        df = sk.deal_na(df)     # 处理缺失值
+        df = sk.deal_variable_box(df)      # 处理分箱
+        df = sk.deal_dummy_variable(df)        # 处理亚变量
+        return self.get_xlsx_file(df)
+
+
+    @api
+    @has_access_api
+    @expose('/model/params/<name>/')
+    def get_model_params(self, name):
+        """
+        获取模型的参数
+        """
+        data = []
+        instance = SkModel.get_instance(name)
+        if instance:
+            data = instance.params
+        return json_success(json.dumps(data))
+
+    def allowed_file(self, filename):
+        return '.' in filename and \
+               filename.rsplit('.', 1)[1].lower() in config.get("ALLOWED_EXTENSIONS")
+
+    @api
+    @has_access_api
+    @expose('/upload/file/', methods=['GET', 'POST'])
+    def upload_file(self):
+        if request.method == "POST":
+            if 'file' not in request.files:
+                return json_error_response(u"上传文件失败：file 参数为空")
+            file = request.files['file']
+
+            if file.filename == '':
+                return json_error_response(u"上传文件失败：文件名为空")
+            if file and self.allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                new_filename = "%s_%s" %(str(uuid.uuid1()), filename)
+                file.save(os.path.join(config['IMG_UPLOAD_FOLDER'], new_filename))
+                payload = {"filename": new_filename, "url": config.get("IMG_UPLOAD_FOLDER")}
+                return json_success(json.dumps(payload))
+        return render_template("superset/import_files.html")
+
+    @api
+    @has_access_api
+    @expose('/preview/code/', methods=['GET'])
+    def preview_code(self):
+        title = "sk_model.py"
+        try:
+            with open(SK_MODEL_PATH, 'r') as f:
+                code = f.read()
+            html_code = highlight(
+                code, lexers.PythonLexer(), HtmlFormatter(linenos=True))
+        except IOError as e:
+            html_code = str(e)
+
+        return render_template(
+            'superset/code.html', html_code=html_code, title=title)
+
+    @api
+    @has_access_api
+    @expose('/describe/')
+    def describe(self):
+        """
+        查看处理之后的数据分布
+        """
+        form_data, analysis = self.get_form_data()
+        sk_type = form_data.get("sk_type")
+        datasource_id, datasource_type = self.datasource_info(form_data)
+
+        if not sk_type or (not datasource_id) or (not datasource_type):
+            return json_error_response(REQ_PARAM_NULL_ERR % "sk_type, datasource_id, datasource_type")
+
+        datasource = ConnectorRegistry.get_datasource(
+            datasource_type, datasource_id, db.session)
+        if not datasource:
+            return json_error_response(DATASOURCE_MISSING_ERR)
+        if not security_manager.datasource_access(datasource):
+            return json_error_response(DATASOURCE_ACCESS_ERR)
+
+        sk = sk_types.get(sk_type)(datasource, form_data)
+        df = sk.get_df()
+        df = sk.deal_na(df)  # 处理缺失值
+        df = sk.deal_variable_box(df)  # 处理分箱
+        df = sk.deal_dummy_variable(df)  # 处理亚变量
+        html = sk.variable_describe(df)
+        return json_success(html)
+
+    @api
+    @has_access_api
+    @expose('/correlation_analysis/')
+    def correlation_analysis(self):
+        """
+        查看数据相关性
+        """
+        form_data, analysis = self.get_form_data()
+        sk_type = form_data.get("sk_type")
+        datasource_id, datasource_type = self.datasource_info(form_data)
+
+        if not sk_type or (not datasource_id) or (not datasource_type):
+            return json_error_response(REQ_PARAM_NULL_ERR % "sk_type, datasource_id, datasource_type")
+
+        datasource = ConnectorRegistry.get_datasource(
+            datasource_type, datasource_id, db.session)
+        if not datasource:
+            return json_error_response(DATASOURCE_MISSING_ERR)
+        if not security_manager.datasource_access(datasource):
+            return json_error_response(DATASOURCE_ACCESS_ERR)
+
+        sk = sk_types.get(sk_type)(datasource, form_data)
+        df = sk.get_df()
+        df = sk.deal_na(df)  # 处理缺失值
+        df = sk.deal_variable_box(df)  # 处理分箱
+        df = sk.deal_dummy_variable(df)  # 处理亚变量
+        name, url = sk.correlation_analysis(df)
+        payload = {"name": name, 'url': url}
+        return json_success(json.dumps(payload))
 
 appbuilder.add_view_no_menu(Online)
 
