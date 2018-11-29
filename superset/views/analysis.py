@@ -284,8 +284,8 @@ class Online(BaseSupersetView):
     def analysis(self, datasource_type=None, datasource_id=None):
         user_id = g.user.get_id() if g.user else None
         form_data, slc = self.get_form_data()
-        datasource_id, datasource_type = self.datasource_info(
-            datasource_id, datasource_type, form_data)
+        datasource_id, datasource_type = self.datasource_info(form_data,
+            datasource_id, datasource_type)
 
         error_redirect = '/analysismodelview/list/'
         datasource = ConnectorRegistry.get_datasource(
@@ -348,9 +348,8 @@ class Online(BaseSupersetView):
             'form_data': form_data,
             'datasource_id': datasource_id,
             'datasource_type': datasource_type,
-            'standalone': standalone,
+            'datasource_name': datasource.name,
             'user_id': user_id,
-            'forced_height': request.args.get('height'),
         }
         table_name = datasource.table_name \
             if datasource_type == 'table' \
