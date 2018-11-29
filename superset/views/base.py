@@ -39,6 +39,7 @@ if not conf.get('ENABLE_JAVASCRIPT_CONTROLS'):
 
 
 DATASOURCE_MISSING_ERR = __('The datasource seems to have been deleted')
+REQ_PARAM_NULL_ERR= "参数[%s]不能为空"
 
 def get_datasource_access_error_msg(datasource_name):
     return __('This endpoint requires the datasource %(name)s, database or '

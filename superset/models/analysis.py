@@ -40,6 +40,18 @@ class SkModel(Model, AuditMixinNullable):
         data = [item[0] for item in data]
         return data or []
 
+    @classmethod
+    def get_instance(cls, name):
+        instance = db.session.query(cls).filter(cls.name == name).first()
+        return instance
+
+    @property
+    def params(self):
+        data = json.loads(self.params)
+        return data
+
+
+
 
 analysis_owner = Table('analysis_owner', metadata,
                     Column('id', Integer, primary_key=True),
