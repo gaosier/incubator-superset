@@ -6,6 +6,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import matplotlib
+matplotlib.use('TkAgg')
+
 import inspect
 import logging
 import uuid
@@ -17,6 +20,7 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 from numpy import shape
+from pandas.core.frame import DataFrame
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
@@ -57,6 +61,10 @@ class BaseSkModel(object):
         self.form_data = form_data
 
         self.query = BASE_QUERY + self.datasource.table_name + ';'
+
+        # 跑模型所需的参数
+        self.df = None
+        self.model = None
 
     def get_df(self, query_obj=None):
         """
@@ -250,16 +258,17 @@ class Lasso(BaseSkModel):
         model, train_data, test_data = self.lasso_lr(data)
         logger.info("model: %s    train_data:%s      test_data:%s" % (model, train_data, test_data))
 
-        precision, recall, aupr, auc, ks = self.model_validation(valid_data=train_data, model=model,
+        precision, recall, aupr, auc, ks = self.model_validation(train_data, model=model,
                                                             title="Result  for  Train_data\n")
         logger.info("train_data: precision:%s recall:%s  aupr:%s   auc:%s    ks:%s" % (precision, recall, aupr, auc, ks))
 
-    def validate_models(self, df, model):
-        datas = self.get_validate_dataset(df, ["current_year_season == 2018暑季", "current_year_season == 2018秋季"],
-                                          ["is_discard", "formal_yearseason_num", "current_num"]  # 参数是前端配置的
-                                          )
+        self.df = df
+        self.model = model
+
+    def validate_models(self):
+        datas = self.get_validate_dataset(self.df)
         for data in datas:
-            precision, recall, aupr, auc, ks = self.model_validation(valid_data=data, model=model,
+            precision, recall, aupr, auc, ks = self.model_validation(data, model=self.model,
                                                                      title="Result  for  Train_data\n")
 
             logger.info(
@@ -267,9 +276,6 @@ class Lasso(BaseSkModel):
                                                                                    ks))
 
     def output(self, model, data, filename):
-        import pandas as pd
-        from pandas.core.frame import DataFrame
-
         X = data[data.columns[1:]]
         Y = data[data.columns[:1]]
 

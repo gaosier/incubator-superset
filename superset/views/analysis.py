@@ -513,7 +513,7 @@ class Online(BaseSupersetView):
         data = []
         instance = SkModel.get_instance(name)
         if instance:
-            data = instance.params
+            data = instance.json_params
         return json_success(json.dumps(data))
 
     def allowed_file(self, filename):
