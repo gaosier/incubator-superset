@@ -281,14 +281,12 @@ class Lasso(BaseSkModel):
         pred_proba = model.predict_proba(X)
         pred_class = model.predict(X)
 
-        pred_proba = DataFrame(pred_proba[:, 1])
-        pred_class = DataFrame(pred_class)
-        Y = DataFrame(Y)
+        pred_proba = DataFrame(pred_proba[:, 1])        # 概率
+        pred_class = DataFrame(pred_class)              # 分类
+        Y = DataFrame(Y)                                # 实际值
 
-        pred_rs = pd.concat([pred_proba, pred_class])
-        pred_proba.to_excel(filename + '_probba.xlsx')
-        pred_class.to_excel(filename + '_class.xlsx')
-        Y.to_excel(filename + '_Y.xlsx')
+        pred_rs = pd.concat([pred_proba, pred_class, Y], axis=1)
+        pred_rs.to_excel(filename + '_Y.xlsx')
 
     def lasso_lr(self, df):
         """

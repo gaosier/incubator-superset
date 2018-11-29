@@ -425,18 +425,16 @@ class Online(BaseSupersetView):
     @expose('/datasources/')
     def datasources(self):
         datasources = ConnectorRegistry.get_all_datasources(db.session)
-        datasources = [{"name": o.name, "id": o.id, "perm": o.perm} for o in datasources]
 
         if UserInfo.has_all_datasource_access():
             data = datasources
         else:
             perms = UserInfo.get_view_menus('datasource_access')
-            data = [item for item in datasources if item.get("perm") in perms]
+            data = [item for item in datasources if item.perm in perms]
 
-        data = [item.pop('perm') for item in data]
-        datasources = sorted(data, key=lambda x: x)
-        datasources = json.dumps(datasources)
-        return json_success(datasources)
+        datasources = [{"name": o.name, "id": o.id} for o in data]
+
+        return json_success(json.dumps(datasources))
 
     @api
     @has_access_api
@@ -551,8 +549,8 @@ class Online(BaseSupersetView):
         except IOError as e:
             html_code = str(e)
 
-        return render_template(
-            'superset/code.html', html_code=html_code, title=title)
+        payload = {"title": title, "code": html_code}
+        return json_success(json.dumps(payload))
 
     @api
     @has_access_api

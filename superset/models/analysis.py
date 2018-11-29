@@ -83,6 +83,9 @@ class Analysis(Model, AuditMixinNullable):
     description = Column(Text, comment=u"分析模型描述")
     params = Column(Text, comment=u"模型参数")
     perm = Column(String(200), comment=u"权限")
+    code_log_file = Column(String(255), comment=u"代码日志文件")
+    param_log_file = Column(String(255), comment=u"机器学习模型参数日志")
+    image_log_file = Column(String(255), comment=u"代码中的图片的位置")
 
 
     __table_args__ = (UniqueConstraint('name', 'version', name='_name_version'),
