@@ -7,9 +7,10 @@ import json
 import os
 import uuid
 import time
+import logging
 
 from urllib import parse
-from flask import flash, redirect, request, g, render_template, send_file
+from flask import flash, redirect, request, g, render_template, send_file, send_from_directory, make_response
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access, has_access_api
@@ -438,7 +439,7 @@ class Online(BaseSupersetView):
 
     @api
     @has_access_api
-    @expose('/dealna/', methods=['GET'])
+    @expose('/dealna/', methods=['POST'])
     def deal_null_value(self):
         """
         处理缺失值 
@@ -473,7 +474,7 @@ class Online(BaseSupersetView):
 
     @api
     @has_access_api
-    @expose('/download/')
+    @expose('/download/', methods=['POST'])
     def download(self):
         """
         下载处理之后的数据 
@@ -554,7 +555,7 @@ class Online(BaseSupersetView):
 
     @api
     @has_access_api
-    @expose('/describe/')
+    @expose('/describe/', methods=['POST'])
     def describe(self):
         """
         查看处理之后的数据分布
@@ -583,7 +584,7 @@ class Online(BaseSupersetView):
 
     @api
     @has_access_api
-    @expose('/correlation_analysis/')
+    @expose('/correlation_analysis/', methods=["POST"])
     def correlation_analysis(self):
         """
         查看数据相关性
@@ -610,6 +611,101 @@ class Online(BaseSupersetView):
         name, url = sk.correlation_analysis(df)
         payload = {"name": name, 'url': url}
         return json_success(json.dumps(payload))
+
+
+    @api
+    @has_access_api
+    @expose('/run/model/', methods=["POST"])
+    def run_model(self):
+        form_data, analysis = self.get_form_data()
+        sk_type = form_data.get("sk_type")
+        datasource_id, datasource_type = self.datasource_info(form_data)
+
+        if not sk_type or (not datasource_id) or (not datasource_type):
+            return json_error_response(REQ_PARAM_NULL_ERR % "sk_type, datasource_id, datasource_type")
+
+        datasource = ConnectorRegistry.get_datasource(
+            datasource_type, datasource_id, db.session)
+        if not datasource:
+            return json_error_response(DATASOURCE_MISSING_ERR)
+        if not security_manager.datasource_access(datasource):
+            return json_error_response(DATASOURCE_ACCESS_ERR)
+
+        sk = sk_types.get(sk_type)(datasource, form_data)
+        log_dir_id, execl_sl, execl_bs, status, err_msg = sk.run()
+        payload = {"log_dir_id": log_dir_id, "status": status, "err_msg": err_msg, "model_result_execl_sl": execl_sl,
+                   "model_result_execl_bs": execl_bs}
+        return json_success(json.dumps(payload))
+
+    @api
+    @has_access_api
+    @expose('/log/<name>/')
+    def log(self, name):
+        if name not in ["code", "param", "image"]:
+            return json_error_response(u"参数[name]的值错误. 取值范围[code, param, image]")
+
+        analysis_id = request.args.get("log_dir_id")
+        if not analysis_id:
+            return json_error_response(u"参数[analysis_id]的值不能为空.")
+
+        loggers = {"code": "analysis.code", "param": "analysis.param", "image": "analysis.image"}
+        logger_name = loggers.get(name)
+        logger = logging.getLogger(logger_name)
+        handler = next((handler for handler in logger.handlers
+                            if handler.name == name), None)
+
+        try:
+            logs = handler.read(analysis_id)
+        except AttributeError as e:
+            logs = ["Task log handler {} does not support read logs.\n{}\n".format(name, str(e))]
+
+        for i, log in enumerate(logs):
+            if not isinstance(log, str):
+                logs[i] = log.decode('utf-8')
+        return json_success(json.dumps(logs))
+
+    @api
+    @has_access_api
+    @expose("/log/business/")
+    def log_bussiness(self):
+        analysis_id = request.args.get("log_dir_id")
+        if not analysis_id:
+            return json_error_response(u"参数[analysis_id]的值不能为空.")
+
+        logger = logging.getLogger("analysis.param")
+        handler = next((handler for handler in logger.handlers
+                        if handler.name == "param"), None)
+
+        try:
+            logs = handler.read(analysis_id)
+        except AttributeError as e:
+            logs = ["Task log handler {} does not support read logs.\n{}\n".format("param", str(e))]
+
+        for i, log in enumerate(logs):
+            if not isinstance(log, str):
+                logs[i] = log.decode('utf-8')
+        return json_success(json.dumps(logs))
+
+    @api
+    @has_access_api
+    @expose("/model/complete/download/", methods=["POST"])
+    def download_model_data(self):
+        """
+        下载模型运行完成之后生成的数据
+        """
+        form_data, _ = self.get_form_data()
+        model_result_execl_sl = form_data.get("model_result_execl_sl")
+        model_result_execl_bs = form_data.get("model_result_execl_bs")
+        if UserInfo.has_role([ "Admin" ]):
+            filename = model_result_execl_sl
+        else:
+            filename = model_result_execl_bs
+
+        directory = config.get("UPLOAD_FOLDER")
+        response = make_response(send_from_directory(directory, filename, as_attachment=True))
+        response.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
+        return response
+
 
 appbuilder.add_view_no_menu(Online)
 

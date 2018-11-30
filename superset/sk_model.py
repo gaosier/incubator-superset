@@ -12,6 +12,7 @@ matplotlib.use('TkAgg')
 import inspect
 import logging
 import uuid
+import os
 
 from flask import escape, request, g
 import matplotlib.pyplot as plt
@@ -27,6 +28,7 @@ from sklearn.metrics import confusion_matrix, precision_recall_curve, average_pr
 
 from superset import app
 from superset.exceptions import SupersetParamException
+from superset.analysis_log import ana_code_logger, ana_image_logger, ana_param_logger
 
 
 config = app.config
@@ -51,7 +53,7 @@ class BaseSkModel(object):
     sk_type = None
     verbose_name = 'Base SK Model'
 
-    def __init__(self, datasource, form_data, force=False):
+    def __init__(self, datasource, form_data):
         if not datasource:
             raise Exception("缺少数据源")
         self.datasource = datasource
@@ -247,6 +249,30 @@ class BaseSkModel(object):
         df = self.deal_dummy_variable(df)  # 处理亚变量
         return df
 
+    def get_log_path(self):
+        """
+        获取3个logger生成的日志的路径
+        """
+        analysis_id = self.form_data.get("analysis_id")
+        if not analysis_id:
+            analysis_id = uuid.uuid1()
+
+        for logger in [ana_code_logger, ana_param_logger, ana_image_logger]:
+            for handler in logger.handlers:
+                handler.set_context(analysis_id)
+
+        return analysis_id
+
+    def excelAddSheet(self, dfs, outfile):
+        """
+        把多个df写到一个excel中
+        """
+        writer = pd.ExcelWriter(outfile, engine='xlsxwriter')
+
+        for i, df in enumerate(dfs):
+            df.to_excel(writer, sheet_name="sheet%s" % (i+1))
+        writer.save()
+
 
 class Lasso(BaseSkModel):
     sk_type = 'lasso'
@@ -255,14 +281,15 @@ class Lasso(BaseSkModel):
         df = self.get_dealed_df()
         data = self.get_train_test_dataset(df)
         model, train_data, test_data = self.lasso_lr(data)
-        logger.info("model: %s    train_data:%s      test_data:%s" % (model, train_data, test_data))
+        ana_code_logger.info("model: %s    train_data:%s      test_data:%s" % (model, train_data, test_data))
 
         precision, recall, aupr, auc, ks = self.model_validation(train_data, model=model,
                                                             title="Result  for  Train_data\n")
-        logger.info("train_data: precision:%s recall:%s  aupr:%s   auc:%s    ks:%s" % (precision, recall, aupr, auc, ks))
+        ana_code_logger.info("train_data: precision:%s recall:%s  aupr:%s   auc:%s    ks:%s" % (precision, recall, aupr, auc, ks))
 
         self.df = df
         self.model = model
+        return train_data, test_data
 
     def validate_models(self):
         datas = self.get_validate_dataset(self.df)
@@ -270,23 +297,24 @@ class Lasso(BaseSkModel):
             precision, recall, aupr, auc, ks = self.model_validation(data, model=self.model,
                                                                      title="Result  for  Train_data\n")
 
-            logger.info(
+            ana_param_logger.info(
                 "[data]:%s   precision:%s recall:%s  aupr:%s   auc:%s    ks:%s" % (data, precision, recall, aupr, auc,
                                                                                    ks))
+        return datas
 
-    def output(self, model, data, filename):
+    def output(self, data):
         X = data[data.columns[1:]]
         Y = data[data.columns[:1]]
 
-        pred_proba = model.predict_proba(X)
-        pred_class = model.predict(X)
+        pred_proba = self.model.predict_proba(X)
+        pred_class = self.model.predict(X)
 
         pred_proba = DataFrame(pred_proba[:, 1])        # 概率
         pred_class = DataFrame(pred_class)              # 分类
         Y = DataFrame(Y)                                # 实际值
 
-        pred_rs = pd.concat([pred_proba, pred_class, Y], axis=1)
-        pred_rs.to_excel(filename + '_Y.xlsx')
+        concat_df = pd.concat([pred_proba, pred_class, Y], axis=1)
+        return concat_df
 
     def lasso_lr(self, df):
         """
@@ -319,7 +347,7 @@ class Lasso(BaseSkModel):
             {'Top_var_label': top_vars_label, 'Top_var_name': top_vars_names, 'Top_var_coef': top_vars_coef})
         output_coef = output_coef.reindex(columns=['Top_var_label', 'Top_var_name', 'Top_var_coef'])
 
-        print(output_coef)
+        ana_param_logger.info(output_coef)
 
         return model, train_data, test_data
 
@@ -330,7 +358,7 @@ class Lasso(BaseSkModel):
         valid_pred = model.predict(valid_X)
         valid_proba = model.predict_proba(valid_X)
 
-        #混淆矩阵图
+        # 混淆矩阵图
         f, ax = plt.subplots(1, 1, figsize=(4, 3))
         sns.heatmap(confusion_matrix(valid_Y, valid_pred), ax=ax, annot=True, fmt='2.0f')
         ax.set_title(title)
@@ -344,14 +372,42 @@ class Lasso(BaseSkModel):
         valid_fpr, valid_tpr, valid_thres = roc_curve(valid_Y, valid_proba[:, 1], pos_label=1)
         valid_ks = abs(valid_fpr - valid_tpr).max()
 
-        print(title)
-        print('-------------------------------------')
-        print('  Precision = ', str(round(valid_precision[1], 2)), '  Recall = ', str(round(valid_recall[1], 2)))
-        print('  AUPR = ', str(round(valid_aupr, 2)), '      AUC = ', str(round(valid_auc, 2)))
-        print('  KS = ', str(round(valid_ks, 2)))
-        print('-------------------------------------' + '\n\n\n')
+        ana_param_logger.info(title)
+        ana_param_logger.info('-------------------------------------')
+        ana_param_logger.info('  Precision = ', str(round(valid_precision[1], 2)), '  Recall = ', str(round(valid_recall[1], 2)))
+        ana_param_logger.info('  AUPR = ', str(round(valid_aupr, 2)), '      AUC = ', str(round(valid_auc, 2)))
+        ana_param_logger.info('  KS = ', str(round(valid_ks, 2)))
+        ana_param_logger.info('-------------------------------------' + '\n\n\n')
 
         return valid_precision, valid_recall, valid_aupr, valid_auc, valid_ks
+
+    def run(self):
+        status = True
+        err_msg = log_dir_id = execl_sl = execl_bs = None
+        try:
+            log_dir_id = self.get_log_path()
+            train_df, test_df = self.train_models()
+            validate_dfs = self.validate_models()
+
+            # 生成输出的df
+            train_df_exc = self.output(train_df)
+            test_df_exc = self.output(test_df)
+
+            validate_df_exc = [self.output(df) for df in validate_dfs]
+
+            datas = {"sl": [train_df_exc, test_df_exc, validate_df_exc], "bs": [validate_df_exc]}
+
+            execl_files = []
+            for key, data in datas.items():
+                filename = "%s_%s.xlsx" % (str(uuid.uuid1()), key)
+                execl_files.append(filename)
+                file_path = os.path.join(config.get("UPLOAD_FOLDER"), filename)
+                self.excelAddSheet(data, file_path)
+            execl_sl , execl_bs = execl_files
+        except Exception as exc:
+            status = False
+            err_msg = str(exc)
+        return log_dir_id, execl_sl, execl_bs, status, err_msg
 
 
 sk_types = {

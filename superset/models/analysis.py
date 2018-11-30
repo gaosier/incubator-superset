@@ -117,8 +117,10 @@ class Analysis(Model, AuditMixinNullable):
 
     @classmethod
     def get_versions(cls, name):
+        versions = {}
         instances = db.session.query(cls).filter(cls.name == name)
-        versions = [item.version for item in instances]
+        for item in instances:
+            versions[item.version] = item.params
         return versions
 
     @property
