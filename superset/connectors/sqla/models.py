@@ -819,12 +819,18 @@ class SqlaTable(Model, BaseDatasource):
             if index.name == '__timestamp':
                 index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla))
             return index
-        time_grain_sqla = query_obj["extras"].get('time_grain_sqla',None)
+
         qry_start_dttm = datetime.now()
-        sql = special_sql if special_sql else self.get_query_str(query_obj)
         status = QueryStatus.SUCCESS
         error_message = None
         df = None
+
+        if special_sql:
+            sql = special_sql
+        else:
+            time_grain_sqla = query_obj["extras"].get('time_grain_sqla',None)
+            sql = self.get_query_str(query_obj)
+
         try:
             df = self.database.get_df(sql, self.schema)
         except Exception as e:
@@ -832,12 +838,13 @@ class SqlaTable(Model, BaseDatasource):
             logging.exception(e)
             error_message = (
                 self.database.db_engine_spec.extract_error_message(e))
-        if viz_type != 'line':
-            if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
-                df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
 
         # if this is a main query with prequeries, combine them together
         if query_obj:
+            if viz_type != 'line':
+                if df is not None and '__timestamp' in df.columns and time_grain_sqla is not None:
+                    df = df.apply(format_time_grain, time_grain_sqla=time_grain_sqla)
+
             if not query_obj['is_prequery']:
                 query_obj['prequeries'].append(sql)
                 sql = ';\n\n'.join(query_obj['prequeries'])

@@ -13,18 +13,20 @@ import inspect
 import logging
 import uuid
 import os
-
-from flask import escape, request, g
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
+import statsmodels.api as sm
+
+from flask import request
 from numpy import shape
 from pandas.core.frame import DataFrame
 from sklearn.linear_model import LogisticRegressionCV
-from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, precision_recall_curve, average_precision_score, roc_auc_score, roc_curve
+from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.metrics import (confusion_matrix, precision_recall_curve, average_precision_score, roc_auc_score,
+                             roc_curve, precision_score, recall_score)
+
 
 from superset import app
 from superset.exceptions import SupersetParamException
@@ -192,6 +194,9 @@ class BaseSkModel(object):
         return img_name, IMAGE_URL
 
     def get_filter_data(self, df, filters):
+        if not filters:
+            return df
+
         for item in filters:
             col = item.get('col')
             op = item.get('op')
@@ -216,7 +221,7 @@ class BaseSkModel(object):
         获取测试和训练集
         """
         new_df = df.copy(deep=True)
-        train_dataset = self.form_data.get("train_dataset")
+        train_dataset = self.form_data.get("train_dataset", {})
         filters = train_dataset.get("filters")
         fields = train_dataset.get("fields")
 
@@ -229,7 +234,7 @@ class BaseSkModel(object):
         获取校验数据集
         """
         datasets = []
-        valiadate_datasets = self.form_data.get("validate_datasets")
+        valiadate_datasets = self.form_data.get("validate_datasets", {})
         for name, info in valiadate_datasets.items():
             new_df = df.copy(deep=True)
             filters = info.get("filters")
@@ -272,6 +277,22 @@ class BaseSkModel(object):
         for i, df in enumerate(dfs):
             df.to_excel(writer, sheet_name="sheet%s" % (i+1))
         writer.save()
+
+    def train_models(self):
+        """
+        训练和测试模型
+        """
+        pass
+
+    def validate_models(self):
+        """
+        验证模型
+        :return: 
+        """
+        pass
+
+    def run(self):
+        return []
 
 
 class Lasso(BaseSkModel):
@@ -322,13 +343,18 @@ class Lasso(BaseSkModel):
         """
         X = df[df.columns[1:]]
         Y = df[df.columns[:1]]
-        train_X, test_X, train_Y, test_Y = train_test_split(X, Y, test_size=0.3, random_state=42)
 
-        custom_cv = StratifiedKFold(n_splits=5, random_state=100)
+        model_params = self.form_data.get("model_param", {})
+        test_size = model_params.get("train_test_split", {}).get("test_size", 0.3)
+        n_splits = model_params.get("StratifiedKFold", {}).get("n_splits", 5)
+        ana_code_logger.info("model_params: %s" % model_params)
+
+        train_X, test_X, train_Y, test_Y = train_test_split(X, Y, test_size=test_size, random_state=42)
+
+        custom_cv = StratifiedKFold(n_splits=n_splits, random_state=100)
         model = LogisticRegressionCV(Cs=800, fit_intercept=True, cv=custom_cv, dual=False, penalty='l1',
-                                     scoring='roc_auc'
-                                     , solver='liblinear', tol=0.0001, max_iter=100, class_weight=None, n_jobs=4
-                                     , verbose=0, refit=True, random_state=123)
+                                     scoring='roc_auc', solver='liblinear', tol=0.0001, max_iter=100, class_weight=None,
+                                     n_jobs=4, verbose=0, refit=True, random_state=123)
         model.fit(train_X, train_Y)
 
         train_data = pd.concat([train_Y, train_X], axis=1)
@@ -408,6 +434,91 @@ class Lasso(BaseSkModel):
             status = False
             err_msg = str(exc)
         return log_dir_id, execl_sl, execl_bs, status, err_msg
+
+
+class GeneraLR(BaseSkModel):
+    """
+    普通逻辑回归
+    """
+    sk_type = 'genera_lr'
+
+    def lr_model(self, df):
+
+        model_params = self.form_data.get("model_param")
+        ana_code_logger.info("model_params: %s" % model_params)
+        y_col = model_params.get("train_test_split").get("y_col")
+        y = df[y_col]
+
+        test_size = model_params.get("train_test_split").get("test_size")
+        random_state = model_params.get("train_test_split").get("random_state")
+        stratify = model_params.get("train_test_split").get("stratify")
+        explanatory_cols = model_params.get("extra").get("explanatory_cols")
+
+        X_train, X_test, y_train, y_test = train_test_split(df, y, test_size=test_size, random_state=random_state,
+                                                            stratify=df[stratify])
+
+        X_train_intercept = np.concatenate(
+            [np.ones(X_train.shape[0]).reshape(X_train.shape[0], 1), X_train[explanatory_cols]], axis=1)
+        X_test_intercept = np.concatenate(
+            [np.ones(X_test.shape[0]).reshape(X_test.shape[0], 1), X_test[explanatory_cols]], axis=1)
+
+        lr_model = sm.Logit(y_train, X_train_intercept)
+        lr_model_results = lr_model.fit()
+        ana_param_logger.info('LR Model Summary: \n')
+
+        ana_param_logger.info(lr_model_results.summary2())
+
+        utility_scores_tr = np.dot(X_train_intercept, lr_model_results.params.values)
+        utility_scores_ts = np.dot(X_test_intercept, lr_model_results.params.values)
+
+        lr_pred_probs_tr = np.exp(utility_scores_tr) / (1.0 + np.exp(utility_scores_tr))
+        lr_pred_probs_ts = np.exp(utility_scores_ts) / (1.0 + np.exp(utility_scores_ts))
+
+        ana_param_logger.info('AUC on training data... \n')
+        ana_param_logger.info(roc_auc_score(y_train, lr_pred_probs_tr))
+        ana_param_logger.info('\nAUC on testing data... \n')
+        ana_param_logger.info(roc_auc_score(y_test, lr_pred_probs_ts))
+
+        ap_tr = average_precision_score(y_train, lr_pred_probs_tr)
+        ap_ts = average_precision_score(y_test, lr_pred_probs_ts)
+
+        ana_param_logger.info('AUPR on training data is %5.3f ... \n' % ap_tr)
+        ana_param_logger.info('\nAUPR on testing data is %5.3f ... \n' % ap_ts)
+
+        lr_pred_label_tr = pd.Series(lr_pred_probs_tr).apply(lambda x: 1 if x > 0.5 else 0)
+        lr_pred_label_ts = pd.Series(lr_pred_probs_ts).apply(lambda x: 1 if x > 0.5 else 0)
+        ana_param_logger.info('Precison on training data is %5.3f ... \n' % precision_score(y_train, lr_pred_label_tr))
+        ana_param_logger.info('Recall on training data is %5.3f ... \n' % recall_score(y_train, lr_pred_label_tr))
+        ana_param_logger.info('Precison on test data is %5.3f ... \n' % precision_score(y_test, lr_pred_label_ts))
+        ana_param_logger.info('Recall on test data is %5.3f ... \n' % recall_score(y_test, lr_pred_label_ts))
+
+        return {'LR_Model': lr_model_results}
+
+    def train_models(self):
+        """
+        训练和测试模型
+        """
+        df = self.get_dealed_df()
+        data = self.get_train_test_dataset(df)
+        self.lr_model(data)
+
+    def validate_models(self):
+        pass
+
+    def run(self):
+        """
+        运行模型
+        """
+        self.train_models()
+
+
+class MixedLR(object):
+    """
+    混合逻辑回归
+    """
+    sk_type = 'mixed_lr'
+
+
 
 
 sk_types = {
