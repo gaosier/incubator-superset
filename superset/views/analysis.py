@@ -706,6 +706,27 @@ class Online(BaseSupersetView):
         response.headers["Content-Disposition"] = "attachment; filename={}".format(filename)
         return response
 
+    @api
+    @has_access_api
+    @expose("/table/schema/<datasource_type>/<datasource_id>/")
+    def table_schema(self, datasource_type, datasource_id):
+        """
+        获取表结构
+        """
+        datasource = ConnectorRegistry.get_datasource(
+            datasource_type, datasource_id, db.session)
+        if not datasource:
+            return json_error_response(DATASOURCE_MISSING_ERR)
+        if not security_manager.datasource_access(datasource):
+            return json_error_response(DATASOURCE_ACCESS_ERR)
+
+        filterd_columns, filterd_metrics = datasource.filter_columns_metrics()
+        columns = [(o.column_name, o.verbose_name or o.column_name) for o in filterd_columns]
+        metrics = [(o.metric_name, o.metric_name or o.metric_name) for o in filterd_metrics]
+
+        payload = {"columns": columns, "metrics": metrics}
+        return json_success(json.dumps(payload))
+
 
 appbuilder.add_view_no_menu(Online)
 
