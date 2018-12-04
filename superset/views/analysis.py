@@ -722,7 +722,7 @@ class Online(BaseSupersetView):
 
         filterd_columns, filterd_metrics = datasource.filter_columns_metrics()
         columns = [(o.column_name, o.verbose_name or o.column_name) for o in filterd_columns]
-        metrics = [(o.metric_name, o.metric_name or o.metric_name) for o in filterd_metrics]
+        metrics = [(o.metric_name, o.verbose_name or o.metric_name) for o in filterd_metrics]
 
         payload = {"columns": columns, "metrics": metrics}
         return json_success(json.dumps(payload))
