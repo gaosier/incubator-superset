@@ -37,8 +37,8 @@ log_this = Log.log_this
 DATASOURCE_ACCESS_ERR = __("You don't have access to this datasource")
 config = app.config
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-SK_MODEL_PATH = os.path.join(CURRENT_DIR, "/sk_model.py")
+CURRENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SK_MODEL_PATH = os.path.join(CURRENT_DIR, "sk_model.py")
 
 
 class SkModelView(SupersetModelView, DeleteMixin):
