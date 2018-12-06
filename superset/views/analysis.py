@@ -37,8 +37,8 @@ log_this = Log.log_this
 DATASOURCE_ACCESS_ERR = __("You don't have access to this datasource")
 config = app.config
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-SK_MODEL_PATH = os.path.join(CURRENT_DIR, "/sk_model.py")
+CURRENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SK_MODEL_PATH = os.path.join(CURRENT_DIR, "sk_model.py")
 
 
 class SkModelView(SupersetModelView, DeleteMixin):
@@ -722,7 +722,7 @@ class Online(BaseSupersetView):
 
         filterd_columns, filterd_metrics = datasource.filter_columns_metrics()
         columns = [(o.column_name, o.verbose_name or o.column_name) for o in filterd_columns]
-        metrics = [(o.metric_name, o.metric_name or o.metric_name) for o in filterd_metrics]
+        metrics = [(o.metric_name, o.verbose_name or o.metric_name) for o in filterd_metrics]
 
         payload = {"columns": columns, "metrics": metrics}
         return json_success(json.dumps(payload))

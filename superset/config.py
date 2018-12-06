@@ -175,7 +175,7 @@ LANGUAGES = {
 UPLOAD_FOLDER = BASE_DIR + '/static/uploads/file/'
 
 # The image upload folder, when using models with images
-IMG_UPLOAD_FOLDER = BASE_DIR + 'static/uploads/img/'
+IMG_UPLOAD_FOLDER = BASE_DIR + '/static/uploads/img/'
 
 # The image upload url, when using models with images
 IMG_UPLOAD_URL = '/static/uploads/img/'
@@ -243,7 +243,7 @@ LOG_LEVEL = 'DEBUG'
 ENABLE_TIME_ROTATE = True
 TIME_ROTATE_LOG_LEVEL = 'DEBUG'
 FILENAME = os.path.join(DATA_DIR, 'superset.log')
-ROLLOVER = 'D'
+ROLLOVER = 'MIDNIGHT'
 INTERVAL = 1
 BACKUP_COUNT = 30
 
