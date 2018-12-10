@@ -381,13 +381,15 @@ class BaseSkModel(object):
                 valid_precision, valid_recall, valid_thresholds = precision_recall_curve(valid_Y, valid_pred)
                 ana_code_logger.info("valid_precision:%s, valid_recall:%s, valid_thresholds: %s" % (valid_precision, valid_recall, valid_thresholds))
             except Exception as exc:
+                valid_recall = 0.0
+                valid_precision = 0.0
                 ana_code_logger.error("error: %s" % str(exc))
 
             valid_aupr = average_precision_score(valid_Y, valid_proba[:, 1], average="macro", sample_weight=None)
-            ana_code_logger.info("valid_aupr: %s" % valid_aupr)
+            ana_code_logger.info("valid_aupr: %s     type(valid_aupr): %s" % (valid_aupr, type(valid_aupr)))
 
             valid_auc = roc_auc_score(valid_Y, valid_proba[:, 1], average="macro", sample_weight=None)
-            ana_code_logger.info("valid_auc: %s" % valid_auc)
+            ana_code_logger.info("valid_auc: %s  type(valid_auc): %s " % (valid_auc, type(valid_auc)))
 
             valid_fpr, valid_tpr, valid_thres = roc_curve(valid_Y, valid_proba[:, 1], pos_label=1)
             ana_code_logger.info("valid_fpr:%s, valid_tpr:%s, valid_thres: %s" % (
@@ -397,21 +399,20 @@ class BaseSkModel(object):
                 valid_ks = abs(valid_fpr - valid_tpr).max()
                 ana_code_logger.info("valid_ks: %s" % valid_ks)
             except Exception as exc:
+                valid_ks = 0.0
                 ana_code_logger.error("error: %s" % str(exc))
-
 
             ana_param_logger.info(title)
             ana_param_logger.info('-------------------------------------')
-            ana_param_logger.info('  Precision = %s              Recall = %s' % (str(round(valid_precision[1], 2)),
-                                                                                 str(round(valid_recall[1], 2))))
-            ana_param_logger.info('  AUPR = %s                  AUC = %s' % ( str(round(valid_aupr, 2), str(round(valid_auc, 2)))))
-            ana_param_logger.info('  KS =  %s' % str(round(valid_ks, 2)))
+            ana_param_logger.info('  Precision = %s              Recall = %s' % (round(valid_precision[1], 2),
+                                                                                 round(valid_recall[1], 2)))
+            ana_param_logger.info('  AUPR = %s                  AUC = %s' % (round(valid_aupr, 2), round(valid_auc, 2)))
+            ana_param_logger.info('  KS =  %s' % round(valid_ks, 2))
             ana_param_logger.info('-------------------------------------' + '\n\n\n')
 
             return valid_precision, valid_recall, valid_aupr, valid_auc, valid_ks
         except Exception as exc:
             ana_code_logger.error("error: %s" % str(exc))
-
 
     def validate_models(self):
         """
@@ -455,6 +456,7 @@ class BaseSkModel(object):
         except Exception as exc:
             status = False
             err_msg = str(exc)
+            ana_code_logger.error("error: %s" % exc)
         return log_dir_id, execl_sl, execl_bs, status, err_msg
 
 
@@ -480,7 +482,7 @@ class Lasso(BaseSkModel):
                                                                                                 auc, ks))
 
         precision, recall, aupr, auc, ks = self.model_validation(test_data, model=self.model,
-                                                                 title="Result  for  Train_data\n")
+                                                                 title="Result  for  Test_data\n")
         ana_code_logger.info("test_data: precision:%s recall:%s  aupr:%s   auc:%s    ks:%s" % (precision, recall, aupr,
                                                                                                 auc, ks))
 
