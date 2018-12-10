@@ -461,6 +461,10 @@ class Online(BaseSupersetView):
         sk = sk_types.get(sk_type)(datasource, form_data)
         df = sk.get_df()
         null_values = df.isnull().sum()
+
+        for key, v in null_values.to_dict().items():
+            if v == 0:
+                del null_values[key]
         return json_success(null_values.to_json())
 
     def get_xlsx_file(self, df):
@@ -558,7 +562,7 @@ class Online(BaseSupersetView):
     @expose('/describe/', methods=['POST'])
     def describe(self):
         """
-        查看处理之后的数据分布
+        查看原始数据的分布
         """
         form_data, analysis = self.get_form_data()
         sk_type = form_data.get("sk_type")
@@ -576,9 +580,6 @@ class Online(BaseSupersetView):
 
         sk = sk_types.get(sk_type)(datasource, form_data)
         df = sk.get_df()
-        df = sk.deal_na(df)  # 处理缺失值
-        df = sk.deal_variable_box(df)  # 处理分箱
-        df = sk.deal_dummy_variable(df)  # 处理亚变量
         html = sk.variable_describe(df)
         return json_success(html)
 
@@ -605,9 +606,6 @@ class Online(BaseSupersetView):
 
         sk = sk_types.get(sk_type)(datasource, form_data)
         df = sk.get_df()
-        df = sk.deal_na(df)  # 处理缺失值
-        df = sk.deal_variable_box(df)  # 处理分箱
-        df = sk.deal_dummy_variable(df)  # 处理亚变量
         name, url = sk.correlation_analysis(df)
         payload = {"name": name, 'url': url}
         return json_success(json.dumps(payload))
@@ -620,6 +618,7 @@ class Online(BaseSupersetView):
         form_data, analysis = self.get_form_data()
         sk_type = form_data.get("sk_type")
         datasource_id, datasource_type = self.datasource_info(form_data)
+        print("form_data: ", form_data)
 
         if not sk_type or (not datasource_id) or (not datasource_type):
             return json_error_response(REQ_PARAM_NULL_ERR % "sk_type, datasource_id, datasource_type")
@@ -641,6 +640,8 @@ class Online(BaseSupersetView):
     @has_access_api
     @expose('/log/<name>/')
     def log(self, name):
+
+
         if name not in ["code", "param", "image"]:
             return json_error_response(u"参数[name]的值错误. 取值范围[code, param, image]")
 
@@ -651,18 +652,27 @@ class Online(BaseSupersetView):
         loggers = {"code": "analysis.code", "param": "analysis.param", "image": "analysis.image"}
         logger_name = loggers.get(name)
         logger = logging.getLogger(logger_name)
-        handler = next((handler for handler in logger.handlers
-                            if handler.name == name), None)
+        handler = next((handler for handler in logger.handlers if handler.name == name), None)
 
         try:
             logs = handler.read(analysis_id)
         except AttributeError as e:
-            logs = ["Task log handler {} does not support read logs.\n{}\n".format(name, str(e))]
+            logs = ["log handler {} does not support read logs.\n{}\n".format(name, str(e))]
 
-        for i, log in enumerate(logs):
-            if not isinstance(log, str):
-                logs[i] = log.decode('utf-8')
-        return json_success(json.dumps(logs))
+        if not isinstance(logs, str):
+            logs = logs.decode('utf-8')
+        payload = logs
+
+        images = []
+        if name == "image":
+            lines = logs.split('\n')
+            for line in lines:
+                content = line.split()
+                if content and content[-1].endswith('.png'):
+                    images.append(content[-1])
+            payload = images
+
+        return json_success(json.dumps(payload))
 
     @api
     @has_access_api

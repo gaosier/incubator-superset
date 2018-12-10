@@ -78,7 +78,7 @@ class FileTaskHandler(logging.Handler):
             self.handler.close()
 
     def _render_filename(self, instance_id):
-        return self.filename_template.format(instance_id=instance_id, filename=self.filename)
+        return self.filename_template.format(id=instance_id, filename=self.filename)
 
     def _read(self, instance_id):
         """
@@ -106,7 +106,7 @@ class FileTaskHandler(logging.Handler):
 
         return log
 
-    def read(self, instance_id, try_number=1):
+    def read(self, instance_id):
         """
         Read logs of given task instance from local machine.
         :param task_instance: task instance object
@@ -117,12 +117,7 @@ class FileTaskHandler(logging.Handler):
         # try number gets incremented in DB, i.e logs produced the time
         # after cli run and before try_number + 1 in DB will not be displayed.
 
-        try_numbers = [try_number]
-
-        logs = [''] * len(try_numbers)
-        for i, try_number in enumerate(try_numbers):
-            logs[i] += self._read(instance_id)
-
+        logs = self._read(instance_id)
         return logs
 
     def _init_file(self, instance_id):

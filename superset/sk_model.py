@@ -92,6 +92,7 @@ class BaseSkModel(object):
         model_params = self.form_data.get("model_param", {})
         self.x_col = model_params.get("dataset", {}).get("x_col")
         self.y_col = model_params.get("dataset", {}).get("y_col")
+        print("self.x_col: ", self.x_col)
 
     def get_df(self, query_obj=None):
         """
@@ -137,24 +138,30 @@ class BaseSkModel(object):
         """
         缺失值处理
         """
-        operate_info = self.form_data.get("null_operate")
-        operate = operate_info.get("operate")
-        if not operate:
-            raise SupersetParamException(u"参数[operate]不能为空")
-        detail = operate_info.get("detail")
+        ana_code_logger.info(" =========== 缺失值处理 ===========")
+        operate_info = self.form_data.get("null_operate", {})
+        ana_code_logger.info("null_operate: %s" % operate_info)
+        operate = operate_info.get("operate", None)
+
+        detail = operate_info.get("detail", [])
         fillna = self.get_column_fillna(df, detail)
 
         if operate == "fill":
             df = df.fillna(fillna)
         else:
             df = df.dropna()
+        print("df: ", df.head(5))
+        ana_code_logger.info("============= 缺失值处理结束 =================")
         return df
 
     def deal_variable_box(self, df):
         """
         变量分箱处理
         """
-        variable_box = self.form_data.get("variable_box")
+        ana_code_logger.info(" =========== 变量分箱处理 ===========")
+
+        variable_box = self.form_data.get("variable_box", [])
+        ana_code_logger.info("variable_box: %s " % variable_box)
         for item in variable_box:
             field = item.get("field")
             bins = item.get("bins")
@@ -163,19 +170,25 @@ class BaseSkModel(object):
                 return df
             col = pd.cut(df[field], bins=bins, labels=labels)
             df[field] = col
+
+        ana_code_logger.info(" =========== 变量分箱处理结束 ===========")
         return df
 
     def deal_dummy_variable(self, df):
         """
         哑变量处理
         """
-        dummy_variable = self.form_data.get("dummy_variable")
+        ana_code_logger.info("=========== 哑变量处理 ===========")
+
+        dummy_variable = self.form_data.get("dummy_variable", {})
         deal_dummy_variable = {}
         for item in dummy_variable:
             deal_dummy_variable[item.get("name")] = item.get("val")
 
         for field, value in deal_dummy_variable.items():
             df[field] = df[field].map(value)
+
+        ana_code_logger.info(" =========== 哑变量处理结束 ===========")
         return df
 
     def variable_describe(self, df):
@@ -189,7 +202,9 @@ class BaseSkModel(object):
         """
         变量相关性分析
         """
-        correlation_analysis = self.form_data.get("correlation_analysis")
+        ana_code_logger.info("=========== 变量相关性分析 ===========")
+
+        correlation_analysis = self.form_data.get("correlation_analysis", [])
         count = len(correlation_analysis)
 
         if count < 3:
@@ -219,6 +234,9 @@ class BaseSkModel(object):
 
         img_path, img_name = self.gen_img_path()
         plt.savefig(img_path)
+
+        ana_code_logger.info(" =========== 变量相关性分析结束 ===========")
+
         return img_name, IMAGE_URL
 
     def get_filter_data(self, df, filters):
@@ -249,8 +267,7 @@ class BaseSkModel(object):
         获取测试和训练集
         """
         new_df = df.copy(deep=True)
-        train_dataset = self.form_data.get("train_dataset", {})
-        filters = train_dataset.get("filters")
+        filters = self.form_data.get("train_dataset", [])
 
         new_df = self.get_filter_data(new_df, filters)
         return new_df
@@ -260,13 +277,12 @@ class BaseSkModel(object):
         获取校验数据集
         """
         datasets = {}
-        valiadate_datasets = self.form_data.get("validate_datasets", {})
-        for name, info in valiadate_datasets.items():
+        valiadate_datasets = self.form_data.get("validate_datasets", [])
+        for item in valiadate_datasets:
+            name = item.get("name")
+            filters = item.get("filters")
             new_df = self.df.copy(deep=True)
-            filters = info.get("filters")
-            fields = info.get("fields")
             new_df = self.get_filter_data(new_df, filters)
-            new_df = new_df[fields]
             datasets[name] = new_df
         return datasets
 
@@ -286,7 +302,7 @@ class BaseSkModel(object):
         """
         analysis_id = self.form_data.get("analysis_id")
         if not analysis_id:
-            analysis_id = uuid.uuid1()
+            analysis_id = str(uuid.uuid1())
 
         for logger in [ana_code_logger, ana_param_logger, ana_image_logger]:
             for handler in logger.handlers:
@@ -301,7 +317,11 @@ class BaseSkModel(object):
         writer = pd.ExcelWriter(outfile, engine='xlsxwriter')
 
         for i, df in enumerate(dfs):
-            df.to_excel(writer, sheet_name="sheet%s" % (i+1))
+            ana_code_logger.info("i: %s  type(df): %s" % (i, type(df)))
+            try:
+                df.to_excel(writer, sheet_name="sheet%s" % (i+1))
+            except Exception as exc:
+                ana_code_logger.error("error: %s" % str(exc))
         writer.save()
 
     def train_models(self):
@@ -329,37 +349,69 @@ class BaseSkModel(object):
         return concat_df
     
     def model_validation(self, df, model, title):
-        valid_X = df[self.x_col]
-        valid_Y = df[self.y_col]
+        try:
 
-        valid_pred = model.predict(valid_X)
-        valid_proba = model.predict_proba(valid_X)
+            valid_X = df[self.x_col]
+            valid_Y = df[self.y_col[0]]
+            valid_Y = np.array(valid_Y.tolist())
 
-        # 混淆矩阵图
-        f, ax = plt.subplots(1, 1, figsize=(4, 3))
-        sns.heatmap(confusion_matrix(valid_Y, valid_pred), ax=ax, annot=True, fmt='2.0f')
-        ax.set_title(title)
+            valid_pred = model.predict(valid_X)
+            ana_code_logger.info("valid_pred: %s " % valid_pred)
+            ana_code_logger.info("type(valid_pred: %s)" % type(valid_pred))
 
-        plt.subplots_adjust(hspace=0.2, wspace=0.2)
+            valid_proba = model.predict_proba(valid_X)
 
-        img_path, img_name = self.gen_img_path()
-        plt.savefig(img_path)
-        ana_image_logger.info("img_name: %s" % img_name)
+            # 混淆矩阵图
+            f, ax = plt.subplots(1, 1, figsize=(4, 3))
+            sns.heatmap(confusion_matrix(valid_Y, valid_pred), ax=ax, annot=True, fmt='2.0f')
+            ax.set_title(title)
 
-        valid_precision, valid_recall, valid_thresholds = precision_recall_curve(valid_Y, valid_pred)
-        valid_aupr = average_precision_score(valid_Y, valid_proba[:, 1], average="macro", sample_weight=None)
-        valid_auc = roc_auc_score(valid_Y, valid_proba[:, 1], average="macro", sample_weight=None)
-        valid_fpr, valid_tpr, valid_thres = roc_curve(valid_Y, valid_proba[:, 1], pos_label=1)
-        valid_ks = abs(valid_fpr - valid_tpr).max()
+            plt.subplots_adjust(hspace=0.2, wspace=0.2)
 
-        ana_param_logger.info(title)
-        ana_param_logger.info('-------------------------------------')
-        ana_param_logger.info('  Precision = ', str(round(valid_precision[1], 2)), '  Recall = ', str(round(valid_recall[1], 2)))
-        ana_param_logger.info('  AUPR = ', str(round(valid_aupr, 2)), '      AUC = ', str(round(valid_auc, 2)))
-        ana_param_logger.info('  KS = ', str(round(valid_ks, 2)))
-        ana_param_logger.info('-------------------------------------' + '\n\n\n')
+            img_path, img_name = self.gen_img_path()
+            plt.savefig(img_path)
+            ana_image_logger.info("img_name: %s" % img_name)
 
-        return valid_precision, valid_recall, valid_aupr, valid_auc, valid_ks
+            try:
+                valid_Y = valid_Y.astype(int)
+                ana_code_logger.info("np.unique(valid_Y): %s" % (np.unique(valid_Y)))
+
+                valid_pred = valid_pred.astype(int)
+
+                valid_precision, valid_recall, valid_thresholds = precision_recall_curve(valid_Y, valid_pred)
+                ana_code_logger.info("valid_precision:%s, valid_recall:%s, valid_thresholds: %s" % (valid_precision, valid_recall, valid_thresholds))
+            except Exception as exc:
+                ana_code_logger.error("error: %s" % str(exc))
+
+            valid_aupr = average_precision_score(valid_Y, valid_proba[:, 1], average="macro", sample_weight=None)
+            ana_code_logger.info("valid_aupr: %s" % valid_aupr)
+
+            valid_auc = roc_auc_score(valid_Y, valid_proba[:, 1], average="macro", sample_weight=None)
+            ana_code_logger.info("valid_auc: %s" % valid_auc)
+
+            valid_fpr, valid_tpr, valid_thres = roc_curve(valid_Y, valid_proba[:, 1], pos_label=1)
+            ana_code_logger.info("valid_fpr:%s, valid_tpr:%s, valid_thres: %s" % (
+                valid_fpr, valid_tpr, valid_thres))
+
+            try:
+                valid_ks = abs(valid_fpr - valid_tpr).max()
+                ana_code_logger.info("valid_ks: %s" % valid_ks)
+            except Exception as exc:
+                ana_code_logger.error("error: %s" % str(exc))
+
+
+            ana_param_logger.info(title)
+            ana_param_logger.info('-------------------------------------')
+            ana_param_logger.info('  Precision = %s              Recall = %s' % (str(round(valid_precision[1], 2)),
+                                                                                 str(round(valid_recall[1], 2))))
+            ana_param_logger.info('  AUPR = %s                  AUC = %s' % ( str(round(valid_aupr, 2), str(round(valid_auc, 2)))))
+            ana_param_logger.info('  KS =  %s' % str(round(valid_ks, 2)))
+            ana_param_logger.info('-------------------------------------' + '\n\n\n')
+
+            return valid_precision, valid_recall, valid_aupr, valid_auc, valid_ks
+        except Exception as exc:
+            ana_code_logger.error("error: %s" % str(exc))
+
 
     def validate_models(self):
         """
@@ -394,6 +446,8 @@ class BaseSkModel(object):
             execl_files = []
             for key, data in datas.items():
                 filename = "%s_%s.xlsx" % (str(uuid.uuid1()), key)
+                ana_code_logger.info("excel filenam: %s" % filename)
+
                 execl_files.append(filename)
                 file_path = os.path.join(config.get("UPLOAD_FOLDER"), filename)
                 self.excelAddSheet(data, file_path)
@@ -418,8 +472,7 @@ class Lasso(BaseSkModel):
         train_data = pd.concat([self.X_train, self.y_train], axis=1)
         test_data = pd.concat([self.X_test, self.y_test], axis=1)
 
-        ana_code_logger.info("model: %s    train_data:%s      test_data:%s" % (self.model, train_data.head(10),
-                                                                               test_data.head(10)))
+        ana_code_logger.info("train_data:%s\n      test_data:%s\n" % (train_data.head(10), test_data.head(10)))
 
         precision, recall, aupr, auc, ks = self.model_validation(train_data, model=self.model,
                                                             title="Result  for  Train_data\n")
@@ -451,6 +504,7 @@ class Lasso(BaseSkModel):
         model = LogisticRegressionCV(Cs=800, fit_intercept=True, cv=custom_cv, dual=False, penalty='l1',
                                      scoring='roc_auc', solver='liblinear', tol=0.0001, max_iter=100, class_weight=None,
                                      n_jobs=4, verbose=0, refit=True, random_state=123)
+
         model.fit(train_X, train_Y)
 
         # 变量重要性
