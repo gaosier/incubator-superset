@@ -1,6 +1,7 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
 import $ from 'jquery';
+import axios from 'axios'
 
 import { formatDate, UTC, ZH_TIME } from './dates';
 
@@ -242,6 +243,13 @@ export function initJQueryAjax() {
       },
     });
   }
+
+// 拦截request,设置全局请求为ajax请求
+  axios.interceptors.request.use((config) => {
+    config.headers['X-CSRFToken'] = token;
+    return config
+});
+
 }
 
 export function tryNumify(s) {
