@@ -164,6 +164,19 @@ class BaseSkModel(object):
         ana_code_logger.info("============= 缺失值处理结束 =================")
         return df
 
+    def str_to_list(self, val):
+        if isinstance(val, str):
+            val = val.replace(' ', '').strip()     # 去空值
+            val = val.split(',')
+
+            for i, item in enumerate(val):
+                try:
+                    item = int(item)
+                except:
+                    item = float(item)
+                val[i] = item
+        return val
+
     def deal_variable_box(self, df):
         """
         变量分箱处理
@@ -172,10 +185,18 @@ class BaseSkModel(object):
 
         variable_box = self.form_data.get("variable_box", [])
         ana_code_logger.info("variable_box: %s " % variable_box)
+
         for item in variable_box:
             field = item.get("field")
             bins = item.get("bins")
             labels = item.get("labels")
+
+            bins = self.str_to_list(bins)
+            labels = self.str_to_list(labels)
+
+            print("bins: ", bins)
+            print("labels: ", labels)
+
             if not field or (not bins) or (not labels):
                 return df
             col = pd.cut(df[field], bins=bins, labels=labels)
