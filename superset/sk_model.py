@@ -21,8 +21,7 @@ import statsmodels.api as sm
 import rpy2.robjects as robjects
 
 from rpy2.robjects import r, pandas2ri
-from flask import request
-from numpy import shape
+from rpy2.robjects.methods import RS4
 from pandas.core.frame import DataFrame
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import StratifiedKFold, train_test_split
@@ -31,7 +30,6 @@ from sklearn.metrics import (confusion_matrix, precision_recall_curve, average_p
 
 
 from superset import app
-from superset.exceptions import SupersetParamException
 from superset.analysis_log import ana_code_logger, ana_image_logger, ana_param_logger
 
 pandas2ri.activate()
@@ -52,6 +50,16 @@ IMAGE_PATH= config.get("IMG_UPLOAD_FOLDER")
 R_MODEL_FILE = config.get("R_MODEL_FILE_PATH")
 
 BASE_QUERY = "SELECT * FROM  "
+
+class ExpressionSet(RS4):
+    pass
+
+
+def change(x):
+    if x >= 0.5:
+        return 1
+    else:
+        return 0
 
 
 class BaseSkModel(object):
@@ -75,7 +83,9 @@ class BaseSkModel(object):
         self.model = None
         self.x_col = None
         self.y_col = None
-        self.extra_factor = None       # 混合模型所需的参数
+        self.master_factor = None       # 混合模型所需的参数
+        self.slave_factor = None
+        self.predictors_vec = None
 
         self.X_train = None
         self.X_test = None
@@ -278,6 +288,7 @@ class BaseSkModel(object):
         """
         datasets = {}
         valiadate_datasets = self.form_data.get("validate_datasets", [])
+        ana_code_logger.info("valiadate_datasets: %s" % valiadate_datasets)
         for item in valiadate_datasets:
             name = item.get("name")
             filters = item.get("filters")
@@ -492,6 +503,7 @@ class Lasso(BaseSkModel):
         """
         机器学习模型
         """
+        ana_code_logger.info("self.form_data:%s" % self.form_data)
         model_params = self.form_data.get("model_param", {})
         test_size = model_params.get("train_test_split", {}).get("test_size", 0.3)
         n_splits = model_params.get("StratifiedKFold", {}).get("n_splits", 5)
@@ -500,12 +512,19 @@ class Lasso(BaseSkModel):
         X = df[self.x_col]
         Y = df[self.y_col]
 
+        ana_code_logger.info("X.isnull().sum(): %s" % X.isnull().sum())
+        ana_code_logger.info("Y.isnull().sum(): %s" % Y.isnull().sum())
+        ana_code_logger.info("X.shape: %s    Y.shape:%s " % (str(X.shape), str(Y.shape)))
+
         train_X, test_X, train_Y, test_Y = train_test_split(X, Y, test_size=test_size, random_state=42)
+        ana_code_logger.info("train_test_split data success !!!")
 
         custom_cv = StratifiedKFold(n_splits=n_splits, random_state=100)
         model = LogisticRegressionCV(Cs=800, fit_intercept=True, cv=custom_cv, dual=False, penalty='l1',
                                      scoring='roc_auc', solver='liblinear', tol=0.0001, max_iter=100, class_weight=None,
                                      n_jobs=4, verbose=0, refit=True, random_state=123)
+
+        ana_code_logger.info("train_X.shape: %s     train_Y.shape: %s" % (str(train_X.shape), str(train_Y.shape)))
 
         model.fit(train_X, train_Y)
 
@@ -605,7 +624,7 @@ class GeneraLR(BaseSkModel):
 
 class MixedLR(BaseSkModel):
     """
-    混合逻辑回归
+    混合模型
     """
     sk_type = 'mixed_lr'
     r_file = 'mixed_sk_model.R'
@@ -619,29 +638,37 @@ class MixedLR(BaseSkModel):
 
         self.x_col = model_params.get("dataset", {}).get("x_col")
         self.y_col = model_params.get("dataset", {}).get("y_col")
-        self.extra_factor = model_params.get("extra", {}).get("extra_factor")
+        self.master_factor = model_params.get("extra", {}).get("master_factor")
+        self.slave_factor = model_params.get("extra", {}).get("slave_factor")
+        self.predictors_vec = model_params.get("extra", {}).get("predictors_vec")
 
         X = data[self.x_col]
-        y = df[self.y_col]
+        y = df[self.y_col[0]]
+
+        ana_code_logger.info("原始数据的数据量：X.shape:%s       Y.shape: %s" % ( str(X.shape), str(y.shape)))
+        ana_code_logger.info("X.isnull().sum(): %s" % X.isnull().sum())
 
         test_size = model_params.get("train_test_split").get("test_size")
         random_state = model_params.get("train_test_split").get("random_state")
         stratify = model_params.get("train_test_split").get("stratify")
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state,
-                                                            stratify=X[stratify])
+                                                            stratify=df[stratify])
 
         self.df = df
         return X_train, X_test, y_train, y_test
 
-    def calculate_model_param(self, real, predicted):
+    def calculate_model_param(self, real, predicted, title='train'):
         """
         模型auc, roc, recall计算
         """
         # 计算训练集auc
-        train_auc = roc_auc_score(real, predicted, average="macro", sample_weight=None)
-
-        ana_param_logger.info("data auc: %s" % train_auc)
+        try:
+            train_auc = roc_auc_score(real, predicted)
+            ana_param_logger.info("[%s]数据集   auc: %s" % (title, train_auc))
+        except Exception as exc:
+            ana_code_logger.error("error: %s" % str(exc))
+            raise ValueError(str(exc))
 
         # 计算混淆矩阵
         f, ax = plt.subplots(1, 1, figsize=(4, 3))
@@ -653,35 +680,43 @@ class MixedLR(BaseSkModel):
 
         img_path, img_name = self.gen_img_path()
         plt.savefig(img_path)
-        ana_param_logger.info("img_name: %s" % img_name)
+        ana_image_logger.info("[%s]  img_name: %s" % (title, img_name))
 
         valid_precision, valid_recall, valid_thresholds = precision_recall_curve(real, predicted)
 
-        ana_param_logger.info('  Precision = ', str(round(valid_precision[1], 2)), '  Recall = ',
-                              str(round(valid_recall[1], 2)))
+        ana_param_logger.info('[%s]  Precision =  %s        Recall = %s' % (title, round(valid_precision[1], 2),
+                                                                        round(valid_recall[1], 2)))
 
     def deal_data(self, data):
         random_effects = self.model_rest.get("random_effects")  # 随机效应
         ana_code_logger.info("随机效应: random_effects:%s" % random_effects.head(10))
 
-        # left_join
-        X_test = data.join(random_effects, on=self.extra_factor, how="left")
-        ana_code_logger.info("X_test left joined random_effects: %s" % X_test.head(10))
+        # 合并数据集
+        X_test= pd.merge(data, random_effects, on=self.master_factor, how='left')
 
         # left join后去空
         if X_test.isnull().sum().sum() > 0:
             X_test = X_test.dropna()
+        ana_code_logger.info("X_test: %s\n" % X_test.head(10))
 
         # 计算测试集的score
         fixed_effects = self.model_rest.get("fixed_effects")
-        score = np.zeros(X_test.shape[0])
+        ana_code_logger.info("type(fixed_effects): %s\n\n   fixed_effects: %s" % (type(fixed_effects), fixed_effects))
 
-        for name, v in X_test.items():
-            score += v * fixed_effects[name]
+        pre_test = X_test[self.predictors_vec]
+        ana_code_logger.info("pre_test.shape: %s" % str(pre_test.shape))
 
-        score += score + fixed_effects["(Intercept)"]
-        score = score.reshape(X_test.shape[0], 1)
+        score = np.zeros((pre_test.shape[0],))
+        count = 0
+        for name in pre_test.columns:
+            count += 1
+            if count >= fixed_effects.size:
+                count = count -1
 
+            score += pre_test[name] * fixed_effects[count]
+
+        score += score + fixed_effects[0]
+        score += score + X_test["intercept_random_part"]
         X_test['score'] = score
 
         # 计算测试集预测概率
@@ -689,23 +724,26 @@ class MixedLR(BaseSkModel):
         ana_code_logger.info("预测概率: %s" % X_test.head(10))
 
         # 计算模型参数
-        self.calculate_model_param(self.y_test, X_test['pred_probs'])
+        self.calculate_model_param(self.y_test, X_test['pred_probs'].apply(change), title='test')
         return X_test
 
     def aggregate(self, data):
         # 计算18春-18暑预测续报结果
+        ana_code_logger.info("self.df.shape: %s        data.shape: %s" % (str(self.df[self.x_col].shape),
+                                                                          str(data.shape)))
+        ana_code_logger.info("self.x_col: %s         self.y_col: %s" % (self.x_col, self.y_col))
+        cols = self.x_col + self.y_col
+        ana_code_logger.info("all columns: %s       df.columns: %s" % (cols, self.df.columns))
 
-        df = self.df.join(data, on='student_id', how='left')
+        df = pd.merge(self.df[cols], data, on=self.slave_factor, how='left')
+        ana_code_logger.info("df.shape: %s" % str(df.shape))
 
-        def transfer(v):
-            return 1 if v > 0.5 else 0
-
-        df['pred_is_continued'] = df['pred_probs'].apply(transfer)
+        df['pred_is_continued'] = df['pred_probs'].apply(change)
         ana_code_logger.info("聚合到机构维度： df: %s" % df)
 
         # 计算预测发生率与实际发生率的MSE，RMSE
-        ins_pred_probs = df.groupby('ins_id')['pred_probs'].mean()       # 机构预测平均概率
-        ins_event_probs = df.groupby('ins_id')['is_continued'].mean()         # 机构实际平均预测概率
+        ins_pred_probs = df.groupby(self.master_factor)['pred_probs'].mean()       # 机构预测平均概率
+        ins_event_probs = df.groupby(self.master_factor)['is_continued'].mean()         # 机构实际平均预测概率
 
         ins_continued_prob_data = pd.concat([ins_pred_probs, ins_event_probs], axis=1)
         ana_code_logger.info("机构预测发生率与实际发生率：%s" % ins_continued_prob_data)
@@ -717,10 +755,10 @@ class MixedLR(BaseSkModel):
         ana_code_logger.info("RMSE: %s" % rmse)
 
         # 机构维度续报实际结果
-        actual_continued_num = df.groupby('ins_id')['is_continued'].sum()         # 计算每个机构实际续报人数
-        pred_continued_num = df.groupby('ins_id')['pred_is_continued'].sum()         # 预测续报人数
+        actual_continued_num = df.groupby(self.master_factor)['is_continued'].sum()         # 计算每个机构实际续报人数
+        pred_continued_num = df.groupby(self.master_factor)['pred_is_continued'].sum()         # 预测续报人数
 
-        total_student = df.groupby('ins_id')['student_id'].count()
+        total_student = df.groupby(self.master_factor)[self.slave_factor].count()
 
         # 计算机构实际续报率：actual_rate=实际续报人数(actual_continued_num)/总人数(num)
         ins_continued_result_data = pd.DataFrame()
@@ -739,30 +777,46 @@ class MixedLR(BaseSkModel):
 
     def run_train(self):
         filename = os.path.join(R_MODEL_FILE, self.r_file)
+        ana_code_logger.info("R file path: %s" % filename)
+
         robjects.r.source(filename)
 
         # 参数
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_dataset()
 
-        X_train_r = pandas2ri.py2ri(self.X_train)
-        predictors_vec = robjects.StrVector(self.x_col)
+        model_data = pd.concat([self.X_train, self.y_train], axis=1)
 
-        model_rest = robjects.r.lr_mixed_model(model_data=X_train_r, subject_id=self.extra_factor, response=self.y_col,
+        X_train_r = pandas2ri.py2ri(model_data)
+        predictors_vec = robjects.StrVector(self.predictors_vec)
+
+        model_rest = robjects.r.lr_mixed_model(model_data=X_train_r, subject_id=self.master_factor, response=self.y_col[0],
                                   predictors_vec=predictors_vec, random_intercept=True)
 
         rest = {}
-        for i, name in enumerate(model_rest):
-            rest[name] = pandas2ri.ri2py(model_rest[i])
+        for i, name in enumerate(model_rest.names):
+            try:
+                rest[name] = pandas2ri.ri2py(model_rest[i])
+            except:
+                rest[name] = model_rest[i]
 
         ana_code_logger.info("train data ==> model return value: %s" % rest)
 
         # 合并数据
-        self.X_train = pd.concat(self.X_train, rest.get("predicted_probabilities"))
+        ana_code_logger.info(" =============== 合并数据 ========================")
+        predicted = rest.get("predicted_probabilities")
+        ana_code_logger.info("predicted.isnull().sum(): %s" % predicted.isnull().sum())
+        self.X_train['predicted_probs_without_rand'] = predicted['predicted_probs_without_rand']
+        self.X_train['predicted_probs_with_rand'] = predicted['predicted_probs_with_rand']
+
+        ana_code_logger.info("self.X_train.isnull().sum(): %s" % self.X_train.isnull().sum())
+        ana_code_logger.info("self.X_train: %s" % self.X_train.head(10))
 
         # 计算模型参数
-        self.calculate_model_param(self.y_train, self.X_train['predicted_probs_with_rand'])
+        ana_code_logger.info(" ========= 计算模型参数 =============== ")
 
-        self.model_rest = model_rest
+        self.calculate_model_param(self.y_train.to_frame(), predicted['predicted_probs_with_rand'].apply(change).to_frame())
+
+        self.model_rest = rest
 
     def run_test(self):
         """
@@ -771,9 +825,14 @@ class MixedLR(BaseSkModel):
         ana_code_logger.info("测试集日志：\n")
         self.X_test = self.deal_data(self.X_test)
 
-        self.X_train['pred_probs'] = self.X_train['predicted_probs_with_rand']
+        self.X_train['pred_probs'] = self.model_rest.get("predicted_probabilities")['predicted_probs_with_rand']
 
-        stu_result = pd.concat(self.X_train[['student_id', 'pred_probs']], self.X_test[['student_id', 'pred_probs']])
+        ana_code_logger.info("self.X_train.shape: %s       self.X_test.shape:%s " % (str(self.X_train.shape),
+                                                                                     str(self.X_test.shape)))
+
+        stu_result = pd.concat([self.X_train[[self.slave_factor, 'pred_probs']],
+                                self.X_test[[self.slave_factor, 'pred_probs']]])
+        ana_code_logger.info("stu_result.shape: %s" % str(stu_result.shape))
 
         self.aggregate(stu_result)
 
@@ -788,9 +847,12 @@ class MixedLR(BaseSkModel):
         for data in self.validate_datasets:
             data = self.deal_data(data)
 
-            data['pred_probs'] = data['predicted_probs_with_rand']
+            data['pred_probs'] = self.model_rest.get("predicted_probabilities")['predicted_probs_with_rand']
 
-            stu_result = pd.concat(data[['student_id', 'pred_probs']], data[['student_id', 'pred_probs']])
+            stu_result = pd.concat([data[self.slave_factor, 'pred_probs']],
+                                   data[[self.slave_factor, 'pred_probs']])
+
+            ana_code_logger.info("[validate dataset]stu_result.shape: %s" % str(stu_result.shape))
 
             self.aggregate(stu_result)
 
@@ -799,15 +861,20 @@ class MixedLR(BaseSkModel):
         err_msg = log_dir_id = execl_sl = execl_bs = None
         try:
             log_dir_id = self.get_log_path()
+            ana_code_logger.info(" ===========训练模型==========")
             self.run_train()
+
+            ana_code_logger.info(" =========== 测试模型==============")
             self.run_test()
+
+            ana_code_logger.info(" ============ 验证模型 =============")
             self.run_validate()
 
             # 生成输出的df
-            train_df_exc = self.output(self.X_train)
-            test_df_exc = self.output(self.X_test)
+            train_df_exc = pd.concat([self.X_train, self.y_train], axis=1)
+            test_df_exc = pd.concat([self.X_test, self.y_test], axis=1)
 
-            validate_df_exc = [self.output(df) for df in self.validate_datasets]
+            validate_df_exc = self.validate_datasets
 
             datas = {"sl": [train_df_exc, test_df_exc, validate_df_exc], "bs": [validate_df_exc]}
 
@@ -821,30 +888,8 @@ class MixedLR(BaseSkModel):
         except Exception as exc:
             status = False
             err_msg = str(exc)
+            ana_code_logger.error("error: %s" % str(exc))
         return log_dir_id, execl_sl, execl_bs, status, err_msg
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 sk_types = {

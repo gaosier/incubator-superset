@@ -112,4 +112,4 @@ TABLE_MAX_ROW_LIMIT = 10000
 TABLE_DEFAULT_ROW_LIMIT = 1000
 
 # R model file path
-R_MODEL_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '/r_model/')
+R_MODEL_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'r_model/')

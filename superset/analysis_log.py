@@ -164,7 +164,7 @@ if os.environ.get("ONLINE_ANALYSIS_LOG"):
     ANALYSIS_LOG_DIR = os.environ.get("ONLINE_ANALYSIS_LOG")
 else:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    ANALYSIS_LOG_DIR = os.path.join(BASE_DIR, '/online-logs')
+    ANALYSIS_LOG_DIR = os.path.join(BASE_DIR, 'online-logs')
 
 
 ana_code_logger = logging.getLogger('analysis.code')
