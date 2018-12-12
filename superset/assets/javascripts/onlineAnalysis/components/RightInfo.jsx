@@ -47,13 +47,13 @@ class RightInfo extends Component {
         return (
             <div>
                 <Tabs defaultActiveKey={1} id="uncontrolled-tab-example" >
-                    <Tab eventKey={1} title={"日志展示"}>
+                    <Tab eventKey={1} title={"代码日志展示"}>
                         { this.render_log() }
                     </Tab>
-                    <Tab eventKey={2} title={"图表展示"}>
+                    <Tab eventKey={2} title={"参数日志展示"}>
                         { this.render_img() }
                     </Tab>
-                    <Tab eventKey={3} title={"业务方数据展示"}>
+                    <Tab eventKey={3} title={"图片日志展示"}>
                         {this.render_to_leader()}
                     </Tab>
                 </Tabs>

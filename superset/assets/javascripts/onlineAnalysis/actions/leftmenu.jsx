@@ -612,6 +612,8 @@ export const set_version = (name) =>{
 // 保存模型
 
 export const save_allmodal = (form_data,id,action,name,version) =>{
+    delete form_data.version;
+    delete form_data.analysis_name;
     return dispatch => {
         $.ajax({
             type: 'POST',
