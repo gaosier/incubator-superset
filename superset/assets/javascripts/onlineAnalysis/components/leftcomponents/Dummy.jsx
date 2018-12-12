@@ -6,18 +6,8 @@ import axios from "axios/index";
 
 class Dummy extends Component {
     constructor(props) {
-
         super(props);
-        console.log(props);
-        this.state = {
-            all_choice_column: []
-        }
-
     }
-
-    // componentDidMount() {
-    //     this.props.get_datasource_columns(this.props.leftmenu.datasource_id);
-    // }
 
     delete_dummy_comp() {
         this.props.delete_dummy(this.props.dummy_key);
@@ -31,19 +21,6 @@ class Dummy extends Component {
         this.props.modify_dummy_value(this.props.dummy_key, e.target.value);
     }
 
-    show_all_name() {
-        axios.get("/online/columns/table/" + this.props.leftmenu.datasource_id + "/")
-            .then(res => {
-                    this.setState({
-                        all_choice_column: res.data
-                    })
-                }
-            )
-            .catch(error => {
-                console.log(error);
-            })
-    }
-
     render_input() {
         if (this.props.labels === '') {
             return (
@@ -54,11 +31,9 @@ class Dummy extends Component {
                 />
             )
         } else {
-            console.log(this.props.labels);
             return (
                 <Input
                     value={this.props.labels}
-                    // value={this.props.labels}
                     placeholder="格式为{男:1,女:2}"
                     onChange={this.change_labels.bind(this)}
                 />
@@ -67,23 +42,20 @@ class Dummy extends Component {
     }
 
     render_select() {
-        console.log(11189898998);
-        let a = 0;
-        return (this.state.all_choice_column.map(res => {
-            return (<Select.Option key={a++} value={res.name}>{res.verbose_name}</Select.Option>)
+        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+            return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
         }))
     }
 
     render_select_columns() {
-        console.log('重新刷新');
         if (this.props.field === '') {
             return (
                 <Select
                     value={undefined}
+                    showSearch
                     placeholder="请选择要进行变量分箱的列"
                     style={{width: 200}}
                     searchPlaceholder="输入"
-                    onFocus={this.show_all_name.bind(this)}
                     onChange={this.change_select.bind(this)}>
                     {this.render_select()}
                 </Select>
@@ -92,10 +64,10 @@ class Dummy extends Component {
             return (
                 <Select
                     value={this.props.field}
+                    showSearch
                     placeholder="请选择要进行变量分箱的列"
                     style={{width: 150}}
                     searchPlaceholder="输入"
-                    onFocus={this.show_all_name.bind(this)}
                     onChange={this.change_select.bind(this)}>
                     {this.render_select()}
                 </Select>

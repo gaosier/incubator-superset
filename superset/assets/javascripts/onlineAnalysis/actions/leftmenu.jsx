@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { message,notification } from 'antd';
+import { notification } from 'antd';
 import {
     GET_ALLMODEL,
     SET_MODEL,
@@ -40,7 +40,10 @@ import {
     MODIFT_VALIDATE_FILTERS_OP,
     MODIFT_VALIDATE_FILTERS_VAL,
     MODIFY_PARAMETER,
-    RUN
+    RUN,
+    GET_ALL_FILTER_COLUMNS,
+    SET_NAME,
+    SET_VERSION
 } from "../constants/leftmenu";
 
 // 获取所有模型名
@@ -62,6 +65,26 @@ export const get_allmodel = (res) => {
         res
     }
 };
+
+//获取所有的可过滤的表字段
+export const get_all_filter_column = (id) =>{
+    return dispatch => {
+        axios.get("/online/columns/table/"+id+"/")
+            .then(res => {
+                dispatch(get_all_columns(res));
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    }
+};
+
+export const get_all_columns = (res) =>{
+    return{
+        type:GET_ALL_FILTER_COLUMNS,
+        res
+    }
+}
 
 // 设置选择的模型名
 export const set_model = (model_name) => {
@@ -563,5 +586,53 @@ export const run_models = (data) => {
     return{
         type:RUN,
         data
+    }
+};
+
+// 设置分析模型名称
+
+export const set_name = (name) =>{
+    return{
+        type:SET_NAME,
+        name
+    }
+};
+
+// 设置分析模型版本名称
+
+export const set_version = (name) =>{
+    return{
+        type:SET_VERSION,
+        name
+    }
+};
+
+// 保存模型
+
+export const save_allmodal = () =>{
+    return dispatch => {
+        $.ajax({
+            type: 'POST',
+            url: "/online/run/model/",
+            data: {
+                form_data: JSON.stringify(form_data),
+            },
+            success: ((data) => {
+                dispatch(save_all_model(data))
+            }),
+            error: ((data,type,err) => {
+                console.log(data,type,err);
+                notification['error']({
+                    message: '保存模型失败',
+                    description: '详情请咨询相关人员.',
+                  });
+            }),
+        })
+    }
+};
+
+export const save_all_model = () =>{
+    return {
+        type:"aaa",
     }
 };

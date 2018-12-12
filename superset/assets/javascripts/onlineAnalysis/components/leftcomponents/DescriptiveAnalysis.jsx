@@ -6,14 +6,13 @@ import {
     set_null_operation,
     set_variable_box,
     increase_dummy,
-    increament_correlation, getcode, get_alldealna, see_corr
+    increament_correlation, getcode, get_alldealna, see_corr,watch_corr
 } from '../../actions/leftmenu';
 import Variablebox from '../leftcomponents/Variablebox';
 import Dummy from '../leftcomponents/Dummy';
 import {Select, Radio, Button, Divider, Icon, notification} from 'antd';
 import CorrelationAnalysis from '../leftcomponents/CorrelationAnalysis';
 import axios from 'axios';
-import {t} from "../../../locales";
 
 const RadioGroup = Radio.Group;
 
@@ -30,6 +29,7 @@ class DescriptiveAnalysis extends Component {
             value: '',
             detail: {},
             describe_table: '',
+            show_corrModal:false,
         };
         this.openModal = this.openModal.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
@@ -38,6 +38,7 @@ class DescriptiveAnalysis extends Component {
         this.save_null_operate = this.save_null_operate.bind(this);
         this.change_value = this.change_value.bind(this);
         this.toggle_descModal = this.toggle_descModal.bind(this);
+        this.togglecorrModal = this.togglecorrModal.bind(this);
     }
 
     save_null_operate() {
@@ -143,24 +144,6 @@ class DescriptiveAnalysis extends Component {
     }
 
     download_data() {
-        // axios.post('/path/to/download/url', this.searchParams, {
-        //   responseType: 'blob'
-        // }).then(res => {
-        //   let blob = res.data;
-        //   let reader = new FileReader();
-        //   reader.readAsDataURL(blob);
-        //   reader.onload = (e) => {
-        //     let a = document.createElement('a');
-        //     a.download = `表格名称.xlsx`;
-        //     a.href = e.target.result;
-        //     document.body.appendChild(a);
-        //     a.click()
-        //     document.body.removeChild(a)
-        //   }
-        // }).catch(err => {
-        //   console.log(err.message)
-        // })
-        console.log(1111, this.props.leftmenu.form_data);
         const form_data = {
             datasource: this.props.leftmenu.form_data.datasource,
             version: this.props.leftmenu.form_data.version,
@@ -170,15 +153,7 @@ class DescriptiveAnalysis extends Component {
             null_operate: this.props.leftmenu.form_data.null_operate,
             variable_box: this.props.leftmenu.form_data.variable_box,
             dummy_variable: this.props.leftmenu.form_data.dummy_variable
-        }
-        console.log(222, form_data);
-
-        // $.ajax({
-        //     type: "POST",
-        //     url: "/online/download/",
-        //     data: {
-        //         form_data: JSON.stringify(form_data),
-        //     },
+        };
         const exploreForm = document.createElement('form');
           exploreForm.action = "/online/download/";
           exploreForm.method = 'POST';
@@ -258,7 +233,8 @@ class DescriptiveAnalysis extends Component {
                     <Select
                         disabled={this.state.operate}
                         defaultValue="请选择填充值"
-                        showSearch style={{width: 200}}
+                        showSearch
+                        style={{width: 200}}
                         searchPlaceholder="输入"
                         onChange={this.change_value.bind(this)}
                     >
@@ -277,6 +253,7 @@ class DescriptiveAnalysis extends Component {
             <Modal
                 show={this.state.show_describeModal}
                 onHide={this.toggle_descModal}
+               style="height:800px; overflow:auto;"
                 bsSize="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>查看数据分布</Modal.Title>
@@ -344,6 +321,40 @@ class DescriptiveAnalysis extends Component {
             </Modal>
         )
     }
+    see_corr(){
+        console.log(1111,this.props.leftmenu.form_data.correlation_analysis_image);
+        if(this.props.leftmenu.form_data.correlation_analysis_image===''){
+            this.props.watch_corr(this.props.leftmenu.form_data.null_operate);
+        }
+        this.setState({
+            show_corrModal:!this.state.show_corrModal
+        })
+    }
+    togglecorrModal(){
+        this.setState({
+            show_corrModal:!this.state.show_corrModal
+        })
+    }
+    render_corr_modal(){
+        return (
+            <Modal
+                show={this.state.show_corrModal}
+                onHide={this.togglecorrModal}
+                bsSize="lg"
+            >
+
+                <Modal.Header closeButton>
+                    <Modal.Title>查看变量相关性</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {/*<img src={}*/}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={this.togglecorrModal}>关闭</Button>
+                </Modal.Footer>
+            </Modal>
+        )
+    }
 
     render() {
         const {variable_box} = this.state;
@@ -381,18 +392,21 @@ class DescriptiveAnalysis extends Component {
                     <div>
                         {this.render_correlation_analysis()}
                         <Button onClick={this.increament_correlation_analysis.bind(this)}><Icon type="plus"/>增加变量相关性分析条件</Button>
-                        <Button><Icon type="search"/>查看变量相关性</Button>
+                        <Button onClick={this.see_corr.bind(this)}><Icon type="search"/>查看变量相关性</Button>
+                        {this.render_corr_modal()}
                     </div>
                 </div>
 
                 <div>
                     <Divider>下载数据</Divider>
+                    <Button>
                     <a
                       onClick={this.download_data.bind(this)}
                       target="_blank"
                     >
                        <i className="fa fa-file-text-o" />下载数据
                     </a>
+                    </Button>
                     {/*<Button onClick={this.download_data.bind(this)}><Icon type="download"/>下载数据</Button>*/}
                 </div>
             </div>
@@ -411,5 +425,6 @@ export default connect(mapStateToProps, {
     set_null_operation,
     set_variable_box,
     increase_dummy,
-    increament_correlation
+    increament_correlation,
+    watch_corr
 })(DescriptiveAnalysis);

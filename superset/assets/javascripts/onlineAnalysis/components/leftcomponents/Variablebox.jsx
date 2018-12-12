@@ -13,34 +13,14 @@ import axios from 'axios';
 class Variablebox extends Component {
     constructor(props) {
         super(props);
-        console.log('index', props);
-        this.state={
-            all_choice_column:[]
-        }
     }
 
     render_select() {
-        console.log(111);
-        let a = 0;
-        return (this.state.all_choice_column.map(res => {
-            return (<Select.Option key={a++} value={res.name}>{res.verbose_name}</Select.Option>)
+        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+            return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
         }))
 
     }
-    show_all_name(){
-        axios.get("/online/columns/table/"+this.props.leftmenu.datasource_id+"/")
-            .then(res=>{
-                this.setState({
-                    all_choice_column:res.data
-                })
-                }
-            )
-    }
-
-    // componentDidMount() {
-    //     this.props.get_datasource_columns(this.props.leftmenu.datasource_id);
-    // }
-
     delete_variable() {
         this.props.delete_variable_box(this.props.variable_key);
     }
@@ -57,7 +37,7 @@ class Variablebox extends Component {
                         <Select
                             value={undefined}
                             placeholder="请选择要进行变量分箱的列"
-                            onFocus={this.show_all_name.bind(this)}
+                            showSearch
                             style={{width: 400}}
                             searchPlaceholder="输入"
                             onChange={this.change_select.bind(this)}
@@ -73,8 +53,8 @@ class Variablebox extends Component {
                     <div className="col-md-12">
                         <Select
                             value={this.props.field}
+                            showSearch
                             placeholder="请选择要进行变量分箱的列"
-                            onFocus={this.show_all_name.bind(this)}
                             style={{width: 400}}
                             searchPlaceholder="输入"
                             onChange={this.change_select.bind(this)}

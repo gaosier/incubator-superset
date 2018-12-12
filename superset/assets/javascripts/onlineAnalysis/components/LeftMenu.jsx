@@ -1,19 +1,140 @@
 import React, { Component } from 'react';
-import { Collapse, Button, Icon } from 'antd';
+import { Collapse, Button, Icon, Input } from 'antd';
 import { connect } from 'react-redux';
 import 'antd/dist/antd.css';
 import DatasourceMenu from './leftcomponents/DatasourceMenu';
 import DescriptiveAnalysis from "./leftcomponents/DescriptiveAnalysis";
 import DataPreprocessing from "./leftcomponents/DataPreprocessing";
 import DataModeling from "./leftcomponents/DataModeling";
-import { run_model } from '../actions/leftmenu';
+import { run_model,set_name, set_version } from '../actions/leftmenu';
+import { Modal } from 'react-bootstrap';
 
 const Panel = Collapse.Panel;
 class LeftMenu extends Component {
 
+    constructor(props){
+        super(props);
+        this.state={
+            show_save_modal:false,
+            name:this.props.leftmenu.form_data.analysis_name,
+            version:this.props.leftmenu.form_data.version
+        };
+        // this.toggle_modal = this.toggle_modal.bind(this);
+    }
+
     run_modul(){
-        console.log('run');
         this.props.run_model(this.props.leftmenu.form_data);
+    }
+
+
+    save_model(){
+        this.setState({
+            show_save_modal:!this.state.show_save_modal
+        })
+    }
+
+    close_modal(){
+        this.setState({
+            show_save_modal:!this.state.show_save_modal
+        })
+    }
+
+    render_save_info(){
+        if(this.state.name=== ''){
+            return(
+                <div>
+                <div>
+                    <span>分析模型名称</span>
+                    <Input
+                        value={undefined}
+                        placeholder="请输入分析模型名称"
+                        onChange={this.change_name.bind(this)}
+                    />
+
+                </div>
+                     {this.render_version()}
+                </div>
+            )
+        }else{
+            return(
+                <div>
+                <div>
+                    <span>分析模型名称</span>
+                    <Input
+                        value={this.state.name}
+                        placeholder="请输入分析模型名称"
+                        onChange={this.change_name.bind(this)}
+                    />
+
+                </div>
+                    {this.render_version()}
+                </div>
+            )
+        }
+    }
+    model_save(){
+        this.props.set_name(this.state.name);
+        this.props.set_version(this.state.version);
+        this.setState({
+            show_save_model:!this.state.show_save_model
+        })
+    }
+    render_version(){
+        if(this.state.version === ''){
+            return(
+                <div>
+                    <span>版本名称</span>
+                    <Input
+                        value={undefined}
+                        placeholder="请输入分析模型名称"
+                        onChange={this.change_version.bind(this)}
+                        />
+                </div>
+            )
+        }else{
+            return(
+                <div>
+                    <span>版本名称</span>
+                    <Input
+                        value={this.state.version}
+                        placeholder="请输入分析模型名称"
+                        onChange={this.change_version.bind(this)}
+                        />
+                </div>
+            )
+        }
+    }
+    change_version(e){
+        this.setState({
+            version:e.target.value
+        })
+    }
+
+    change_name(e){
+        this.setState({
+            name:e.target.value
+        })
+    }
+    render_save_modal(){
+        return (
+            <Modal
+                show={this.state.show_save_modal}
+                onHide={this.toggle_modal}
+                bsSize="lg"
+            >
+
+                <Modal.Header closeButton>
+                    <Modal.Title>保存模型</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {this.render_save_info()}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={this.close_modal.bind(this)}>关闭</Button>
+                    <Button onClick={this.model_save.bind(this)}>保存</Button>
+                </Modal.Footer>
+            </Modal>
+        )
     }
 
     render() {
@@ -21,8 +142,9 @@ class LeftMenu extends Component {
             <div>
                 <div className="TopBtn">
                     <Button onClick={this.run_modul.bind(this)}><Icon type="play-circle" theme="filled"/>运行</Button>
-                    <Button><Icon type="plus-circle" theme="filled" />保存</Button>
+                    <Button onClick={this.save_model.bind(this)}><Icon type="plus-circle" theme="filled" />保存</Button>
                 </div>
+                {this.render_save_modal()}
                 <div className="make">
                     <Collapse defaultActiveKey={['1','2','3','4']} >
                         <Panel header="数据源/模型选择" key="1">
@@ -50,4 +172,4 @@ const mapStateToProps = (state) => {
     }
 };
 
-export default connect(mapStateToProps,{run_model})(LeftMenu);
+export default connect(mapStateToProps,{run_model, set_name, set_version})(LeftMenu);

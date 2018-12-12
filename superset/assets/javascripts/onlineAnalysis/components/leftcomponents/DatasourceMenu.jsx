@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {  Select, Button, Icon } from 'antd';
-import {get_all_model, get_allmodel, getcode, set_model} from '../../actions/leftmenu';
+import {get_all_model, getcode, set_model, get_all_filter_column} from '../../actions/leftmenu';
 import {connect} from "react-redux";
 import {
     Modal
@@ -22,6 +22,9 @@ class DatasourceMenu extends Component {
         }
 
     }
+    componentDidMount(){
+        this.props.get_all_filter_column(this.props.leftmenu.datasource_id);
+    }
     show_all_modal_name(){
         if(this.state.load_all_modal){
             const { get_all_model } = this.props;
@@ -38,7 +41,6 @@ class DatasourceMenu extends Component {
 
     }
     change_model(value){
-        console.log(111,value);
         if(value===undefined){
             value='';
         }
@@ -46,9 +48,8 @@ class DatasourceMenu extends Component {
         set_model(value);
     }
     render_modal_options(){
-        var reactid = 0;
-        return this.props.leftmenu.slice.all_model.map(element =>
-      <Select.Option   key={reactid++} value={element}> {element}</Select.Option>);
+        return this.props.leftmenu.slice.all_model.map((element,index) =>
+      <Select.Option   key={index} value={element}> {element}</Select.Option>);
     }
     toggleCode() {
         this.setState({show_code_modal: !this.state.show_code_modal});
@@ -193,4 +194,4 @@ const mapStateToProps = (state) => {
         leftmenu:state.leftmenu,
     }
 };
-export default connect(mapStateToProps,{ get_all_model, set_model })(DatasourceMenu);
+export default connect(mapStateToProps,{ get_all_model, set_model,get_all_filter_column })(DatasourceMenu);

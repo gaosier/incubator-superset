@@ -5,7 +5,7 @@ import {
     OverlayTrigger, Tooltip, Well,
 } from 'react-bootstrap';
 import {connect} from "react-redux";
-import {get_all_datasource, get_datasource_columns, modify_datasource} from "../../actions/leftmenu";
+import {get_all_datasource, get_datasource_columns, modify_datasource, get_all_filter_column} from "../../actions/leftmenu";
 import ColumnOption from '../../../components/ColumnOption';
 import MetricOption from '../../../components/MetricOption';
 
@@ -57,6 +57,7 @@ class Datasource extends React.PureComponent {
     selectDatasource(datasourceId, name) {
         this.setState({showModal: false});
         this.props.modify_datasource(datasourceId,name);
+        this.props.get_all_filter_column(datasourceId);
         this.props.get_datasource_columns(datasourceId);
     }
 
@@ -195,4 +196,4 @@ const mapStateToProps = (state) => {
         leftmenu: state.leftmenu,
     }
 };
-export default connect(mapStateToProps, {get_all_datasource, get_datasource_columns, modify_datasource})(Datasource);
+export default connect(mapStateToProps, {get_all_datasource, get_datasource_columns, modify_datasource, get_all_filter_column})(Datasource);

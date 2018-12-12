@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {Button, Divider, Card, Input} from 'antd';
+import {Button, Divider, Card, Input,Select} from 'antd';
 import {Tabs, Tab, Modal, Table} from 'react-bootstrap';
 import TrainDataset from '../leftcomponents/TrainDataset';
 import ValidataDataset from '../leftcomponents/ValidataDataset';
@@ -36,41 +36,73 @@ class DataModeling extends Component {
 
     onEnterModel() {
 
-        // this.props.get_model_parameter(this.props.leftmenu.form_data.sk_type);
-        // console.log('param',this.props.leftmenu.form_data.model_param);
-        // return(<div>1</div>);
 
     }
+    change_x_col(value){
+        this.props.modify_parameter('dataset','x_col',value);
+    }
+    change_y_col(value){
+        this.props.modify_parameter('dataset','y_col',value);
+    }
 
-    // render_param(dum) {
-    //     this.props.leftmenu.form_data.model_param[dum].map((cop, index) => {
-    //         return (
-    //             <tr>
-    //                 <td>
-    //                     <span>{cop.name}</span>
-    //                 </td>
-    //                 <td>
-    //
-    //                 </td>
-    //             </tr>
-    //         )
-    //     })
-    // }
+    render_column() {
+        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+            return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
+        }))
 
+    }
     show_param() {
-
         const keys = Object.keys(this.props.leftmenu.form_data.model_param);
-        return (keys.map((dum, index) => (
-            <Card
+        return (keys.map((dum, index) => {
+            if(dum === 'dataset'){
+                return(
+                    <Card
+                    title={dum}
+                    style={{width: 800}}
+                    key={index}>
+                        <div>
+                            <span>x_col</span>
+                            <Select
+                                style={{width: 606}}
+                                value={this.props.leftmenu.form_data.model_param.dataset.x_col}
+                                showSearch
+                                mode="multiple"
+                                placeholder="请选择列"
+                                searchPlaceholder="输入"
+                                onChange={this.change_x_col.bind(this)}
+
+                            >
+                                {this.render_column()}
+                            </Select>
+                        </div>
+                        <div>
+                            <span>y_col</span>
+                            <Select
+                                style={{width: 606}}
+                                value={this.props.leftmenu.form_data.model_param.dataset.y_col}
+                                showSearch
+                                mode="multiple"
+                                placeholder="请选择列"
+                                searchPlaceholder="输入"
+                                onChange={this.change_y_col.bind(this)}
+
+                            >
+                                {this.render_column()}
+                            </Select>
+                        </div>
+                    </Card>
+                )
+            }else{
+            return(<Card
                 title={dum}
-                style={{width: 300}}
+                style={{width: 800}}
                 key={index}
             >
                 <div>
-                { this.render_pa(dum) }
+                    {this.render_pa(dum)}
                 </div>
-            </Card>
-        )))
+            </Card>)
+        }}))
     }
     render_pa(dum){
         const name = this.props.leftmenu.form_data.model_param[dum];

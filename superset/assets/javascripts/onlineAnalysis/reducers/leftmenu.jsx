@@ -39,8 +39,11 @@ import {
     MODIFT_VALIDATE_FILTERS_VAL,
     MODIFY_PARAMETER,
     RUN,
+    GET_ALL_FILTER_COLUMNS,
     WATCH_DESCRIBE,
-    WATCH_CORR
+    WATCH_CORR,
+    SET_NAME,
+    SET_VERSION
 } from "../constants/leftmenu";
 
 const leftmenu = (state = {}, action = {}) => {
@@ -115,76 +118,57 @@ const leftmenu = (state = {}, action = {}) => {
 
       case MODIFY_VARIABLE_BOX_FIELD:
           state.form_data.variable_box[action.index].field = action.name;
-          // console.log(333,modify_name);
-          console.log(333,state);
           return Object.assign({},state);
 
       case MODIFY_VARIABLE_BOX_BINS:
           state.form_data.variable_box[action.index].bins = action.bins;
-          console.log(333,state);
           return Object.assign({},state);
 
       case MODIFY_VARIABLE_BOX_LABELS:
           state.form_data.variable_box[action.index].labels = action.labels;
-          console.log(333,state);
           return Object.assign({},state);
 
       case INCREAMENT_DUMMY:
           const new_dummy = Object.assign({},state.form_data,{dummy_variable: state.form_data.dummy_variable.concat({field:'',labels:''})});
-          console.log('new_var',new_dummy);
-          console.log('new_state',Object.assign({},state,{form_data:new_dummy}));
           return Object.assign({},state,{form_data:new_dummy});
 
       case MODIFY_DUMMY_FIELD:
           state.form_data.dummy_variable[action.index].field = action.field;
-          // console.log(333,modify_name);
-
-          console.log(333,state);
           return Object.assign({},state);
 
       case MODIFY_DUMMY_VALUE:
           state.form_data.dummy_variable[action.index].labels = action.value;
-          console.log('MODIFY_DUMMY_VALUE' ,state);
           return Object.assign({},state);
 
       case DELETE_DUMMY:
           const old_dummy = state.form_data.dummy_variable;
           old_dummy.splice(action.index,1);
           console.log(old_dummy);
-          // console.log(state);
-          // return state;
-          // console.log('after',afterdetele);
           const after_dummy = Object.assign({},state.form_data,{dummy_variable:old_dummy});
-          console.log('after',Object.assign({},state,{form_data:after_dummy}));
           return Object.assign({},state,{form_data:after_dummy});
 
       case INCREAMENT_CORRELATION:
           const increament = state.form_data.correlation_analysis;
           increament.push([0,0,0]);
-          console.log(111,state);
           return Object.assign({},state);
 
       case DELETE_CORRELATION:
           const old_corr = state.form_data.correlation_analysis;
           old_corr.splice(action.index,1);
           const after_corr = Object.assign({},state.form_data,{correlation_analysis:old_corr});
-          // console.log('after',Object.assign({},state,{form_data:after_variable_box}));
           return Object.assign({},state,{form_data:after_corr});
 
       case MODIFY_CORRELATION_FIELD:
           state.form_data.correlation_analysis[action.index][0] = action.field;
-          console.log('field' ,state);
           return Object.assign({},state);
 
 
       case MODIFY_CORRELATION_TWO:
           state.form_data.correlation_analysis[action.index][1] = action.two;
-          console.log('TWO' ,state);
           return Object.assign({},state);
 
       case MODIFY_CORRELATION_LAST:
           state.form_data.correlation_analysis[action.index][2] = action.last;
-          console.log('LAST' ,state);
           return Object.assign({},state);
 
       case ADD_TRAIN:
@@ -198,17 +182,15 @@ const leftmenu = (state = {}, action = {}) => {
 
       case MODIFY_TRAIN_COL:
           state.form_data.train_dataset[action.index].col = action.res;
-          console.log(state);
+          state.form_data.train_dataset[action.index].val = '';
           return Object.assign({},state);
 
       case MODIFY_TRAIN_OP:
           state.form_data.train_dataset[action.index].op = action.res;
-          console.log(state);
           return Object.assign({},state);
 
       case MODIFY_TRAIN_VAL:
           state.form_data.train_dataset[action.index].val = action.res;
-          console.log(state);
           return Object.assign({},state);
 
       case ADD_VALIDATE_DATASETS:
@@ -228,37 +210,28 @@ const leftmenu = (state = {}, action = {}) => {
 
       case MODIFY_VAL_NAME:
           state.form_data.validate_datasets[action.index].name = action.res;
-          console.log(state);
           return Object.assign({},state);
 
       case DELETE_VALIDATE_FILTERS:
             const old_vali = state.form_data.validate_datasets[action.val_index].filters;
             old_vali.splice(action.filter_index,1);
-            console.log(old_vali);
-            console.log(state);
             return Object.assign({},state);
 
       case MODIFT_VALIDATE_FILTERS_COL:
           state.form_data.validate_datasets[action.val_index].filters[action.filter_index].col=action.res;
-          console.log(state);
+          state.form_data.validate_datasets[action.val_index].filters[action.filter_index].val='';
           return Object.assign({},state);
 
       case MODIFT_VALIDATE_FILTERS_OP:
           state.form_data.validate_datasets[action.val_index].filters[action.filter_index].op=action.res;
-          console.log(state);
           return Object.assign({},state);
 
       case MODIFT_VALIDATE_FILTERS_VAL:
-          console.log(state);
           state.form_data.validate_datasets[action.val_index].filters[action.filter_index].val =action.res;
-          console.log(state);
           return Object.assign({},state);
 
       case GET_MODEL_PARAMETER:
-          console.log('res',action.res);
           const model_param = Object.assign({},state.form_data,{model_param:action.res.data});
-          console.log(model_param);
-          // console.log(111111,Object({},state,{form_data:model_param}));
           return Object.assign({},state,{form_data:model_param});
 
       case MODIFY_PARAMETER:
@@ -269,8 +242,20 @@ const leftmenu = (state = {}, action = {}) => {
           console.log(action.data);
           return state;
 
+      case GET_ALL_FILTER_COLUMNS:
+          console.log(action.res.data);
+          const get_all_column = Object.assign({},state.slice,{all_select_column:action.res.data});
+          console.log(Object.assign({},state,{slice:get_all_column}));
+          return Object.assign({},state,{slice:get_all_column});
 
+      case SET_NAME:
+          const set_name = Object.assign({},state.form_data,{analysis_name:action.name});
+          console.log(set_name);
+          return Object.assign({},state,{form_data:set_name});
 
+      case SET_VERSION:
+          const set_version = Object.assign({},state.form_data,{version:action.name});
+          return Object.assign({},state,{form_data:set_version});
 
     default: return state;
   }

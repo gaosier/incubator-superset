@@ -8,29 +8,12 @@ import {
     modify_correlation_two,
     modify_correlation_last
 } from '../../actions/leftmenu';
-import axios from "axios/index";
 
 class CorrelationAnalysis extends Component {
     constructor(props) {
         super(props);
-        this.state={
-            all_choice_column:[]
-        }
     }
 
-    // componentDidMount() {
-    //     this.props.get_datasource_columns(this.props.leftmenu.datasource_id);
-    // }
-
-    show_all_name(){
-        axios.get("/online/columns/table/"+this.props.leftmenu.datasource_id+"/")
-            .then(res=>{
-                this.setState({
-                    all_choice_column:res.data
-                })
-                }
-            )
-    }
 
     delete_corre() {
         this.props.delete_correlation(this.props.correlation_key);
@@ -49,10 +32,8 @@ class CorrelationAnalysis extends Component {
     }
 
     render_select() {
-        console.log(11189898998);
-        let a = 0;
-        return (this.state.all_choice_column.map(res => {
-            return (<Select.Option key={a++} value={res.name}>{res.verbose_name}</Select.Option>)
+        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+            return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
         }))
     }
 
@@ -63,6 +44,7 @@ class CorrelationAnalysis extends Component {
                     value={undefined}
                     style={{width: 106}}
                     placeholder="请选择方法"
+                    showSearch
                     searchPlaceholder="输入"
                     onChange={this.change_select_props.bind(this)}
                 >
@@ -76,6 +58,7 @@ class CorrelationAnalysis extends Component {
                 <Select
                     style={{width: 106}}
                     value={this.props.handle_props}
+                    showSearch
                     placeholder="请选择方法"
                     searchPlaceholder="输入"
                     onChange={this.change_select_props.bind(this)}
@@ -94,6 +77,7 @@ class CorrelationAnalysis extends Component {
                 <Select
                     value={undefined}
                     style={{width: 270}}
+                    showSearch
                     placeholder="请选择类型"
                     searchPlaceholder="输入"
                     onChange={this.change_select_type.bind(this)}
@@ -108,6 +92,7 @@ class CorrelationAnalysis extends Component {
                 <Select
                     style={{width: 270}}
                     value={this.props.handle_type}
+                    showSearch
                     placeholder="请选择类型"
                     searchPlaceholder="输入"
                     onChange={this.change_select_type.bind(this)}
@@ -127,8 +112,8 @@ class CorrelationAnalysis extends Component {
                     value={undefined}
                     style={{width: 484}}
                     placeholder="请选择列名"
+                    showSearch
                     searchPlaceholder="输入"
-                    onFocus={this.show_all_name.bind(this)}
                     onChange={this.change_select.bind(this)}
                 >
                     {this.render_select()}
@@ -139,9 +124,9 @@ class CorrelationAnalysis extends Component {
                 <Select
                     style={{width: 484}}
                     value={this.props.field}
+                    showSearch
                     placeholder="请选择列名"
                     searchPlaceholder="输入"
-                    onFocus={this.show_all_name.bind(this)}
                     onChange={this.change_select.bind(this)}
                 >
                     {this.render_select()}

@@ -2,25 +2,37 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { Button, Select, Input } from 'antd';
 import { get_datasource_columns, modify_filter_col, modify_filter_op, modify_filter_val,delete_vali_filters } from '../../actions/leftmenu';
+import axios from "axios/index";
 
 class ValidataFilter extends Component {
     constructor(props){
         super(props);
-    }
-
-    componentDidMount() {
-        this.props.get_datasource_columns(this.props.leftmenu.datasource_id);
+        this.state={
+            value_column:[]
+        }
     }
 
     change_select_col(value){
         this.props.modify_filter_col(this.props.val_key,this.props.filter_key,value);
+        axios.get("/online/filter/table/" + this.props.leftmenu.datasource_id + '/'+value+'/')
+            .then(res => {
+                this.setState({
+                    value_column:res.data
+                })
+            })
+            .catch(error => {
+                notification['error']({
+                    message: '获取参数失败',
+                    description: '获取参数失败,详情请咨询相关人员.',
+                  });
+            })
     }
     change_select_op(value){
         this.props.modify_filter_op(this.props.val_key,this.props.filter_key,value);
     }
 
-    change_input_value(e){
-        this.props.modify_filter_val(this.props.val_key,this.props.filter_key,e.target.value);
+    change_select_value(value){
+        this.props.modify_filter_val(this.props.val_key,this.props.filter_key,value);
     }
 
     delete_comp(){
@@ -28,10 +40,8 @@ class ValidataFilter extends Component {
     }
 
     render_select_columns() {
-        console.log(11189898998);
-        let a = 0;
-        return (this.props.leftmenu.slice.all_datasource_columns.metrics.map(res => {
-            return (<Select.Option key={a++} value={res[0]}>{res[0]}</Select.Option>)
+        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+            return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
         }))
     }
 
@@ -68,9 +78,15 @@ class ValidataFilter extends Component {
                 <Select
                 value={undefined}
                     style={{width: 106}}
+                    showSearch
                     placeholder="选择运算符"
                     searchPlaceholder="输入"
                     onChange={this.change_select_op.bind(this)}>
+                    <Select.Option key={1} value="==">==</Select.Option>
+                    <Select.Option key={2} value=">=">>=</Select.Option>
+                    <Select.Option key={3} value="<=">{"<="} </Select.Option>
+                    <Select.Option key={4} value=">">{">"}</Select.Option>
+                    <Select.Option key={5} value="<">{"<"}</Select.Option>
 
                 </Select>
             )
@@ -79,30 +95,53 @@ class ValidataFilter extends Component {
                 <Select
                 value={this.props.op}
                     style={{width: 106}}
+                    showSearch
                     placeholder="选择运算符"
                     searchPlaceholder="输入"
-                    onChange={this.change_select_op.bind(this)}>>
+                    onChange={this.change_select_op.bind(this)}>
+                    <Select.Option key={1} value="==">==</Select.Option>
+                    <Select.Option key={2} value=">=">>=</Select.Option>
+                    <Select.Option key={3} value="<=">{"<="} </Select.Option>
+                    <Select.Option key={4} value=">">{">"}</Select.Option>
+                    <Select.Option key={5} value="<">{"<"}</Select.Option>
 
                 </Select>
             )
         }
     }
 
-    render_input_val(){
+    render_select_value(){
+        return(this.state.value_column.map((dum,index) =>{
+            return(<Select.Option key={index} value={dum}>{dum}</Select.Option>)
+        }))
+    }
+
+    render_select_val(){
         if(this.props.val === ""){
             return(
-                <Input
+                <Select
                     value={undefined}
+                    style={{width: 246}}
+                    showSearch
                     placeholder="输入过滤值"
-                    onChange={this.change_input_value.bind(this)}
-                />
+                    searchPlaceholder="输入"
+                    onChange={this.change_select_value.bind(this)}
+                >
+                    {this.render_select_value()}
+                </Select>
             )
         }else{
             return(
-                <Input
+                <Select
                     value={this.props.val}
-                    onChange={this.change_input_value.bind(this)}
-                />
+                    showSearch
+                    style={{width: 246}}
+                    placeholder="输入过滤值"
+                    searchPlaceholder="输入"
+                    onChange={this.change_select_value.bind(this)}
+                >
+                    {this.render_select_value()}
+                </Select>
             )
         }
     }
@@ -121,7 +160,7 @@ class ValidataFilter extends Component {
                         {this.render_select_op()}
                     </div>
                     <div className="col-md-7">
-                        {this.render_input_val()}
+                        {this.render_select_val()}
                     </div>
                     <div className="col-md-2">
                         <button id="remove-button"

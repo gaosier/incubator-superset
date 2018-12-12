@@ -57,7 +57,8 @@ const  initState = {
                 columns:[],
                 metrics:[]
             },
-            all_choice_column:[]
+            all_choice_column:[],
+            all_select_column:[]
         },
         datasource_name: bootstrapData.datasource_name || '',
         datasource_id: bootstrapData.datasource_id || 0,
