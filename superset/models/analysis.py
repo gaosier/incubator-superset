@@ -7,7 +7,7 @@ import json
 import logging
 
 import sqlalchemy as sqla
-
+from flask import escape, Markup
 from flask_appbuilder.models.sqla import Model
 from flask_appbuilder.models.decorators import renders
 from sqlalchemy import Column, Integer, Text, String, UniqueConstraint, Table, ForeignKey
@@ -83,10 +83,6 @@ class Analysis(Model, AuditMixinNullable):
     description = Column(Text, comment=u"分析模型描述")
     params = Column(Text, comment=u"模型参数")
     perm = Column(String(200), comment=u"权限")
-    code_log_file = Column(String(255), comment=u"代码日志文件")
-    param_log_file = Column(String(255), comment=u"机器学习模型参数日志")
-    image_log_file = Column(String(255), comment=u"代码中的图片的位置")
-
 
     __table_args__ = (UniqueConstraint('name', 'version', name='_name_version'),
                       )
@@ -114,6 +110,13 @@ class Analysis(Model, AuditMixinNullable):
     def datasource_link(self):
         datasource = self.datasource
         return datasource.link if datasource else None
+
+    @renders("name")
+    def name_link(self):
+        name = escape(self.name)
+        explore_url = '/online/analysis/{obj.datasource_type}/{obj.datasource_id}/'.format(obj=self)
+        return Markup(
+            '<a href="{explore_url}">{name}</a>'.format(**locals()))
 
     @classmethod
     def get_versions(cls, name):

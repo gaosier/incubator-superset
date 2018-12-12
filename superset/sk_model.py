@@ -237,6 +237,7 @@ class BaseSkModel(object):
 
         correlation_analysis = self.form_data.get("correlation_analysis", [])
         count = len(correlation_analysis)
+        print("count: ", count)
 
         if count < 3:
             row = 1
@@ -258,7 +259,7 @@ class BaseSkModel(object):
                 sns.countplot(field, data=df, ax=ax[count])
                 ax[count].set_title(field)
                 ax[count].set_ylabel('y')
-            elif func == 'seaborn' and chart == 'heatmap' and field == 'all':
+            elif func == 'seaborn' and chart == 'heatmap':
                 sns.heatmap(df.corr(), annot=True, cmap='RdYlGn', linewidths=0.5)
                 fig = plt.gcf()
                 fig.set_size_inches(10, 8)

@@ -112,9 +112,9 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
     edit_title = u"编辑模型"
 
     search_columns = (
-        'name', 'version', 'sk_model', 'datasource_name', 'owners', 'show_users'
+        'name','version', 'sk_model', 'datasource_name', 'owners', 'show_users'
     )
-    list_columns = ['name', 'sk_model', 'datasource_link', 'creator', 'modified']
+    list_columns = ['name_link', 'sk_model', 'datasource_link', 'creator', 'modified']
     order_columns = ['name', 'datasource_link', 'modified']
     edit_columns = ['name', 'version', 'description', 'sk_model', 'owners', 'show_users', 'params']
     base_order = ('changed_on', 'desc')
@@ -132,7 +132,7 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
         'owners': u"拥有者",
         'show_users': u"共享用户",
         'params': u"参数",
-        'name': u"名称",
+        'name_link': u"名称",
         'sk_model': u"机器学习模型",
         'version': u"版本"
     }
@@ -245,18 +245,21 @@ class Online(BaseSupersetView):
         msg = 'Analysis [{}] has been overwritten'.format(slc.name)
         flash(msg, 'info')
 
-
-    def save_or_overwrite(
-            self, args, slc, slice_add_perm, slice_overwrite_perm, datasource_id, datasource_type, datasource_name):
-        """Save or overwrite a analysis"""
-        analysis_name = args.get('analysis_name')
+    def save_or_overwrite(self, args, slc, slice_add_perm, slice_overwrite_perm, datasource_id, datasource_type,
+                          datasource_name):
+        """
+        保存或者覆盖
+        """
+        analysis_name = args.get('name')
         action = args.get('action')
-        print(action);
+        version = args.get('version')
         form_data, _ = self.get_form_data()
+        sk = SkModel.get_instance(form_data.get("sk_type"))
 
         if action in ('saveas'):
             if 'analysis_id' in form_data:
                 form_data.pop('analysis_id')
+
             slc = Analysis(owners=[g.user] if g.user else [])
 
         slc.params = json.dumps(form_data)
@@ -264,6 +267,8 @@ class Online(BaseSupersetView):
         slc.datasource_type = datasource_type
         slc.datasource_id = datasource_id
         slc.name = analysis_name
+        slc.sk_model = sk
+        slc.version = version
 
         if action in ('saveas') and slice_add_perm:
             self.save_slice(slc)
@@ -619,7 +624,6 @@ class Online(BaseSupersetView):
         form_data, analysis = self.get_form_data()
         sk_type = form_data.get("sk_type")
         datasource_id, datasource_type = self.datasource_info(form_data)
-        print("form_data: ", form_data)
 
         if not sk_type or (not datasource_id) or (not datasource_type):
             return json_error_response(REQ_PARAM_NULL_ERR % "sk_type, datasource_id, datasource_type")
