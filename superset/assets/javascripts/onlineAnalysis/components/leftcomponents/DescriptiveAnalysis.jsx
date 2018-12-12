@@ -253,12 +253,11 @@ class DescriptiveAnalysis extends Component {
             <Modal
                 show={this.state.show_describeModal}
                 onHide={this.toggle_descModal}
-               style="height:800px; overflow:auto;"
                 bsSize="lg">
                 <Modal.Header closeButton>
                     <Modal.Title>查看数据分布</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body id="describeModal">
                     {this.state.loading &&
                     <img
                         className="loading"
@@ -323,8 +322,8 @@ class DescriptiveAnalysis extends Component {
     }
     see_corr(){
         console.log(1111,this.props.leftmenu.form_data.correlation_analysis_image);
-        if(this.props.leftmenu.form_data.correlation_analysis_image===''){
-            this.props.watch_corr(this.props.leftmenu.form_data.null_operate);
+        if(this.props.leftmenu.form_data.correlation_analysis_image.name===null){
+            this.props.watch_corr(this.props.leftmenu.form_data.correlation_analysis,this.props.leftmenu.form_data.datasource,this.props.leftmenu.form_data.sk_type);
         }
         this.setState({
             show_corrModal:!this.state.show_corrModal
@@ -334,6 +333,20 @@ class DescriptiveAnalysis extends Component {
         this.setState({
             show_corrModal:!this.state.show_corrModal
         })
+    }
+    onEnterModal(){
+        if(this.props.leftmenu.form_data.correlation_analysis_image.name===null){
+            return(
+            <div>暂时未获取到图片</div>)
+        }else{
+            const url_img = "/static/uploads/img/"+this.props.leftmenu.form_data.correlation_analysis_image.name;
+            return(
+                <div>
+                <img src={url_img}/>
+                    </div>
+            )
+        }
+
     }
     render_corr_modal(){
         return (
@@ -347,7 +360,7 @@ class DescriptiveAnalysis extends Component {
                     <Modal.Title>查看变量相关性</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {/*<img src={}*/}
+                    {this.onEnterModal()}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={this.togglecorrModal}>关闭</Button>
@@ -407,7 +420,6 @@ class DescriptiveAnalysis extends Component {
                        <i className="fa fa-file-text-o" />下载数据
                     </a>
                     </Button>
-                    {/*<Button onClick={this.download_data.bind(this)}><Icon type="download"/>下载数据</Button>*/}
                 </div>
             </div>
 

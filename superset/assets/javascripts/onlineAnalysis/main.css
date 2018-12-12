@@ -23,3 +23,6 @@ div#datasource{
 pre{
     font-size: 10px;
 }
+div#describeModal{
+    overflow: auto;
+}

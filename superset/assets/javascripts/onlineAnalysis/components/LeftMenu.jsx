@@ -86,7 +86,7 @@ class LeftMenu extends Component {
             var action = "overwrite";
             console.log('overwrite');
         }
-        this.props.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,action);
+        this.props.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,action,this.props.leftmenu.form_data.analysis_name,this.props.leftmenu.form_data.version);
     }
     render_version(){
         if(this.state.version === ''){

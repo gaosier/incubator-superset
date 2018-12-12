@@ -43,7 +43,8 @@ import {
     WATCH_DESCRIBE,
     WATCH_CORR,
     SET_NAME,
-    SET_VERSION
+    SET_VERSION,
+    LOG
 } from "../constants/leftmenu";
 
 const leftmenu = (state = {}, action = {}) => {
@@ -109,9 +110,6 @@ const leftmenu = (state = {}, action = {}) => {
       case DELETE_VARIABLE_BOX:
           const old_variable_box = state.form_data.variable_box;
           old_variable_box.splice(action.index,1);
-          // console.log(state);
-          // return state;
-          // console.log('after',afterdetele);
           const after_variable_box = Object.assign({},state.form_data,{variable_box:old_variable_box});
           // console.log('after',Object.assign({},state,{form_data:after_variable_box}));
           return Object.assign({},state,{form_data:after_variable_box});
@@ -240,7 +238,11 @@ const leftmenu = (state = {}, action = {}) => {
 
       case RUN:
           console.log(action.data);
-          return state;
+          state.form_data.log_dir_id = action.data.log_dir_id;
+          state.form_data.model_result_execl_sl = action.data.model_result_execl_sl;
+          state.form_data.model_result_execl_bs = action.data.model_result_execl_bs;
+          console.log(Object.assign({},state));
+          return Object.assign({},state);
 
       case GET_ALL_FILTER_COLUMNS:
           console.log(action.res.data);
@@ -256,6 +258,11 @@ const leftmenu = (state = {}, action = {}) => {
       case SET_VERSION:
           const set_version = Object.assign({},state.form_data,{version:action.name});
           return Object.assign({},state,{form_data:set_version});
+
+      case WATCH_CORR:
+          const set_corr_img = Object.assign({},state.form_data,{ correlation_analysis_image:{ url: action.data.url, name:action.data.name} });
+          console.log(333344,Object.assign({}, state, {form_data: set_corr_img}));
+          return Object.assign({}, state, {form_data: set_corr_img});
 
     default: return state;
   }

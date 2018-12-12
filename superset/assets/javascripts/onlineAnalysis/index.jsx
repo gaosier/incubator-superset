@@ -44,7 +44,10 @@ const  initState = {
                 name:null
             },
             log_dir_id: bootstrapData.form_data.log_dir_id || "",
-            correlation_analysis_image:  bootstrapData.form_data.correlation_analysis_image || "",
+            correlation_analysis_image:  bootstrapData.form_data.correlation_analysis_image || {
+                url:null,
+                name:null
+            },
             model_result_execl_sl: bootstrapData.form_data.model_result_execl_sl || "",
             model_result_execl_bs: bootstrapData.form_data.model_result_execl_bs || ""
         },

@@ -43,7 +43,8 @@ import {
     RUN,
     GET_ALL_FILTER_COLUMNS,
     SET_NAME,
-    SET_VERSION
+    SET_VERSION,
+    LOG
 } from "../constants/leftmenu";
 
 // 获取所有模型名
@@ -407,13 +408,14 @@ export const see_describe = (data) =>{
 
 // 查看变量相关性
 
-export const watch_corr = (null_operate) => {
+export const watch_corr = (null_operate,datasource,sk_type) => {
+    const corr = {correlation_analysis:null_operate,sk_type:sk_type,datasource:datasource};
     return dispatch => {
         $.ajax({
             type: 'POST',
             url: "/online/correlation_analysis/",
             data: {
-                form_data: JSON.stringify(null_operate),
+                form_data: JSON.stringify(corr),
             },
             success: ((data) => {
                 dispatch(see_corr(data))
@@ -609,11 +611,11 @@ export const set_version = (name) =>{
 
 // 保存模型
 
-export const save_allmodal = (form_data,id,action) =>{
+export const save_allmodal = (form_data,id,action,name,version) =>{
     return dispatch => {
         $.ajax({
             type: 'POST',
-            url: "/online/analysis/table/"+id+'/?action='+action,
+            url: "/online/analysis/table/"+id+'/?action='+action+'&name='+name+'&version='+version,
             data: {
                 form_data: JSON.stringify(form_data),
             },

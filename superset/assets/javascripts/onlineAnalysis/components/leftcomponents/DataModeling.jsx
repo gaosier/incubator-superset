@@ -61,7 +61,7 @@ class DataModeling extends Component {
                     style={{width: 800}}
                     key={index}>
                         <div>
-                            <span>x_col</span>
+                            <div>x_col</div>
                             <Select
                                 style={{width: 606}}
                                 value={this.props.leftmenu.form_data.model_param.dataset.x_col}
@@ -76,7 +76,7 @@ class DataModeling extends Component {
                             </Select>
                         </div>
                         <div>
-                            <span>y_col</span>
+                            <div>y_col</div>
                             <Select
                                 style={{width: 606}}
                                 value={this.props.leftmenu.form_data.model_param.dataset.y_col}
