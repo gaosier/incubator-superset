@@ -26,3 +26,14 @@ pre{
 div#describeModal{
     overflow: auto;
 }
+label#fill{
+    position: relative;
+    left: 30px;
+}
+label#delete{
+    position: relative;
+    left: 100px;
+}
+div#caozuo{
+    width: 500px;
+}
