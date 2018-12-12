@@ -411,7 +411,7 @@ export const watch_corr = (null_operate) => {
     return dispatch => {
         $.ajax({
             type: 'POST',
-            url: "/online/describe/",
+            url: "/online/correlation_analysis/",
             data: {
                 form_data: JSON.stringify(null_operate),
             },
@@ -609,15 +609,16 @@ export const set_version = (name) =>{
 
 // 保存模型
 
-export const save_allmodal = () =>{
+export const save_allmodal = (form_data,id,action) =>{
     return dispatch => {
         $.ajax({
             type: 'POST',
-            url: "/online/run/model/",
+            url: "/online/analysis/table/"+id+'/?action='+action,
             data: {
                 form_data: JSON.stringify(form_data),
             },
             success: ((data) => {
+                console.log(data);
                 dispatch(save_all_model(data))
             }),
             error: ((data,type,err) => {
@@ -631,8 +632,10 @@ export const save_allmodal = () =>{
     }
 };
 
-export const save_all_model = () =>{
+export const save_all_model = (data) =>{
     return {
         type:"aaa",
+        data
     }
 };
+

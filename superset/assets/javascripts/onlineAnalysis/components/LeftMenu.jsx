@@ -6,7 +6,7 @@ import DatasourceMenu from './leftcomponents/DatasourceMenu';
 import DescriptiveAnalysis from "./leftcomponents/DescriptiveAnalysis";
 import DataPreprocessing from "./leftcomponents/DataPreprocessing";
 import DataModeling from "./leftcomponents/DataModeling";
-import { run_model,set_name, set_version } from '../actions/leftmenu';
+import { run_model,set_name, set_version,save_allmodal } from '../actions/leftmenu';
 import { Modal } from 'react-bootstrap';
 
 const Panel = Collapse.Panel;
@@ -77,7 +77,16 @@ class LeftMenu extends Component {
         this.props.set_version(this.state.version);
         this.setState({
             show_save_model:!this.state.show_save_model
-        })
+        });
+        console.log(111,this.props.leftmenu.form_data.analysis_id);
+        if(this.props.leftmenu.form_data.analysis_id === ''){
+            console.log('saves');
+            var action = "saveas";
+        }else{
+            var action = "overwrite";
+            console.log('overwrite');
+        }
+        this.props.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,action);
     }
     render_version(){
         if(this.state.version === ''){
@@ -172,4 +181,4 @@ const mapStateToProps = (state) => {
     }
 };
 
-export default connect(mapStateToProps,{run_model, set_name, set_version})(LeftMenu);
+export default connect(mapStateToProps,{run_model, set_name, set_version,save_allmodal})(LeftMenu);

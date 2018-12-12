@@ -48,8 +48,8 @@ class CorrelationAnalysis extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_props.bind(this)}
                 >
-                    <Select.Option key={1} value="pie">pie</Select.Option>
-                    <Select.Option key={2} value="countplot">countplot</Select.Option>
+                    <Select.Option key={1} value="matloplib">matloplib</Select.Option>
+                    <Select.Option key={2} value="seaborn">seaborn</Select.Option>
 
                 </Select>
             )
@@ -63,8 +63,8 @@ class CorrelationAnalysis extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_props.bind(this)}
                 >
-                    <Select.Option key={1} value="pie">pie</Select.Option>
-                    <Select.Option key={2} value="countplot">countplot</Select.Option>
+                    <Select.Option key={1} value="matloplib">matloplib</Select.Option>
+                    <Select.Option key={2} value="seaborn">seaborn</Select.Option>
 
                 </Select>
             )
@@ -82,8 +82,8 @@ class CorrelationAnalysis extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_type.bind(this)}
                 >
-                    <Select.Option key={1} value="matloplib">matloplib</Select.Option>
-                    <Select.Option key={2} value="seaborn">seaborn</Select.Option>
+                    <Select.Option key={1} value="pie">pie</Select.Option>
+                    <Select.Option key={2} value="countplot">countplot</Select.Option>
 
                 </Select>
             )
@@ -97,8 +97,8 @@ class CorrelationAnalysis extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_type.bind(this)}
                 >
-                    <Select.Option key={1} value="matloplib">matloplib</Select.Option>
-                    <Select.Option key={2} value="seaborn">seaborn</Select.Option>
+                    <Select.Option key={1} value="pie">pie</Select.Option>
+                    <Select.Option key={2} value="countplot">countplot</Select.Option>
 
                 </Select>
             )

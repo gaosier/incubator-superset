@@ -251,6 +251,7 @@ class Online(BaseSupersetView):
         """Save or overwrite a analysis"""
         analysis_name = args.get('analysis_name')
         action = args.get('action')
+        print(action);
         form_data, _ = self.get_form_data()
 
         if action in ('saveas'):

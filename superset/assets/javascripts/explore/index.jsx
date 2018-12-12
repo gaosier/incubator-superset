@@ -21,13 +21,10 @@ import '../../stylesheets/reactable-pagination.css';
 
 appSetup();  // 加载ajax
 initJQueryAjax(); // 设置token
-console.log(initJQueryAjax());
 const exploreViewContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(exploreViewContainer.getAttribute('data-bootstrap'));  // 后端传给前端的数据
-console.log(JSON.parse(JSON.stringify(bootstrapData)));
 
 // console.log(JSON.stringify(bootstrapData));
-console.log(111,bootstrapData.form_data);
 // form_data 是 后台存储之前的参数
 const controls = getControlsState(bootstrapData, bootstrapData.form_data);
 console.log(2222,JSON.parse(JSON.stringify(controls)));
@@ -75,7 +72,6 @@ const initState = {
   explore: bootstrappedState,
   impressionId: shortid.generate(),
 };
-console.log(4444,initState);
 const store = createStore(rootReducer, initState,
   compose(applyMiddleware(thunk), initEnhancer(false)),
 );
