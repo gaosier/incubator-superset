@@ -5,6 +5,7 @@
 """
 import json
 import logging
+from urllib import parse
 
 import sqlalchemy as sqla
 from flask import escape, Markup
@@ -49,8 +50,6 @@ class SkModel(Model, AuditMixinNullable):
     def json_params(self):
         data = json.loads(self.params)
         return data
-
-
 
 
 analysis_owner = Table('analysis_owner', metadata,
@@ -111,12 +110,28 @@ class Analysis(Model, AuditMixinNullable):
         datasource = self.datasource
         return datasource.link if datasource else None
 
-    @renders("name")
+    def get_explore_url(self, base_url='/online/analysis', overrides=None):
+        overrides = overrides or {}
+        form_data = {'analysis_id': self.id}
+        form_data.update(overrides)
+        params = parse.quote(json.dumps(form_data))
+        return (
+            '{base_url}/?form_data={params}'.format(**locals()))
+
+    @property
+    def analysis_url(self):
+        """Defines the url to access the slice"""
+        return self.get_explore_url()
+
+    @property
+    def explore_json_url(self):
+        return self.get_explore_url('/superset/explore_json')
+
+    @property
     def name_link(self):
+        url = self.analysis_url
         name = escape(self.name)
-        explore_url = '/online/analysis/{obj.datasource_type}/{obj.datasource_id}/'.format(obj=self)
-        return Markup(
-            '<a href="{explore_url}">{name}</a>'.format(**locals()))
+        return Markup('<a href="{url}">{name}</a>'.format(**locals()))
 
     @classmethod
     def get_versions(cls, name):

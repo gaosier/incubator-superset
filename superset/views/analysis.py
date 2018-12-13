@@ -186,7 +186,7 @@ class Online(BaseSupersetView):
         form_data = {}
         post_data = request.form.get('form_data')
         request_args_data = request.args.get('form_data')
-        # Supporting POST
+
         if post_data:
             form_data.update(json.loads(post_data))
         # request params can overwrite post body
@@ -226,6 +226,7 @@ class Online(BaseSupersetView):
     @staticmethod
     def datasource_info(form_data, datasource_id=None, datasource_type=None):
         datasource = form_data.get('datasource', '')
+        print("datasource: ", datasource)
         if '__' in datasource:
             datasource_id, datasource_type = datasource.split('__')
         datasource_id = int(datasource_id)
@@ -262,6 +263,7 @@ class Online(BaseSupersetView):
 
             slc = Analysis(owners=[g.user] if g.user else [])
 
+        form_data['analysis_id'] = slc.id
         slc.params = json.dumps(form_data)
         slc.datasource_name = datasource_name
         slc.datasource_type = datasource_type
@@ -291,6 +293,8 @@ class Online(BaseSupersetView):
     def analysis(self, datasource_type=None, datasource_id=None):
         user_id = g.user.get_id() if g.user else None
         form_data, slc = self.get_form_data()
+        print("form_data: ", form_data)
+
         datasource_id, datasource_type = self.datasource_info(form_data,
             datasource_id, datasource_type)
 
@@ -356,12 +360,14 @@ class Online(BaseSupersetView):
             'datasource_id': datasource_id,
             'datasource_type': datasource_type,
             'datasource_name': datasource.name,
+            'name': slc.name,
+            'version': slc.version,
             'user_id': user_id,
         }
         table_name = datasource.table_name \
             if datasource_type == 'table' \
             else datasource.datasource_name
-        title = slc.slice_name if slc else 'Analysis - ' + table_name
+        title = slc.name if slc else 'Analysis - ' + table_name
         return self.render_template(
             'superset/basic.html',
             bootstrap_data=json.dumps(bootstrap_data),
