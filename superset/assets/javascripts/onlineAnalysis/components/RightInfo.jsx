@@ -12,10 +12,10 @@ class RightInfo extends Component {
             return(<div>暂时不存在值</div>)
 
         }else{
-            if(this.props.rightinfo.log ===[]){
+            // if(this.props.rightinfo.log ===[]){
                 this.props.get_log('code',this.props.leftmenu.form_data.log_dir_id);
-            }
-            return(<p>{ this.props.rightinfo.log }</p>)
+            // }
+            return(<div>{ this.props.rightinfo.log }</div>)
         }
 
     }
@@ -25,10 +25,10 @@ class RightInfo extends Component {
             return(<div>暂时不存在值</div>)
 
         }else{
-            if(this.props.rightinfo.image ===[]){
+            // if(this.props.rightinfo.image ===[]){
                 this.props.get_log('param',this.props.leftmenu.form_data.log_dir_id);
-            }
-            return(<p>{ this.props.rightinfo.image }</p>)
+            // }
+            return(<div>{ this.props.rightinfo.image }</div>)
         }
 
     }
@@ -40,7 +40,7 @@ class RightInfo extends Component {
             if(this.props.rightinfo.show ===[]){
                 this.props.get_log('image',this.props.leftmenu.form_data.log_dir_id);
             }
-            return(<p>{ this.props.rightinfo.show }</p>)
+            return(<div>{ this.props.rightinfo.show }</div>)
         }
     }
     render() {

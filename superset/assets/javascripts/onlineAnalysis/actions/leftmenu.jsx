@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { notification } from 'antd';
+import {notification} from 'antd';
 import {
     GET_ALLMODEL,
     SET_MODEL,
@@ -44,8 +44,11 @@ import {
     GET_ALL_FILTER_COLUMNS,
     SET_NAME,
     SET_VERSION,
-    LOG
+    CHOICE_VERSION,
+    LOG,
+    QUERY_RUN
 } from "../constants/leftmenu";
+import {get_log} from '../actions/rightinfo';
 
 // 获取所有模型名
 export const get_all_model = () => {
@@ -68,9 +71,9 @@ export const get_allmodel = (res) => {
 };
 
 //获取所有的可过滤的表字段
-export const get_all_filter_column = (id) =>{
+export const get_all_filter_column = (id) => {
     return dispatch => {
-        axios.get("/online/columns/table/"+id+"/")
+        axios.get("/online/columns/table/" + id + "/")
             .then(res => {
                 dispatch(get_all_columns(res));
             })
@@ -80,12 +83,12 @@ export const get_all_filter_column = (id) =>{
     }
 };
 
-export const get_all_columns = (res) =>{
-    return{
-        type:GET_ALL_FILTER_COLUMNS,
+export const get_all_columns = (res) => {
+    return {
+        type: GET_ALL_FILTER_COLUMNS,
         res
     }
-}
+};
 
 // 设置选择的模型名
 export const set_model = (model_name) => {
@@ -175,7 +178,7 @@ export const get_model_parameter = (name) => {
                 notification['error']({
                     message: '获取机器学习模型参数失败',
                     description: '获取机器学习模型参数失败,详情请咨询相关人员.',
-                  });
+                });
             })
     }
 };
@@ -188,13 +191,13 @@ export const get_modelparameter = (res) => {
 };
 
 //改变机器学习模型参数
-export const modify_parameter = (name,filter_name,value) =>{
-    return{
-        type:MODIFY_PARAMETER,
+export const modify_parameter = (name, filter_name, value) => {
+    return {
+        type: MODIFY_PARAMETER,
         name,
         filter_name,
         value
-        }
+    }
 };
 
 // 获取所有的缺失值
@@ -210,12 +213,12 @@ export const get_all_dealna = (sk_type, id) => {
             success: ((data) => {
                 dispatch(get_alldealna(data))
             }),
-            error: ((data,type,err) => {
-                console.log(data,type,err);
+            error: ((data, type, err) => {
+                console.log(data, type, err);
                 notification['error']({
                     message: '获取缺失值失败',
                     description: '获取缺失值必须选择模型名称,您可能未选择模型名,若您已选择,请咨询相关人员.',
-                  });
+                });
             }),
         })
     }
@@ -336,7 +339,7 @@ export const delete_dummy = (index) => {
 
 export const increament_correlation = () => {
     return {
-        type:INCREAMENT_CORRELATION
+        type: INCREAMENT_CORRELATION
     }
 
 };
@@ -382,7 +385,7 @@ export const delete_correlation = (index) => {
 
 // 查看数据分布
 
-export const watch_describe = (null_operate) =>{
+export const watch_describe = (null_operate) => {
     return dispatch => {
         $.ajax({
             type: 'POST',
@@ -399,17 +402,17 @@ export const watch_describe = (null_operate) =>{
     }
 };
 
-export const see_describe = (data) =>{
-    return{
-        type:WATCH_DESCRIBE,
+export const see_describe = (data) => {
+    return {
+        type: WATCH_DESCRIBE,
         data
     }
 };
 
 // 查看变量相关性
 
-export const watch_corr = (null_operate,datasource,sk_type) => {
-    const corr = {correlation_analysis:null_operate,sk_type:sk_type,datasource:datasource};
+export const watch_corr = (null_operate, datasource, sk_type) => {
+    const corr = {correlation_analysis: null_operate, sk_type: sk_type, datasource: datasource};
     return dispatch => {
         $.ajax({
             type: 'POST',
@@ -428,7 +431,7 @@ export const watch_corr = (null_operate,datasource,sk_type) => {
 
 export const see_corr = (data) => {
     return {
-        type:WATCH_CORR,
+        type: WATCH_CORR,
         data
     }
 };
@@ -436,26 +439,26 @@ export const see_corr = (data) => {
 
 // 增加跑模型数据集
 
-export const add_train_dataset = () =>{
-    return{
-        type:ADD_TRAIN
+export const add_train_dataset = () => {
+    return {
+        type: ADD_TRAIN
     }
 };
 
 // 删除跑模型数据集
 
 export const delete_train_dataset = (index) => {
-    return{
-        type:DELETE_TRAIN,
+    return {
+        type: DELETE_TRAIN,
         index
     }
 };
 
 // 修改跑模型数据集中的列名
 
-export const modify_train_col = (index,res) => {
-    return{
-        type:MODIFY_TRAIN_COL,
+export const modify_train_col = (index, res) => {
+    return {
+        type: MODIFY_TRAIN_COL,
         index,
         res
     }
@@ -463,9 +466,9 @@ export const modify_train_col = (index,res) => {
 
 // 修改跑模型数据集中的运算符
 
-export const modify_train_op = (index,res) => {
-    return{
-        type:MODIFY_TRAIN_OP,
+export const modify_train_op = (index, res) => {
+    return {
+        type: MODIFY_TRAIN_OP,
         index,
         res
     }
@@ -473,9 +476,9 @@ export const modify_train_op = (index,res) => {
 
 // 修改跑模型数据集中的值
 
-export const modify_train_val = (index, res) =>{
-    return{
-        type:MODIFY_TRAIN_VAL,
+export const modify_train_val = (index, res) => {
+    return {
+        type: MODIFY_TRAIN_VAL,
         index,
         res
     }
@@ -483,35 +486,35 @@ export const modify_train_val = (index, res) =>{
 
 // 增加验证数据集
 
-export const add_validate_datasets = () =>{
-    return{
-        type:ADD_VALIDATE_DATASETS
+export const add_validate_datasets = () => {
+    return {
+        type: ADD_VALIDATE_DATASETS
     }
 };
 
 // 增加验证数据集中的过滤条件
 
-export const add_val_filter = (index) =>{
-    return{
-        type:ADD_VALIDATE_FILTERS,
+export const add_val_filter = (index) => {
+    return {
+        type: ADD_VALIDATE_FILTERS,
         index
     }
 };
 
 // 删除验证数据集
 
-export const delete_validate_datasets = (index) =>{
-    return{
-        type:DELETE_VALIDATE_DATASETS,
+export const delete_validate_datasets = (index) => {
+    return {
+        type: DELETE_VALIDATE_DATASETS,
         index
     }
 };
 
 // 修改验证数据集名称
 
-export const modify_name = (index,res) => {
-    return{
-        type:MODIFY_VAL_NAME,
+export const modify_name = (index, res) => {
+    return {
+        type: MODIFY_VAL_NAME,
         index,
         res
     }
@@ -519,9 +522,9 @@ export const modify_name = (index,res) => {
 
 // 删除验证数据集中的过滤条件
 
-export const delete_vali_filters = (val_index,filter_index) => {
-    return{
-        type:DELETE_VALIDATE_FILTERS,
+export const delete_vali_filters = (val_index, filter_index) => {
+    return {
+        type: DELETE_VALIDATE_FILTERS,
         val_index,
         filter_index
     }
@@ -529,9 +532,9 @@ export const delete_vali_filters = (val_index,filter_index) => {
 
 // 修改验证数据集中过滤条件的列
 
-export const modify_filter_col = (val_index,filter_index,res) => {
-    return{
-        type:MODIFT_VALIDATE_FILTERS_COL,
+export const modify_filter_col = (val_index, filter_index, res) => {
+    return {
+        type: MODIFT_VALIDATE_FILTERS_COL,
         val_index,
         filter_index,
         res
@@ -540,9 +543,9 @@ export const modify_filter_col = (val_index,filter_index,res) => {
 
 // 修改验证数据集中过滤条件的判断符
 
-export const modify_filter_op = (val_index,filter_index,res) => {
-    return{
-        type:MODIFT_VALIDATE_FILTERS_OP,
+export const modify_filter_op = (val_index, filter_index, res) => {
+    return {
+        type: MODIFT_VALIDATE_FILTERS_OP,
         val_index,
         filter_index,
         res
@@ -551,18 +554,25 @@ export const modify_filter_op = (val_index,filter_index,res) => {
 
 // 修改验证数据集中过滤条件的值
 
-export const modify_filter_val = (val_index,filter_index,res) => {
-    return{
-        type:MODIFT_VALIDATE_FILTERS_VAL,
+export const modify_filter_val = (val_index, filter_index, res) => {
+    return {
+        type: MODIFT_VALIDATE_FILTERS_VAL,
         val_index,
         filter_index,
         res
     }
 };
 
+// 开始跑模型
+export const query_run = () => {
+    return {
+        type: QUERY_RUN
+    }
+};
+
 // 跑模型
 
-export const run_model = (form_data) =>{
+export const run_model = (form_data) => {
     return dispatch => {
         $.ajax({
             type: 'POST',
@@ -571,53 +581,54 @@ export const run_model = (form_data) =>{
                 form_data: JSON.stringify(form_data),
             },
             success: ((data) => {
-                dispatch(run_models(data))
+                dispatch(run_models(data));
+
             }),
-            error: ((data,type,err) => {
-                console.log(data,type,err);
+            error: ((data, type, err) => {
+                console.log(data, type, err);
                 notification['error']({
                     message: '获取缺失值失败',
                     description: '获取缺失值必须选择模型名称,您可能未选择模型名,若您已选择,请咨询相关人员.',
-                  });
+                });
             }),
         })
     }
 };
 
 export const run_models = (data) => {
-    return{
-        type:RUN,
+    return {
+        type: RUN,
         data
     }
 };
 
 // 设置分析模型名称
 
-export const set_name = (name) =>{
-    return{
-        type:SET_NAME,
+export const set_name = (name) => {
+    return {
+        type: SET_NAME,
         name
     }
 };
 
 // 设置分析模型版本名称
 
-export const set_version = (name) =>{
-    return{
-        type:SET_VERSION,
+export const set_version = (name) => {
+    return {
+        type: SET_VERSION,
         name
     }
 };
 
 // 保存模型
 
-export const save_allmodal = (form_data,id,action,name,version) =>{
+export const save_allmodal = (form_data, id, action, name, version) => {
     delete form_data.version;
     delete form_data.analysis_name;
     return dispatch => {
         $.ajax({
             type: 'POST',
-            url: "/online/analysis/table/"+id+'/?action='+action+'&name='+name+'&version='+version,
+            url: "/online/analysis/table/" + id + '/?action=' + action + '&name=' + name + '&version=' + version,
             data: {
                 form_data: JSON.stringify(form_data),
             },
@@ -625,21 +636,29 @@ export const save_allmodal = (form_data,id,action,name,version) =>{
                 console.log(data);
                 dispatch(save_all_model(data))
             }),
-            error: ((data,type,err) => {
-                console.log(data,type,err);
+            error: ((data, type, err) => {
+                console.log(data, type, err);
                 notification['error']({
                     message: '保存模型失败',
                     description: '详情请咨询相关人员.',
-                  });
+                });
             }),
         })
     }
 };
 
-export const save_all_model = (data) =>{
+export const save_all_model = (data) => {
     return {
-        type:"aaa",
+        type: "aaa",
         data
     }
 };
 
+// 设置版本号
+
+export const choice_version = (res) => {
+    return {
+        type: CHOICE_VERSION,
+        res
+    }
+};

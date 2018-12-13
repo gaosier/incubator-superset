@@ -15,6 +15,7 @@ class DataModeling extends Component {
         };
         this.toggleModal = this.toggleModal.bind(this);
         this.onEnterModel = this.onEnterModel.bind(this);
+        this.closeModal = this.closeModal.bind(this);
     }
 
     close_model(){
@@ -32,6 +33,10 @@ class DataModeling extends Component {
 
 
         // console.log('param',this.props.leftmenu.form_data.model_param);
+    }
+
+    closeModal(){
+        this.setState({show_Modal: !this.state.show_Modal});
     }
 
     onEnterModel() {
@@ -139,7 +144,7 @@ class DataModeling extends Component {
         return (
             <Modal
                 show={this.state.show_Modal}
-                onHide={this.toggleModal}
+                onHide={this.closeModal}
                 onEnter={this.onEnterModal}
                 bsSize="lg">
                 <Modal.Header closeButton>

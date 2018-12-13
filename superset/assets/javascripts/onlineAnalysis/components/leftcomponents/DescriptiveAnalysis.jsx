@@ -323,10 +323,7 @@ class DescriptiveAnalysis extends Component {
         )
     }
     see_corr(){
-        console.log(1111,this.props.leftmenu.form_data.correlation_analysis_image);
-        if(this.props.leftmenu.form_data.correlation_analysis_image.name===null){
             this.props.watch_corr(this.props.leftmenu.form_data.correlation_analysis,this.props.leftmenu.form_data.datasource,this.props.leftmenu.form_data.sk_type);
-        }
         this.setState({
             show_corrModal:!this.state.show_corrModal
         })
@@ -361,7 +358,7 @@ class DescriptiveAnalysis extends Component {
                 <Modal.Header closeButton>
                     <Modal.Title>查看变量相关性</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body id="corr">
                     {this.onEnterModal()}
                 </Modal.Body>
                 <Modal.Footer>

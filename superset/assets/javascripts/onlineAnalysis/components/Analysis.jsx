@@ -15,7 +15,7 @@ class Analysis extends Component {
         <div className="container-fluid">
           <div className="row">
             <div className="col-sm-4">
-              <LeftMenu leftmenu={this.props.leftmenu}/>
+              <LeftMenu />
             </div>
 
             <div className="col-sm-8">
