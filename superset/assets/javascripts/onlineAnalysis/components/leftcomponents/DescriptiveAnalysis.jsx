@@ -220,9 +220,9 @@ class DescriptiveAnalysis extends Component {
 
     render_dealina() {
         const keys = Object.keys(this.props.leftmenu.all_dealina);
-        return keys.map(key => (
+        return keys.map((key,index) => (
 
-            <tr>
+            <tr key={index}>
                 <td>
                     {key}
                 </td>
@@ -288,9 +288,11 @@ class DescriptiveAnalysis extends Component {
                     <Modal.Title>缺失值处理</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div><span>操作</span>
+                    <div id="caozuo"><span>操作:</span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
                         <RadioGroup onChange={this.onChange} value={this.state.value}>
                             <Radio value="fill">填充</Radio>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <Radio value="delete">删除</Radio>
                         </RadioGroup>
                     </div>

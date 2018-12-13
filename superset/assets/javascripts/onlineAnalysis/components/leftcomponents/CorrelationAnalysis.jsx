@@ -12,7 +12,11 @@ import {
 class CorrelationAnalysis extends Component {
     constructor(props) {
         super(props);
-    }
+        this.state={
+            matplob:false,
+            seaborn:false,
+        }}
+
 
 
     delete_corre() {
@@ -28,6 +32,17 @@ class CorrelationAnalysis extends Component {
     }
 
     change_select_props(value) {
+        if(value==='seaborn'){
+            this.setState({
+                matplob:false,
+                seaborn:true,
+            })
+        }else{
+            this.setState({
+                matplob:true,
+                seaborn:false,
+            })
+        }
         this.props.modify_correlation_two(this.props.correlation_key, value);
     }
 
@@ -48,7 +63,7 @@ class CorrelationAnalysis extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_props.bind(this)}
                 >
-                    <Select.Option key={1} value="matloplib">matloplib</Select.Option>
+                    <Select.Option key={1} value="matplotlib">matplotlib</Select.Option>
                     <Select.Option key={2} value="seaborn">seaborn</Select.Option>
 
                 </Select>
@@ -63,13 +78,30 @@ class CorrelationAnalysis extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_props.bind(this)}
                 >
-                    <Select.Option key={1} value="matloplib">matloplib</Select.Option>
+                    <Select.Option key={1} value="matplotlib">matplotlib</Select.Option>
                     <Select.Option key={2} value="seaborn">seaborn</Select.Option>
 
                 </Select>
             )
         }
     }
+
+    render_value(){
+        const a = ['line','bar','barh','hist','box','kde','density','area','pie','scatter','hexbin'];
+        const b = ['boxplot','violinplot','striplot','swarmplot','barplot','countplot','factorplot','heatmap'];
+        if(this.state.matplob){
+            return (a.map((res,index) => {
+                return (<Select.Option key={index} value={res}>{res}</Select.Option>)
+            }))
+        }else if(this.state.seaborn){
+             return (b.map((res,index) => {
+                return (<Select.Option key={index} value={res}>{res}</Select.Option>)
+            }))
+        }else{
+
+        }
+    }
+
 
     render_draw_type() {
         if (this.props.handle_type === 0) {
@@ -82,8 +114,8 @@ class CorrelationAnalysis extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_type.bind(this)}
                 >
-                    <Select.Option key={1} value="pie">pie</Select.Option>
-                    <Select.Option key={2} value="countplot">countplot</Select.Option>
+                    {this.render_value()}
+
 
                 </Select>
             )
@@ -97,9 +129,7 @@ class CorrelationAnalysis extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_type.bind(this)}
                 >
-                    <Select.Option key={1} value="pie">pie</Select.Option>
-                    <Select.Option key={2} value="countplot">countplot</Select.Option>
-
+                    {this.render_value()}
                 </Select>
             )
         }
@@ -110,6 +140,7 @@ class CorrelationAnalysis extends Component {
             return (
                 <Select
                     value={undefined}
+                    mode="multiple"
                     style={{width: 484}}
                     placeholder="请选择列名"
                     showSearch
@@ -123,6 +154,7 @@ class CorrelationAnalysis extends Component {
             return (
                 <Select
                     style={{width: 484}}
+                    mode="multiple"
                     value={this.props.field}
                     showSearch
                     placeholder="请选择列名"
