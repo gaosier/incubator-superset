@@ -25,9 +25,9 @@ class RightInfo extends Component {
             return(<div>暂时不存在值</div>)
 
         }else{
-            // if(this.props.rightinfo.image ===[]){
+            if(this.props.rightinfo.image ===[]){
                 this.props.get_log('param',this.props.leftmenu.form_data.log_dir_id);
-            // }
+            }
             return(<div>{ this.props.rightinfo.image }</div>)
         }
 
