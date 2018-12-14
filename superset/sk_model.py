@@ -842,6 +842,10 @@ class MixedLR(BaseSkModel):
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_dataset()
 
         model_data = pd.concat([self.X_train, self.y_train], axis=1)
+        ana_code_logger.info("R model data: %s" % model_data.head(10))
+        ana_code_logger.info("R model data shape: %s" % str(model_data.shape))
+        ana_code_logger.info("self.X_train.isnull().sum(): %s" % self.X_train.isnull().sum())
+        ana_code_logger.info("self.X_train.shape: %s           self.y_train.shape:%s" % (str(self.X_train.shape), str(self.y_train.shape)))
 
         X_train_r = pandas2ri.py2ri(model_data)
         predictors_vec = robjects.StrVector(self.predictors_vec)
