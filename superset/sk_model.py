@@ -194,9 +194,6 @@ class BaseSkModel(object):
             bins = self.str_to_list(bins)
             labels = self.str_to_list(labels)
 
-            print("bins: ", bins)
-            print("labels: ", labels)
-
             if not field or (not bins) or (not labels):
                 return df
             col = pd.cut(df[field], bins=bins, labels=labels)
@@ -302,6 +299,7 @@ class BaseSkModel(object):
         filters = self.form_data.get("train_dataset", [])
 
         new_df = self.get_filter_data(new_df, filters)
+        ana_code_logger.info("[训练集和测试集]: shape:%s\n      head(10): %s\n" % (str(new_df.shape), new_df.head(10)))
         return new_df
 
     def get_validate_dataset(self):
@@ -333,9 +331,7 @@ class BaseSkModel(object):
         """
         获取3个logger生成的日志的路径
         """
-        analysis_id = self.form_data.get("analysis_id")
-        if not analysis_id:
-            analysis_id = str(uuid.uuid1())
+        analysis_id = str(uuid.uuid1())
 
         for logger in [ana_code_logger, ana_param_logger, ana_image_logger]:
             for handler in logger.handlers:
@@ -584,7 +580,7 @@ class GeneraLR(BaseSkModel):
         ana_code_logger.info("model_params: %s" % model_params)
 
         X = df[self.x_col]
-        y = df[self.y_col]
+        y = df[self.y_col[0]]
 
         test_size = model_params.get("train_test_split").get("test_size")
         random_state = model_params.get("train_test_split").get("random_state")
@@ -595,39 +591,45 @@ class GeneraLR(BaseSkModel):
                                                             stratify=df[stratify])
 
         X_train_intercept = np.concatenate(
-            [np.ones(X_train.shape[0]).reshape(X_train.shape[0], 1), X_train[explanatory_cols]], axis=1)
-        X_test_intercept = np.concatenate(
-            [np.ones(X_test.shape[0]).reshape(X_test.shape[0], 1), X_test[explanatory_cols]], axis=1)
+            [np.ones(X_train.shape[0]).reshape(X_train.shape[0], 1), X_train[explanatory_cols].values], axis=1)
+        ana_code_logger.info("type(X_train_intercept): %s " % (type(X_train_intercept)))
 
-        lr_model = sm.Logit(y_train, X_train_intercept)
+        X_test_intercept = np.concatenate(
+            [np.ones(X_test.shape[0]).reshape(X_test.shape[0], 1), X_test[explanatory_cols].values], axis=1)
+        ana_code_logger.info("type(X_test_intercept): %s " % (type(X_test_intercept)))
+
+        lr_model = sm.Logit(y_train.astype(float), X_train_intercept.astype(float))
         lr_model_results = lr_model.fit()
         ana_param_logger.info('LR Model Summary: \n')
 
         ana_param_logger.info(lr_model_results.summary2())
 
-        utility_scores_tr = np.dot(X_train_intercept, lr_model_results.params.values)
-        utility_scores_ts = np.dot(X_test_intercept, lr_model_results.params.values)
+        utility_scores_tr = np.dot(X_train_intercept, lr_model_results.params.values).astype(float)
+        ana_code_logger.info("utility_scores_tr.dtype: %s" % utility_scores_tr.dtype)
 
-        lr_pred_probs_tr = np.exp(utility_scores_tr) / (1.0 + np.exp(utility_scores_tr))
-        lr_pred_probs_ts = np.exp(utility_scores_ts) / (1.0 + np.exp(utility_scores_ts))
+        utility_scores_ts = np.dot(X_test_intercept, lr_model_results.params.values).astype(float)
+        ana_code_logger.info("utility_scores_ts.dtype: %s" % utility_scores_ts.dtype)
 
-        ana_param_logger.info('AUC on training data... \n')
-        ana_param_logger.info(roc_auc_score(y_train, lr_pred_probs_tr))
-        ana_param_logger.info('\nAUC on testing data... \n')
-        ana_param_logger.info(roc_auc_score(y_test, lr_pred_probs_ts))
+        lr_pred_probs_tr = np.exp(utility_scores_tr) / (1 + np.exp(utility_scores_tr))
+        lr_pred_probs_ts = np.exp(utility_scores_ts) / (1 + np.exp(utility_scores_ts))
 
-        ap_tr = average_precision_score(y_train, lr_pred_probs_tr)
-        ap_ts = average_precision_score(y_test, lr_pred_probs_ts)
+        ana_param_logger.info('AUC on training data:  %s\n  ' % roc_auc_score(y_train, lr_pred_probs_tr))
+        ana_param_logger.info('AUC on testing data: %s\n  ' % roc_auc_score(y_test, lr_pred_probs_ts))
 
-        ana_param_logger.info('AUPR on training data is %5.3f ... \n' % ap_tr)
-        ana_param_logger.info('\nAUPR on testing data is %5.3f ... \n' % ap_ts)
+
+        ana_code_logger.info("y_train: %s" % np.unique(y_train))
+        ap_tr = average_precision_score(y_train.astype(float), lr_pred_probs_tr)
+        ap_ts = average_precision_score(y_test.astype(float), lr_pred_probs_ts)
+
+        ana_param_logger.info('AUPR on training data is %s\n' % round(ap_tr, 3))
+        ana_param_logger.info('AUPR on testing data is %s\n' % round(ap_ts, 3))
 
         lr_pred_label_tr = pd.Series(lr_pred_probs_tr).apply(lambda x: 1 if x > 0.5 else 0)
         lr_pred_label_ts = pd.Series(lr_pred_probs_ts).apply(lambda x: 1 if x > 0.5 else 0)
-        ana_param_logger.info('Precison on training data is %5.3f ... \n' % precision_score(y_train, lr_pred_label_tr))
-        ana_param_logger.info('Recall on training data is %5.3f ... \n' % recall_score(y_train, lr_pred_label_tr))
-        ana_param_logger.info('Precison on test data is %5.3f ... \n' % precision_score(y_test, lr_pred_label_ts))
-        ana_param_logger.info('Recall on test data is %5.3f ... \n' % recall_score(y_test, lr_pred_label_ts))
+        ana_param_logger.info('Precison on training data is: %s \n' % round(precision_score(y_train.astype(float),lr_pred_label_tr), 3))
+        ana_param_logger.info('Recall on training data is: %s \n' % round(recall_score(y_train.astype(float), lr_pred_label_tr), 3))
+        ana_param_logger.info('Precison on test data is: %s \n' % round(precision_score(y_test.astype(float), lr_pred_label_ts), 3))
+        ana_param_logger.info('Recall on test data is: %s \n' % round(recall_score(y_test.astype(float), lr_pred_label_ts),3))
 
         self.X_train = X_train
         self.X_test = X_test
@@ -642,6 +644,37 @@ class GeneraLR(BaseSkModel):
         df = self.get_dealed_df()
         data = self.get_train_test_dataset(df)
         self.lr_model(data)
+
+    def run(self):
+        status = True
+        err_msg = log_dir_id = execl_sl = execl_bs = None
+        try:
+            log_dir_id = self.get_log_path()
+            self.train_models()
+            self.validate_models()
+
+            # 生成输出的df
+            train_df_exc = pd.concat([self.X_train, self.y_train], axis=1)
+            test_df_exc = pd.concat([self.X_test, self.y_test], axis=1)
+
+            validate_df_exc = [df for df in self.validate_datasets]
+
+            datas = {"sl": [train_df_exc, test_df_exc, validate_df_exc], "bs": [validate_df_exc]}
+
+            execl_files = []
+            for key, data in datas.items():
+                filename = "%s_%s.xlsx" % (str(uuid.uuid1()), key)
+                ana_code_logger.info("excel filenam: %s" % filename)
+
+                execl_files.append(filename)
+                file_path = os.path.join(config.get("UPLOAD_FOLDER"), filename)
+                self.excelAddSheet(data, file_path)
+            execl_sl, execl_bs = execl_files
+        except Exception as exc:
+            status = False
+            err_msg = str(exc)
+            ana_code_logger.error("error: %s" % exc)
+        return log_dir_id, execl_sl, execl_bs, status, err_msg
 
 
 class MixedLR(BaseSkModel):
@@ -711,22 +744,24 @@ class MixedLR(BaseSkModel):
 
     def deal_data(self, data):
         random_effects = self.model_rest.get("random_effects")  # 随机效应
-        ana_code_logger.info("随机效应: random_effects:%s" % random_effects.head(10))
+        ana_code_logger.info("[随机效应] ====> random_effects:\n %s\n" % random_effects.head(10))
 
         # 合并数据集
         X_test= pd.merge(data, random_effects, on=self.master_factor, how='left')
 
         # left join后去空
         if X_test.isnull().sum().sum() > 0:
+            ana_code_logger.info("[随机效应合并之后的数据的空值]:\n %s\n" % X_test.isnull().sum().sum())
             X_test = X_test.dropna()
-        ana_code_logger.info("X_test: %s\n" % X_test.head(10))
+
+        ana_code_logger.info("[随机效应合并之后的数据集]:\n %s\n" % X_test.head(10))
 
         # 计算测试集的score
         fixed_effects = self.model_rest.get("fixed_effects")
-        ana_code_logger.info("type(fixed_effects): %s\n\n   fixed_effects: %s" % (type(fixed_effects), fixed_effects))
+        ana_code_logger.info("[固定效应] ===> fixed_effects: %s" % fixed_effects)
 
         pre_test = X_test[self.predictors_vec]
-        ana_code_logger.info("pre_test.shape: %s" % str(pre_test.shape))
+        ana_code_logger.info("[预测变量数据集]:\n %s\n" % str(pre_test.shape))
 
         score = np.zeros((pre_test.shape[0],))
         count = 0
@@ -743,7 +778,7 @@ class MixedLR(BaseSkModel):
 
         # 计算测试集预测概率
         X_test['pred_probs'] = np.exp(score) / (np.exp(score) + 1)
-        ana_code_logger.info("预测概率: %s" % X_test.head(10))
+        ana_code_logger.info("[得到预测概率之后的数据集]:\n %s\n" % X_test)
 
         # 计算模型参数
         self.calculate_model_param(self.y_test, X_test['pred_probs'].apply(change), title='test')
@@ -826,17 +861,28 @@ class MixedLR(BaseSkModel):
         # 合并数据
         ana_code_logger.info(" =============== 合并数据 ========================")
         predicted = rest.get("predicted_probabilities")
-        ana_code_logger.info("predicted.isnull().sum(): %s" % predicted.isnull().sum())
+        ana_code_logger.info("[预测概率] ====> predicted: %s\n" % predicted.head(20))
+
+        # 改变索引
+        end = len(self.X_train.index)
+        self.X_train.index = pd.RangeIndex(0, end)
+
         self.X_train['predicted_probs_without_rand'] = predicted['predicted_probs_without_rand']
         self.X_train['predicted_probs_with_rand'] = predicted['predicted_probs_with_rand']
 
-        ana_code_logger.info("self.X_train.isnull().sum(): %s" % self.X_train.isnull().sum())
-        ana_code_logger.info("self.X_train: %s" % self.X_train.head(10))
+        ana_code_logger.info("self.X_train.isnull().sum(): %s\n" % self.X_train.isnull().sum())
+        ana_code_logger.info("self.X_train[predicted_probs_without_rand].isnull().sum(): %s\n" %
+                             self.X_train['predicted_probs_without_rand'].isnull().sum())
+
+        ana_code_logger.info("self.X_train['predicted_probs_without_rand']: %s" %
+                             str(self.X_train['predicted_probs_without_rand'].shape))
+        ana_code_logger.info("[合并之后的训练集] ===> %s\n" % self.X_train.head(20))
 
         # 计算模型参数
         ana_code_logger.info(" ========= 计算模型参数 =============== ")
 
-        self.calculate_model_param(self.y_train.to_frame(), predicted['predicted_probs_with_rand'].apply(change).to_frame())
+        self.calculate_model_param(self.y_train.to_frame(),
+                                   self.X_train['predicted_probs_with_rand'].apply(change).to_frame())
 
         self.model_rest = rest
 
