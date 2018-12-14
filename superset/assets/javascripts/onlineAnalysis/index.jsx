@@ -20,15 +20,14 @@ initJQueryAjax(); // 设置token
 const analysisViewContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(analysisViewContainer.getAttribute('data-bootstrap'));
 
-
 const  initState = {
     leftmenu: {
         form_data:{
             datasource:bootstrapData.form_data.datasource || "158__table",
-            version: bootstrapData.form_data.version || '',
+            version: bootstrapData.version || '',
             sk_type: bootstrapData.form_data.sk_type || '',
             analysis_id: bootstrapData.form_data.analysis_id || '',
-            analysis_name: bootstrapData.form_data.analysis_name || '',
+            analysis_name: bootstrapData.name || '',
             null_operate: bootstrapData.form_data.null_operate || {
                 operate: '',
                 detail:[]
@@ -61,7 +60,8 @@ const  initState = {
                 metrics:[]
             },
             all_choice_column:[],
-            all_select_column:[]
+            all_select_column:[],
+            triggerQuery:true
         },
         datasource_name: bootstrapData.datasource_name || '',
         datasource_id: bootstrapData.datasource_id || 0,

@@ -61,10 +61,12 @@ const leftmenu = (state = {}, action = {}) => {
         return Object.assign({}, state,{form_data:new_form_data});
 
       case GET_ALL_VERSION:
-        const form_data_verison = Object.assign({},state.form_data);
-        const verison_form_data = Object.assign({},form_data_verison,{versions:action.res.data});
-        console.log(Object.assign({}, state, {form_data: verison_form_data}));
-        return Object.assign({}, state, {form_data: verison_form_data});
+        // const form_data_verison = Object.assign({},state.form_data);
+        // const verison_form_data = Object.assign({},form_data_verison,{versions:action.res.data});
+        // console.log(Object.assign({}, state, {form_data: verison_form_data}));
+        // return Object.assign({}, state, {form_data: verison_form_data});
+          const slice_version = Object.assign({},state.slice,{all_version:action.res.data});
+          return Object.assign({},state,{slice:slice_version});
 
       case GET_ALL_DATASOURCE:
         const slice_datasource = Object.assign({},state.slice);

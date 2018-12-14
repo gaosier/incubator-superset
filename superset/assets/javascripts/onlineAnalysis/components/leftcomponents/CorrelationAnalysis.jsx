@@ -12,11 +12,11 @@ import {
 class CorrelationAnalysis extends Component {
     constructor(props) {
         super(props);
-        this.state={
-            matplob:false,
-            seaborn:false,
-        }}
-
+        this.state = {
+            matplob: false,
+            seaborn: false,
+        }
+    }
 
 
     delete_corre() {
@@ -32,22 +32,22 @@ class CorrelationAnalysis extends Component {
     }
 
     change_select_props(value) {
-        if(value==='seaborn'){
+        if (value === 'seaborn') {
             this.setState({
-                matplob:false,
-                seaborn:true,
+                matplob: false,
+                seaborn: true,
             })
-        }else{
+        } else {
             this.setState({
-                matplob:true,
-                seaborn:false,
+                matplob: true,
+                seaborn: false,
             })
         }
         this.props.modify_correlation_two(this.props.correlation_key, value);
     }
 
     render_select() {
-        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+        return (this.props.leftmenu.slice.all_select_column.map((res, index) => {
             return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
         }))
     }
@@ -86,18 +86,18 @@ class CorrelationAnalysis extends Component {
         }
     }
 
-    render_value(){
-        const a = ['line','bar','barh','hist','box','kde','density','area','pie','scatter','hexbin'];
-        const b = ['boxplot','violinplot','striplot','swarmplot','barplot','countplot','factorplot','heatmap'];
-        if(this.state.matplob){
-            return (a.map((res,index) => {
+    render_value() {
+        const a = ['line', 'bar', 'barh', 'hist', 'box', 'kde', 'density', 'area', 'pie', 'scatter', 'hexbin'];
+        const b = ['boxplot', 'violinplot', 'striplot', 'swarmplot', 'barplot', 'countplot', 'factorplot', 'heatmap'];
+        if (this.state.matplob) {
+            return (a.map((res, index) => {
                 return (<Select.Option key={index} value={res}>{res}</Select.Option>)
             }))
-        }else if(this.state.seaborn){
-             return (b.map((res,index) => {
+        } else if (this.state.seaborn) {
+            return (b.map((res, index) => {
                 return (<Select.Option key={index} value={res}>{res}</Select.Option>)
             }))
-        }else{
+        } else {
 
         }
     }

@@ -19,7 +19,7 @@ class LeftMenu extends Component {
             name:this.props.leftmenu.form_data.analysis_name,
             version:this.props.leftmenu.form_data.version
         };
-        // this.toggle_modal = this.toggle_modal.bind(this);
+        this.toggle_modal = this.toggle_modal.bind(this);
     }
 
     run_modul(){
@@ -28,6 +28,12 @@ class LeftMenu extends Component {
 
 
     save_model(){
+        this.setState({
+            show_save_modal:!this.state.show_save_modal
+        })
+    }
+
+    toggle_modal(){
         this.setState({
             show_save_modal:!this.state.show_save_modal
         })

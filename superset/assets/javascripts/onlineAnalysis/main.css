@@ -26,6 +26,9 @@ pre{
 div#describeModal{
     overflow: auto;
 }
+div#corr{
+    overflow: auto;
+}
 label#fill{
     position: relative;
     left: 30px;

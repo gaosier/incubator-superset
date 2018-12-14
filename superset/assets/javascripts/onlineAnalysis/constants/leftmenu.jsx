@@ -45,3 +45,7 @@ export const GET_ALL_FILTER_COLUMNS = "GET_ALL_FILTER_COLUMNS";
 export const SET_VERSION = "SET_VERSION";
 export const SET_NAME = "SET_NAME";
 export const LOG = "LOG";
+export const IMAGE = "IMAGE";
+export const PARAM = "PARAM";
+export const QUERY_RUN = "QUERY_RUN";
+export const CHOICE_VERSION = "CHOICE_VERSION";

@@ -2,7 +2,7 @@
 // 根据模型id获取到img,log所有的
 
 import axios from "axios/index";
-import {LOG} from "../constants/leftmenu";
+import { LOG ,PARAM, IMAGE} from "../constants/leftmenu";
 
 export const get_log= (name, id) =>{
     return dispatch => {
@@ -60,4 +60,4 @@ export const save_image = (res) =>{
         type:IMAGE,
         res
     }
-}
+};

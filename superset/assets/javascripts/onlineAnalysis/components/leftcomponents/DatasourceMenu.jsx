@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {  Select, Button, Icon } from 'antd';
-import {get_all_model, getcode, set_model, get_all_filter_column} from '../../actions/leftmenu';
+import {get_all_model, getcode, set_model, get_all_filter_column,get_all_version} from '../../actions/leftmenu';
 import {connect} from "react-redux";
 import {
     Modal
@@ -35,10 +35,17 @@ class DatasourceMenu extends Component {
         }
     }
     show_all_version_name(){
+        this.props.get_all_version(this.props.leftmenu.analysis_name);
+    }
+    change_version(value){
 
     }
-    change_version(){
-
+    render_version(){
+        Object.keys(this.props.leftmenu.slice.all_version).map((dum,index) =>{
+            return(
+                <Select.option key={index} value={dum}>{dum}</Select.option>
+            )
+        })
     }
     change_model(value){
         if(value===undefined){
@@ -49,7 +56,7 @@ class DatasourceMenu extends Component {
     }
     render_modal_options(){
         return this.props.leftmenu.slice.all_model.map((element,index) =>
-      <Select.Option   key={index} value={element}> {element}</Select.Option>);
+            <Select.Option   key={index} value={element}> {element}</Select.Option>);
     }
     toggleCode() {
         this.setState({show_code_modal: !this.state.show_code_modal});
@@ -148,17 +155,14 @@ class DatasourceMenu extends Component {
             return(
                 <div>
                     <Select
-                        defaultValue={this.props.leftmenu.form_data.analysis_name}
+                        value={this.props.leftmenu.form_data.analysis_name}
                         showSearch
                         style={{width: 200}}
                         searchPlaceholder="输入"
                         onFocus={this.show_all_version_name.bind(this)}
                         onChange={this.change_version.bind(this)}
                     >
-                        <Select.Option value="jack">jack</Select.Option>
-                        <Select.Option value="lucy">lucy</Select.Option>
-                        <Select.Option value="disabled">disabled</Select.Option>
-                        <Select.Option value="yiminghe">yiminghe</Select.Option>
+                        {this.render_version()}
                     </Select>
                 </div>
             )
@@ -194,4 +198,4 @@ const mapStateToProps = (state) => {
         leftmenu:state.leftmenu,
     }
 };
-export default connect(mapStateToProps,{ get_all_model, set_model,get_all_filter_column })(DatasourceMenu);
+export default connect(mapStateToProps,{ get_all_model, set_model,get_all_filter_column,get_all_version })(DatasourceMenu);
