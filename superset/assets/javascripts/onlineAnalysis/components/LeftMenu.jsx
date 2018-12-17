@@ -1,28 +1,33 @@
 import React, { Component } from 'react';
-import { Collapse, Button, Icon, Input } from 'antd';
+import { Collapse, Button, Icon, Input, Radio, notification } from 'antd';
 import { connect } from 'react-redux';
 import 'antd/dist/antd.css';
 import DatasourceMenu from './leftcomponents/DatasourceMenu';
 import DescriptiveAnalysis from "./leftcomponents/DescriptiveAnalysis";
 import DataPreprocessing from "./leftcomponents/DataPreprocessing";
 import DataModeling from "./leftcomponents/DataModeling";
-import { run_model,set_name, set_version,save_allmodal } from '../actions/leftmenu';
+import {run_model, set_name, set_version, set_run, save_all_model} from '../actions/leftmenu';
 import { Modal } from 'react-bootstrap';
 
 const Panel = Collapse.Panel;
+const RadioGroup = Radio.Group;
 class LeftMenu extends Component {
 
     constructor(props){
         super(props);
         this.state={
             show_save_modal:false,
+            chose_action:'saveas',
             name:this.props.leftmenu.form_data.analysis_name,
-            version:this.props.leftmenu.form_data.version
+            version:this.props.leftmenu.form_data.version,
+            saves_name:'',
         };
         this.toggle_modal = this.toggle_modal.bind(this);
+        this.save_allmodal = this.save_allmodal.bind(this);
     }
 
     run_modul(){
+        this.props.set_run();
         this.props.run_model(this.props.leftmenu.form_data);
     }
 
@@ -52,7 +57,7 @@ class LeftMenu extends Component {
                 <div>
                     <span>分析模型名称</span>
                     <Input
-                        value={undefined}
+                        value={this.state.saves_name}
                         placeholder="请输入分析模型名称"
                         onChange={this.change_name.bind(this)}
                     />
@@ -62,21 +67,34 @@ class LeftMenu extends Component {
                 </div>
             )
         }else{
+            const radioStyle = {
+              display: 'block',
+              height: '30px',
+              lineHeight: '30px',
+            };
             return(
                 <div>
                 <div>
-                    <span>分析模型名称</span>
-                    <Input
-                        value={this.state.name}
+                    <RadioGroup onChange={this.change_action.bind(this)} value={this.state.chose_action}>
+                        <Radio style={radioStyle} value="overwrite">更新 {this.state.name}</Radio>
+                        <Radio style={radioStyle} value="saveas">另存为
+                            {this.state.chose_action === 'saveas' ? <Input
+                        value={this.state.saves_name}
                         placeholder="请输入分析模型名称"
-                        onChange={this.change_name.bind(this)}
-                    />
-
+                        onChange={this.change_saves_name.bind(this)}
+                    />: null}</Radio>
+                    </RadioGroup>
                 </div>
                     {this.render_version()}
                 </div>
             )
         }
+    }
+    change_action(e){
+        console.log(e.target.value);
+        this.setState({
+            chose_action:e.target.value
+        })
     }
     model_save(){
         this.props.set_name(this.state.name);
@@ -85,14 +103,14 @@ class LeftMenu extends Component {
             show_save_model:!this.state.show_save_model
         });
         console.log(111,this.props.leftmenu.form_data.analysis_id);
-        if(this.props.leftmenu.form_data.analysis_id === ''){
-            console.log('saves');
-            var action = "saveas";
-        }else{
-            var action = "overwrite";
-            console.log('overwrite');
+        if(this.state.chose_action === 'saveas'){
+            this.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,this.state.chose_action,this.state.saves_name,this.state.version);
+            // this.props.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,this.state.chose_action,this.state.saves_name,this.state.version);
+        }else if(this.state.chose_action === 'overwrite'){
+            this.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,this.state.chose_action,this.state.saves_name,this.state.version);
+            // this.props.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,this.state.chose_action,this.state.name,this.state.version);
         }
-        this.props.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,action,this.state.name,this.state.version);
+
     }
     render_version(){
         if(this.state.version === ''){
@@ -119,6 +137,34 @@ class LeftMenu extends Component {
             )
         }
     }
+    save_allmodal(form_data, id, action, name, version){
+        delete form_data.version;
+        delete form_data.analysis_name;
+        $.ajax({
+            type: 'POST',
+            url: "/online/analysis/table/" + id + '/?action=' + action + '&name=' + name + '&version=' + version,
+            data: {
+                form_data: JSON.stringify(form_data),
+            },
+            success: ((data) => {
+                console.log(data);
+                const analysis_id = data.slice.id;
+                console.log(analysis_id);
+                const url = window.location.href.split('?')[0];
+                console.log(url);
+                const new_url = encodeURI(url+'?form_data={"analysis_id":'+analysis_id+'}');
+                console.log(new_url);
+                window.open(new_url,'_self');
+            }),
+            error: ((data, type, err) => {
+                console.log(data, type, err);
+                notification['error']({
+                    message: '保存模型失败',
+                    description: '详情请咨询相关人员.',
+                });
+            }),
+        })
+    }
     change_version(e){
         this.setState({
             version:e.target.value
@@ -127,7 +173,12 @@ class LeftMenu extends Component {
 
     change_name(e){
         this.setState({
-            name:e.target.value
+            saves_name:e.target.value
+        })
+    }
+    change_saves_name(e){
+        this.setState({
+            saves_name:e.target.value
         })
     }
     render_save_modal(){
@@ -187,4 +238,4 @@ const mapStateToProps = (state) => {
     }
 };
 
-export default connect(mapStateToProps,{run_model, set_name, set_version,save_allmodal})(LeftMenu);
+export default connect(mapStateToProps,{run_model, set_name, set_version, set_run})(LeftMenu);

@@ -44,7 +44,8 @@ import {
     WATCH_CORR,
     SET_NAME,
     SET_VERSION,
-    LOG
+    LOG,
+    SET_RUN
 } from "../constants/leftmenu";
 
 const leftmenu = (state = {}, action = {}) => {
@@ -244,7 +245,7 @@ const leftmenu = (state = {}, action = {}) => {
           state.form_data.model_result_execl_sl = action.data.model_result_execl_sl;
           state.form_data.model_result_execl_bs = action.data.model_result_execl_bs;
           console.log(Object.assign({},state));
-          return Object.assign({},state);
+          return Object.assign({},state,{run_load:false});
 
       case GET_ALL_FILTER_COLUMNS:
           console.log(action.res.data);
@@ -265,6 +266,10 @@ const leftmenu = (state = {}, action = {}) => {
           const set_corr_img = Object.assign({},state.form_data,{ correlation_analysis_image:{ url: action.data.url, name:action.data.name} });
           console.log(333344,Object.assign({}, state, {form_data: set_corr_img}));
           return Object.assign({}, state, {form_data: set_corr_img});
+
+      case SET_RUN:
+          console.log(Object.assign({},state,{run_load:true}));
+          return Object.assign({},state,{run_load:true});
 
     default: return state;
   }

@@ -49,3 +49,4 @@ export const IMAGE = "IMAGE";
 export const PARAM = "PARAM";
 export const QUERY_RUN = "QUERY_RUN";
 export const CHOICE_VERSION = "CHOICE_VERSION";
+export const SET_RUN = "SET_RUN";

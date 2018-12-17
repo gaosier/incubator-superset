@@ -24,10 +24,9 @@ initJQueryAjax(); // 设置token
 const exploreViewContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(exploreViewContainer.getAttribute('data-bootstrap'));  // 后端传给前端的数据
 
-// console.log(JSON.stringify(bootstrapData));
 // form_data 是 后台存储之前的参数
 const controls = getControlsState(bootstrapData, bootstrapData.form_data);
-console.log(2222,JSON.parse(JSON.stringify(controls)));
+
 const rawFormData = { ...bootstrapData.form_data };
 delete bootstrapData.form_data;
 delete bootstrapData.common.locale;

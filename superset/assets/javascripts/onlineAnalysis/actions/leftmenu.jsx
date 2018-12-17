@@ -46,7 +46,8 @@ import {
     SET_VERSION,
     CHOICE_VERSION,
     LOG,
-    QUERY_RUN
+    QUERY_RUN,
+    SET_RUN
 } from "../constants/leftmenu";
 import {get_log} from '../actions/rightinfo';
 
@@ -660,5 +661,13 @@ export const choice_version = (res) => {
     return {
         type: CHOICE_VERSION,
         res
+    }
+};
+
+// 设置正在跑模型标识
+
+export const set_run = () =>{
+    return {
+        type:SET_RUN
     }
 };
