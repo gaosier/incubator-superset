@@ -8,19 +8,34 @@ class RightInfo extends Component {
         super(props);
     }
     render_log(){
+        if(this.props.leftmenu.run_load === true){
+            return(
+            <img
+                          className="loading"
+                          alt="Loading..."
+                          src="../../../../static/assets/images/loading.gif"
+                        />)
+        }
         if(this.props.leftmenu.form_data.log_dir_id === ''){
             return(<div>暂时不存在值</div>)
 
         }else{
-            // if(this.props.rightinfo.log ===[]){
-                this.props.get_log('code',this.props.leftmenu.form_data.log_dir_id);
-            // }
-            return(<div>{ this.props.rightinfo.log }</div>)
+            console.log(1111);
+            // this.props.get_log('code',this.props.leftmenu.form_data.log_dir_id);
+            console.log('log',this.props.rightinfo.log);
+            // return(<p>{ this.props.rightinfo.log }</p>)
         }
 
     }
     render_img(){
-
+        if(this.props.leftmenu.run_load === true){
+            return(
+            <img
+                          className="loading"
+                          alt="Loading..."
+                          src="../../../../static/assets/images/loading.gif"
+                        />)
+        }
         if(this.props.leftmenu.form_data.log_dir_id === ''){
             return(<div>暂时不存在值</div>)
 
@@ -33,6 +48,14 @@ class RightInfo extends Component {
 
     }
     render_to_leader(){
+        if(this.props.leftmenu.run_load === true){
+            return(
+            <img
+                          className="loading"
+                          alt="Loading..."
+                          src="../../../../static/assets/images/loading.gif"
+                        />)
+        }
         if(this.props.leftmenu.form_data.log_dir_id === ''){
             return(<div>暂时不存在值</div>)
 

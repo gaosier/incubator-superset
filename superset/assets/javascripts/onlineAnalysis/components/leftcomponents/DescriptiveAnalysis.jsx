@@ -6,7 +6,7 @@ import {
     set_null_operation,
     set_variable_box,
     increase_dummy,
-    increament_correlation, getcode, get_alldealna, see_corr,watch_corr
+    increament_correlation, getcode, get_alldealna, see_corr, watch_corr
 } from '../../actions/leftmenu';
 import Variablebox from '../leftcomponents/Variablebox';
 import Dummy from '../leftcomponents/Dummy';
@@ -29,7 +29,7 @@ class DescriptiveAnalysis extends Component {
             value: '',
             detail: {},
             describe_table: '',
-            show_corrModal:false,
+            show_corrModal: false,
         };
         this.openModal = this.openModal.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
@@ -155,23 +155,23 @@ class DescriptiveAnalysis extends Component {
             dummy_variable: this.props.leftmenu.form_data.dummy_variable
         };
         const exploreForm = document.createElement('form');
-          exploreForm.action = "/online/download/";
-          exploreForm.method = 'POST';
-          exploreForm.target = '_blank';
-          const token = document.createElement('input');
-          token.type = 'hidden';
-          token.name = 'csrf_token';
-          token.value = (document.getElementById('csrf_token') || {}).value;
-          exploreForm.appendChild(token);
-          const data = document.createElement('input');
-          data.type = 'hidden';
-          data.name = 'form_data';
-          data.value = JSON.stringify(form_data);
-          exploreForm.appendChild(data);
+        exploreForm.action = "/online/download/";
+        exploreForm.method = 'POST';
+        exploreForm.target = '_blank';
+        const token = document.createElement('input');
+        token.type = 'hidden';
+        token.name = 'csrf_token';
+        token.value = (document.getElementById('csrf_token') || {}).value;
+        exploreForm.appendChild(token);
+        const data = document.createElement('input');
+        data.type = 'hidden';
+        data.name = 'form_data';
+        data.value = JSON.stringify(form_data);
+        exploreForm.appendChild(data);
 
-          document.body.appendChild(exploreForm);
-          exploreForm.submit();
-          document.body.removeChild(exploreForm);
+        document.body.appendChild(exploreForm);
+        exploreForm.submit();
+        document.body.removeChild(exploreForm);
     }
 
 
@@ -220,7 +220,7 @@ class DescriptiveAnalysis extends Component {
 
     render_dealina() {
         const keys = Object.keys(this.props.leftmenu.all_dealina);
-        return keys.map((key,index) => (
+        return keys.map((key, index) => (
 
             <tr key={index}>
                 <td>
@@ -322,32 +322,40 @@ class DescriptiveAnalysis extends Component {
             </Modal>
         )
     }
-    see_corr(){
-            this.props.watch_corr(this.props.leftmenu.form_data.correlation_analysis,this.props.leftmenu.form_data.datasource,this.props.leftmenu.form_data.sk_type);
+
+    see_corr() {
+        this.props.watch_corr(this.props.leftmenu.form_data.correlation_analysis, this.props.leftmenu.form_data.datasource, this.props.leftmenu.form_data.sk_type);
         this.setState({
-            show_corrModal:!this.state.show_corrModal
+            show_corrModal: !this.state.show_corrModal
         })
     }
-    togglecorrModal(){
+
+    togglecorrModal() {
         this.setState({
-            show_corrModal:!this.state.show_corrModal
+            show_corrModal: !this.state.show_corrModal
         })
     }
-    onEnterModal(){
-        if(this.props.leftmenu.form_data.correlation_analysis_image.name===null){
-            return(
-            <div>暂时未获取到图片</div>)
-        }else{
-            const url_img = "/static/uploads/img/"+this.props.leftmenu.form_data.correlation_analysis_image.name;
-            return(
+
+    onEnterModal() {
+        if (this.props.leftmenu.form_data.correlation_analysis_image.name === null) {
+            return (
+                <img
+                    className="loading"
+                    alt="Loading..."
+                    src="../../../../../static/assets/images/loading.gif"
+                />)
+        } else {
+            const url_img = "/static/uploads/img/" + this.props.leftmenu.form_data.correlation_analysis_image.name;
+            return (
                 <div>
-                <img src={url_img}/>
-                    </div>
+                    <img src={url_img}/>
+                </div>
             )
         }
 
     }
-    render_corr_modal(){
+
+    render_corr_modal() {
         return (
             <Modal
                 show={this.state.show_corrModal}
@@ -412,12 +420,12 @@ class DescriptiveAnalysis extends Component {
                 <div>
                     <Divider>下载数据</Divider>
                     <Button>
-                    <a
-                      onClick={this.download_data.bind(this)}
-                      target="_blank"
-                    >
-                       <i className="fa fa-file-text-o" />下载数据
-                    </a>
+                        <a
+                            onClick={this.download_data.bind(this)}
+                            target="_blank"
+                        >
+                            <i className="fa fa-file-text-o"/>下载数据
+                        </a>
                     </Button>
                 </div>
             </div>

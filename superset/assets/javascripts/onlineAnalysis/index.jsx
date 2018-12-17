@@ -69,8 +69,8 @@ const  initState = {
         user_id: bootstrapData.user_id || '0',
         can_add: bootstrapData.can_add || true,
         can_overwrite: bootstrapData.can_overwrite || null,
-        all_dealina:{}
-
+        all_dealina:{},
+        run_load:false,
     },
     rightinfo:{
         log:[],
