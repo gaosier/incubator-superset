@@ -346,10 +346,11 @@ class BaseSkModel(object):
 
         for i, df in enumerate(dfs):
             ana_code_logger.info("i: %s  type(df): %s" % (i, type(df)))
-            try:
-                df.to_excel(writer, sheet_name="sheet%s" % (i+1))
-            except Exception as exc:
-                ana_code_logger.error("error: %s" % str(exc))
+            if df is not None:
+                try:
+                    df.to_excel(writer, sheet_name="sheet%s" % (i+1))
+                except Exception as exc:
+                    ana_code_logger.error("error: %s" % str(exc))
         writer.save()
 
     def train_models(self):
@@ -487,6 +488,20 @@ class BaseSkModel(object):
             ana_code_logger.error("error: %s" % exc)
         return log_dir_id, execl_sl, execl_bs, status, err_msg
 
+    def output_data_to_excel(self, X_train=None, X_test=None, y_train=None, y_test=None, filename=None):
+        if X_train is not None and y_train is not None:
+            train_data = pd.concat([X_train, y_train], axis=1)
+        else:
+            train_data = X_train
+        if X_test is not None and y_test is not None:
+            test_data = pd.concat([X_test, y_test], axis=1)
+        else:
+            test_data = X_test
+
+        dfs = [train_data, test_data]
+        file_path = os.path.join(config.get("UPLOAD_FOLDER"), filename)
+        self.excelAddSheet(dfs, file_path)
+
 
 class Lasso(BaseSkModel):
     sk_type = 'lasso'
@@ -588,6 +603,8 @@ class GeneraLR(BaseSkModel):
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state,
                                                             stratify=df[stratify])
+
+        # self.output_data_to_excel(X_train, X_test, y_train, y_test, 'genera_test.xlsx')
 
         X_train_intercept = np.concatenate(
             [np.ones(X_train.shape[0]).reshape(X_train.shape[0], 1), X_train[explanatory_cols].values], axis=1)
@@ -718,16 +735,15 @@ class MixedLR(BaseSkModel):
         """
         # 计算训练集auc
         try:
-            train_auc = roc_auc_score(real, predicted)
-            ana_param_logger.info("[%s]数据集   auc: %s" % (title, train_auc))
+            auc = roc_auc_score(real, predicted)
+            ana_param_logger.info("[%s]数据集   auc: %s" % (title, auc))
         except Exception as exc:
             ana_code_logger.error("error: %s" % str(exc))
             raise ValueError(str(exc))
 
         # 计算混淆矩阵
         f, ax = plt.subplots(1, 1, figsize=(4, 3))
-        sns.heatmap(confusion_matrix(real, predicted), ax=ax, annot=True,
-                    fmt='2.0f')
+        sns.heatmap(confusion_matrix(real, predicted), ax=ax, annot=True, fmt='2.0f')
         ax.set_title("confusion matrix")
 
         plt.subplots_adjust(hspace=0.2, wspace=0.2)
@@ -738,8 +754,8 @@ class MixedLR(BaseSkModel):
 
         valid_precision, valid_recall, valid_thresholds = precision_recall_curve(real, predicted)
 
-        ana_param_logger.info('[%s]  Precision =  %s        Recall = %s' % (title, round(valid_precision[1], 2),
-                                                                        round(valid_recall[1], 2)))
+        ana_param_logger.info('[%s]  Precision =  %s        Recall = %s' % (title, round(valid_precision[1], 4),
+                                                                        round(valid_recall[1], 4)))
 
     def deal_data(self, data):
         random_effects = self.model_rest.get("random_effects")  # 随机效应
@@ -759,25 +775,34 @@ class MixedLR(BaseSkModel):
         fixed_effects = self.model_rest.get("fixed_effects")
         ana_code_logger.info("[固定效应] ===> fixed_effects: %s" % fixed_effects)
 
+        new_fixed_effects = {}
+        count = 0
+        for name in self.predictors_vec:
+            count += 1
+            new_fixed_effects[name] = fixed_effects[count]
+
         pre_test = X_test[self.predictors_vec]
         ana_code_logger.info("[预测变量数据集]:\n %s\n" % str(pre_test.shape))
 
-        score = np.zeros((pre_test.shape[0],))
-        count = 0
-        for name in pre_test.columns:
-            count += 1
-            if count >= fixed_effects.size:
-                count = count -1
+        ana_code_logger.info("======= 计算测试集的score ============")
+        score = []
 
-            score += pre_test[name] * fixed_effects[count]
+        for item in pre_test.to_dict(orient="records"):
+            ele = 0.0
+            for k, v in item.items():
+                ele += v * new_fixed_effects[k]
+            score.append(ele)
 
-        score += score + fixed_effects[0]
-        score += score + X_test["intercept_random_part"]
+        score = np.array(score)
+        score = score + fixed_effects[0]
+        score = score + X_test["intercept_random_part"]
         X_test['score'] = score
 
         # 计算测试集预测概率
         X_test['pred_probs'] = np.exp(score) / (np.exp(score) + 1)
-        ana_code_logger.info("[得到预测概率之后的数据集]:\n %s\n" % X_test)
+        ana_code_logger.info("[得到预测概率之后的数据集]:\n %s\n" % X_test.head(10))
+
+        #self.output_data_to_excel(X_test=X_test, filename='r_test_data.xlsx')
 
         # 计算模型参数
         self.calculate_model_param(self.y_test, X_test['pred_probs'].apply(change), title='test')
@@ -841,7 +866,6 @@ class MixedLR(BaseSkModel):
         self.X_train, self.X_test, self.y_train, self.y_test = self.train_test_dataset()
 
         model_data = pd.concat([self.X_train, self.y_train], axis=1)
-        ana_code_logger.info("R model data: %s" % model_data.head(10))
         ana_code_logger.info("R model data shape: %s" % str(model_data.shape))
         ana_code_logger.info("self.X_train.isnull().sum(): %s" % self.X_train.isnull().sum())
         ana_code_logger.info("self.X_train.shape: %s           self.y_train.shape:%s" % (str(self.X_train.shape), str(self.y_train.shape)))
