@@ -10,7 +10,8 @@ import time
 import logging
 
 from urllib import parse
-from flask import flash, redirect, request, g, render_template, send_file, send_from_directory, make_response
+from flask import (flash, redirect, request, g, render_template, send_file, send_from_directory, make_response,
+                   get_flashed_messages)
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access, has_access_api
@@ -263,6 +264,7 @@ class Online(BaseSupersetView):
             slc = Analysis(owners=[g.user] if g.user else [])
 
         form_data['analysis_id'] = slc.id
+        form_data['name'] = analysis_name
         slc.params = json.dumps(form_data)
         slc.datasource_name = datasource_name
         slc.datasource_type = datasource_type
@@ -350,8 +352,11 @@ class Online(BaseSupersetView):
         if slc:
             datasource.slice_users = [slc.created_by_fk, ]
             form_data["analysis_id"] = slc.id
+            form_data["name"] = slc.name
+            form_data["version"] = slc.version
 
         standalone = request.args.get('standalone') == 'true'
+        messages = get_flashed_messages(with_categories=True)
         bootstrap_data = {
             'can_add': slice_add_perm,
             'can_overwrite': slice_overwrite_perm,
@@ -359,9 +364,8 @@ class Online(BaseSupersetView):
             'datasource_id': datasource_id,
             'datasource_type': datasource_type,
             'datasource_name': datasource.name,
-            'name': slc.name if slc else None,
-            'version': slc.version if slc else None,
             'user_id': user_id,
+            "flash_messages": messages
         }
         table_name = datasource.table_name \
             if datasource_type == 'table' \
