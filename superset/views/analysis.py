@@ -226,7 +226,6 @@ class Online(BaseSupersetView):
     @staticmethod
     def datasource_info(form_data, datasource_id=None, datasource_type=None):
         datasource = form_data.get('datasource', '')
-        print("datasource: ", datasource)
         if '__' in datasource:
             datasource_id, datasource_type = datasource.split('__')
         datasource_id = int(datasource_id)
@@ -293,7 +292,6 @@ class Online(BaseSupersetView):
     def analysis(self, datasource_type=None, datasource_id=None):
         user_id = g.user.get_id() if g.user else None
         form_data, slc = self.get_form_data()
-        print("form_data: ", form_data)
 
         datasource_id, datasource_type = self.datasource_info(form_data,
             datasource_id, datasource_type)
@@ -351,6 +349,7 @@ class Online(BaseSupersetView):
                 datasource.name)
         if slc:
             datasource.slice_users = [slc.created_by_fk, ]
+            form_data["analysis_id"] = slc.id
 
         standalone = request.args.get('standalone') == 'true'
         bootstrap_data = {

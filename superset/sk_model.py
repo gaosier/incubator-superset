@@ -102,7 +102,6 @@ class BaseSkModel(object):
         model_params = self.form_data.get("model_param", {})
         self.x_col = model_params.get("dataset", {}).get("x_col")
         self.y_col = model_params.get("dataset", {}).get("y_col")
-        print("self.x_col: ", self.x_col)
 
     def get_df(self, query_obj=None):
         """
@@ -160,7 +159,6 @@ class BaseSkModel(object):
             df = df.fillna(fillna)
         else:
             df = df.dropna()
-        print("df: ", df.head(5))
         ana_code_logger.info("============= 缺失值处理结束 =================")
         return df
 
@@ -190,13 +188,15 @@ class BaseSkModel(object):
             field = item.get("field")
             bins = item.get("bins")
             labels = item.get("labels")
+            right = item.get("right", True)
+            left = item.get("left", True)
 
             bins = self.str_to_list(bins)
             labels = self.str_to_list(labels)
 
             if not field or (not bins) or (not labels):
                 return df
-            col = pd.cut(df[field], bins=bins, labels=labels)
+            col = pd.cut(df[field], bins=bins, labels=labels, right=right, include_lowest=left)
             df[field] = col
 
         ana_code_logger.info(" =========== 变量分箱处理结束 ===========")
@@ -234,7 +234,6 @@ class BaseSkModel(object):
 
         correlation_analysis = self.form_data.get("correlation_analysis", [])
         count = len(correlation_analysis)
-        print("count: ", count)
 
         if count < 3:
             row = 1
