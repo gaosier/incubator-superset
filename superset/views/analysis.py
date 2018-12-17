@@ -359,8 +359,8 @@ class Online(BaseSupersetView):
             'datasource_id': datasource_id,
             'datasource_type': datasource_type,
             'datasource_name': datasource.name,
-            'name': slc.name,
-            'version': slc.version,
+            'name': slc.name if slc else None,
+            'version': slc.version if slc else None,
             'user_id': user_id,
         }
         table_name = datasource.table_name \
