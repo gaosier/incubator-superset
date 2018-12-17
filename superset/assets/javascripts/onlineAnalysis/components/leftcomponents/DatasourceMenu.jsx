@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {  Select, Button, Icon } from 'antd';
-import {get_all_model, getcode, set_model, get_all_filter_column,get_all_version} from '../../actions/leftmenu';
+import {get_all_model, getcode, set_model, get_all_filter_column,get_all_version, choice_version} from '../../actions/leftmenu';
 import {connect} from "react-redux";
 import {
     Modal
@@ -19,8 +19,7 @@ class DatasourceMenu extends Component {
             show_code_modal:false,
             code:null,
             loading_code:true
-        }
-
+        };
     }
     componentDidMount(){
         this.props.get_all_filter_column(this.props.leftmenu.datasource_id);
@@ -35,17 +34,17 @@ class DatasourceMenu extends Component {
         }
     }
     show_all_version_name(){
-        this.props.get_all_version(this.props.leftmenu.analysis_name);
+        console.log(this.props.leftmenu);
+        this.props.get_all_version(this.props.leftmenu.form_data.analysis_name);
     }
     change_version(value){
-
+        this.props.choice_version(value,this.props.leftmenu.slice.all_version);
+        console.log(value);
     }
     render_version(){
-        Object.keys(this.props.leftmenu.slice.all_version).map((dum,index) =>{
-            return(
-                <Select.option key={index} value={dum}>{dum}</Select.option>
-            )
-        })
+        console.log(this.props.leftmenu.slice.all_version['v1.0']);
+        return Object.keys(this.props.leftmenu.slice.all_version).map((element,index) =>
+            <Select.Option   key={index} value={element}> {element}</Select.Option>);
     }
     change_model(value){
         if(value===undefined){
@@ -138,15 +137,17 @@ class DatasourceMenu extends Component {
         }
     }
     render_select_version() {
-        if (this.props.leftmenu.form_data.analysis_name === '') {
+        if (this.props.leftmenu.form_data.version === '') {
             return (
                 <div>
                     <Select
                         disabled={true}
                         defaultValue="未找到对应的版本号"
                         showSearch style={{width: 200}}
+                        onFocus={this.show_all_version_name.bind(this)}
                         searchPlaceholder="输入"
                     >
+                        {this.render_version()}
                     </Select>
                 </div>
             )
@@ -155,7 +156,7 @@ class DatasourceMenu extends Component {
             return(
                 <div>
                     <Select
-                        value={this.props.leftmenu.form_data.analysis_name}
+                        value={this.props.leftmenu.form_data.version}
                         showSearch
                         style={{width: 200}}
                         searchPlaceholder="输入"
@@ -169,7 +170,6 @@ class DatasourceMenu extends Component {
         }
     }
     render() {
-
         return (
                 <div>
                     <div id="datasource">
@@ -198,4 +198,4 @@ const mapStateToProps = (state) => {
         leftmenu:state.leftmenu,
     }
 };
-export default connect(mapStateToProps,{ get_all_model, set_model,get_all_filter_column,get_all_version })(DatasourceMenu);
+export default connect(mapStateToProps,{ get_all_model, set_model,get_all_filter_column,get_all_version, choice_version })(DatasourceMenu);

@@ -657,7 +657,9 @@ export const save_all_model = (data) => {
 
 // 设置版本号
 
-export const choice_version = (res) => {
+export const choice_version = (res,all_version) => {
+    const now_version = JSON.parse(all_version[res]);
+    console.log(now_version);
     return {
         type: CHOICE_VERSION,
         res
