@@ -138,7 +138,10 @@ class Analysis(Model, AuditMixinNullable):
         versions = {}
         instances = db.session.query(cls).filter(cls.name == name)
         for item in instances:
-            versions[item.version] = item.params
+            params = json.loads(item.params)
+            params['analysis_id'] = item.id
+            versions[item.version] = params
+
         return versions
 
     @property

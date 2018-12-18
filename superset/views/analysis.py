@@ -687,8 +687,6 @@ class Online(BaseSupersetView):
     @has_access_api
     @expose('/log/<name>/')
     def log(self, name):
-
-
         if name not in ["code", "param", "image"]:
             return json_error_response(u"参数[name]的值错误. 取值范围[code, param, image]")
 
