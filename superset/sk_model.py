@@ -26,7 +26,7 @@ from pandas.core.frame import DataFrame
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.metrics import (confusion_matrix, precision_recall_curve, average_precision_score, roc_auc_score,
-                             roc_curve, precision_score, recall_score)
+                             roc_curve, precision_score, recall_score, auc)
 
 
 from superset import app
@@ -56,7 +56,7 @@ class ExpressionSet(RS4):
 
 
 def change(x):
-    if x >= 0.5:
+    if x > 0.5:
         return 1
     else:
         return 0
@@ -726,6 +726,8 @@ class MixedLR(BaseSkModel):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state,
                                                             stratify=df[stratify])
 
+        # self.output_data_to_excel(X_train, X_test, y_train, y_test, 'R_model_data.xlsx')
+
         self.df = df
         return X_train, X_test, y_train, y_test
 
@@ -735,8 +737,12 @@ class MixedLR(BaseSkModel):
         """
         # 计算训练集auc
         try:
-            auc = roc_auc_score(real, predicted)
-            ana_param_logger.info("[%s]数据集   auc: %s" % (title, auc))
+            auc_1 = roc_auc_score(real, predicted)
+            ana_param_logger.info("[%s]数据集   auc: %s" % (title, auc_1))
+
+            fpr, tpr, thresholds = roc_curve(real, predicted)
+            auc_2 = auc(fpr, tpr)
+            ana_param_logger.info("[%s]数据集   auc: %s" % (title, auc_2))
         except Exception as exc:
             ana_code_logger.error("error: %s" % str(exc))
             raise ValueError(str(exc))

@@ -32,6 +32,7 @@ from superset.models.core import Log, Url
 from superset.models.analysis import Analysis, SkModel
 from .base import (BaseSupersetView, api, DATASOURCE_MISSING_ERR, get_datasource_access_error_msg, is_owner,
                    json_error_response, json_success, UserInfo, REQ_PARAM_NULL_ERR)
+from superset.analysis_log import ANALYSIS_LOG_DIR
 
 
 log_this = Log.log_this
@@ -147,6 +148,38 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
 
     def pre_delete(self, obj):
         check_ownership(obj)
+
+        # 删除模型的日志，文件和图片
+        # 1. 删除日志
+        param = json.loads(obj.params)
+        log_dir_id = param.get("log_dir_id")
+
+        log_dir = os.path.join(ANALYSIS_LOG_DIR, log_dir_id)
+        if os.path.isdir(log_dir):
+            os.removedirs(log_dir)
+
+        # 2. 删除图片
+        img_names = []
+        for item in ["description_img", "correlation_analysis_image"]:
+            img_names.append(param.get(item))
+        img_dir = config.get("IMG_UPLOAD_FOLDER")
+        for img in img_names:
+            path = os.path.join(img_dir, img)
+            if os.path.isfile(path):
+                os.remove(path)
+
+        # 3. 删除xlsx文件
+        files = []
+        for item in ["model_result_execl_sl", "model_result_execl_bs"]:
+            files.append(param.get(item))
+
+        file_dir = config.get("UPLOAD_FOLDER")
+        for file in files:
+            path = os.path.join(file_dir, file)
+            if os.path.isfile(path):
+                os.remove(path)
+
+
 
     @expose('/add', methods=['GET', 'POST'])
     @has_access
