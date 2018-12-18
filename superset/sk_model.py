@@ -20,7 +20,7 @@ import numpy as np
 import statsmodels.api as sm
 import rpy2.robjects as robjects
 
-from rpy2.robjects import r, pandas2ri
+from rpy2.robjects import pandas2ri
 from rpy2.robjects.methods import RS4
 from pandas.core.frame import DataFrame
 from sklearn.linear_model import LogisticRegressionCV
@@ -102,6 +102,10 @@ class BaseSkModel(object):
         model_params = self.form_data.get("model_param", {})
         self.x_col = model_params.get("dataset", {}).get("x_col")
         self.y_col = model_params.get("dataset", {}).get("y_col")
+        if not self.x_col or not self.y_col:
+            raise ValueError("模型参数[x_col]或则[y_col]为空！！！")
+
+        self.y_col = self.y_col[0]
 
     def get_df(self, query_obj=None):
         """
@@ -307,7 +311,7 @@ class BaseSkModel(object):
         """
         datasets = {}
         valiadate_datasets = self.form_data.get("validate_datasets", [])
-        ana_code_logger.info("valiadate_datasets: %s" % valiadate_datasets)
+        ana_code_logger.info("self.form_data.get(valiadate_datasets): %s" % valiadate_datasets)
         for item in valiadate_datasets:
             name = item.get("name")
             filters = item.get("filters")
@@ -381,7 +385,7 @@ class BaseSkModel(object):
         try:
 
             valid_X = df[self.x_col]
-            valid_Y = df[self.y_col[0]]
+            valid_Y = df[self.y_col]
             valid_Y = np.array(valid_Y.tolist())
 
             valid_pred = model.predict(valid_X)
@@ -594,7 +598,7 @@ class GeneraLR(BaseSkModel):
         ana_code_logger.info("model_params: %s" % model_params)
 
         X = df[self.x_col]
-        y = df[self.y_col[0]]
+        y = df[self.y_col]
 
         test_size = model_params.get("train_test_split").get("test_size")
         random_state = model_params.get("train_test_split").get("random_state")
@@ -707,14 +711,18 @@ class MixedLR(BaseSkModel):
         model_params = self.form_data.get("model_param")
         ana_code_logger.info("model_params: %s" % model_params)
 
-        self.x_col = model_params.get("dataset", {}).get("x_col")
-        self.y_col = model_params.get("dataset", {}).get("y_col")
-        self.master_factor = model_params.get("extra", {}).get("master_factor")
-        self.slave_factor = model_params.get("extra", {}).get("slave_factor")
+        self.master_factor = model_params.get("extra", {}).get("master_factor", [])
+        self.slave_factor = model_params.get("extra", {}).get("slave_factor", [])
         self.predictors_vec = model_params.get("extra", {}).get("predictors_vec")
 
+        if not self.master_factor or not self.slave_factor or not self.predictors_vec:
+            raise ValueError("模型参数不能为空！！！")
+
+        self.slave_factor = self.slave_factor[0]
+        self.master_factor = self.master_factor[0]
+
         X = data[self.x_col]
-        y = df[self.y_col[0]]
+        y = df[self.y_col]
 
         ana_code_logger.info("原始数据的数据量：X.shape:%s       Y.shape: %s" % ( str(X.shape), str(y.shape)))
         ana_code_logger.info("X.isnull().sum(): %s" % X.isnull().sum())
@@ -737,12 +745,9 @@ class MixedLR(BaseSkModel):
         """
         # 计算训练集auc
         try:
-            auc_1 = roc_auc_score(real, predicted)
-            ana_param_logger.info("[%s]数据集   auc: %s" % (title, auc_1))
+            auc = roc_auc_score(real, predicted)
+            ana_param_logger.info("[%s]数据集   auc: %s" % (title, auc))
 
-            fpr, tpr, thresholds = roc_curve(real, predicted)
-            auc_2 = auc(fpr, tpr)
-            ana_param_logger.info("[%s]数据集   auc: %s" % (title, auc_2))
         except Exception as exc:
             ana_code_logger.error("error: %s" % str(exc))
             raise ValueError(str(exc))
@@ -819,7 +824,7 @@ class MixedLR(BaseSkModel):
         ana_code_logger.info("self.df.shape: %s        data.shape: %s" % (str(self.df[self.x_col].shape),
                                                                           str(data.shape)))
         ana_code_logger.info("self.x_col: %s         self.y_col: %s" % (self.x_col, self.y_col))
-        cols = self.x_col + self.y_col
+        cols = self.x_col + [self.y_col]
         ana_code_logger.info("all columns: %s       df.columns: %s" % (cols, self.df.columns))
 
         df = pd.merge(self.df[cols], data, on=self.slave_factor, how='left')
@@ -879,7 +884,7 @@ class MixedLR(BaseSkModel):
         X_train_r = pandas2ri.py2ri(model_data)
         predictors_vec = robjects.StrVector(self.predictors_vec)
 
-        model_rest = robjects.r.lr_mixed_model(model_data=X_train_r, subject_id=self.master_factor, response=self.y_col[0],
+        model_rest = robjects.r.lr_mixed_model(model_data=X_train_r, subject_id=self.master_factor, response=self.y_col,
                                   predictors_vec=predictors_vec, random_intercept=True)
 
         rest = {}
@@ -947,14 +952,8 @@ class MixedLR(BaseSkModel):
 
         for data in self.validate_datasets:
             data = self.deal_data(data)
-
             data['pred_probs'] = self.model_rest.get("predicted_probabilities")['predicted_probs_with_rand']
-
-            stu_result = pd.concat([data[self.slave_factor, 'pred_probs']],
-                                   data[[self.slave_factor, 'pred_probs']])
-
-            ana_code_logger.info("[validate dataset]stu_result.shape: %s" % str(stu_result.shape))
-
+            stu_result = data[[self.slave_factor, 'pred_probs']]
             self.aggregate(stu_result)
 
     def run(self):
