@@ -47,4 +47,5 @@ celerybeat-schedule
 sqllab/
 *.log*
 *.Rhistory
-superset/static/uploads/*
+static/uploads/file/*
+static/uploads/img/*

@@ -90,3 +90,5 @@ pygments
 sklearn
 statsmodels
 rpy2==2.9.4
+seaborn
+matplotlib
