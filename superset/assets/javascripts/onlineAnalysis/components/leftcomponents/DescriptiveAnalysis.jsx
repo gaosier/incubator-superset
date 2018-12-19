@@ -26,7 +26,7 @@ class DescriptiveAnalysis extends Component {
             variable_box: [],
             show_input: false,
             operate: true,
-            value: '',
+            value: this.props.leftmenu.form_data.null_operate.operate,
             detail: {},
             describe_table: '',
             show_corrModal: false,
@@ -49,8 +49,12 @@ class DescriptiveAnalysis extends Component {
             }
             this.props.set_null_operation(this.state.value, detail)
         } else {
+            let detail = [];
+            for (var i = 0; i < Object.keys(this.state.detail).length; i++) {
+                detail.push([Object.keys(this.state.detail)[i], Object.values(this.state.detail)[i]]);
+            }
             console.log('xxxx', this.state.value);
-            this.props.set_null_operation(this.state.value, [])
+            this.props.set_null_operation(this.state.value, detail)
         }
         this.setState({
             showModal: !this.state.showModal,
@@ -60,7 +64,9 @@ class DescriptiveAnalysis extends Component {
     }
 
     openModal() {
-        this.props.get_all_dealna(this.props.leftmenu.form_data.sk_type, this.props.leftmenu.datasource_id);
+        if(this.props.leftmenu.form_data.null_operate.operate === ''){
+            this.props.get_all_dealna(this.props.leftmenu.form_data.sk_type, this.props.leftmenu.datasource_id);
+        }
         this.setState({showModal: !this.state.showModal});
     }
 

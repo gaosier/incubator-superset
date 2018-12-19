@@ -125,6 +125,7 @@ class DatasourceMenu extends Component {
             return (
                 <div>
                     <Select
+                        value={undefined}
                         placeholder="请选择模型名称"
                         showSearch
                         style={{width: 200}}
@@ -140,7 +141,7 @@ class DatasourceMenu extends Component {
             return (
                 <div>
                     <Select
-                        defaultValue={this.props.leftmenu.form_data.sk_type}
+                        value={this.props.leftmenu.form_data.sk_type}
                         showSearch
                         style={{width: 200}}
                         searchPlaceholder="输入"
@@ -159,6 +160,7 @@ class DatasourceMenu extends Component {
             return (
                 <div>
                     <Select
+                        value={undefined}
                         disabled={true}
                         defaultValue="未找到对应的版本号"
                         showSearch style={{width: 200}}

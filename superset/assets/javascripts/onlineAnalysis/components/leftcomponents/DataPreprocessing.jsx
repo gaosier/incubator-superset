@@ -60,7 +60,7 @@ class DataPreprocessing extends Component {
             withCredentials: true,
             headers: {
                 authorization: 'authorization-text',
-                "X-CSRFToken": {token},
+                "X-CSRFToken": token,
             },
             directory: false,
             onChange(info) {

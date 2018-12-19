@@ -641,8 +641,19 @@ export const run_model = (form_data) => {
                 form_data: JSON.stringify(form_data),
             },
             success: ((data) => {
-                dispatch(run_models(data));
-
+                console.log(data);
+                if(data.status){
+                    notification['success']({
+                    message: ' 恭喜您！',
+                    description: '恭喜您跑模型成功,请在右侧查看各类展示.',
+                  });
+                    dispatch(run_models(data));
+                }else{
+                    notification['error']({
+                    message: ' 很抱歉跑模型失败！',
+                    description: data.err_msg,
+                  });
+                }
             }),
             error: ((data, type, err) => {
                 console.log(data, type, err);
@@ -717,8 +728,7 @@ export const save_all_model = (data) => {
 // 设置版本号
 
 export const choice_version = (res,all_version) => {
-    const now_version = JSON.parse(all_version[res]);
-    console.log(now_version);
+    const now_version = all_version[res];
     return {
         type: CHOICE_VERSION,
         res,

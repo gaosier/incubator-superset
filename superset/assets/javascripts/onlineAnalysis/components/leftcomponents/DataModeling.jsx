@@ -28,10 +28,12 @@ class DataModeling extends Component {
 
         const sk_type = this.props.leftmenu.form_data.sk_type;
         console.log(sk_type);
-        this.props.get_model_parameter(sk_type);
+        const now_modal = this.props.leftmenu.form_data.model_param;
+        console.log('modal',now_modal);
+        if(Object.keys(now_modal).length === 0){
+            this.props.get_model_parameter(sk_type);
+        }
         this.setState({show_Modal: !this.state.show_Modal});
-
-
         // console.log('param',this.props.leftmenu.form_data.model_param);
     }
 

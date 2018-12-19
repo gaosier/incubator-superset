@@ -198,14 +198,14 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
     @expose('/show/<pk>', methods=['GET'])
     @has_access
     def show(self, pk):
-        self.show_template = 'superset/base.html'
+        self.show_template = 'superset/ShowResult.html'
         pk = self._deserialize_pk_if_composite(pk)
         widgets = self._show(pk)
         return self.render_template(self.show_template,
                                     pk=pk,
                                     title=self.show_title,
                                     widgets=widgets,
-                                    entry='test',        # 后期需要修改
+                                    entry='showResult',        # 后期需要修改
                                     related_views=self._related_views)
 
 

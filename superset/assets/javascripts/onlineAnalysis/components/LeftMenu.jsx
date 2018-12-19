@@ -54,7 +54,7 @@ class LeftMenu extends Component {
     }
 
     render_save_info() {
-        if (this.state.name === '') {
+        if (this.props.leftmenu.form_data.name === '') {
             const radioStyle = {
                 display: 'block',
                 height: '30px',
