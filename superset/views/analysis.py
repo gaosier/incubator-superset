@@ -180,7 +180,6 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
                 os.remove(path)
 
 
-
     @expose('/add', methods=['GET', 'POST'])
     @has_access
     def add(self):
@@ -195,6 +194,20 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
                 'datasources': sorted(datasources, key=lambda d: d['label']),
             }),
         )
+
+    @expose('/show/<pk>', methods=['GET'])
+    @has_access
+    def show(self, pk):
+        self.show_template = 'superset/base.html'
+        pk = self._deserialize_pk_if_composite(pk)
+        widgets = self._show(pk)
+        return self.render_template(self.show_template,
+                                    pk=pk,
+                                    title=self.show_title,
+                                    widgets=widgets,
+                                    entry='test',        # 后期需要修改
+                                    related_views=self._related_views)
+
 
 appbuilder.add_view(AnalysisModelView, 'Analysis', icon="fa-comments", label=u"分析模型", category_icon="analytics", category=u"Online Analysis",
                     category_label=u"在线分析")
