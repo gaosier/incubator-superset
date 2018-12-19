@@ -1,43 +1,64 @@
-.uncontrolled-tab-example ul{
+.uncontrolled-tab-example ul {
     text-align: center;
 }
-.custom-modal.modal-lg.modal-dialog{
-    width:1180px;
+
+.custom-modal.modal-lg.modal-dialog {
+    width: 1180px;
 }
-.labe{
-    line-height:1.5;
+
+.labe {
+    line-height: 1.5;
 }
-.ant-divider-horizontal.ant-divider-with-text, .ant-divider-horizontal.ant-divider-with-text-left, .ant-divider-horizontal.ant-divider-with-text-right{
+
+.ant-divider-horizontal.ant-divider-with-text, .ant-divider-horizontal.ant-divider-with-text-left, .ant-divider-horizontal.ant-divider-with-text-right {
     font-size: 13px;
     margin: 5px 0px 5px 0px;
 }
-div#watch-img{
+
+div#watch-img {
     margin-left: 60%;
-    margin-top:-32px;
+    margin-top: -32px;
 }
-div#model-show{
+
+div#model-show {
     margin-top: 5px;
 }
-div#datasource{
+
+div#datasource {
     margin-bottom: 5px;
 }
-pre{
+
+pre {
     font-size: 10px;
 }
-div#describeModal{
+
+div#describeModal {
     overflow: auto;
 }
-div#corr{
+
+div#corr {
     overflow: auto;
 }
-label#fill{
+
+label#fill {
     position: relative;
     left: 30px;
 }
-label#delete{
+
+label#delete {
     position: relative;
     left: 100px;
 }
-div#caozuo{
+
+div#caozuo {
     width: 500px;
+}
+
+div#version {
+    position: absolute;
+    margin: -30px 330px 0;
+}
+div#down_load{
+    position: relative;
+    margin-left: 80%;
 }

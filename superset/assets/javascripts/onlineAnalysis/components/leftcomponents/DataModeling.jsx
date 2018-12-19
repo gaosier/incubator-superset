@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {Button, Divider, Card, Input,Select} from 'antd';
+import {Button, Divider, Card, Input, Select} from 'antd';
 import {Tabs, Tab, Modal, Table} from 'react-bootstrap';
 import TrainDataset from '../leftcomponents/TrainDataset';
 import ValidataDataset from '../leftcomponents/ValidataDataset';
-import {add_train_dataset, add_validate_datasets, get_model_parameter,modify_parameter} from '../../actions/leftmenu';
+import {add_train_dataset, add_validate_datasets, get_model_parameter, modify_parameter} from '../../actions/leftmenu';
 
 class DataModeling extends Component {
 
@@ -18,9 +18,9 @@ class DataModeling extends Component {
         this.closeModal = this.closeModal.bind(this);
     }
 
-    close_model(){
+    close_model() {
         this.setState({
-            show_Modal:!this.state.show_Modal
+            show_Modal: !this.state.show_Modal
         })
     }
 
@@ -35,7 +35,7 @@ class DataModeling extends Component {
         // console.log('param',this.props.leftmenu.form_data.model_param);
     }
 
-    closeModal(){
+    closeModal() {
         this.setState({show_Modal: !this.state.show_Modal});
     }
 
@@ -43,28 +43,31 @@ class DataModeling extends Component {
 
 
     }
-    change_x_col(value){
-        this.props.modify_parameter('dataset','x_col',value);
+
+    change_x_col(value) {
+        this.props.modify_parameter('dataset', 'x_col', value);
     }
-    change_y_col(value){
-        this.props.modify_parameter('dataset','y_col',value);
+
+    change_y_col(value) {
+        this.props.modify_parameter('dataset', 'y_col', value);
     }
 
     render_column() {
-        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+        return (this.props.leftmenu.slice.all_select_column.map((res, index) => {
             return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
         }))
 
     }
+
     show_param() {
         const keys = Object.keys(this.props.leftmenu.form_data.model_param);
         return (keys.map((dum, index) => {
-            if(dum === 'dataset'){
-                return(
+            if (dum === 'dataset') {
+                return (
                     <Card
-                    title={dum}
-                    style={{width: 800}}
-                    key={index}>
+                        title={dum}
+                        style={{width: 800}}
+                        key={index}>
                         <div>
                             <div>x_col</div>
                             <Select
@@ -97,47 +100,50 @@ class DataModeling extends Component {
                         </div>
                     </Card>
                 )
-            }else{
-            return(<Card
-                title={dum}
-                style={{width: 800}}
-                key={index}
-            >
-                <div>
-                    {this.render_pa(dum)}
-                </div>
-            </Card>)
-        }}))
+            } else {
+                return (<Card
+                    title={dum}
+                    style={{width: 800}}
+                    key={index}
+                >
+                    <div>
+                        {this.render_pa(dum)}
+                    </div>
+                </Card>)
+            }
+        }))
     }
-    render_pa(dum){
+
+    render_pa(dum) {
         const name = this.props.leftmenu.form_data.model_param[dum];
-        return(Object.keys(name).map((cop,index) =>(
+        return (Object.keys(name).map((cop, index) => (
             <div key={index}>
-            <span>{cop}</span>
-                { this.render_input(dum,cop) }
-            <span>{}</span>
+                <span>{cop}</span>
+                {this.render_input(dum, cop)}
+                <span>{}</span>
             </div>
         )))
     }
-    render_input(dum,cop){
-        if(this.props.leftmenu.form_data.model_param===''&&this.props.leftmenu.form_data.model_param===[]){
-            return(<Input
+
+    render_input(dum, cop) {
+        if (this.props.leftmenu.form_data.model_param === '' && this.props.leftmenu.form_data.model_param === []) {
+            return (<Input
                 value={undefined}
                 placeholder="请输入变量值"
-                onChange={this.change_input_name.bind(this,dum,cop)}
+                onChange={this.change_input_name.bind(this, dum, cop)}
             />)
-        }else{
-            return(<Input
+        } else {
+            return (<Input
                 value={this.props.leftmenu.form_data.model_param[dum][cop]}
                 placeholder="请输入变量值"
-                onChange={this.change_input_name.bind(this,dum,cop)}
+                onChange={this.change_input_name.bind(this, dum, cop)}
             />)
         }
     }
 
-    change_input_name(dum,cop,e){
+    change_input_name(dum, cop, e) {
         // console.log(dum,cop,e.target.value);
-        this.props.modify_parameter(dum,cop,e.target.value);
+        this.props.modify_parameter(dum, cop, e.target.value);
     }
 
     render_model_param() {
@@ -229,4 +235,9 @@ const mapStateToProps = (state) => {
     }
 };
 
-export default connect(mapStateToProps, {add_train_dataset, add_validate_datasets, get_model_parameter,modify_parameter})(DataModeling);
+export default connect(mapStateToProps, {
+    add_train_dataset,
+    add_validate_datasets,
+    get_model_parameter,
+    modify_parameter
+})(DataModeling);

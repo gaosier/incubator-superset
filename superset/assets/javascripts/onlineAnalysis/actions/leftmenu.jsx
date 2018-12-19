@@ -47,7 +47,8 @@ import {
     CHOICE_VERSION,
     LOG,
     QUERY_RUN,
-    SET_RUN
+    SET_RUN,
+    MODIFY_INCLUDE_ENDPOINT
 } from "../constants/leftmenu";
 import {get_log} from '../actions/rightinfo';
 
@@ -59,7 +60,10 @@ export const get_all_model = () => {
                 dispatch(get_allmodel(res));
             })
             .catch(error => {
-                console.log(error);
+                notification['error']({
+                    message: '获取模型名失败',
+                    description: '详情请咨询相关人员.',
+                });
             })
     }
 };
@@ -79,7 +83,10 @@ export const get_all_filter_column = (id) => {
                 dispatch(get_all_columns(res));
             })
             .catch(error => {
-                console.log(error);
+                notification['error']({
+                    message: '获取表字段失败',
+                    description: '详情请咨询相关人员.',
+                });
             })
     }
 };
@@ -107,7 +114,10 @@ export const get_all_version = (modal_name) => {
                 dispatch(get_allversion(res));
             })
             .catch(error => {
-                console.log(error);
+                notification['error']({
+                    message: '获取版本号失败',
+                    description: '详情请咨询相关人员.',
+                });
             })
     }
 };
@@ -127,6 +137,10 @@ export const get_all_datasource = () => {
                 dispatch(get_alldatasource(res));
             })
             .catch(error => {
+                notification['error']({
+                    message: '获取所有表名失败',
+                    description: '详情请咨询相关人员.',
+                });
             })
     }
 };
@@ -140,10 +154,34 @@ export const get_alldatasource = (res) => {
 
 // 修改表名和id
 export const modify_datasource = (id, name) => {
+    const datasource = id + '__table';
+    const form_data = {
+            datasource: datasource,
+            version: '',
+            sk_type:  '',
+            analysis_id:  '',
+            name: '',
+            null_operate: {
+                operate: '',
+                detail: []
+            },
+            variable_box:  [],
+            dummy_variable:  [],
+            correlation_analysis: [],
+            train_dataset: [],
+            validate_datasets: [],
+            model_param: [],
+            description_img: "",
+            log_dir_id: "",
+            correlation_analysis_image: "",
+            model_result_execl_sl:  "",
+            model_result_execl_bs:""
+        };
     return {
         type: MODIFY_DATASOURCE,
         id,
-        name
+        name,
+        form_data
     }
 };
 
@@ -155,6 +193,10 @@ export const get_datasource_columns = (id) => {
                 dispatch(get_datasourcecolumns(res));
             })
             .catch(error => {
+                notification['error']({
+                    message: '获取列名失败',
+                    description: '详情请咨询相关人员.',
+                });
             })
     }
 };
@@ -234,10 +276,9 @@ export const get_alldealna = (res) => {
 
 //设置描述分析图片
 
-export const set_description_img = (url, name) => {
+export const set_description_img = (name) => {
     return {
         type: SET_DESCRIPTION_IMG,
-        url,
         name
     }
 };
@@ -277,6 +318,16 @@ export const modify_variable_box_bins = (index, bins) => {
         type: MODIFY_VARIABLE_BOX_BINS,
         index,
         bins
+    }
+};
+
+// 修改是否包含左右端点
+export const modify_include_endpoint = (index,value,res) =>{
+    return {
+        type:MODIFY_INCLUDE_ENDPOINT,
+        index,
+        value,
+        res
     }
 };
 
@@ -398,6 +449,10 @@ export const watch_describe = (null_operate) => {
                 dispatch(see_describe(data))
             }),
             error: (() => {
+                notification['error']({
+                    message: '查看数据分布失败',
+                    description: '详情请咨询相关人员.',
+                });
             }),
         })
     }
@@ -425,6 +480,10 @@ export const watch_corr = (null_operate, datasource, sk_type) => {
                 dispatch(see_corr(data))
             }),
             error: (() => {
+                notification['error']({
+                    message: '查看变量相关性失败',
+                    description: '详情请咨询相关人员.',
+                });
             }),
         })
     }
@@ -588,8 +647,8 @@ export const run_model = (form_data) => {
             error: ((data, type, err) => {
                 console.log(data, type, err);
                 notification['error']({
-                    message: '获取缺失值失败',
-                    description: '获取缺失值必须选择模型名称,您可能未选择模型名,若您已选择,请咨询相关人员.',
+                    message: '跑模型失败',
+                    description: '详情请咨询相关人员.',
                 });
             }),
         })
@@ -662,7 +721,8 @@ export const choice_version = (res,all_version) => {
     console.log(now_version);
     return {
         type: CHOICE_VERSION,
-        res
+        res,
+        now_version
     }
 };
 

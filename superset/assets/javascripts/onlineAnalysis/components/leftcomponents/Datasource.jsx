@@ -5,7 +5,12 @@ import {
     OverlayTrigger, Tooltip, Well,
 } from 'react-bootstrap';
 import {connect} from "react-redux";
-import {get_all_datasource, get_datasource_columns, modify_datasource, get_all_filter_column} from "../../actions/leftmenu";
+import {
+    get_all_datasource,
+    get_datasource_columns,
+    modify_datasource,
+    get_all_filter_column
+} from "../../actions/leftmenu";
 import ColumnOption from '../../../components/ColumnOption';
 import MetricOption from '../../../components/MetricOption';
 
@@ -19,7 +24,7 @@ class Datasource extends React.PureComponent {
             filter: '',
             loading: true,
             showDatasource: false,
-            first_load_column:true
+            first_load_column: true
         };
         this.toggleShowDatasource = this.toggleShowDatasource.bind(this);
         // this.onChange = this.onChange.bind(this);
@@ -56,7 +61,7 @@ class Datasource extends React.PureComponent {
 
     selectDatasource(datasourceId, name) {
         this.setState({showModal: false});
-        this.props.modify_datasource(datasourceId,name);
+        this.props.modify_datasource(datasourceId, name);
         this.props.get_all_filter_column(datasourceId);
         this.props.get_datasource_columns(datasourceId);
     }
@@ -88,23 +93,23 @@ class Datasource extends React.PureComponent {
                         />
                     </div>
                     {
-                    <Table
-                        columns={['name']}
-                        className="table table-condensed"
-                        data={this.props.leftmenu.slice.all_datasource.map(res => ({
-                            name: (<a
-                                href="#"
-                                onClick={this.selectDatasource.bind(this, res.id, res.name)}
-                                className="datasource-link"
-                            >{res.name}
-                            </a>),
-                            rawName:res.name
-                        }))}
-                        itemsPerPage={20}
-                        filterable={['rawName']}
-                        filterBy={this.state.filter}
-                        hideFilterInput
-                    />
+                        <Table
+                            columns={['name']}
+                            className="table table-condensed"
+                            data={this.props.leftmenu.slice.all_datasource.map(res => ({
+                                name: (<a
+                                    href="#"
+                                    onClick={this.selectDatasource.bind(this, res.id, res.name)}
+                                    className="datasource-link"
+                                >{res.name}
+                                </a>),
+                                rawName: res.name
+                            }))}
+                            itemsPerPage={20}
+                            filterable={['rawName']}
+                            filterBy={this.state.filter}
+                            hideFilterInput
+                        />
                     }
                 </Modal.Body>
             </Modal>);
@@ -112,21 +117,21 @@ class Datasource extends React.PureComponent {
 
     toggleShowDatasource() {
         console.log(this.props.leftmenu.slice.all_datasource_columns.columns);
-        if(this.state.first_load_column){
+        if (this.state.first_load_column) {
             this.props.get_datasource_columns(this.props.leftmenu.datasource_id);
         };
 
-        this.setState({showDatasource: !this.state.showDatasource,first_load_column:false});
+        this.setState({showDatasource: !this.state.showDatasource, first_load_column: false});
     }
 
     renderDatasource() {
         var b = 0;
         var c = 0;
-        const datasource = this.props.leftmenu.slice.all_datasource_columns.columns.map(res =>({
-            column_name:res[0]+"("+res[1]+")"
+        const datasource = this.props.leftmenu.slice.all_datasource_columns.columns.map(res => ({
+            column_name: res[0] + "(" + res[1] + ")"
         }));
-        const data = this.props.leftmenu.slice.all_datasource_columns.metrics.map(res =>({
-            metric_name:res[0]+"("+res[1]+")"
+        const data = this.props.leftmenu.slice.all_datasource_columns.metrics.map(res => ({
+            metric_name: res[0] + "(" + res[1] + ")"
         }));
         return (
             <div className="m-t-10">
@@ -141,13 +146,13 @@ class Datasource extends React.PureComponent {
                         <Col md={6}>
                             <strong>Columns</strong>
                             {datasource.map(col => (
-                                <div key={b++}><ColumnOption  column={col}/></div>
+                                <div key={b++}><ColumnOption column={col}/></div>
                             ))}
                         </Col>
                         <Col md={6}>
                             <strong>Metrics</strong>
                             {data.map(m => (
-                                <div key={c++}><MetricOption metric={m} showFormula={false} /></div>
+                                <div key={c++}><MetricOption metric={m} showFormula={false}/></div>
                             ))}
                         </Col>
                     </Row>
@@ -196,4 +201,9 @@ const mapStateToProps = (state) => {
         leftmenu: state.leftmenu,
     }
 };
-export default connect(mapStateToProps, {get_all_datasource, get_datasource_columns, modify_datasource, get_all_filter_column})(Datasource);
+export default connect(mapStateToProps, {
+    get_all_datasource,
+    get_datasource_columns,
+    modify_datasource,
+    get_all_filter_column
+})(Datasource);

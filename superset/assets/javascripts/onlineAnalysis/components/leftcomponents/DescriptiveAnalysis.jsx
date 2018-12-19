@@ -212,6 +212,8 @@ class DescriptiveAnalysis extends Component {
                 field={comp.field}
                 bins={comp.bins}
                 labels={comp.labels}
+                left={comp.left}
+                right={comp.right}
                 variable_key={index}
                 key={index}
             />
@@ -337,7 +339,7 @@ class DescriptiveAnalysis extends Component {
     }
 
     onEnterModal() {
-        if (this.props.leftmenu.form_data.correlation_analysis_image.name === null) {
+        if (this.props.leftmenu.form_data.correlation_analysis_image === '') {
             return (
                 <img
                     className="loading"
@@ -345,7 +347,7 @@ class DescriptiveAnalysis extends Component {
                     src="../../../../../static/assets/images/loading.gif"
                 />)
         } else {
-            const url_img = "/static/uploads/img/" + this.props.leftmenu.form_data.correlation_analysis_image.name;
+            const url_img = "/static/uploads/img/" + this.props.leftmenu.form_data.correlation_analysis_image;
             return (
                 <div>
                     <img src={url_img}/>

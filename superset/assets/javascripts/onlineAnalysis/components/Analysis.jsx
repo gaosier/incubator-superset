@@ -1,38 +1,38 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import LeftMenu from './LeftMenu';
 import RightInfo from './RightInfo';
 import {connect} from "react-redux";
 
 class Analysis extends Component {
-  constructor(props) {
-    super(props);
-  }
+    constructor(props) {
+        super(props);
+    }
 
-  render() {
-    return (
+    render() {
+        return (
 
-      <div className="App">
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-sm-4">
-              <LeftMenu />
+            <div className="App">
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-sm-4">
+                            <LeftMenu/>
+                        </div>
+
+                        <div className="col-sm-8">
+                            <RightInfo log_dir_id={this.props.leftmenu.form_data.log_dir_id}/>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div className="col-sm-8">
-              <RightInfo />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+        );
+    }
 
 
 }
 
 const mapStateToProps = (state) => {
     return {
-        leftmenu:state.leftmenu,
+        leftmenu: state.leftmenu,
     }
 };
 export default connect(mapStateToProps)(Analysis);
