@@ -99,13 +99,15 @@ class BaseSkModel(object):
         """
         获取测试集/训练集 验证集所选的列
         """
-        model_params = self.form_data.get("model_param", {})
-        self.x_col = model_params.get("dataset", {}).get("x_col")
-        self.y_col = model_params.get("dataset", {}).get("y_col")
-        if not self.x_col or not self.y_col:
-            raise ValueError("模型参数[x_col]或则[y_col]为空！！！")
+        ana_code_logger.info("self.form_data.get(model_param): %s" % self.form_data.get("model_param"))
+        if self.form_data.get("model_param"):
+            model_params = self.form_data.get("model_param", {})
+            self.x_col = model_params.get("dataset", {}).get("x_col")
+            self.y_col = model_params.get("dataset", {}).get("y_col")
+            if not self.x_col or not self.y_col:
+                raise ValueError("模型参数[x_col]或则[y_col]为空！！！")
 
-        self.y_col = self.y_col[0]
+            self.y_col = self.y_col[0]
 
     def get_df(self, query_obj=None):
         """
