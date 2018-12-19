@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
-import {Select, Input} from 'antd';
+import {Select, Input, Checkbox} from 'antd';
 import {connect} from "react-redux";
 import {
     get_datasource_columns,
     delete_variable_box,
     modify_variable_box_field,
     modify_variable_box_bins,
-    modify_variable_box_labels
+    modify_variable_box_labels,
+    modify_include_endpoint
 } from '../../actions/leftmenu';
-import axios from 'axios';
 
 class Variablebox extends Component {
     constructor(props) {
@@ -16,11 +16,12 @@ class Variablebox extends Component {
     }
 
     render_select() {
-        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+        return (this.props.leftmenu.slice.all_select_column.map((res, index) => {
             return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
         }))
 
     }
+
     delete_variable() {
         this.props.delete_variable_box(this.props.variable_key);
     }
@@ -83,7 +84,7 @@ class Variablebox extends Component {
                 <div className="col-md-5">
                     <Input
                         value={undefined}
-                        placeholder="范围:[0,100,200,300]"
+                        placeholder="范围:0,100,200,300"
                         onChange={this.change_bins.bind(this)}
                     />
                 </div>
@@ -92,7 +93,7 @@ class Variablebox extends Component {
             return (
                 <div className="col-md-5">
                     <Input
-                        placeholder="范围:[0,100,200,300]"
+                        placeholder="范围:0,100,200,300"
                         value={this.props.bins}
                         onChange={this.change_bins.bind(this)}
                     />
@@ -101,23 +102,40 @@ class Variablebox extends Component {
         }
     }
 
+    render_checkbox() {
+        return (
+            <div className="col-md-7">
+                <Checkbox checked={this.props.left} onChange={this.change_checkbox.bind(this)}
+                          value="left">是否包含左端点</Checkbox>
+                <Checkbox checked={this.props.right} onChange={this.change_checkbox.bind(this)}
+                          value="right">是否包含右端点</Checkbox>
+            </div>
+        )
+    }
+
+    change_checkbox(e) {
+        console.log(e.target.checked);
+        console.log(e.target.value);
+        this.props.modify_include_endpoint(this.props.variable_key, e.target.checked, e.target.value);
+    }
+
     render_input_lables() {
         if (this.props.labels === '') {
             return (
-                <div className="col-md-5">
+                <div className="col-md-8">
                     <Input
                         value={undefined}
-                        placeholder="替换值:[0,1,2,3]"
+                        placeholder="替换值:0,1,2,3"
                         onChange={this.change_labels.bind(this)}
                     />
                 </div>
             )
         } else {
             return (
-                <div className="col-md-5">
+                <div className="col-md-8">
                     <Input
                         value={this.props.labels}
-                        placeholder="替换值:[0,1,2,3]"
+                        placeholder="替换值:0,1,2,3"
                         onChange={this.change_labels.bind(this)}
                     />
                 </div>
@@ -131,8 +149,11 @@ class Variablebox extends Component {
                 {this.render_select_columns()}
                 <div className="space-1 row">
                     {this.render_input_bins()}
+                    {this.render_checkbox()}
+                </div>
+                <div className="space-1 row">
                     {this.render_input_lables()}
-                    <div className="col-md-2">
+                    <div className="col-md-4">
                         <button
                             id="remove-button"
                             type="button"
@@ -158,5 +179,6 @@ export default connect(mapStateToProps, {
     delete_variable_box,
     modify_variable_box_field,
     modify_variable_box_bins,
-    modify_variable_box_labels
+    modify_variable_box_labels,
+    modify_include_endpoint
 })(Variablebox);

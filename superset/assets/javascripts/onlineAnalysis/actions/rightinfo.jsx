@@ -9,7 +9,6 @@ export const get_log= (name, id) =>{
             axios.get('/online/log/'+name+'/?log_dir_id='+id)
                 .then(res => {
                     console.log(res);
-                    res.data = res.data.replace('\n', '\n');
                     dispatch(save_log(res.data))
                 })
                 .catch(error => {

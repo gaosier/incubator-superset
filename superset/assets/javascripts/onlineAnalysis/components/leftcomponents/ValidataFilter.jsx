@@ -1,53 +1,60 @@
 import React, {Component} from 'react';
-import { connect } from 'react-redux';
-import { Button, Select, Input } from 'antd';
-import { get_datasource_columns, modify_filter_col, modify_filter_op, modify_filter_val,delete_vali_filters } from '../../actions/leftmenu';
+import {connect} from 'react-redux';
+import {Button, Select, Input} from 'antd';
+import {
+    get_datasource_columns,
+    modify_filter_col,
+    modify_filter_op,
+    modify_filter_val,
+    delete_vali_filters
+} from '../../actions/leftmenu';
 import axios from "axios/index";
 
 class ValidataFilter extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
-        this.state={
-            value_column:[]
+        this.state = {
+            value_column: []
         }
     }
 
-    change_select_col(value){
-        this.props.modify_filter_col(this.props.val_key,this.props.filter_key,value);
-        axios.get("/online/filter/table/" + this.props.leftmenu.datasource_id + '/'+value+'/')
+    change_select_col(value) {
+        this.props.modify_filter_col(this.props.val_key, this.props.filter_key, value);
+        axios.get("/online/filter/table/" + this.props.leftmenu.datasource_id + '/' + value + '/')
             .then(res => {
                 this.setState({
-                    value_column:res.data
+                    value_column: res.data
                 })
             })
             .catch(error => {
                 notification['error']({
                     message: '获取参数失败',
                     description: '获取参数失败,详情请咨询相关人员.',
-                  });
+                });
             })
     }
-    change_select_op(value){
-        this.props.modify_filter_op(this.props.val_key,this.props.filter_key,value);
+
+    change_select_op(value) {
+        this.props.modify_filter_op(this.props.val_key, this.props.filter_key, value);
     }
 
-    change_select_value(value){
-        this.props.modify_filter_val(this.props.val_key,this.props.filter_key,value);
+    change_select_value(value) {
+        this.props.modify_filter_val(this.props.val_key, this.props.filter_key, value);
     }
 
-    delete_comp(){
-        this.props.delete_vali_filters(this.props.val_key,this.props.filter_key);
+    delete_comp() {
+        this.props.delete_vali_filters(this.props.val_key, this.props.filter_key);
     }
 
     render_select_columns() {
-        return (this.props.leftmenu.slice.all_select_column.map((res,index) => {
+        return (this.props.leftmenu.slice.all_select_column.map((res, index) => {
             return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
         }))
     }
 
-    render_select_col(){
-        if(this.props.col === ""){
-            return(
+    render_select_col() {
+        if (this.props.col === "") {
+            return (
                 <Select
                     value={undefined}
                     style={{width: 484}}
@@ -55,28 +62,28 @@ class ValidataFilter extends Component {
                     searchPlaceholder="输入"
                     onChange={this.change_select_col.bind(this)}
                 >
-                    { this.render_select_columns() }
+                    {this.render_select_columns()}
                 </Select>
             )
-        }else{
-            return(
+        } else {
+            return (
                 <Select
-                value={this.props.col}
+                    value={this.props.col}
                     style={{width: 484}}
                     placeholder="请选择列名"
                     searchPlaceholder="输入"
                     onChange={this.change_select_col.bind(this)}>
-                    { this.render_select_columns() }
+                    {this.render_select_columns()}
                 </Select>
             )
         }
     }
 
-    render_select_op(){
-        if(this.props.op === ""){
-            return(
+    render_select_op() {
+        if (this.props.op === "") {
+            return (
                 <Select
-                value={undefined}
+                    value={undefined}
                     style={{width: 106}}
                     showSearch
                     placeholder="选择运算符"
@@ -90,10 +97,10 @@ class ValidataFilter extends Component {
 
                 </Select>
             )
-        }else{
-            return(
+        } else {
+            return (
                 <Select
-                value={this.props.op}
+                    value={this.props.op}
                     style={{width: 106}}
                     showSearch
                     placeholder="选择运算符"
@@ -110,15 +117,15 @@ class ValidataFilter extends Component {
         }
     }
 
-    render_select_value(){
-        return(this.state.value_column.map((dum,index) =>{
-            return(<Select.Option key={index} value={dum}>{dum}</Select.Option>)
+    render_select_value() {
+        return (this.state.value_column.map((dum, index) => {
+            return (<Select.Option key={index} value={dum}>{dum}</Select.Option>)
         }))
     }
 
-    render_select_val(){
-        if(this.props.val === ""){
-            return(
+    render_select_val() {
+        if (this.props.val === "") {
+            return (
                 <Select
                     value={undefined}
                     style={{width: 246}}
@@ -130,8 +137,8 @@ class ValidataFilter extends Component {
                     {this.render_select_value()}
                 </Select>
             )
-        }else{
-            return(
+        } else {
+            return (
                 <Select
                     value={this.props.val}
                     showSearch
@@ -183,4 +190,10 @@ const mapStateToProps = (state) => {
     }
 };
 
-export default connect(mapStateToProps,{ get_datasource_columns, modify_filter_col, modify_filter_op, modify_filter_val,delete_vali_filters })(ValidataFilter);
+export default connect(mapStateToProps, {
+    get_datasource_columns,
+    modify_filter_col,
+    modify_filter_op,
+    modify_filter_val,
+    delete_vali_filters
+})(ValidataFilter);
