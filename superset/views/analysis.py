@@ -743,18 +743,14 @@ class Online(BaseSupersetView):
 
     @api
     @has_access_api
-    @expose("/model/complete/download/", methods=["POST"])
-    def download_model_data(self):
+    @expose("/model/complete/download/<filename>")
+    def download_model_data(self, filename):
         """
         下载模型运行完成之后生成的数据
         """
-        form_data, _ = self.get_form_data()
-        model_result_execl_sl = form_data.get("model_result_execl_sl")
-        model_result_execl_bs = form_data.get("model_result_execl_bs")
-        if UserInfo.has_role([ "Admin" ]):
-            filename = model_result_execl_sl
-        else:
-            filename = model_result_execl_bs
+        if '_sl' in filename:
+            if not UserInfo.has_role(['Admin']):
+                return json_error_response(msg='您没有权限下载此数据！！！')
 
         directory = config.get("UPLOAD_FOLDER")
         response = make_response(send_from_directory(directory, filename, as_attachment=True))
