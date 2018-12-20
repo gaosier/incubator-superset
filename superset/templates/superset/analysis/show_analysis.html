@@ -1,0 +1,18 @@
+{% extends "superset/basic.html" %}
+
+{% block title %}
+  模型结果展示
+{% endblock %}
+
+{% block body %}
+  <div
+    id="js-add-slice-container"
+    data-bootstrap="{{ bootstrap_data }}"
+  ></div>
+{% endblock %}
+
+{% block tail_js %}
+      {% if entry %}
+        <script src="{{ js_manifest(entry + '.js') }}"></script>
+      {% endif %}
+{% endblock %}

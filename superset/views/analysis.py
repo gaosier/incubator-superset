@@ -179,7 +179,6 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
             if os.path.isfile(path):
                 os.remove(path)
 
-
     @expose('/add', methods=['GET', 'POST'])
     @has_access
     def add(self):
@@ -198,12 +197,20 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
     @expose('/show/<pk>', methods=['GET'])
     @has_access
     def show(self, pk):
-        self.show_template = 'superset/base.html'
+        self.show_template = 'superset/analysis/show_analysis.html'
         pk = self._deserialize_pk_if_composite(pk)
         widgets = self._show(pk)
+        instance = Analysis.get_instance(pk)
+        if not instance:
+            return json_error_response("实例不存在")
+        form_data = instance.form_data
+        log_dir_id = form_data.get("log_dir_id")
+        description_img = form_data.get("description_img")
+        bootstrap_data = {"log_dir_id": log_dir_id, "description_img": description_img}
         return self.render_template(self.show_template,
                                     pk=pk,
                                     title=self.show_title,
+                                    bootstrap_data=json.dumps(bootstrap_data),
                                     widgets=widgets,
                                     entry='test',        # 后期需要修改
                                     related_views=self._related_views)
@@ -736,16 +743,16 @@ class Online(BaseSupersetView):
     @has_access_api
     @expose("/log/business/")
     def log_bussiness(self):
-        analysis_id = request.args.get("log_dir_id")
-        if not analysis_id:
-            return json_error_response(u"参数[analysis_id]的值不能为空.")
+        log_dir_id = request.args.get("log_dir_id")
+        if not log_dir_id:
+            return json_error_response(u"参数[log_dir_id]的值不能为空.")
 
         logger = logging.getLogger("analysis.param")
         handler = next((handler for handler in logger.handlers
                         if handler.name == "param"), None)
 
         try:
-            logs = handler.read(analysis_id)
+            logs = handler.read(log_dir_id)
         except AttributeError as e:
             logs = ["Task log handler {} does not support read logs.\n{}\n".format("param", str(e))]
 

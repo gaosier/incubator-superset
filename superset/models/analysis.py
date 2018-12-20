@@ -175,6 +175,11 @@ class Analysis(Model, AuditMixinNullable):
     def description_markeddown(self):
         return utils.markdown(self.description)
 
+    @classmethod
+    def get_instance(cls, pk):
+        instance = db.session.query(cls).filter(cls.id == pk).first()
+        return instance
+
 
 sqla.event.listen(Analysis, 'before_insert', set_related_perm)
 sqla.event.listen(Analysis, 'before_update', set_related_perm)
