@@ -32,9 +32,11 @@ class RightInfo extends Component {
             console.log('相等')
         } else {
             console.log('不想等');
-            this.get_info('code', this.props.log_dir_id);
-            this.get_img('image', this.props.log_dir_id);
-            this.get_param('param', this.props.log_dir_id);
+            console.log(this.props.log_dir_id);
+            console.log('next',nextProps.log_dir_id);
+            this.get_info('code', nextProps.log_dir_id);
+            this.get_img('image', nextProps.log_dir_id);
+            this.get_param('param', nextProps.log_dir_id);
         }
     }
 

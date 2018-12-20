@@ -12,9 +12,7 @@ class ShowResult extends Component {
     }
 
     componentDidMount(){
-        const url = window.location.href.split('/');
-        console.log(url[url.length -1]);
-        axios.get('/online/log/business/?log_dir_id='+url[url.length -1])
+        axios.get('/online/log/business/?log_dir_id='+this.props.log_dir_id)
             .then(res => {
                 console.log(res);
                 this.setState({
@@ -31,22 +29,22 @@ class ShowResult extends Component {
 
     download_data(){
         const form_data = {
-            model_result_execl_bs: this.props.data,
+            model_result_execl_bs: this.props.description_img,
         };
         const disForm = document.createElement('form');
-        disForm.action = "/online/model/complete/download/";
+        disForm.action = "/online/model/complete/download/"+this.props.description_img;
         disForm.method = 'GET';
         disForm.target = '_blank';
         const token = document.createElement('input');
         token.type = 'hidden';
         token.name = 'csrf_token';
         token.value = (document.getElementById('csrf_token') || {}).value;
-        disForm.appendChild(token);
+        // disForm.appendChild(token);
         const data = document.createElement('input');
         data.type = 'hidden';
         data.name = 'form_data';
         data.value = JSON.stringify(form_data);
-        disForm.appendChild(data);
+        // disForm.appendChild(data);
 
         document.body.appendChild(disForm);
         disForm.submit();
