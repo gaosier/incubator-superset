@@ -8,6 +8,7 @@ import os
 import uuid
 import time
 import logging
+import shutil
 
 from urllib import parse
 from flask import (flash, redirect, request, g, render_template, send_file, send_from_directory, make_response,
@@ -156,7 +157,7 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
         if log_dir_id:
             log_dir = os.path.join(ANALYSIS_LOG_DIR, log_dir_id)
             if os.path.isdir(log_dir):
-                os.removedirs(log_dir)
+                shutil.rmtree(log_dir)     # 彻底删除文件夹
 
         # 2. 删除图片
         img_names = []
