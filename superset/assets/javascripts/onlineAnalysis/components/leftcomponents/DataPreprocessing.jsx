@@ -12,7 +12,7 @@ class DataPreprocessing extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            show_Modal: false,
+            show_Modal: false
         };
         this.toggleModal = this.toggleModal.bind(this);
     }
@@ -44,7 +44,7 @@ class DataPreprocessing extends Component {
                 <Modal.Header closeButton>
                     <Modal.Title>描述分析图片展示</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body id="miaoshufenxi">
                     {this.onEnterModal()}
                 </Modal.Body>
 

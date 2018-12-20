@@ -62,3 +62,6 @@ div#down_load{
     position: relative;
     margin-left: 60%;
 }
+div#miaoshufenxi{
+    overflow: auto;
+}

@@ -14,7 +14,6 @@ class ShowResult extends Component {
     componentDidMount(){
         axios.get('/online/log/business/?log_dir_id='+this.props.log_dir_id)
             .then(res => {
-                console.log(res);
                 this.setState({
                     show:res.data
                 })

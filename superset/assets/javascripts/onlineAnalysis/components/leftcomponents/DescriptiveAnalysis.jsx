@@ -6,7 +6,7 @@ import {
     set_null_operation,
     set_variable_box,
     increase_dummy,
-    increament_correlation, getcode, get_alldealna, see_corr, watch_corr
+    increament_correlation, getcode, get_alldealna, see_corr, watch_corr,delete_img
 } from '../../actions/leftmenu';
 import Variablebox from '../leftcomponents/Variablebox';
 import Dummy from '../leftcomponents/Dummy';
@@ -332,6 +332,7 @@ class DescriptiveAnalysis extends Component {
     }
 
     see_corr() {
+        this.props.delete_img();
         this.props.watch_corr(this.props.leftmenu.form_data.correlation_analysis, this.props.leftmenu.form_data.datasource, this.props.leftmenu.form_data.sk_type);
         this.setState({
             show_corrModal: !this.state.show_corrModal
@@ -453,5 +454,6 @@ export default connect(mapStateToProps, {
     set_variable_box,
     increase_dummy,
     increament_correlation,
-    watch_corr
+    watch_corr,
+    delete_img
 })(DescriptiveAnalysis);

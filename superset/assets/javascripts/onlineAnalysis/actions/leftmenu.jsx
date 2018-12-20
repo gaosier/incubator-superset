@@ -48,7 +48,8 @@ import {
     LOG,
     QUERY_RUN,
     SET_RUN,
-    MODIFY_INCLUDE_ENDPOINT
+    MODIFY_INCLUDE_ENDPOINT,
+    DELETE_IMG
 } from "../constants/leftmenu";
 import {get_log} from '../actions/rightinfo';
 
@@ -743,3 +744,11 @@ export const set_run = () =>{
         type:SET_RUN
     }
 };
+
+// 清除之前变量相关性分析的图片
+
+export const delete_img = () =>{
+    return{
+        type:DELETE_IMG
+    }
+}

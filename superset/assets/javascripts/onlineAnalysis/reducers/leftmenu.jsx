@@ -46,7 +46,7 @@ import {
     SET_VERSION,
     LOG,
     SET_RUN,
-    CHOICE_VERSION
+    CHOICE_VERSION, DELETE_IMG
 } from "../constants/leftmenu";
 
 const leftmenu = (state = {}, action = {}) => {
@@ -309,6 +309,11 @@ const leftmenu = (state = {}, action = {}) => {
             action.now_version.version = action.res;
             console.log('new_version',Object.assign({},state,{form_data:action.now_version}));
             return Object.assign({},state,{form_data:action.now_version,run_load:false});
+
+        case DELETE_IMG:
+            const delete_img = Object.assign({},state.form_data,{correlation_analysis_image:''});
+            console.log('delete_img',Object.assign({},state,{form_data:delete_img}));
+            return Object.assign({},state,{form_data:delete_img});
 
         default:
             return state;
