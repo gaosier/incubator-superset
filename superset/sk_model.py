@@ -241,16 +241,12 @@ class BaseSkModel(object):
         correlation_analysis = self.form_data.get("correlation_analysis", [])
         count = len(correlation_analysis)
 
-        if count < 3:
-            row = 1
-        else:
-            row = count//3 if count % 3 == 0 else count //3 + 1
-
-        fig, ax = plt.subplots(row, 3, figsize=(7, 3))
+        fig, ax = plt.subplots(1, count, figsize=(7, 3))
         count = -1
         for field, func, chart in correlation_analysis:
             count += 1
             if func == 'matplotlib' and chart == 'pie':
+                field = field[0]
                 ln = df[field].value_counts()
                 explode = [0]*ln
                 explode[1] = 0.1
@@ -258,11 +254,12 @@ class BaseSkModel(object):
                 ax[count].set_title(field)
                 ax[count].set_ylabel('y')
             elif func == 'seaborn' and chart == 'countplot':
+                field = field[0]
                 sns.countplot(field, data=df, ax=ax[count])
                 ax[count].set_title(field)
                 ax[count].set_ylabel('y')
             elif func == 'seaborn' and chart == 'heatmap':
-                sns.heatmap(df.corr(), annot=True, cmap='RdYlGn', linewidths=0.5)
+                sns.heatmap(df[field].corr(), annot=True, cmap='RdYlGn', linewidths=0.5)
                 fig = plt.gcf()
                 fig.set_size_inches(10, 8)
 
@@ -372,13 +369,17 @@ class BaseSkModel(object):
 
     def output(self, data):
         X = data[self.x_col]
-        Y = data[self.y_col]                            # 实际值
+        Y = data[self.y_col]  # 实际值
+
+        # 改变索引
+        end = len(Y.index)
+        Y.index = pd.RangeIndex(0, end)
 
         pred_proba = self.model.predict_proba(X)
         pred_class = self.model.predict(X)
 
-        pred_proba = DataFrame(pred_proba[:, 1])        # 概率
-        pred_class = DataFrame(pred_class)              # 分类
+        pred_proba = DataFrame(pred_proba[:, 1], columns=['pred_proba'])        # 概率
+        pred_class = DataFrame(pred_class, columns=['pred_class'])              # 分类
 
         concat_df = pd.concat([pred_proba, pred_class, Y], axis=1)
         return concat_df
@@ -476,8 +477,10 @@ class BaseSkModel(object):
             test_df_exc = self.output(pd.concat([self.X_test, self.y_test], axis=1))
 
             validate_df_exc = [self.output(df) for df in self.validate_datasets]
+            sl_data = [train_df_exc, test_df_exc]
+            sl_data.extend(validate_df_exc)
 
-            datas = {"sl": [train_df_exc, test_df_exc, validate_df_exc], "bs": [validate_df_exc]}
+            datas = {"sl": sl_data, "bs": validate_df_exc}
 
             execl_files = []
             for key, data in datas.items():
@@ -680,8 +683,10 @@ class GeneraLR(BaseSkModel):
             test_df_exc = pd.concat([self.X_test, self.y_test], axis=1)
 
             validate_df_exc = [df for df in self.validate_datasets]
+            sl_data = [train_df_exc, test_df_exc]
+            sl_data.extend(validate_df_exc)
 
-            datas = {"sl": [train_df_exc, test_df_exc, validate_df_exc], "bs": [validate_df_exc]}
+            datas = {"sl": sl_data, "bs": validate_df_exc}
 
             execl_files = []
             for key, data in datas.items():
@@ -770,9 +775,11 @@ class MixedLR(BaseSkModel):
         ana_param_logger.info('[%s]  Precision =  %s        Recall = %s' % (title, round(valid_precision[1], 4),
                                                                         round(valid_recall[1], 4)))
 
-    def deal_data(self, data):
+    def deal_data(self, data, title='test'):
         random_effects = self.model_rest.get("random_effects")  # 随机效应
+        ana_code_logger.info("[随机效应] ====> random_effects.shape:%s" % str(random_effects.shape))
         ana_code_logger.info("[随机效应] ====> random_effects:\n %s\n" % random_effects.head(10))
+
 
         # 合并数据集
         X_test= pd.merge(data, random_effects, on=self.master_factor, how='left')
@@ -818,16 +825,20 @@ class MixedLR(BaseSkModel):
         #self.output_data_to_excel(X_test=X_test, filename='r_test_data.xlsx')
 
         # 计算模型参数
-        self.calculate_model_param(self.y_test, X_test['pred_probs'].apply(change), title='test')
+        if title == 'test':
+            y = self.y_test
+        else:
+            y = data[self.y_col]
+        self.calculate_model_param(y, X_test['pred_probs'].apply(change), title)
         return X_test
 
     def aggregate(self, data):
         # 计算18春-18暑预测续报结果
         ana_code_logger.info("self.df.shape: %s        data.shape: %s" % (str(self.df[self.x_col].shape),
                                                                           str(data.shape)))
-        ana_code_logger.info("self.x_col: %s         self.y_col: %s" % (self.x_col, self.y_col))
+        ana_code_logger.info("self.x_col: %s\n        self.y_col: %s" % (self.x_col, self.y_col))
         cols = self.x_col + [self.y_col]
-        ana_code_logger.info("all columns: %s       df.columns: %s" % (cols, self.df.columns))
+        ana_code_logger.info("all columns: %s\n       df.columns: %s" % (cols, self.df.columns))
 
         df = pd.merge(self.df[cols], data, on=self.slave_factor, how='left')
         ana_code_logger.info("df.shape: %s" % str(df.shape))
@@ -868,6 +879,8 @@ class MixedLR(BaseSkModel):
 
         ins_rmse = np.sqrt(ins_mse)
         ana_code_logger.info("ins_rmse: %s" % ins_rmse)
+
+        return df
 
     def run_train(self):
         filename = os.path.join(R_MODEL_FILE, self.r_file)
@@ -950,13 +963,13 @@ class MixedLR(BaseSkModel):
         """
         ana_code_logger.info("验证集日志：\n")
         datasets = self.get_validate_dataset()
-        self.validate_datasets = datasets.values()
+        self.validate_datasets = []
 
-        for data in self.validate_datasets:
-            data = self.deal_data(data)
-            data['pred_probs'] = self.model_rest.get("predicted_probabilities")['predicted_probs_with_rand']
+        for data in datasets.values():
+            data = self.deal_data(data, title='validate')
             stu_result = data[[self.slave_factor, 'pred_probs']]
-            self.aggregate(stu_result)
+            new_df = self.aggregate(stu_result)
+            self.validate_datasets.append(new_df)
 
     def run(self):
         status = True
@@ -973,12 +986,21 @@ class MixedLR(BaseSkModel):
             self.run_validate()
 
             # 生成输出的df
+            # 改变索引
+            end = len(self.y_train.index)
+            self.y_train.index = pd.RangeIndex(0, end)
+
+            end = len(self.y_test.index)
+            self.y_test.index = pd.RangeIndex(0, end)
+
             train_df_exc = pd.concat([self.X_train, self.y_train], axis=1)
             test_df_exc = pd.concat([self.X_test, self.y_test], axis=1)
 
-            validate_df_exc = self.validate_datasets
+            validate_df_exc = list(self.validate_datasets)
+            data_sl = [train_df_exc, test_df_exc]
+            data_sl.extend(validate_df_exc)
 
-            datas = {"sl": [train_df_exc, test_df_exc, validate_df_exc], "bs": [validate_df_exc]}
+            datas = {"sl": data_sl, "bs": validate_df_exc}
 
             execl_files = []
             for key, data in datas.items():
