@@ -23,10 +23,11 @@ class ValidataDataset extends Component {
                 <div>
                 <Input
                     value={undefined}
+                    style={{width: 400}}
                     placeholder="请定义验证集名称"
                     onChange={this.change_input_name.bind(this)}
                 />
-                <button id="remove-button"
+                <button id="remove-button-name"
                                 type="button"
                                 className="btn btn-sm btn-default"
                                 onClick={this.delete_valdata.bind(this)}
@@ -39,10 +40,11 @@ class ValidataDataset extends Component {
                 <div>
                 <Input
                     value={this.props.name}
+                    style={{width: 400}}
                     placeholder="请定义验证集名称"
                     onChange={this.change_input_name.bind(this)}
                 />
-                    <button id="remove-button"
+                    <button id="remove-button-name"
                                 type="button"
                                 className="btn btn-sm btn-default"
                                 onClick={this.delete_valdata.bind(this)}

@@ -654,6 +654,7 @@ export const run_model = (form_data) => {
                     message: ' 很抱歉跑模型失败！',
                     description: data.err_msg,
                   });
+                    dispatch(run_models(data));
                 }
             }),
             error: ((data, type, err) => {
