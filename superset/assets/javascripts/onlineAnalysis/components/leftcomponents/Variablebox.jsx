@@ -69,12 +69,10 @@ class Variablebox extends Component {
     }
 
     change_bins(e) {
-        console.log(e.target.value);
         this.props.modify_variable_box_bins(this.props.variable_key, e.target.value);
     }
 
     change_labels(e) {
-        console.log(e.target.value);
         this.props.modify_variable_box_labels(this.props.variable_key, e.target.value);
     }
 
@@ -114,8 +112,6 @@ class Variablebox extends Component {
     }
 
     change_checkbox(e) {
-        console.log(e.target.checked);
-        console.log(e.target.value);
         this.props.modify_include_endpoint(this.props.variable_key, e.target.checked, e.target.value);
     }
 

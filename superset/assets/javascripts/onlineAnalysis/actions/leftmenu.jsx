@@ -51,7 +51,6 @@ import {
     MODIFY_INCLUDE_ENDPOINT,
     DELETE_IMG
 } from "../constants/leftmenu";
-import {get_log} from '../actions/rightinfo';
 
 // 获取所有模型名
 export const get_all_model = () => {
@@ -218,7 +217,6 @@ export const get_model_parameter = (name) => {
                 dispatch(get_modelparameter(res))
             })
             .catch(error => {
-                console.log(error);
                 notification['error']({
                     message: '获取机器学习模型参数失败',
                     description: '获取机器学习模型参数失败,详情请咨询相关人员.',
@@ -258,7 +256,6 @@ export const get_all_dealna = (sk_type, id) => {
                 dispatch(get_alldealna(data))
             }),
             error: ((data, type, err) => {
-                console.log(data, type, err);
                 notification['error']({
                     message: '获取缺失值失败',
                     description: '获取缺失值必须选择模型名称,您可能未选择模型名,若您已选择,请咨询相关人员.',
@@ -642,7 +639,6 @@ export const run_model = (form_data) => {
                 form_data: JSON.stringify(form_data),
             },
             success: ((data) => {
-                console.log(data);
                 if(data.status){
                     notification['success']({
                     message: ' 恭喜您！',
@@ -658,7 +654,6 @@ export const run_model = (form_data) => {
                 }
             }),
             error: ((data, type, err) => {
-                console.log(data, type, err);
                 notification['error']({
                     message: '跑模型失败',
                     description: '详情请咨询相关人员.',
@@ -706,11 +701,9 @@ export const save_allmodal = (form_data, id, action, name, version) => {
                 form_data: JSON.stringify(form_data),
             },
             success: ((data) => {
-                console.log(data);
                 dispatch(save_all_model(data))
             }),
             error: ((data, type, err) => {
-                console.log(data, type, err);
                 notification['error']({
                     message: '保存模型失败',
                     description: '详情请咨询相关人员.',

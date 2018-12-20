@@ -27,14 +27,11 @@ class DataModeling extends Component {
     toggleModal() {
 
         const sk_type = this.props.leftmenu.form_data.sk_type;
-        console.log(sk_type);
         const now_modal = this.props.leftmenu.form_data.model_param;
-        console.log('modal',now_modal);
         if(Object.keys(now_modal).length === 0){
             this.props.get_model_parameter(sk_type);
         }
         this.setState({show_Modal: !this.state.show_Modal});
-        // console.log('param',this.props.leftmenu.form_data.model_param);
     }
 
     closeModal() {
@@ -50,10 +47,6 @@ class DataModeling extends Component {
         this.props.modify_parameter(dum, cop, value);
     }
 
-    // change_y_col(value) {
-    //     this.props.modify_parameter('dataset', 'y_col', value);
-    // }
-
     render_column() {
         return (this.props.leftmenu.slice.all_select_column.map((res, index) => {
             return (<Select.Option key={index} value={res.name}>{res.verbose_name}</Select.Option>)
@@ -64,45 +57,6 @@ class DataModeling extends Component {
     show_param() {
         const keys = Object.keys(this.props.leftmenu.form_data.model_param);
         return (keys.map((dum, index) => {
-            // if (dum === 'dataset') {
-            //     return (
-            //         <Card
-            //             title={dum}
-            //             style={{width: 800}}
-            //             key={index}>
-            //             <div>
-            //                 <div>x_col</div>
-            //                 <Select
-            //                     style={{width: 606}}
-            //                     value={this.props.leftmenu.form_data.model_param.dataset.x_col}
-            //                     showSearch
-            //                     mode="multiple"
-            //                     placeholder="请选择列"
-            //                     searchPlaceholder="输入"
-            //                     onChange={this.change_x_col.bind(this)}
-            //
-            //                 >
-            //                     {this.render_column()}
-            //                 </Select>
-            //             </div>
-            //             <div>
-            //                 <div>y_col</div>
-            //                 <Select
-            //                     style={{width: 606}}
-            //                     value={this.props.leftmenu.form_data.model_param.dataset.y_col}
-            //                     showSearch
-            //                     mode="multiple"
-            //                     placeholder="请选择列"
-            //                     searchPlaceholder="输入"
-            //                     onChange={this.change_y_col.bind(this)}
-            //
-            //                 >
-            //                     {this.render_column()}
-            //                 </Select>
-            //             </div>
-            //         </Card>
-            //     )
-            // } else {
                 return (<Card
                     title={dum}
                     style={{width: 800}}
@@ -112,7 +66,6 @@ class DataModeling extends Component {
                         {this.render_pa(dum)}
                     </div>
                 </Card>)
-            // }
         }))
     }
 
@@ -128,8 +81,6 @@ class DataModeling extends Component {
     }
 
     render_input(dum, cop) {
-        // if(this.props.leftmenu.form_data.model_param[dum][cop])
-        // console.log('是否是数组',Array.isArray(this.props.leftmenu.form_data.model_param[dum][cop]));
         if(Array.isArray(this.props.leftmenu.form_data.model_param[dum][cop])){
             return(
                 <div>
@@ -164,7 +115,6 @@ class DataModeling extends Component {
     }
 
     change_input_name(dum, cop, e) {
-        // console.log(dum,cop,e.target.value);
         this.props.modify_parameter(dum, cop, e.target.value);
     }
 

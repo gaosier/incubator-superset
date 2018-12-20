@@ -8,7 +8,6 @@ export const get_log= (name, id) =>{
     return dispatch => {
             axios.get('/online/log/'+name+'/?log_dir_id='+id)
                 .then(res => {
-                    console.log(res);
                     dispatch(save_log(res.data))
                 })
                 .catch(error => {
@@ -27,7 +26,6 @@ export const get_parms = (name, id) =>{
     return dispatch => {
             axios.get('/online/param/'+name+'/?log_dir_id='+id)
                 .then(res => {
-                    console.log(res);
                     dispatch(save_param(res.data))
                 })
                 .catch(error => {
@@ -46,7 +44,6 @@ export const get_image = (name, id) =>{
     return dispatch => {
             axios.get('/online/image/'+name+'/?log_dir_id='+id)
                 .then(res => {
-                    console.log(res);
                     dispatch(save_image(res.data))
                 })
                 .catch(error => {

@@ -59,14 +59,9 @@ const leftmenu = (state = {}, action = {}) => {
         case SET_MODEL:
             const form_data = Object.assign({}, state.form_data);
             const new_form_data = Object.assign({}, form_data, {sk_type: action.model_name});
-            console.log(Object.assign({}, state, {form_data: new_form_data}));
             return Object.assign({}, state, {form_data: new_form_data});
 
         case GET_ALL_VERSION:
-            // const form_data_verison = Object.assign({},state.form_data);
-            // const verison_form_data = Object.assign({},form_data_verison,{versions:action.res.data});
-            // console.log(Object.assign({}, state, {form_data: verison_form_data}));
-            // return Object.assign({}, state, {form_data: verison_form_data});
             const slice_version = Object.assign({}, state.slice, {all_version: action.res.data});
             return Object.assign({}, state, {slice: slice_version});
 
@@ -81,15 +76,8 @@ const leftmenu = (state = {}, action = {}) => {
             return Object.assign({}, state, {slice: all_datasource_columns});
 
         case MODIFY_DATASOURCE:
-            // const datasource = action.id + "__table";
-            // const new_datasource = Object.assign({}, state.form_data, {datasource: datasource});
-            // const new_form = Object.assign({}, state, {form_data: new_datasource});
-            // const new_state = Object.assign({}, state, new_form);
             const new_state = Object.assign({},state,{form_data:action.form_data});
             return Object.assign({}, new_state, {datasource_id: action.id, datasource_name: action.name,run_load:false});
-        //
-        // case GET_CODE:
-        //     return Object.assign({},state,{code: action.res.data.code});
 
         case GET_DEAINA:
             return Object.assign({}, state, {all_dealina: action.res});
@@ -103,10 +91,7 @@ const leftmenu = (state = {}, action = {}) => {
                 operate: action.operate,
                 detail: action.detail
             });
-            // console.log('yyy',Object.assign({},state,set_null_operation));
             const new_null_form = Object.assign({}, state.form_data, {null_operate: set_null_operation});
-            console.log('zzz', new_null_form);
-            console.log(Object.assign({}, state, {form_data: new_null_form}));
             return Object.assign({}, state, {form_data: new_null_form});
 
         case NEW_VARIABLE_BOX:
@@ -119,15 +104,12 @@ const leftmenu = (state = {}, action = {}) => {
                     left: false
                 })
             });
-            console.log('new_var', new_variable_box);
-            console.log('new_state', Object.assign({}, state, {form_data: new_variable_box}));
             return Object.assign({}, state, {form_data: new_variable_box});
 
         case DELETE_VARIABLE_BOX:
             const old_variable_box = state.form_data.variable_box;
             old_variable_box.splice(action.index, 1);
             const after_variable_box = Object.assign({}, state.form_data, {variable_box: old_variable_box});
-            // console.log('after',Object.assign({},state,{form_data:after_variable_box}));
             return Object.assign({}, state, {form_data: after_variable_box});
 
         case MODIFY_VARIABLE_BOX_FIELD:
@@ -140,7 +122,6 @@ const leftmenu = (state = {}, action = {}) => {
 
         case MODIFY_INCLUDE_ENDPOINT:
             state.form_data.variable_box[action.index][action.res] = action.value;
-            console.log(Object.assign({}, state));
             return Object.assign({}, state);
 
         case MODIFY_VARIABLE_BOX_LABELS:
@@ -167,7 +148,6 @@ const leftmenu = (state = {}, action = {}) => {
         case DELETE_DUMMY:
             const old_dummy = state.form_data.dummy_variable;
             old_dummy.splice(action.index, 1);
-            console.log(old_dummy);
             const after_dummy = Object.assign({}, state.form_data, {dummy_variable: old_dummy});
             return Object.assign({}, state, {form_data: after_dummy});
 
@@ -240,7 +220,6 @@ const leftmenu = (state = {}, action = {}) => {
             const old_val = state.form_data.validate_datasets;
             old_val.splice(action.index, 1);
             const after_val = Object.assign({}, state.form_data, {correlation_analysis: old_val});
-            console.log(Object.assign({}, state, {form_data: after_val}));
             return Object.assign({}, state, {form_data: after_val});
 
         case MODIFY_VAL_NAME:
@@ -274,22 +253,17 @@ const leftmenu = (state = {}, action = {}) => {
             return Object.assign({}, state);
 
         case RUN:
-            console.log(action.data);
             state.form_data.log_dir_id = action.data.log_dir_id;
             state.form_data.model_result_execl_sl = action.data.model_result_execl_sl;
             state.form_data.model_result_execl_bs = action.data.model_result_execl_bs;
-            console.log(Object.assign({}, state));
             return Object.assign({}, state, {run_load: false, run_finish: true});
 
         case GET_ALL_FILTER_COLUMNS:
-            console.log(action.res.data);
             const get_all_column = Object.assign({}, state.slice, {all_select_column: action.res.data});
-            console.log(Object.assign({}, state, {slice: get_all_column}));
             return Object.assign({}, state, {slice: get_all_column});
 
         case SET_NAME:
             const set_name = Object.assign({}, state.form_data, {analysis_name: action.name});
-            console.log(set_name);
             return Object.assign({}, state, {form_data: set_name});
 
         case SET_VERSION:
@@ -298,21 +272,17 @@ const leftmenu = (state = {}, action = {}) => {
 
         case WATCH_CORR:
             const set_corr_img = Object.assign({}, state.form_data, {correlation_analysis_image: action.data.name});
-            console.log(333344, Object.assign({}, state, {form_data: set_corr_img}));
             return Object.assign({}, state, {form_data: set_corr_img});
 
         case SET_RUN:
-            console.log(Object.assign({}, state, {run_load: true}));
             return Object.assign({}, state, {run_load: true});
 
         case CHOICE_VERSION:
             action.now_version.version = action.res;
-            console.log('new_version',Object.assign({},state,{form_data:action.now_version}));
             return Object.assign({},state,{form_data:action.now_version,run_load:false});
 
         case DELETE_IMG:
             const delete_img = Object.assign({},state.form_data,{correlation_analysis_image:''});
-            console.log('delete_img',Object.assign({},state,{form_data:delete_img}));
             return Object.assign({},state,{form_data:delete_img});
 
         default:
