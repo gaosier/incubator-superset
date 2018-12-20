@@ -28,10 +28,12 @@ class DataModeling extends Component {
 
         const sk_type = this.props.leftmenu.form_data.sk_type;
         console.log(sk_type);
-        this.props.get_model_parameter(sk_type);
+        const now_modal = this.props.leftmenu.form_data.model_param;
+        console.log('modal',now_modal);
+        if(Object.keys(now_modal).length === 0){
+            this.props.get_model_parameter(sk_type);
+        }
         this.setState({show_Modal: !this.state.show_Modal});
-
-
         // console.log('param',this.props.leftmenu.form_data.model_param);
     }
 
@@ -44,13 +46,13 @@ class DataModeling extends Component {
 
     }
 
-    change_x_col(value) {
-        this.props.modify_parameter('dataset', 'x_col', value);
+    change_x_col(dum,cop,value) {
+        this.props.modify_parameter(dum, cop, value);
     }
 
-    change_y_col(value) {
-        this.props.modify_parameter('dataset', 'y_col', value);
-    }
+    // change_y_col(value) {
+    //     this.props.modify_parameter('dataset', 'y_col', value);
+    // }
 
     render_column() {
         return (this.props.leftmenu.slice.all_select_column.map((res, index) => {
@@ -62,45 +64,45 @@ class DataModeling extends Component {
     show_param() {
         const keys = Object.keys(this.props.leftmenu.form_data.model_param);
         return (keys.map((dum, index) => {
-            if (dum === 'dataset') {
-                return (
-                    <Card
-                        title={dum}
-                        style={{width: 800}}
-                        key={index}>
-                        <div>
-                            <div>x_col</div>
-                            <Select
-                                style={{width: 606}}
-                                value={this.props.leftmenu.form_data.model_param.dataset.x_col}
-                                showSearch
-                                mode="multiple"
-                                placeholder="请选择列"
-                                searchPlaceholder="输入"
-                                onChange={this.change_x_col.bind(this)}
-
-                            >
-                                {this.render_column()}
-                            </Select>
-                        </div>
-                        <div>
-                            <div>y_col</div>
-                            <Select
-                                style={{width: 606}}
-                                value={this.props.leftmenu.form_data.model_param.dataset.y_col}
-                                showSearch
-                                mode="multiple"
-                                placeholder="请选择列"
-                                searchPlaceholder="输入"
-                                onChange={this.change_y_col.bind(this)}
-
-                            >
-                                {this.render_column()}
-                            </Select>
-                        </div>
-                    </Card>
-                )
-            } else {
+            // if (dum === 'dataset') {
+            //     return (
+            //         <Card
+            //             title={dum}
+            //             style={{width: 800}}
+            //             key={index}>
+            //             <div>
+            //                 <div>x_col</div>
+            //                 <Select
+            //                     style={{width: 606}}
+            //                     value={this.props.leftmenu.form_data.model_param.dataset.x_col}
+            //                     showSearch
+            //                     mode="multiple"
+            //                     placeholder="请选择列"
+            //                     searchPlaceholder="输入"
+            //                     onChange={this.change_x_col.bind(this)}
+            //
+            //                 >
+            //                     {this.render_column()}
+            //                 </Select>
+            //             </div>
+            //             <div>
+            //                 <div>y_col</div>
+            //                 <Select
+            //                     style={{width: 606}}
+            //                     value={this.props.leftmenu.form_data.model_param.dataset.y_col}
+            //                     showSearch
+            //                     mode="multiple"
+            //                     placeholder="请选择列"
+            //                     searchPlaceholder="输入"
+            //                     onChange={this.change_y_col.bind(this)}
+            //
+            //                 >
+            //                     {this.render_column()}
+            //                 </Select>
+            //             </div>
+            //         </Card>
+            //     )
+            // } else {
                 return (<Card
                     title={dum}
                     style={{width: 800}}
@@ -110,7 +112,7 @@ class DataModeling extends Component {
                         {this.render_pa(dum)}
                     </div>
                 </Card>)
-            }
+            // }
         }))
     }
 
@@ -126,6 +128,26 @@ class DataModeling extends Component {
     }
 
     render_input(dum, cop) {
+        // if(this.props.leftmenu.form_data.model_param[dum][cop])
+        // console.log('是否是数组',Array.isArray(this.props.leftmenu.form_data.model_param[dum][cop]));
+        if(Array.isArray(this.props.leftmenu.form_data.model_param[dum][cop])){
+            return(
+                <div>
+                <Select
+                                style={{width: 606}}
+                                value={this.props.leftmenu.form_data.model_param[dum][cop]}
+                                showSearch
+                                mode="multiple"
+                                placeholder="请选择列"
+                                searchPlaceholder="输入"
+                                onChange={this.change_x_col.bind(this,dum,cop)}
+
+                            >
+                                {this.render_column()}
+                            </Select>
+                </div>
+            )
+        }else{
         if (this.props.leftmenu.form_data.model_param === '' && this.props.leftmenu.form_data.model_param === []) {
             return (<Input
                 value={undefined}
@@ -138,7 +160,7 @@ class DataModeling extends Component {
                 placeholder="请输入变量值"
                 onChange={this.change_input_name.bind(this, dum, cop)}
             />)
-        }
+        }}
     }
 
     change_input_name(dum, cop, e) {
@@ -162,7 +184,7 @@ class DataModeling extends Component {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.close_model.bind(this)}>保存</Button>
+                    <Button onClick={this.close_model.bind(this)}>关闭</Button>
                 </Modal.Footer>
 
             </Modal>)

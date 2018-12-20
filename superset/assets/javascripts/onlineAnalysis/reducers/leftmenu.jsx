@@ -86,7 +86,7 @@ const leftmenu = (state = {}, action = {}) => {
             // const new_form = Object.assign({}, state, {form_data: new_datasource});
             // const new_state = Object.assign({}, state, new_form);
             const new_state = Object.assign({},state,{form_data:action.form_data});
-            return Object.assign({}, new_state, {datasource_id: action.id, datasource_name: action.name});
+            return Object.assign({}, new_state, {datasource_id: action.id, datasource_name: action.name,run_load:false});
         //
         // case GET_CODE:
         //     return Object.assign({},state,{code: action.res.data.code});
@@ -308,7 +308,7 @@ const leftmenu = (state = {}, action = {}) => {
         case CHOICE_VERSION:
             action.now_version.version = action.res;
             console.log('new_version',Object.assign({},state,{form_data:action.now_version}));
-            return Object.assign({},state,{form_data:action.now_version});
+            return Object.assign({},state,{form_data:action.now_version,run_load:false});
 
         default:
             return state;

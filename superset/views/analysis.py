@@ -212,7 +212,7 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
                                     title=self.show_title,
                                     bootstrap_data=json.dumps(bootstrap_data),
                                     widgets=widgets,
-                                    entry='test',        # 后期需要修改
+                                    entry='showResult',        # 后期需要修改
                                     related_views=self._related_views)
 
 

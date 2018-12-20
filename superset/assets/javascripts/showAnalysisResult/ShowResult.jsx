@@ -1,16 +1,25 @@
 import React, { Component } from 'react'
 import axios from 'axios';
 import { notification, Button } from 'antd';
+import './main.css';
 
-class Showresult extends Component {
+class ShowResult extends Component {
     constructor(props){
         super(props);
+        this.state={
+            show:''
+        }
     }
 
     componentDidMount(){
-        axios.get('/online/log/business/')
+        const url = window.location.href.split('/');
+        console.log(url[url.length -1]);
+        axios.get('/online/log/business/?log_dir_id='+url[url.length -1])
             .then(res => {
                 console.log(res);
+                this.setState({
+                    show:res.data
+                })
             })
             .catch(error => {
                 notification['error']({
@@ -26,7 +35,7 @@ class Showresult extends Component {
         };
         const disForm = document.createElement('form');
         disForm.action = "/online/model/complete/download/";
-        disForm.method = 'POST';
+        disForm.method = 'GET';
         disForm.target = '_blank';
         const token = document.createElement('input');
         token.type = 'hidden';
@@ -45,13 +54,13 @@ class Showresult extends Component {
     }
 
     render_img(){
-
+        return(<pre>{this.state.show}</pre>)
     }
 
     render() {
         return (
             <div>
-                <div>
+                <div id="download">
                 <Button>
                         <a
                             onClick={this.download_data.bind(this)}
@@ -61,7 +70,7 @@ class Showresult extends Component {
                         </a>
                     </Button>
                 </div>
-                <div>
+                <div id="zhanshi">
                     {this.render_img()}
                 </div>
             </div>
@@ -69,4 +78,4 @@ class Showresult extends Component {
     }
 }
 
-export default Showresult;
+export default ShowResult;
