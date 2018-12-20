@@ -77,7 +77,6 @@ class LeftMenu extends Component {
                 </div>
             )
         } else {
-            console.log('state', this.state.can_overwrite, this.state.can_add);
             const radioStyle = {
                 display: 'block',
                 height: '30px',
@@ -105,7 +104,6 @@ class LeftMenu extends Component {
     }
 
     change_action(e) {
-        console.log(e.target.value);
         this.setState({
             chose_action: e.target.value
         })
@@ -117,10 +115,8 @@ class LeftMenu extends Component {
         this.setState({
             show_save_model: !this.state.show_save_model
         });
-        console.log(111, this.props.leftmenu.form_data.analysis_id);
         if (this.state.chose_action === 'saveas') {
             this.save_allmodal(this.props.leftmenu.form_data, this.props.leftmenu.datasource_id, this.state.chose_action, this.state.saves_name, this.state.version);
-            // this.props.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,this.state.chose_action,this.state.saves_name,this.state.version);
         } else if (this.state.chose_action === 'overwrite') {
             this.save_allmodal(this.props.leftmenu.form_data, this.props.leftmenu.datasource_id, this.state.chose_action, this.state.name, this.state.version);
             // this.props.save_allmodal(this.props.leftmenu.form_data,this.props.leftmenu.datasource_id,this.state.chose_action,this.state.name,this.state.version);
@@ -168,17 +164,12 @@ class LeftMenu extends Component {
                 form_data: JSON.stringify(form_data),
             },
             success: ((data) => {
-                console.log(data);
                 const analysis_id = data.slice.id;
-                console.log(analysis_id);
                 const url = window.location.href.split('?')[0];
-                console.log(url);
                 const new_url = encodeURI(url + '?form_data={"analysis_id":' + analysis_id + '}');
-                console.log(new_url);
                 window.open(new_url, '_self');
             }),
             error: ((data, type, err) => {
-                console.log(data, type, err);
                 notification['error']({
                     message: '保存模型失败',
                     description: '详情请咨询相关人员.',

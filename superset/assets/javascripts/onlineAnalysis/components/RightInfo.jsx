@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Tabs, Tab} from 'react-bootstrap';
-import { Button, notification } from 'antd';
+import { Button, notification,Divider } from 'antd';
 import {connect} from 'react-redux';
 import axios from 'axios';
 
@@ -27,13 +27,8 @@ class RightInfo extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log(11111, nextProps);
         if (this.props.log_dir_id === nextProps.log_dir_id) {
-            console.log('相等')
         } else {
-            console.log('不想等');
-            console.log(this.props.log_dir_id);
-            console.log('next',nextProps.log_dir_id);
             this.get_info('code', nextProps.log_dir_id);
             this.get_img('image', nextProps.log_dir_id);
             this.get_param('param', nextProps.log_dir_id);
@@ -43,7 +38,6 @@ class RightInfo extends Component {
     get_info(name, id) {
         axios.get('/online/log/' + name + '/?log_dir_id=' + id)
             .then(res => {
-                console.log('log',res);
                 this.setState({
                     log: res.data
                 })
@@ -55,7 +49,6 @@ class RightInfo extends Component {
     get_param(name, id) {
         axios.get('/online/log/' + name + '/?log_dir_id=' + id)
             .then(res => {
-                console.log('param', res);
                 this.setState({
                     param: res.data
                 })
@@ -67,7 +60,6 @@ class RightInfo extends Component {
     get_img(name, id) {
         axios.get('/online/log/' + name + '/?log_dir_id=' + id)
             .then(res => {
-                console.log('image', res);
                 this.setState({
                     img: res.data
                 })
@@ -77,7 +69,6 @@ class RightInfo extends Component {
     }
 
     render_log() {
-        console.log(this.props.leftmenu.run_load);
         if(this.props.leftmenu.run_load){
             return(
                 <img
@@ -115,7 +106,7 @@ class RightInfo extends Component {
         else{
             return(this.state.img.map((dun,index) =>{
              const url_img = "/static/uploads/img/" + dun;
-            return(<div key={index}><img src={url_img} /></div>)
+            return(<div key={index}><img src={url_img} id="show_img"/> <Divider /></div>)
         }))
         }
     }

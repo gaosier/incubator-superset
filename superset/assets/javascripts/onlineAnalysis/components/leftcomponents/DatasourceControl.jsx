@@ -55,7 +55,6 @@ export default class DatasourceControl extends React.PureComponent {
         }
         const url = '/superset/datasources/';
         const that = this;
-        console.log('whywhywhy', this.state.datasources);
         if (!this.state.datasources) {
             $.ajax({
                 type: 'GET',

@@ -18,7 +18,6 @@ import MetricOption from '../../../components/MetricOption';
 class Datasource extends React.PureComponent {
     constructor(props) {
         super(props);
-        console.log(props);
         this.state = {
             showModal: false,
             filter: '',
@@ -43,7 +42,6 @@ class Datasource extends React.PureComponent {
         if (this.searchRef) {
             this.searchRef.focus();
         }
-        console.log(this.props);
         this.props.get_all_datasource();
         this.setState({
             loading: false,
@@ -116,7 +114,6 @@ class Datasource extends React.PureComponent {
     }
 
     toggleShowDatasource() {
-        console.log(this.props.leftmenu.slice.all_datasource_columns.columns);
         if (this.state.first_load_column) {
             this.props.get_datasource_columns(this.props.leftmenu.datasource_id);
         };

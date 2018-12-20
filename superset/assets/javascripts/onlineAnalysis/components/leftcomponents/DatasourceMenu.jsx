@@ -44,17 +44,14 @@ class DatasourceMenu extends Component {
     }
 
     show_all_version_name() {
-        console.log(this.props.leftmenu);
         this.props.get_all_version(this.props.leftmenu.form_data.name);
     }
 
     change_version(value) {
         this.props.choice_version(value, this.props.leftmenu.slice.all_version);
-        console.log(value);
     }
 
     render_version() {
-        console.log(this.props.leftmenu.slice.all_version['v1.0']);
         return Object.keys(this.props.leftmenu.slice.all_version).map((element, index) =>
             <Select.Option key={index} value={element}> {element}</Select.Option>);
     }
@@ -203,7 +200,7 @@ class DatasourceMenu extends Component {
                 <div id="model-show">
                     <span>模型名称</span>
                     {this.render_sk_type()}
-                    <Button onClick={this.toggleCode.bind(this)}><Icon type="search"/>预览代码</Button>
+                    <Button id="yulan" onClick={this.toggleCode.bind(this)}><Icon type="search"/>预览代码</Button>
                     {this.render_code_model()}
                 </div>
                 <div>

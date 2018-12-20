@@ -95,7 +95,7 @@ class ShowResult extends Component {
                       <Tab eventKey={2} title="模型参数">
                         {this.render_log()}
                       </Tab>
-                    </Tabs>;
+                    </Tabs>
                 </div>
             </div>
         )

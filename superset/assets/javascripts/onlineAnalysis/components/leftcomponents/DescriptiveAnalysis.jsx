@@ -53,7 +53,6 @@ class DescriptiveAnalysis extends Component {
             for (let i = 0; i < Object.keys(this.state.detail).length; i++) {
                 detail.push([Object.keys(this.state.detail)[i], Object.values(this.state.detail)[i]]);
             }
-            console.log('xxxx', this.state.value);
             this.props.set_null_operation(this.state.value, detail)
         }
         this.setState({
@@ -133,14 +132,12 @@ class DescriptiveAnalysis extends Component {
             },
             dataType: "TEXT",
             success: ((data) => {
-                console.log(111, data);
                 this.setState({
                     loading: false,
                     describe_table: data
                 })
             }),
             error: ((data, type, err) => {
-                console.log(222, data, type, err);
                 notification['error']({
                     message: '获取缺失值失败',
                     description: '获取缺失值必须选择模型名称,您可能未选择模型名,若您已选择,请咨询相关人员.',
