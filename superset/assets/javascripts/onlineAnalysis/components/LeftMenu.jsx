@@ -222,7 +222,7 @@ class LeftMenu extends Component {
             <div>
                 <div className="TopBtn">
                     <Button onClick={this.run_modul.bind(this)}><Icon type="play-circle" theme="filled"/>运行</Button>
-                    <Button onClick={this.save_model.bind(this)}><Icon type="plus-circle" theme="filled"/>保存</Button>
+                    <Button id="baocun" onClick={this.save_model.bind(this)}><Icon type="plus-circle" theme="filled"/>保存</Button>
                 </div>
                 {this.render_save_modal()}
                 <div className="make">

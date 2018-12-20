@@ -87,7 +87,7 @@ class ValidataDataset extends Component {
                         className="btn btn-sm btn-default"
                         onClick={this.increase_model.bind(this)}
                 >
-                    <i className="fa fa-plus"></i>增加验证模型数据集
+                    <i className="fa fa-plus"></i>增加过滤条件
                 </button>
 
             </div>

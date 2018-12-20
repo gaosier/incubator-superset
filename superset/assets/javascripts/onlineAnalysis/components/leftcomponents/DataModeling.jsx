@@ -184,7 +184,7 @@ class DataModeling extends Component {
                 <div>
                     <Divider>跑模型数据集</Divider>
                     {this.render_train()}
-                    <Button onClick={this.add_train.bind(this)}>添加跑模型数据集</Button>
+                    <Button onClick={this.add_train.bind(this)}>增加过滤条件</Button>
 
                 </div>
                 <div>
