@@ -1,9 +1,12 @@
 div#download{
     position:relative;
-    margin-left:60%;
+    margin-left:70%;
 }
 
 div#zhanshi{
-    max-width: 50%;
+    max-width: 60%;
     margin-left:20%;
+}
+div#tupian{
+    text-align: center;
 }

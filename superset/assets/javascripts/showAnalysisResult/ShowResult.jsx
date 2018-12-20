@@ -29,10 +29,10 @@ class ShowResult extends Component {
 
     download_data(){
         const form_data = {
-            model_result_execl_bs: this.props.description_img,
+            model_result_execl_bs: this.props.model_result_execl_bs,
         };
         const disForm = document.createElement('form');
-        disForm.action = "/online/model/complete/download/"+this.props.description_img;
+        disForm.action = "/online/model/complete/download/"+this.props.model_result_execl_bs;
         disForm.method = 'GET';
         disForm.target = '_blank';
         const token = document.createElement('input');
@@ -51,8 +51,18 @@ class ShowResult extends Component {
         document.body.removeChild(disForm);
     }
 
-    render_img(){
+    render_log(){
         return(<pre>{this.state.show}</pre>)
+    }
+
+    render_img(){
+        const url_img = "/static/uploads/img/" + this.props.description_img;
+        return(
+            <div id="tupian">
+            <div>描述分析图片展示</div>
+            <img src={url_img} />
+            </div>
+                )
     }
 
     render() {
@@ -69,6 +79,7 @@ class ShowResult extends Component {
                     </Button>
                 </div>
                 <div id="zhanshi">
+                    {this.render_log()}
                     {this.render_img()}
                 </div>
             </div>

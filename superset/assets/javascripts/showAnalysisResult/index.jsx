@@ -18,7 +18,11 @@ const bootstrapData = JSON.parse(analysisShowContainer.getAttribute('data-bootst
 
 ReactDOM.render(
     <div>
-      <ShowResult log_dir-id={bootstrapData.log_dir_id} description_img={bootstrapData.description_img}/>
+      <ShowResult
+          log_dir_id={bootstrapData.log_dir_id}
+          description_img={bootstrapData.description_img}
+          model_result_execl_bs={bootstrapData.model_result_execl_bs}
+      />
     </div>,
   analysisShowContainer,
 );
