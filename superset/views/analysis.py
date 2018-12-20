@@ -763,7 +763,7 @@ class Online(BaseSupersetView):
 
     @api
     @has_access_api
-    @expose("/model/complete/download/<filename>")
+    @expose("/model/complete/download/<filename>/")
     def download_model_data(self, filename):
         """
         下载模型运行完成之后生成的数据
