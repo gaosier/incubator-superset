@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import axios from 'axios';
 import { notification, Button } from 'antd';
 import './main.css';
+import {Tabs, Tab} from 'react-bootstrap';
+
 
 class ShowResult extends Component {
     constructor(props){
@@ -51,17 +53,25 @@ class ShowResult extends Component {
     }
 
     render_log(){
-        return(<pre>{this.state.show}</pre>)
+        if(this.state.show ===''){
+            return(<div>暂时不存在参数</div>)
+        }else
+        {
+            return (<pre>{this.state.show}</pre>)
+        }
     }
 
     render_img(){
+        if(this.props.description_img === ''){
+            return(
+                <div>暂时不存在描述分析图片</div>
+            )}else{
         const url_img = "/static/uploads/img/" + this.props.description_img;
         return(
             <div id="tupian">
-            <div>描述分析图片展示</div>
             <img src={url_img} />
             </div>
-                )
+                )}
     }
 
     render() {
@@ -78,8 +88,14 @@ class ShowResult extends Component {
                     </Button>
                 </div>
                 <div id="zhanshi">
-                    {this.render_log()}
-                    {this.render_img()}
+                    <Tabs defaultActiveKey={1} id="uncontrolled-tab-example">
+                      <Tab eventKey={1} title="描述分析">
+                        {this.render_img()}
+                      </Tab>
+                      <Tab eventKey={2} title="模型参数">
+                        {this.render_log()}
+                      </Tab>
+                    </Tabs>;
                 </div>
             </div>
         )
