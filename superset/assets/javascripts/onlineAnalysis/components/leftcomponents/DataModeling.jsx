@@ -28,7 +28,7 @@ class DataModeling extends Component {
 
         const sk_type = this.props.leftmenu.form_data.sk_type;
         const now_modal = this.props.leftmenu.form_data.model_param;
-        if(Object.keys(now_modal).length === 0){
+        if (Object.keys(now_modal).length === 0) {
             this.props.get_model_parameter(sk_type);
         }
         this.setState({show_Modal: !this.state.show_Modal});
@@ -43,7 +43,7 @@ class DataModeling extends Component {
 
     }
 
-    change_x_col(dum,cop,value) {
+    change_x_col(dum, cop, value) {
         this.props.modify_parameter(dum, cop, value);
     }
 
@@ -57,15 +57,15 @@ class DataModeling extends Component {
     show_param() {
         const keys = Object.keys(this.props.leftmenu.form_data.model_param);
         return (keys.map((dum, index) => {
-                return (<Card
-                    title={dum}
-                    style={{width: 800}}
-                    key={index}
-                >
-                    <div>
-                        {this.render_pa(dum)}
-                    </div>
-                </Card>)
+            return (<Card
+                title={dum}
+                style={{width: 800}}
+                key={index}
+            >
+                <div>
+                    {this.render_pa(dum)}
+                </div>
+            </Card>)
         }))
     }
 
@@ -81,37 +81,38 @@ class DataModeling extends Component {
     }
 
     render_input(dum, cop) {
-        if(Array.isArray(this.props.leftmenu.form_data.model_param[dum][cop])){
-            return(
+        if (Array.isArray(this.props.leftmenu.form_data.model_param[dum][cop])) {
+            return (
                 <div>
-                <Select
-                                style={{width: 606}}
-                                value={this.props.leftmenu.form_data.model_param[dum][cop]}
-                                showSearch
-                                mode="multiple"
-                                placeholder="请选择列"
-                                searchPlaceholder="输入"
-                                onChange={this.change_x_col.bind(this,dum,cop)}
+                    <Select
+                        style={{width: 606}}
+                        value={this.props.leftmenu.form_data.model_param[dum][cop]}
+                        showSearch
+                        mode="multiple"
+                        placeholder="请选择列"
+                        searchPlaceholder="输入"
+                        onChange={this.change_x_col.bind(this, dum, cop)}
 
-                            >
-                                {this.render_column()}
-                            </Select>
+                    >
+                        {this.render_column()}
+                    </Select>
                 </div>
             )
-        }else{
-        if (this.props.leftmenu.form_data.model_param === '' && this.props.leftmenu.form_data.model_param === []) {
-            return (<Input
-                value={undefined}
-                placeholder="请输入变量值"
-                onChange={this.change_input_name.bind(this, dum, cop)}
-            />)
         } else {
-            return (<Input
-                value={this.props.leftmenu.form_data.model_param[dum][cop]}
-                placeholder="请输入变量值"
-                onChange={this.change_input_name.bind(this, dum, cop)}
-            />)
-        }}
+            if (this.props.leftmenu.form_data.model_param === '' && this.props.leftmenu.form_data.model_param === []) {
+                return (<Input
+                    value={undefined}
+                    placeholder="请输入变量值"
+                    onChange={this.change_input_name.bind(this, dum, cop)}
+                />)
+            } else {
+                return (<Input
+                    value={this.props.leftmenu.form_data.model_param[dum][cop]}
+                    placeholder="请输入变量值"
+                    onChange={this.change_input_name.bind(this, dum, cop)}
+                />)
+            }
+        }
     }
 
     change_input_name(dum, cop, e) {

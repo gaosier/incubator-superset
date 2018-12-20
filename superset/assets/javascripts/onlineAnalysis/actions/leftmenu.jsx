@@ -156,27 +156,27 @@ export const get_alldatasource = (res) => {
 export const modify_datasource = (id, name) => {
     const datasource = id + '__table';
     const form_data = {
-            datasource: datasource,
-            version: '',
-            sk_type:  '',
-            analysis_id:  '',
-            name: '',
-            null_operate: {
-                operate: '',
-                detail: []
-            },
-            variable_box:  [],
-            dummy_variable:  [],
-            correlation_analysis: [],
-            train_dataset: [],
-            validate_datasets: [],
-            model_param: [],
-            description_img: "",
-            log_dir_id: "",
-            correlation_analysis_image: "",
-            model_result_execl_sl:  "",
-            model_result_execl_bs:""
-        };
+        datasource: datasource,
+        version: '',
+        sk_type: '',
+        analysis_id: '',
+        name: '',
+        null_operate: {
+            operate: '',
+            detail: []
+        },
+        variable_box: [],
+        dummy_variable: [],
+        correlation_analysis: [],
+        train_dataset: [],
+        validate_datasets: [],
+        model_param: [],
+        description_img: "",
+        log_dir_id: "",
+        correlation_analysis_image: "",
+        model_result_execl_sl: "",
+        model_result_execl_bs: ""
+    };
     return {
         type: MODIFY_DATASOURCE,
         id,
@@ -320,9 +320,9 @@ export const modify_variable_box_bins = (index, bins) => {
 };
 
 // 修改是否包含左右端点
-export const modify_include_endpoint = (index,value,res) =>{
+export const modify_include_endpoint = (index, value, res) => {
     return {
-        type:MODIFY_INCLUDE_ENDPOINT,
+        type: MODIFY_INCLUDE_ENDPOINT,
         index,
         value,
         res
@@ -639,17 +639,17 @@ export const run_model = (form_data) => {
                 form_data: JSON.stringify(form_data),
             },
             success: ((data) => {
-                if(data.status){
+                if (data.status) {
                     notification['success']({
-                    message: ' 恭喜您！',
-                    description: '恭喜您跑模型成功,请在右侧查看各类展示.',
-                  });
+                        message: ' 恭喜您！',
+                        description: '恭喜您跑模型成功,请在右侧查看各类展示.',
+                    });
                     dispatch(run_models(data));
-                }else{
+                } else {
                     notification['error']({
-                    message: ' 很抱歉跑模型失败！',
-                    description: data.err_msg,
-                  });
+                        message: ' 很抱歉跑模型失败！',
+                        description: data.err_msg,
+                    });
                     dispatch(run_models(data));
                 }
             }),
@@ -722,7 +722,7 @@ export const save_all_model = (data) => {
 
 // 设置版本号
 
-export const choice_version = (res,all_version) => {
+export const choice_version = (res, all_version) => {
     const now_version = all_version[res];
     return {
         type: CHOICE_VERSION,
@@ -733,16 +733,16 @@ export const choice_version = (res,all_version) => {
 
 // 设置正在跑模型标识
 
-export const set_run = () =>{
+export const set_run = () => {
     return {
-        type:SET_RUN
+        type: SET_RUN
     }
 };
 
 // 清除之前变量相关性分析的图片
 
-export const delete_img = () =>{
-    return{
-        type:DELETE_IMG
+export const delete_img = () => {
+    return {
+        type: DELETE_IMG
     }
 }

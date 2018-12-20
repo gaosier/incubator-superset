@@ -116,7 +116,8 @@ class Datasource extends React.PureComponent {
     toggleShowDatasource() {
         if (this.state.first_load_column) {
             this.props.get_datasource_columns(this.props.leftmenu.datasource_id);
-        };
+        }
+        ;
 
         this.setState({showDatasource: !this.state.showDatasource, first_load_column: false});
     }

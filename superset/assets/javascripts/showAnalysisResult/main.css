@@ -1,13 +1,14 @@
-div#download{
-    position:relative;
-    margin-left:70%;
+div#download {
+    position: relative;
+    margin-left: 70%;
 }
 
-div#zhanshi{
+div#zhanshi {
     max-width: 60%;
-    margin-left:20%;
+    margin-left: 20%;
 }
-div#tupian{
+
+div#tupian {
     text-align: center;
-    margin-top:50px;
+    margin-top: 50px;
 }

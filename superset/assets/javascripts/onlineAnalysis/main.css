@@ -58,28 +58,34 @@ div#version {
     position: absolute;
     margin: -30px 330px 0;
 }
-div#down_load{
+
+div#down_load {
     position: relative;
     margin-left: 60%;
 }
-div#miaoshufenxi{
+
+div#miaoshufenxi {
     overflow: auto;
 }
 
-#remove-button-name{
-    margin-left:30px;
+#remove-button-name {
+    margin-left: 30px;
 }
-button#download_data{
-    margin-right:30px;
+
+button#download_data {
+    margin-right: 30px;
 }
-button#yulan{
+
+button#yulan {
     position: relative;
     margin-left: 230px;
     margin-top: -32px;
 }
-img#show_img{
-    margin-top:50px;
+
+img#show_img {
+    margin-top: 50px;
 }
-div#uncontrolled-tab-example-pane-3{
+
+div#uncontrolled-tab-example-pane-3 {
     text-align: center;
 }

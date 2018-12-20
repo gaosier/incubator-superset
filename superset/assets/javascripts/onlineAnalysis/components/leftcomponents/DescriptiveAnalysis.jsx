@@ -6,7 +6,7 @@ import {
     set_null_operation,
     set_variable_box,
     increase_dummy,
-    increament_correlation, getcode, get_alldealna, see_corr, watch_corr,delete_img
+    increament_correlation, getcode, get_alldealna, see_corr, watch_corr, delete_img
 } from '../../actions/leftmenu';
 import Variablebox from '../leftcomponents/Variablebox';
 import Dummy from '../leftcomponents/Dummy';
@@ -63,7 +63,7 @@ class DescriptiveAnalysis extends Component {
     }
 
     openModal() {
-        if(this.props.leftmenu.form_data.null_operate.operate === ''){
+        if (this.props.leftmenu.form_data.null_operate.operate === '') {
             this.props.get_all_dealna(this.props.leftmenu.form_data.sk_type, this.props.leftmenu.datasource_id);
         }
         this.setState({showModal: !this.state.showModal});

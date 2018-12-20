@@ -76,8 +76,12 @@ const leftmenu = (state = {}, action = {}) => {
             return Object.assign({}, state, {slice: all_datasource_columns});
 
         case MODIFY_DATASOURCE:
-            const new_state = Object.assign({},state,{form_data:action.form_data});
-            return Object.assign({}, new_state, {datasource_id: action.id, datasource_name: action.name,run_load:false});
+            const new_state = Object.assign({}, state, {form_data: action.form_data});
+            return Object.assign({}, new_state, {
+                datasource_id: action.id,
+                datasource_name: action.name,
+                run_load: false
+            });
 
         case GET_DEAINA:
             return Object.assign({}, state, {all_dealina: action.res});
@@ -279,11 +283,11 @@ const leftmenu = (state = {}, action = {}) => {
 
         case CHOICE_VERSION:
             action.now_version.version = action.res;
-            return Object.assign({},state,{form_data:action.now_version,run_load:false});
+            return Object.assign({}, state, {form_data: action.now_version, run_load: false});
 
         case DELETE_IMG:
-            const delete_img = Object.assign({},state.form_data,{correlation_analysis_image:''});
-            return Object.assign({},state,{form_data:delete_img});
+            const delete_img = Object.assign({}, state.form_data, {correlation_analysis_image: ''});
+            return Object.assign({}, state, {form_data: delete_img});
 
         default:
             return state;

@@ -3,7 +3,7 @@ import {
     Upload, message, Button, Icon,
 } from 'antd';
 import $ from "jquery";
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import {set_description_img} from '../../actions/leftmenu';
 import {Modal} from 'react-bootstrap';
 
@@ -12,9 +12,11 @@ class DataPreprocessing extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            show_Modal: false
+            show_Modal: false,
+            fileList: [],
         };
         this.toggleModal = this.toggleModal.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     toggleModal() {
@@ -35,6 +37,21 @@ class DataPreprocessing extends Component {
         }
     }
 
+    handleChange(info) {
+        if (info.file.status !== 'uploading') {
+            this.props.set_description_img(info.file.response.filename);
+
+        }
+        if (info.file.status === 'done') {
+            message.success("图片上传成功");
+        } else if (info.file.status === 'error') {
+            message.error(`图片上传失败`);
+        }
+        let fileList = info.fileList;
+        fileList = fileList.slice(-1);
+        this.setState({fileList});
+    }
+
     render_modal() {
         return (
             <Modal
@@ -52,8 +69,19 @@ class DataPreprocessing extends Component {
 
     }
 
+    upload(file, fileList) {
+        console.log(file, fileList);
+        const File = [{
+            uid: '1',
+            name: fileList.name,
+            statue: 'done'
+        }];
+        this.setState({
+            fileList: File
+        })
+    }
+
     render() {
-        const {set_description_img} = this.props;
         const token = $('input#csrf_token').val();
         const props = {
             action: '/online/upload/file/',
@@ -63,22 +91,13 @@ class DataPreprocessing extends Component {
                 "X-CSRFToken": token,
             },
             directory: false,
-            onChange(info) {
-                if (info.file.status !== 'uploading') {
-                    set_description_img(info.file.response.filename);
-                }
-                if (info.file.status === 'done') {
-                    message.success("图片上传成功");
-                } else if (info.file.status === 'error') {
-                    message.error(`图片上传失败`);
-                }
-            },
+            onChange: this.handleChange,
         };
 
         return (
             <div>
                 <div>
-                    <Upload {...props}>
+                    <Upload {...props} fileList={this.state.fileList}>
                         <Button>
                             <Icon type="upload"/> 上传图片
                         </Button>

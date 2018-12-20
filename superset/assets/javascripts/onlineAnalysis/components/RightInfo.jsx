@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Tabs, Tab} from 'react-bootstrap';
-import { Button, notification,Divider } from 'antd';
+import {Button, notification, Divider} from 'antd';
 import {connect} from 'react-redux';
 import axios from 'axios';
 
@@ -18,7 +18,8 @@ class RightInfo extends Component {
     }
 
     componentDidMount() {
-        if(this.props.log_dir_id === ''){}
+        if (this.props.log_dir_id === '') {
+        }
         else {
             this.get_info('code', this.props.log_dir_id);
             this.get_img('image', this.props.log_dir_id);
@@ -69,74 +70,75 @@ class RightInfo extends Component {
     }
 
     render_log() {
-        if(this.props.leftmenu.run_load){
-            return(
+        if (this.props.leftmenu.run_load) {
+            return (
                 <img
-                              className="loading"
-                              alt="Loading..."
-                              src="../../../../static/assets/images/loading.gif"
-                            />
+                    className="loading"
+                    alt="Loading..."
+                    src="../../../../static/assets/images/loading.gif"
+                />
             )
-        }else if(this.props.log_dir_id === ''){
-            return(
+        } else if (this.props.log_dir_id === '') {
+            return (
                 <div>暂时不存在日志,请您先进行跑模型操作！</div>
             )
         }
-        else{
-            return(
+        else {
+            return (
                 <pre>{this.state.log}</pre>
             )
         }
     }
 
     render_img() {
-        if(this.props.leftmenu.run_load){
-            return(
+        if (this.props.leftmenu.run_load) {
+            return (
                 <img
-                              className="loading"
-                              alt="Loading..."
-                              src="../../../../static/assets/images/loading.gif"
-                            />
+                    className="loading"
+                    alt="Loading..."
+                    src="../../../../static/assets/images/loading.gif"
+                />
             )
-        }else if(this.props.log_dir_id === ''){
-            return(
+        } else if (this.props.log_dir_id === '') {
+            return (
                 <div>暂时不存在图片,请您先进行跑模型操作</div>
             )
         }
-        else{
-            return(this.state.img.map((dun,index) =>{
-             const url_img = "/static/uploads/img/" + dun;
-            return(<div key={index}><img src={url_img} id="show_img"/> <Divider /></div>)
-        }))
+        else {
+            return (this.state.img.map((dun, index) => {
+                const url_img = "/static/uploads/img/" + dun;
+                return (<div key={index}><img src={url_img} id="show_img"/> <Divider/></div>)
+            }))
         }
     }
 
     render_to_leader() {
-        if(this.props.leftmenu.run_load){
-            return(
+        if (this.props.leftmenu.run_load) {
+            return (
                 <img
-                              className="loading"
-                              alt="Loading..."
-                              src="../../../../static/assets/images/loading.gif"
-                            />
+                    className="loading"
+                    alt="Loading..."
+                    src="../../../../static/assets/images/loading.gif"
+                />
             )
-        }else if(this.props.log_dir_id === ''){
-            return(
+        } else if (this.props.log_dir_id === '') {
+            return (
                 <div>暂时不存在参数,请您先进行跑模型操作！</div>
             )
         }
-        else{
-            return(
+        else {
+            return (
                 <pre>{this.state.param}</pre>
             )
         }
     }
-    download_data(){
+
+    download_data() {
         const form_data = {
             model_result_execl_sl: this.props.leftmenu.form_data.model_result_execl_sl,
         };
         const exploreForm = document.createElement('form');
-        exploreForm.action = "/online/model/complete/download/"+this.props.leftmenu.form_data.model_result_execl_sl;
+        exploreForm.action = "/online/model/complete/download/" + this.props.leftmenu.form_data.model_result_execl_sl;
         exploreForm.method = 'GET';
         exploreForm.target = '_blank';
         const token = document.createElement('input');
@@ -155,12 +157,12 @@ class RightInfo extends Component {
         document.body.removeChild(exploreForm);
     }
 
-    download_leader(){
+    download_leader() {
         const form_data = {
             model_result_execl_bs: this.props.leftmenu.form_data.model_result_execl_bs,
         };
         const disForm = document.createElement('form');
-        disForm.action = "/online/model/complete/download/"+this.props.leftmenu.form_data.model_result_execl_bs;
+        disForm.action = "/online/model/complete/download/" + this.props.leftmenu.form_data.model_result_execl_bs;
         disForm.method = 'GET';
         disForm.target = '_blank';
         const token = document.createElement('input');
@@ -183,7 +185,7 @@ class RightInfo extends Component {
         return (
             <div>
                 <div id="down_load">
-                <Button id="download_data">
+                    <Button id="download_data">
                         <a
                             onClick={this.download_data.bind(this)}
                             target="_blank"
@@ -191,7 +193,7 @@ class RightInfo extends Component {
                             <i className="fa fa-file-text-o"/>下载数据分析师文件
                         </a>
                     </Button>
-                 <Button id="download_leader">
+                    <Button id="download_leader">
                         <a
                             onClick={this.download_leader.bind(this)}
                             target="_blank"
