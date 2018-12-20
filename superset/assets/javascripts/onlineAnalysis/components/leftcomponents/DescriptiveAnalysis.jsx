@@ -44,13 +44,13 @@ class DescriptiveAnalysis extends Component {
     save_null_operate() {
         if (this.state.value === 'fill') {
             let detail = [];
-            for (var i = 0; i < Object.keys(this.state.detail).length; i++) {
+            for (let i = 0; i < Object.keys(this.state.detail).length; i++) {
                 detail.push([Object.keys(this.state.detail)[i], Object.values(this.state.detail)[i]]);
             }
             this.props.set_null_operation(this.state.value, detail)
         } else {
             let detail = [];
-            for (var i = 0; i < Object.keys(this.state.detail).length; i++) {
+            for (let i = 0; i < Object.keys(this.state.detail).length; i++) {
                 detail.push([Object.keys(this.state.detail)[i], Object.values(this.state.detail)[i]]);
             }
             console.log('xxxx', this.state.value);
