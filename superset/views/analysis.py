@@ -116,7 +116,7 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
     search_columns = (
         'name','version', 'sk_model', 'datasource_name', 'owners', 'show_users'
     )
-    list_columns = ['name_link', 'sk_model', 'datasource_link', 'creator', 'modified']
+    list_columns = ['name_link', 'sk_model', 'version','datasource_link', 'creator', 'modified']
     order_columns = ['name', 'datasource_link', 'modified']
     edit_columns = ['name', 'version', 'description', 'sk_model', 'owners', 'show_users', 'params']
     base_order = ('changed_on', 'desc')
@@ -153,15 +153,17 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
         # 1. 删除日志
         param = json.loads(obj.params)
         log_dir_id = param.get("log_dir_id")
-
-        log_dir = os.path.join(ANALYSIS_LOG_DIR, log_dir_id)
-        if os.path.isdir(log_dir):
-            os.removedirs(log_dir)
+        if log_dir_id:
+            log_dir = os.path.join(ANALYSIS_LOG_DIR, log_dir_id)
+            if os.path.isdir(log_dir):
+                os.removedirs(log_dir)
 
         # 2. 删除图片
         img_names = []
         for item in ["description_img", "correlation_analysis_image"]:
-            img_names.append(param.get(item))
+            name = param.get(item)
+            if name:
+                img_names.append(name)
         img_dir = config.get("IMG_UPLOAD_FOLDER")
         for img in img_names:
             path = os.path.join(img_dir, img)
@@ -171,9 +173,12 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
         # 3. 删除xlsx文件
         files = []
         for item in ["model_result_execl_sl", "model_result_execl_bs"]:
-            files.append(param.get(item))
+            name = param.get(item)
+            if name:
+                files.append(name)
 
         file_dir = config.get("UPLOAD_FOLDER")
+        print("file_dir: ", file_dir)
         for file in files:
             path = os.path.join(file_dir, file)
             if os.path.isfile(path):
