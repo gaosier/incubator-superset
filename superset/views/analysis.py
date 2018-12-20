@@ -206,7 +206,9 @@ class AnalysisModelView(SupersetModelView, DeleteMixin):
         form_data = instance.form_data
         log_dir_id = form_data.get("log_dir_id")
         description_img = form_data.get("description_img")
-        bootstrap_data = {"log_dir_id": log_dir_id, "description_img": description_img}
+        model_result_execl_bs = form_data.get("model_result_execl_bs")
+        bootstrap_data = {"log_dir_id": log_dir_id, "description_img": description_img,
+                          "model_result_execl_bs": model_result_execl_bs}
         return self.render_template(self.show_template,
                                     pk=pk,
                                     title=self.show_title,
