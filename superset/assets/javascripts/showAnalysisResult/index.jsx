@@ -13,11 +13,12 @@ appSetup();  // 加载ajax
 
 initJQueryAjax(); // 设置token
 
-const analysisViewContainer = document.getElementById('app');
+const analysisShowContainer = document.getElementById('js-add-slice-container');
+const bootstrapData = JSON.parse(analysisShowContainer.getAttribute('data-bootstrap'));
 
 ReactDOM.render(
     <div>
-      <ShowResult />
+      <ShowResult log_dir-id={bootstrapData.log_dir_id} description_img={bootstrapData.description_img}/>
     </div>,
-  analysisViewContainer,
+  analysisShowContainer,
 );
