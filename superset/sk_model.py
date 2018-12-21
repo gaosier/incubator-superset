@@ -26,7 +26,7 @@ from pandas.core.frame import DataFrame
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.metrics import (confusion_matrix, precision_recall_curve, average_precision_score, roc_auc_score,
-                             roc_curve, precision_score, recall_score, auc)
+                             roc_curve, precision_score, recall_score)
 
 
 from superset import app
@@ -239,33 +239,45 @@ class BaseSkModel(object):
         ana_code_logger.info("=========== 变量相关性分析 ===========")
 
         correlation_analysis = self.form_data.get("correlation_analysis", [])
-        count = len(correlation_analysis)
+        num = len(correlation_analysis)
 
-        fig, ax = plt.subplots(1, count, figsize=(7, 3))
-        count = -1
-        for field, func, chart in correlation_analysis:
-            count += 1
-            if func == 'matplotlib' and chart == 'pie':
-                field = field[0]
-                ln = df[field].value_counts()
-                explode = [0]*ln
-                explode[1] = 0.1
-                df[field].value_counts().plot.pie(explode=explode, autopct='%1.1f%%', ax=ax[0], shadow=True)
-                ax[count].set_title(field)
-                ax[count].set_ylabel('y')
-            elif func == 'seaborn' and chart == 'countplot':
-                field = field[0]
-                sns.countplot(field, data=df, ax=ax[count])
-                ax[count].set_title(field)
-                ax[count].set_ylabel('y')
-            elif func == 'seaborn' and chart == 'heatmap':
-                sns.heatmap(df[field].corr(), annot=True, cmap='RdYlGn', linewidths=0.5)
-                fig = plt.gcf()
-                fig.set_size_inches(10, 8)
+        if num == 1:
+            for field, func, chart in correlation_analysis:
+                if func == 'matplotlib':
+                    field = field[0]
+                    ln = df[field].value_counts()
+                    explode = [0]*ln
+                    explode[1] = 0.1
+                    df[field].value_counts().plot(kind=chart, explode=explode, autopct='%1.1f%%', shadow=True)
+                elif func == 'seaborn' and chart == 'countplot':
+                    field = field[0]
+                    sns.countplot(field, data=df)
+                elif func == 'seaborn' and chart == 'heatmap':
+                    sns.heatmap(df[field].corr(), annot=True, cmap='RdYlGn', linewidths=0.5)
+        else:
+            fig, ax = plt.subplots(1, num, figsize=(15, 5))
+            count = -1
+            for field, func, chart in correlation_analysis:
+                count += 1
+                if func == 'matplotlib':
+                    field = field[0]
+                    ln = df[field].value_counts()
+                    explode = [0]*ln
+                    explode[1] = 0.1
+                    df[field].value_counts().plot(kind=chart, explode=explode, autopct='%1.1f%%', ax=ax[count], shadow=True)
+                    ax[count].set_title(field)
+                    ax[count].set_ylabel('y')
+                elif func == 'seaborn' and chart == 'countplot':
+                    field = field[0]
+                    sns.countplot(field, data=df, ax=ax[count])
+                    ax[count].set_title(field)
+                    ax[count].set_ylabel('y')
+                elif func == 'seaborn' and chart == 'heatmap':
+                    sns.heatmap(df[field].corr(), annot=True, cmap='RdYlGn', linewidths=0.5, ax=ax[count])
 
         img_path, img_name = self.gen_img_path()
-        plt.savefig(img_path)
-
+        plt.savefig(img_path, dpi=100)
+        plt.gcf().clear()         # 清空画布
         ana_code_logger.info(" =========== 变量相关性分析结束 ===========")
 
         return img_name, IMAGE_URL
