@@ -14,4 +14,5 @@
    system("locate libSM.6.dylib")
    install.packages("dplyr",lib=.libPaths()[2])
    lme4, reshape2, ggplot2, dplyr, sampling, ROCR
+5. add table (analysis, sk_model)
 

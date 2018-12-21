@@ -118,7 +118,7 @@ class TableGroupView(MasterDetailView):
 
         permission = PermManager()
         if permission.has_all_datasource_access():
-            perms = []
+            perms = None
         else:
             perms = permission.get_view_menus('datasource_access')
 
