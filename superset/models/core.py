@@ -11,6 +11,7 @@ import functools
 import json
 import logging
 import textwrap
+import re
 
 from flask import escape, g, Markup, request
 from flask_appbuilder import Model
@@ -863,8 +864,12 @@ class Database(Model, AuditMixinNullable, ImportMixin):
 
     def has_table(self, table):
         engine = self.get_sqla_engine()
-        return engine.has_table(
-            table.table_name, table.schema or None)
+        if re.match('^kylin:', str(engine.url)):
+            if table.table_name.upper() in engine.table_names():
+                return True
+        else:
+            return engine.has_table(
+                table.table_name, table.schema or None)
 
     @utils.memoized
     def get_dialect(self):

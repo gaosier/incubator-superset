@@ -235,7 +235,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
     related_views = [TableColumnInlineView, SqlMetricInlineView]
     base_order = ('changed_on', 'desc')
     search_columns = (
-        'database', 'schema', 'verbose_name', 'owner',
+        'database', 'schema', 'verbose_name', 'owner', 'table_name'
     )
     description_columns = {
         'slices': _(
