@@ -42,7 +42,7 @@ function tableVis(slice, payload) {
       col[cols[0].length - 1] : col[0]);
   }
   const columnConfiguration = fd.column_configuration;
-  const rowConfiguration = fd.row_configuration;
+  const rowConfiguration = fd.row_configuration === undefined ? []:fd.row_configuration;
   // by default, column configution has high priority than row configuration
   const rowConfigHasHighPriority = fd.row_configuration_priority || false;
 
@@ -91,10 +91,14 @@ function tableVis(slice, payload) {
     switch (compare) {
       case '<':
         return parseFloat(val) < parseFloat(base);
+      case '<=':
+        return parseFloat(val) <= parseFloat(base);
       case '=':
         return parseFloat(val) === parseFloat(base);
       case '>':
         return parseFloat(val) > parseFloat(base);
+      case '>=':
+        return parseFloat(val) >= parseFloat(base);
       case 'contains':
         return val.toString().indexOf(base) !== -1;
       case 'startsWith':
@@ -152,6 +156,21 @@ function tableVis(slice, payload) {
     if (!findColInColumnConfigOption(columnString, configName)) {
       return configName === 'bcColoringOption' || configName === 'coloringOption' ? {} : '';
     }
+
+    return columnConfiguration[columnString][configName];
+  };
+  const getColumnConfigForOptions = function (curColumn, configName) {
+    let column = curColumn;
+    let columnString = transformToString(column);
+    while (Array.isArray(column) && column.length > 1 && !findColInColumnConfigOption(
+        columnString, configName)) {
+      column = findNextColumnConfiguration(column);
+      columnString = transformToString(column);
+    }
+    if (!findColInColumnConfigOption(columnString, configName)) {
+      return configName === 'coloringOption' ? {} : '';
+    }
+
     return columnConfiguration[columnString][configName];
   };
    // get the column configuration object for the column
@@ -167,6 +186,42 @@ function tableVis(slice, payload) {
     columnConfig.columnBgColorConfig = columnBgColorConfig;
     columnConfig.columnFormatConfig = columnFormatConfig;
     columnConfig.columnTextAlignConfig = columnTextAlignConfig;
+    columnConfig.columnComparisionConfig = columnComparisionConfig;
+    columnConfig.columnBasementConfig = columnBasementConfig;
+    columnConfig.columnColorConfig = columnColorConfig;
+    columnConfig.columnFontConfig = columnFontConfig;
+    return columnConfig;
+  };
+  const getColumnConfigs = function (column) {
+    // const columnBgColorConfig = getColumnConfigForOption(column, 'bcColoringOption');
+    // const columnTextAlignConfig = getColumnConfigForOption(column, 'textAlign');
+    // const columnFormatConfig = getColumnConfigForOption(column, 'formatting');
+    const columnComparisionConfig = getColumnConfigForOptions(column, 'comparisionOption1');
+    const columnBasementConfig = getColumnConfigForOptions(column, 'basement1');
+    const columnColorConfig = getColumnConfigForOptions(column, 'coloringOption1');
+    const columnFontConfig = getColumnConfigForOptions(column, 'fontOption1');
+     const columnConfig = {};
+    // columnConfig.columnBgColorConfig = columnBgColorConfig;
+    // columnConfig.columnFormatConfig = columnFormatConfig;
+    // columnConfig.columnTextAlignConfig = columnTextAlignConfig;
+    columnConfig.columnComparisionConfig = columnComparisionConfig;
+    columnConfig.columnBasementConfig = columnBasementConfig;
+    columnConfig.columnColorConfig = columnColorConfig;
+    columnConfig.columnFontConfig = columnFontConfig;
+    return columnConfig;
+  };
+   const getColumnConfigss = function (column) {
+    // const columnBgColorConfig = getColumnConfigForOption(column, 'bcColoringOption');
+    // const columnTextAlignConfig = getColumnConfigForOption(column, 'textAlign');
+    // const columnFormatConfig = getColumnConfigForOption(column, 'formatting');
+    const columnComparisionConfig = getColumnConfigForOptions(column, 'comparisionOption2');
+    const columnBasementConfig = getColumnConfigForOptions(column, 'basement2');
+    const columnColorConfig = getColumnConfigForOptions(column, 'coloringOption2');
+    const columnFontConfig = getColumnConfigForOptions(column, 'fontOption2');
+     const columnConfig = {};
+    // columnConfig.columnBgColorConfig = columnBgColorConfig;
+    // columnConfig.columnFormatConfig = columnFormatConfig;
+    // columnConfig.columnTextAlignConfig = columnTextAlignConfig;
     columnConfig.columnComparisionConfig = columnComparisionConfig;
     columnConfig.columnBasementConfig = columnBasementConfig;
     columnConfig.columnColorConfig = columnColorConfig;
@@ -199,7 +254,7 @@ function tableVis(slice, payload) {
     const config = obj.data('config') || {};
     const originalValue = obj.attr('initialValue');
     if (config.color && checkObjectOrStringHasLengthOrnot(config.color)) {
-      obj.css('background', config.color.hex);
+      obj.css('color', config.color.hex);
     }
     if (config.fontWeight && checkObjectOrStringHasLengthOrnot(config.fontWeight)) {
       obj.css('font-weight', config.fontWeight);
@@ -214,21 +269,33 @@ function tableVis(slice, payload) {
     }
   };
    // check if this row has row configuration or not
-  const getRowConfig = function (obj) {
-    const rowContains = rowConfiguration.basements;
-    for (let i = 0, l = rowContains.length; i < l; i++) {
-      for (const j in obj.cells) {
-        if (obj.cells[j].innerText === rowContains[i]) {
-          return true;
+  const getRowConfiga = function (obj,index) {
+      const rowContains = rowConfiguration[index].basements;
+      for (let i = 0, l = rowContains.length; i < l; i++) {
+        for (const j in obj.cells) {
+          if (obj.cells[j].innerText === rowContains[i]) {
+            return true;
+          }else{
+              return false;
+          }
         }
       }
-    }
-    return false;
   };
+  const getRowConfig = function (obj,index) {
+     const rowContains = rowConfiguration[index].basements;
+     for (let i = 0, l = rowContains.length; i < l; i++) {
+       for (const j in obj.cells) {
+         if (obj.cells[j].innerText === rowContains[i]) {
+           return true;
+         }
+       }
+     }
+     return false;
+   };
    // update and apply row configuration after get the row configuration
-  const updateAndApplyRowConfig = function (obj) {
-    const rowColor = rowConfiguration.coloringOption;
-    const rowFont = rowConfiguration.fontOption;
+  const updateAndApplyRowConfig = function (obj,index) {
+      const rowColor = rowConfiguration[index].coloringOption;
+    const rowFont = rowConfiguration[index].fontOption;
     obj.find('td, th').each(function () {
       const childObj = $(this);
       let config = $(this).data('config') || {};
@@ -382,17 +449,36 @@ function tableVis(slice, payload) {
   });
     // apply row configuration
   function applyRowConfiguration() {
-    if (rowConfiguration) {
+    rowConfiguration.map((dum,index) =>{
+      if (dum) {
       slice.container.find('tbody tr').each(function () {
-        const hasRowConfig = getRowConfig(this);
+        const hasRowConfig = getRowConfig(this,index);
         if (hasRowConfig) {
-          updateAndApplyRowConfig($(this));
+          updateAndApplyRowConfig($(this),index);
         }
       });
     }
+    })
+
   }
    // apply column configuration
   function applyColumnConfiguration() {
+    if (columnConfiguration) {
+      slice.container.find('tbody tr').each(function () {
+        $(this).find('td').each(function (index) {
+          const col = cols[index];
+          const val = $(this).attr('initialValue') ||
+            $(this).data('originalvalue') || $(this).text();
+          $(this).data('originalvalue', val);
+            const columnConfigs = getColumnConfigs(col);
+            updateColumnConfig($(this), columnConfigs, val);
+            applyconfig($(this));
+        });
+      });
+    }
+  }
+
+  function applyColumnConfigurations() {
     if (columnConfiguration) {
       slice.container.find('tbody tr').each(function () {
         $(this).find('td').each(function (index) {
@@ -407,12 +493,32 @@ function tableVis(slice, payload) {
       });
     }
   }
+  function applyColumnConfigurationss() {
+    if (columnConfiguration) {
+      slice.container.find('tbody tr').each(function () {
+        $(this).find('td').each(function (index) {
+          const col = cols[index];
+          const val = $(this).attr('initialValue') ||
+            $(this).data('originalvalue') || $(this).text();
+          $(this).data('originalvalue', val);
+            const columnConfigs = getColumnConfigss(col);
+            updateColumnConfig($(this), columnConfigs, val);
+            applyconfig($(this));
+        });
+      });
+    }
+  }
    if (rowConfigHasHighPriority) {
+    applyColumnConfigurations();
     applyColumnConfiguration();
+    applyColumnConfigurationss();
     applyRowConfiguration();
   } else {
     applyRowConfiguration();
+    applyColumnConfigurations();
     applyColumnConfiguration();
+    applyColumnConfigurationss();
+    // applyColumnConfigurations();
   }
   const datatable = container.find('.dataTable').DataTable({
     paging,
