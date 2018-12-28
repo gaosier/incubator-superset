@@ -39,7 +39,8 @@ from superset import (
 )
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.connectors.sqla.models import AnnotationDatasource, SqlaTable,SqlMetric
-from superset.exceptions import SupersetException, SupersetSecurityException
+from superset.connectors.sqla.models_ext import SqlTableColumnVal
+from superset.exceptions import SupersetException
 from superset.forms import CsvToDatabaseForm
 from superset.jinja_context import get_template_processor
 from superset.legacy import cast_form_data
@@ -53,7 +54,7 @@ from superset.utils_ext import metric_format
 from superset.fab.models.sqla.interface import SupersetSQLAInterface as SQLAInterface
 from .base import (
     api, BaseSupersetView, CsvResponse, DeleteMixin,
-    generate_download_headers, get_error_msg, get_user_roles,FORM_DATA_KEY_BLACKLIST,
+    generate_download_headers, get_error_msg, FORM_DATA_KEY_BLACKLIST,
     json_error_response, SupersetFilter, SupersetModelView, YamlExportMixin, check_ownership, UserInfo
 )
 from .utils import bootstrap_user_data
@@ -1137,8 +1138,26 @@ class Superset(BaseSupersetView):
         return send_file(filepath, as_attachment=True,
                          attachment_filename=parse.quote(filename))
 
+    def add_extra_filters(self, datasource_type, datasource_id, form_data):
+        """
+        如果这个表和用户有了特殊控制的字段的值，就添加额外的过滤条件
+        """
+        extra_filters = []
+        data = SqlTableColumnVal.perm_table_user_col_vals(datasource_type, datasource_id, g.user.id)
+        for name, val in data.items():
+            extra_filters.append({"col": name, "op": "in", "val": val})
+
+        if form_data.get("extra_filters"):
+            form_data["extra_filters"].extend(extra_filters)
+        else:
+            form_data["extra_filters"] = extra_filters
+        return form_data
+
     def generate_json(self, datasource_type, datasource_id, form_data,
-                      csv=False, query=False, force=False,xlsx=False):
+                      csv=False, query=False, force=False, xlsx=False):
+
+        form_data = self.add_extra_filters(datasource_type, datasource_id, form_data)
+
         try:
             viz_obj = self.get_viz(
                 datasource_type=datasource_type,
@@ -1399,14 +1418,8 @@ class Superset(BaseSupersetView):
     @expose('/filter/<datasource_type>/<datasource_id>/<column>/')
     def filter(self, datasource_type, datasource_id, column):
         """
-        Endpoint to retrieve values for specified column.
-
-        :param datasource_type: Type of datasource e.g. table
-        :param datasource_id: Datasource id
-        :param column: Column name to retrieve values for
-        :return:
+        查询字段的值
         """
-        # TODO: Cache endpoint by user, datasource and column
         datasource = ConnectorRegistry.get_datasource(
             datasource_type, datasource_id, db.session)
         if not datasource:
@@ -1414,12 +1427,17 @@ class Superset(BaseSupersetView):
         if not security_manager.datasource_access(datasource):
             return json_error_response(DATASOURCE_ACCESS_ERR)
 
-        payload = json.dumps(
-            datasource.values_for_column(
-                column,
-                config.get('FILTER_SELECT_ROW_LIMIT', 10000),
-            ),
-            default=utils.json_int_dttm_ser)
+        user_id = UserInfo.get_user_id()
+        if SqlTableColumnVal.has_perm_col(datasource_type, datasource_id, column, user_id):
+
+            payload = json.dumps(SqlTableColumnVal.perm_user_col_vals(datasource_type, datasource_id, column, user_id))
+        else:
+            payload = json.dumps(
+                datasource.values_for_column(
+                    column,
+                    config.get('FILTER_SELECT_ROW_LIMIT', 10000),
+                ),
+                default=utils.json_int_dttm_ser)
         return json_success(payload)
 
     def save_or_overwrite_slice(

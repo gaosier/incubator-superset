@@ -397,3 +397,9 @@ class UserInfo(object):
         return (
             cls.has_role(['Admin', 'Alpha']) or
             cls.has_perm('all_datasource_access', 'all_datasource_access'))
+
+    @classmethod
+    def get_user_id(cls):
+        return g.user.id
+
+
