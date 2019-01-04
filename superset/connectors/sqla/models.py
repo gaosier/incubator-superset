@@ -982,7 +982,7 @@ class SqlaTable(Model, BaseDatasource):
             table = {}
             table['id'] = query.id
             table['name'] = query.link
-            table['database'] = query.database.name
+            table['database'] = query.database.name if query.database else None
             table['changed_by'] = query.changed_by_
             table['modified'] = query.modified()
             data.append(table)
