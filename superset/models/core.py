@@ -915,14 +915,11 @@ class Log(Model):
                 user_id = g.user.get_id()
 
             d = request.form.to_dict() or {}
-            print("d: ", d)
 
             form_data = json.loads(d.get('form_data', '{}'))
             info = form_data.get('datasource', '')
             if info and '__' in info:
                 datasource_id, datasource_type = info.split('__')
-
-            print("action: %s" % f.__name__)
 
             # request parameters can overwrite post body
             request_params = request.args.to_dict()
@@ -935,8 +932,6 @@ class Log(Model):
                 datasource_id = d.get("datasource_id")
 
             slice_id = d.get('slice_id')
-
-            print("after update d: %s" % d)
 
             try:
                 slice_id = int(
