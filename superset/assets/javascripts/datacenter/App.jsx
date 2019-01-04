@@ -30,7 +30,7 @@ export default class App extends Component {
             url: "/tablegroupview/menu/0/",
             type: "GET",
             dataType: "json",
-            timeout: 120,
+            timeout: 300,
             success: function (data) {
                 this.setState({ treeData: data['data'] });  // 将第一层级数据赋值给状态机
             }.bind(this),
@@ -45,7 +45,7 @@ export default class App extends Component {
                 url: "/tablegroupview/menu/" + knowid + "/",
                 type: "GET",
                 dataType: "json",
-                timeout: 120,
+                timeout: 300,
                 success: function (data) {
                     if (data.errorCode === 1) {
                     }
@@ -70,7 +70,7 @@ export default class App extends Component {
             url: "/tablegroupview/tables/" + knowid,
             type: "GET",
             dataType: "json",
-            timeout: 120,
+            timeout: 300,
             success: function(data) {
                 this.setState({ infos: data});  // 将ajax返回的详细数据传到state中
             }.bind(this),
