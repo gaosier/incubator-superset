@@ -686,7 +686,7 @@ class Online(BaseSupersetView):
         payload = {"name": name, 'url': url}
         return json_success(json.dumps(payload))
 
-
+    @log_this
     @api
     @has_access_api
     @expose('/run/model/', methods=["POST"])

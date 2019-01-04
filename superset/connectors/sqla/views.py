@@ -224,7 +224,7 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
     list_columns = [
         'link', 'database',
         'changed_by_', 'modified']
-    order_columns = ['modified']
+    order_columns = ['link', 'modified']
     add_columns = ['database', 'table_name', 'verbose_name', 'group']
     edit_columns = [
         'table_name', 'sql', 'filter_select_enabled', 'slices',

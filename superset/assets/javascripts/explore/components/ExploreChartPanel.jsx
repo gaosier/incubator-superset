@@ -47,7 +47,7 @@ class ExploreChartPanel extends React.PureComponent {
         slice={this.props.slice}
         chartKey={this.props.chart.chartKey}
         setControlValue={this.props.actions.setControlValue}
-        timeout={this.props.timeout}
+        timeout={150}
         vizType={this.props.vizType}
         refreshOverlayVisible={this.props.refreshOverlayVisible}
         errorMessage={this.props.errorMessage}

@@ -895,10 +895,12 @@ class Log(Model):
     json = Column(Text)
     user = relationship(
         security_manager.user_model, backref='logs', foreign_keys=[user_id])
-    dttm = Column(DateTime, default=datetime.utcnow)
+    dttm = Column(DateTime, default=datetime.now)
     dt = Column(Date, default=date.today())
     duration_ms = Column(Integer)
     referrer = Column(String(1024))
+    datasource_id = Column(Integer)
+    datasource_type = Column(String(20))
 
     @classmethod
     def log_this(cls, f):
@@ -907,14 +909,34 @@ class Log(Model):
         def wrapper(*args, **kwargs):
             start_dttm = datetime.now()
             user_id = None
+            datasource_id = 0
+            datasource_type = 'table'
             if g.user:
                 user_id = g.user.get_id()
+
             d = request.form.to_dict() or {}
+            print("d: ", d)
+
+            form_data = json.loads(d.get('form_data', '{}'))
+            info = form_data.get('datasource', '')
+            if info and '__' in info:
+                datasource_id, datasource_type = info.split('__')
+
+            print("action: %s" % f.__name__)
+
             # request parameters can overwrite post body
             request_params = request.args.to_dict()
+
             d.update(request_params)
             d.update(kwargs)
+
+            if 'datasorce_type' in d:
+                datasource_type = d.get("datasource_type")
+                datasource_id = d.get("datasource_id")
+
             slice_id = d.get('slice_id')
+
+            print("after update d: %s" % d)
 
             try:
                 slice_id = int(
@@ -933,12 +955,15 @@ class Log(Model):
             log = cls(
                 action=f.__name__,
                 json=params,
-                dashboard_id=d.get('dashboard_id'),
+                dashboard_id=d.get('dashboard_id', 0),
                 slice_id=slice_id,
                 duration_ms=(
                     datetime.now() - start_dttm).total_seconds() * 1000,
                 referrer=request.referrer[:1000] if request.referrer else None,
-                user_id=user_id)
+                user_id=user_id,
+                datasource_type=datasource_type or 'table',
+                datasource_id=datasource_id
+            )
             sesh.add(log)
             sesh.commit()
             return value

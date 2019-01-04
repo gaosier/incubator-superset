@@ -973,9 +973,10 @@ class SqlaTable(Model, BaseDatasource):
     def get_table_list(cls, group_id, perms):
         data = []
         if perms is None:
-            querys = db.session.query(cls).filter(cls.group_id == group_id)
+            querys = db.session.query(cls).filter(cls.group_id == group_id).order_by(cls.verbose_name)
         else:
-            querys = db.session.query(cls).filter(cls.group_id == group_id).filter(cls.perm.in_(perms))
+            querys = db.session.query(cls).filter(cls.group_id == group_id).filter(cls.perm.in_(perms)).\
+                order_by(cls.verbose_name)
 
         for query in querys:
             table = {}
