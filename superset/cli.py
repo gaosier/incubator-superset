@@ -81,7 +81,7 @@ def runserver(debug, use_reloader, address, port, timeout, workers, socket):
         addr_str = ' unix:{socket} ' if socket else' {address}:{port} '
         cmd = (
             'gunicorn '
-            '-w {workers} '
+            '-w 4 '
             '--timeout {timeout} '
             '-b ' + addr_str +
             '--limit-request-line 0 '

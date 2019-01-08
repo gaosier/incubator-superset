@@ -19,14 +19,15 @@ from flask_wtf.csrf import CSRFProtect
 from werkzeug.contrib.fixers import ProxyFix
 
 from flask_apscheduler import APScheduler
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.jobstores.memory import MemoryJobStore
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 from superset import config, utils
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset import utils, config
 from superset.fab.base import SupersetAppBuilder as AppBuilder
 from superset.security import SupersetSecurityManager
+from superset.aps_scheduler import CuBackgroundScheduler
 
 APP_DIR = os.path.dirname(__file__)
 CONFIG_MODULE = os.environ.get('SUPERSET_CONFIG', 'superset.config')
@@ -213,7 +214,8 @@ job_defaults = {
     'max_instances': 3
 }
 
-flask_scheduler = APScheduler(app=app)
+scheduler = CuBackgroundScheduler()
+flask_scheduler = APScheduler(app=app, scheduler=scheduler)
 flask_scheduler.init_app(app)
 flask_scheduler.scheduler.configure(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
 flask_scheduler.start()
