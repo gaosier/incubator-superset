@@ -49,3 +49,5 @@ sqllab/
 *.Rhistory
 superset/static/uploads/*
 *.lock
+*.xlsx
+*.sql
