@@ -8,6 +8,7 @@ import os
 import six
 import atexit
 import fcntl
+import logging
 
 from datetime import datetime, timedelta
 
@@ -31,6 +32,8 @@ try:
 except ImportError:  # pragma: nocover
     raise ImportError('CuSQLAlchemyJobStore requires SQLAlchemy installed')
 
+logger = logging.getLogger('flask_apscheduler')
+
 
 class CuBackgroundScheduler(BackgroundScheduler):
 
@@ -47,11 +50,18 @@ class CuBackgroundScheduler(BackgroundScheduler):
         wait_seconds = None
         try:
             fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            logger.info("locked the pid {%s} success" % os.getpid())
+        except Exception as exc:
+            logger.error("[CuBackgroundScheduler] error: %s    os.pid:%s" % (str(exc), os.getpid()))
+            f.close()
+        else:
+            logger.info("pid {%s} Scheduler is {%s}" % (os.getpid(), self.state))
             if self.state == STATE_PAUSED:
                 self._logger.debug('Scheduler is paused -- not processing jobs')
                 return None
 
             self._logger.debug('Looking for jobs to run and os.pid is {%s}' % os.getpid())
+            logger.info('Looking for jobs to run and os.pid is {%s}' % os.getpid())
             now = datetime.now(self.timezone)
             next_wakeup_time = None
             events = []
@@ -61,6 +71,7 @@ class CuBackgroundScheduler(BackgroundScheduler):
                     try:
                         due_jobs = jobstore.get_due_jobs(now)
                         self._logger.info("due_jobs:%s     os.pid: %s\n" % (len(due_jobs), os.getpid()))
+                        logger.info("due_jobs:%s     os.pid: %s\n" % (len(due_jobs), os.getpid()))
                     except Exception as e:
                         # Schedule a wakeup at least in jobstore_retry_interval seconds
                         self._logger.warning('Error getting due jobs from job store %r: %s',
@@ -77,6 +88,9 @@ class CuBackgroundScheduler(BackgroundScheduler):
                             executor = self._lookup_executor(job.executor)
                         except BaseException:
                             self._logger.error(
+                                'Executor lookup ("%s") failed for job "%s" -- removing it from the '
+                                'job store', job.executor, job)
+                            logger.error(
                                 'Executor lookup ("%s") failed for job "%s" -- removing it from the '
                                 'job store', job.executor, job)
                             self.remove_job(job.id, jobstore_alias)
@@ -131,16 +145,11 @@ class CuBackgroundScheduler(BackgroundScheduler):
                 wait_seconds = min(max(timedelta_seconds(next_wakeup_time - now), 0), TIMEOUT_MAX)
                 self._logger.debug('Next wakeup is due at %s (in %f seconds)', next_wakeup_time,
                                    wait_seconds)
+                logger.info('os.pid {%s}  Next wakeup is due at %s (in %f seconds)', os.getpid(), next_wakeup_time,
+                             wait_seconds)
 
-
-        except:
-            pass
-
-        def unlock():
             fcntl.flock(f, fcntl.LOCK_UN)
+            logger.info("unlocked the pid {%s} success!!!" % os.getpid())
             f.close()
 
-        atexit.register(unlock)
-
-        fcntl.flock(f, fcntl.LOCK_UN)
         return wait_seconds

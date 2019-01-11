@@ -147,6 +147,12 @@ if app.config.get('UPLOAD_FOLDER'):
     except OSError:
         pass
 
+if app.config.get('IMG_UPLOAD_FOLDER'):
+    try:
+        os.makedirs(app.config.get('IMG_UPLOAD_FOLDER'))
+    except OSError:
+        pass
+
 for middleware in app.config.get('ADDITIONAL_MIDDLEWARE'):
     app.wsgi_app = middleware(app.wsgi_app)
 
