@@ -10,9 +10,15 @@ def get_superset_filter_args(filters):
     for arg, vl in request.args.lists():
         re_match = re.findall('_flt_(\d)_(.*)', arg)
         if len(vl) == 1:
-            vl = request.args.get(arg)
-        if re_match:
-            filters.add_filter_index(re_match[0][1], int(re_match[0][0]), vl) 
+            vl = vl[0]
+
+            if re_match:
+                filters.add_filter_index(re_match[0][1], int(re_match[0][0]), vl)
+        else:
+            for item in vl:
+                if re_match:
+                    filters.add_filter_index(re_match[0][1], int(re_match[0][0]), item)
+
 
 def get_page_args():
     """
