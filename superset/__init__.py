@@ -8,10 +8,11 @@ from __future__ import unicode_literals
 import json
 import logging
 from logging.handlers import TimedRotatingFileHandler
+from logging import FileHandler
 import os
 
 from flask import Flask, redirect
-from flask_appbuilder import AppBuilder, IndexView, SQLA
+from flask_appbuilder import IndexView, SQLA
 from flask_appbuilder.baseviews import expose
 from flask_compress import Compress
 from flask_migrate import Migrate
@@ -190,11 +191,7 @@ else:
     APS_LOG_FILE = os.path.join(os.path.dirname(APP_DIR), 'apscheduler.log')
 aps_logger = logging.getLogger('flask_apscheduler')
 aps_logger.setLevel(app.config.get('TIME_ROTATE_LOG_LEVEL'))
-handler = TimedRotatingFileHandler(
-    APS_LOG_FILE,
-    when=app.config.get('ROLLOVER'),
-    interval=app.config.get('INTERVAL'),
-    backupCount=app.config.get('BACKUP_COUNT'))
+handler = FileHandler(APS_LOG_FILE)
 
 formatter = logging.Formatter('%(asctime)s  %(filename)s : %(levelname)s [%(funcName)s]:%(lineno)s  %(message)s')
 handler.setFormatter(formatter)

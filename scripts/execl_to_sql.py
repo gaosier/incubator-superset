@@ -36,7 +36,7 @@ def get_infos():
             table_names.add(content[0])
 
         if content[1]:
-            email = content[1].split("：")
+            email = split_email(content[1])
 
             if len(email) == 2:
                 email = email[1]
@@ -62,7 +62,7 @@ def get_users_id(user_names):
     """
     User = security_manager.user_model
     qrys = db.session.query(User.email, User.id).filter(User.email.in_(user_names))
-    qrys = {item[0]: item[1] for item in qrys}
+    qrys = {item[0].strip(): item[1] for item in qrys}
     return qrys
 
 
@@ -108,12 +108,15 @@ def gen_sqls():
 
         for i in range(1, nrows):
             content = table.row_values(i)
+            print("content: ", content)
             if content[0] and content[0].strip():
                 table_name = content[0]
                 tab_id = table_ids.get(table_name)
 
+
             if content[1]:
                 email = split_email(content[1])
+                print("email: ", email)
                 user_id = user_ids.get(email)
 
             val = []
@@ -123,23 +126,27 @@ def gen_sqls():
                 val = split_vals(val)
 
             for item in val:
+                print("tab_id: %s     user_id: %s" % (tab_id, user_id))
                 sql = "insert into table_column_val(datasource_type, datasource_id, user_id, col, val) " \
                       "values ('%s', %s, %s, '%s', '%s');\n" % ('table', int(tab_id), int(user_id), col, item)
 
                 f.write(sql)
                 count += 1
 
-            val_2 = []
-            if content[4]:
-                col_1 = content[4]
-                val_2 = content[5]
-                val_2 = split_vals(val_2)
+            try:
+                val_2 = []
+                if content[4]:
+                    col_1 = content[4]
+                    val_2 = content[5]
+                    val_2 = split_vals(val_2)
 
-            for item in val_2:
-                sql = "insert into table_column_val(datasource_type, datasource_id, user_id, col, val) " \
-                      "values ('%s', %s, %s, '%s', '%s');\n" % ('table', int(tab_id), int(user_id), col_1, item)
-                f.write(sql)
-                count += 1
+                for item in val_2:
+                    sql = "insert into table_column_val(datasource_type, datasource_id, user_id, col, val) " \
+                          "values ('%s', %s, %s, '%s', '%s');\n" % ('table', int(tab_id), int(user_id), col_1, item)
+                    f.write(sql)
+                    count += 1
+            except:
+                pass
         f.write("# ========total:%s ====================" % count)
 
 if __name__ == "__main__":
