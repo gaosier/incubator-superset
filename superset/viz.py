@@ -818,13 +818,14 @@ class PivotTableViz(BaseViz):
             df.columns.values,
         ))
 
-
         # 空值填充
-        df = df.replace([np.inf, -np.inf, None], np.nan)
-        df = df.fillna(self.form_data.get('pandas_fill_column'))
+        if self.form_data.get('pandas_fill_column') and not self.form_data.get("pivot_margins"):
+            df = df.replace([np.inf, -np.inf, None], np.nan)
+            df = df.fillna(self.form_data.get('pandas_fill_column'), axis=1, downcast='dict')
 
         if is_xlsx:
             return df
+
         return dict(
             # columns=list(df.columns),
             columns=parsed_columns,
