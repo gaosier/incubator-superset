@@ -264,7 +264,7 @@ def _get_slice_data(schedule):
 
     slice_url = _get_url_path(
         'Superset.explore_json',
-        csv='true',
+        xlsx='true',
         form_data=json.dumps({'slice_id': slc.id}),
     )
 
@@ -281,13 +281,13 @@ def _get_slice_data(schedule):
     response = requests.get(slice_url, cookies=cookies)
     response.raise_for_status()
 
-    # TODO: Move to the csv module
+    # TODO: Move to the xlsx module
     rows = [r.split(b',') for r in response.content.splitlines()]
 
     if schedule.delivery_type == EmailDeliveryType.inline:
         data = None
 
-        # Parse the csv file and generate HTML
+        # Parse the xlsx file and generate HTML
         columns = rows.pop(0)
         with app.app_context():
             body = render_template(
@@ -300,7 +300,7 @@ def _get_slice_data(schedule):
 
     elif schedule.delivery_type == EmailDeliveryType.attachment:
         data = {
-            __('%(name)s.csv', name=slc.slice_name): response.content,
+            __('%(name)s.xlsx', name=slc.slice_name): response.content,
         }
         body = __(
             '<b><a href="%(url)s">Explore in Superset</a></b><p></p>',
