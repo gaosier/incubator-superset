@@ -71,8 +71,10 @@ def _deliver_email(schedule, subject, email):
             dryrun=config.get('SCHEDULED_EMAIL_DEBUG_MODE'),
         )
 
-
-def _generate_mail_content(schedule, screenshot, name, url):
+# wanxiang 添加dada参数 20190129 start
+# def _generate_mail_content(schedule, screenshot, name, url):
+def _generate_mail_content(schedule, screenshot, name, url, data=None):
+# wanxiang 20190129 end
     aps_logger.info("generate mail content")
     if schedule.delivery_type == EmailDeliveryType.attachment:
         images = None
@@ -93,7 +95,10 @@ def _generate_mail_content(schedule, screenshot, name, url):
         images = {
             msgid: screenshot,
         }
-        data = None
+        # wanxiang 20190129 inline类型邮件附件数据不为None start
+        # data = None
+        data = data
+        # wanxiang 20190129 end
         body = __(
             """
             <img src="cid:%(msgid)s">
@@ -239,14 +244,48 @@ def deliver_dashboard(schedule):
         # In such cases, take a screenshot of the entire page.
         screenshot = driver.screenshot()  # pylint: disable=no-member
     finally:
+	    # wanxiang 浏览器关闭前获取网页源码和cookie 20190129 start
+        dashboard_html = driver.page_source
+        session = driver.get_cookie('session')['value']
+        cookie = {'session':session}
+        # wanxiang 20190129 end
         destroy_webdriver(driver)
 
+    # wanxiang 20190128 获取看板ID start
+    import re
+    import requests
+    dashboard_data = {}
+    name_urls = re.findall(r'slice_name.*?slice_url.*?22slice_id.*?&quot;', dashboard_html)
+    for name_url in name_urls:
+        nu = name_url.split('slice_url')
+        slice_name = nu[0].replace('slice_name', '').replace('&quot;', '').replace(':', '').replace(',', '').replace(' ', '')
+        slice_name = slice_name
+        slice_url = nu[1].replace('&quot;', '').replace('slice_url', '').replace(': ', '')
+        slice_down_url = '{}{}&xlsx=true'.format('http://192.168.0.104:8088', slice_url)
+        slice_down_url = slice_down_url.replace('/explore/', '/explore_json/')
+        # 获取报表附件
+        try:
+            r = requests.get(slice_down_url, cookies=cookie)
+            if r.status_code == 200:
+                slice_data = r.content
+            else:
+                continue
+        except Exception as ex:
+            continue
+        slice_name = slice_name.encode("utf-8").decode('unicode-escape')
+        slice_name = slice_name + '.xlsx'
+        dashboard_data[slice_name] = slice_data
+    # wanxiang 20190128 end
+		
     # Generate the email body and attachments
     email = _generate_mail_content(
         schedule,
         screenshot,
         dashboard.dashboard_title,
         dashboard_url,
+		# wanxiang 添加附件参数 start
+        dashboard_data,
+        # wanxiang end
     )
     aps_logger.info("Generate the email success !!!")
 
