@@ -32,15 +32,15 @@ def get_infos():
         content = table.row_values(i)
         if content[0] == u'\u8868':
             continue
-        if content[0] and content[0].strip():
-            table_names.add(content[0])
+        if content[0]:
+            table_names.add(content[0].strip())
 
         if content[1]:
             email = split_email(content[1])
 
             if len(email) == 2:
                 email = email[1]
-            user_names.add(email)
+            user_names.add(email.strip())
 
     return table_names, user_names
 
@@ -100,8 +100,8 @@ def split_email(email):
 
 def gen_sqls():
     table_ids, user_ids = get_table_user_ids()
-    print("table_ids: ", table_ids)
-    print("user_ids: ", user_ids)
+    print("table_ids:%s   len(table_ids):%s " % (table_ids, len(table_ids)))
+    print("user_ids:%s   len(user_ids):%s " % (user_ids, len(user_ids)))
 
     count = 0
     with open('col_val.sql', 'w+') as f:
@@ -111,13 +111,13 @@ def gen_sqls():
             print("content: ", content)
             if content[0] and content[0].strip():
                 table_name = content[0]
-                tab_id = table_ids.get(table_name)
+                tab_id = table_ids.get(table_name.strip())
 
 
             if content[1]:
                 email = split_email(content[1])
                 print("email: ", email)
-                user_id = user_ids.get(email)
+                user_id = user_ids.get(email.strip())
 
             val = []
             if content[2]:
@@ -146,7 +146,7 @@ def gen_sqls():
                     f.write(sql)
                     count += 1
             except:
-                pass
+                continue
         f.write("# ========total:%s ====================" % count)
 
 if __name__ == "__main__":
