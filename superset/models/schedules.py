@@ -46,6 +46,9 @@ class EmailSchedule(object):
     id = Column(Integer, primary_key=True)
     name = Column(String(60), nullable=False)
     active = Column(Boolean, default=True, index=True)
+    # wanxiang 20190214 start
+    slice_data = Column(Boolean, default=True, index=True)
+    # wanxiang 20190214 end
     crontab = Column(String(50))
     comment = Column(Text)
 
@@ -61,7 +64,10 @@ class EmailSchedule(object):
             foreign_keys=[self.user_id],
         )
     recipients = Column(Text)
-    deliver_as_group = Column(Boolean, default=False)
+    # wanxiang 20190219 start 默认按组发送
+    # deliver_as_group = Column(Boolean, default=False)
+    deliver_as_group = Column(Boolean, default=True, index=True)
+    # wanxiang 20190219 end
     delivery_type = Column(Enum(EmailDeliveryType))
 
 

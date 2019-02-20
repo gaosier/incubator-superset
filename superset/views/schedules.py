@@ -136,6 +136,9 @@ class DashboardEmailScheduleView(EmailScheduleView):
         'user',
         'deliver_as_group',
         'delivery_type',
+        # wanxiang 附件选择框 20190214 start
+        'slice_data',
+        # wanxiang 20190214 end
     ]
 
     add_columns = [
@@ -146,6 +149,9 @@ class DashboardEmailScheduleView(EmailScheduleView):
         'recipients',
         'deliver_as_group',
         'delivery_type',
+        # wanxiang 附件选择框 20190214 start
+        'slice_data',
+        # wanxiang 20190214 end
         'comment'
     ]
     edit_columns = add_columns
@@ -168,6 +174,9 @@ class DashboardEmailScheduleView(EmailScheduleView):
         'recipients': _('Recipients'),
         'deliver_as_group': _('Deliver As Group'),
         'delivery_type': _('Delivery Type'),
+        # wanxiang 附件选择框 20190214 start
+        'slice_data':_('Slice data'),
+        # wanxiang 20190214 end
         'comment': _('Comment')
     }
 

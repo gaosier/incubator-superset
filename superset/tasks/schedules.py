@@ -67,7 +67,10 @@ def _deliver_email(schedule, subject, email):
             data=email.data,
             images=email.images,
             bcc=bcc,
+            # subtype指定为最大分文mixed,以支持部分邮件客户端显示附件 wanxiang 20190214 start
             mime_subtype='related',
+            # mime_subtype='mixed',
+            # wanxiang 20190214 end
             dryrun=config.get('SCHEDULED_EMAIL_DEBUG_MODE'),
         )
 
@@ -78,9 +81,15 @@ def _generate_mail_content(schedule, screenshot, name, url, data=None):
     aps_logger.info("generate mail content")
     if schedule.delivery_type == EmailDeliveryType.attachment:
         images = None
-        data = {
-            'screenshot.png': screenshot,
-        }
+        # wanxiang 20190219 start
+        if data != None:
+            data = data
+            data['screenshot.png'] = screenshot
+        else:
+            data = {
+                'screenshot.png': screenshot,
+            }
+        # wanxiang 20190219 end
         body = __(
             '',
             name=name,
@@ -244,7 +253,7 @@ def deliver_dashboard(schedule):
         # In such cases, take a screenshot of the entire page.
         screenshot = driver.screenshot()  # pylint: disable=no-member
     finally:
-	    # wanxiang 浏览器关闭前获取网页源码和cookie 20190129 start
+        # wanxiang 浏览器关闭前获取网页源码和cookie 20190129 start
         dashboard_html = driver.page_source
         session = driver.get_cookie('session')['value']
         cookie = {'session':session}
@@ -252,38 +261,44 @@ def deliver_dashboard(schedule):
         destroy_webdriver(driver)
 
     # wanxiang 20190128 获取看板ID start
-    import re
-    import requests
-    dashboard_data = {}
-    name_urls = re.findall(r'slice_name.*?slice_url.*?22slice_id.*?&quot;', dashboard_html)
-    for name_url in name_urls:
-        nu = name_url.split('slice_url')
-        slice_name = nu[0].replace('slice_name', '').replace('&quot;', '').replace(':', '').replace(',', '').replace(' ', '')
-        slice_name = slice_name
-        slice_url = nu[1].replace('&quot;', '').replace('slice_url', '').replace(': ', '')
-        slice_down_url = '{}{}&xlsx=true'.format('http://192.168.0.104:8088', slice_url)
-        slice_down_url = slice_down_url.replace('/explore/', '/explore_json/')
-        # 获取报表附件
-        try:
-            r = requests.get(slice_down_url, cookies=cookie)
-            if r.status_code == 200:
-                slice_data = r.content
-            else:
+    if schedule.slice_data:
+        # 获取报表数据，发送所有报表的excel附件
+        import re
+        import requests
+        dashboard_data = {}
+        name_urls = re.findall(r'slice_name.*?slice_url.*?22slice_id.*?&quot;', dashboard_html)
+        for name_url in name_urls:
+            nu = name_url.split('slice_url')
+            slice_name = nu[0].replace('slice_name', '').replace('&quot;', '').replace(':', '').replace(',',
+                                                                                                        '').replace(' ',
+                                                                                                                    '')
+            slice_name = slice_name
+            slice_url = nu[1].replace('&quot;', '').replace('slice_url', '').replace(': ', '')
+            slice_down_url = '{}{}&xlsx=true'.format('http://kingkong.dev.aixuexi.com', slice_url)
+            slice_down_url = slice_down_url.replace('/explore/', '/explore_json/')
+            # 获取报表附件
+            try:
+                r = requests.get(slice_down_url, cookies=cookie)
+                if r.status_code == 200:
+                    slice_data = r.content
+                else:
+                    continue
+            except Exception as ex:
                 continue
-        except Exception as ex:
-            continue
-        slice_name = slice_name.encode("utf-8").decode('unicode-escape')
-        slice_name = slice_name + '.xlsx'
-        dashboard_data[slice_name] = slice_data
+            slice_name = slice_name.encode("utf-8").decode('unicode-escape')
+            slice_name = slice_name + '.xlsx'
+            dashboard_data[slice_name] = slice_data
+    else:
+        dashboard_data = None
     # wanxiang 20190128 end
-		
+
     # Generate the email body and attachments
     email = _generate_mail_content(
         schedule,
         screenshot,
         dashboard.dashboard_title,
         dashboard_url,
-		# wanxiang 添加附件参数 start
+        # wanxiang 添加附件参数 start
         dashboard_data,
         # wanxiang end
     )
