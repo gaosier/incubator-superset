@@ -988,6 +988,28 @@ class SqlaTable(Model, BaseDatasource):
             data.append(table)
         return data
 
+    @classmethod
+    def get_group_ids(cls, perms, parent_id):
+        data = []
+        used_ids = []
+        if perms is None:
+            perms = []
+
+        qrys = db.session.query(cls).filter(cls.perm.in_(perms)).all()
+
+        for item in qrys:
+            if not item.group:
+                continue
+
+            if item.group.parent_id == parent_id:
+                group_id = item.group.id
+                if group_id not in used_ids:
+                    used_ids.append(group_id)
+                    name = item.group.name
+                    data.append({"id": group_id, "name": name, 'sort_id': item.group.sort_id})
+        data = sorted(data, key=lambda x: x.get('sort_id'))
+        return data
+
 
 sa.event.listen(SqlaTable, 'after_insert', set_perm)
 sa.event.listen(SqlaTable, 'after_update', set_perm)

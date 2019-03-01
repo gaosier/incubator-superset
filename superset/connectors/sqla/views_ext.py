@@ -1,9 +1,8 @@
 # -*-coding:utf-8-*-
 import json
 from flask import request
-from flask_appbuilder.views import GeneralView,ModelView,MasterDetailView
+from flask_appbuilder.views import MasterDetailView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
-from flask_babel import gettext as __
 from flask_appbuilder.urltools import get_page_args, get_page_size_args, get_order_args
 
 from superset import appbuilder
@@ -14,8 +13,7 @@ from superset.views.core_ext import TableColumnFilter
 from superset.views.core import check_ownership, json_success, json_error_response
 
 from flask_appbuilder import expose
-from flask_appbuilder.baseviews import expose_api
-from flask_appbuilder.security.decorators import has_access, has_access_api
+from flask_appbuilder.security.decorators import has_access
 from past.builtins import basestring
 
 
@@ -94,6 +92,15 @@ class TableGroupView(MasterDetailView):
     list_template = 'superset/datacenter/datacenter.html'
     page_size = 20
 
+    def get_table_groups(self, permission, parent_id):
+        if permission.has_all_datasource_access():
+            data = models_ext.SqlTableGroup.get_group_menus(parent_id)
+        else:
+            views = list(permission.get_view_menus("datasource_access"))
+            data = models.SqlaTable.get_group_ids(views, parent_id)
+        return data
+
+
     @has_access
     @expose('/menu/<int:parent_id>/')
     def menu(self, parent_id):
@@ -107,11 +114,11 @@ class TableGroupView(MasterDetailView):
         if not permission.has_perm('can_list', 'TableGroupView'):
             return json_error_response('you do not have permission to access the menu')
 
-        data = models_ext.SqlTableGroup.get_group_menus(parent_id)
+        data = self.get_table_groups(permission, parent_id)
         return json_success(json.dumps({"data": data}))
 
     @has_access
-    @expose('/tables/<pk>')
+    @expose('/tables/<pk>/')
     def tables(self, pk=None):
         if pk is None:
             return json_error_response(u"参数pk为空")
@@ -126,7 +133,7 @@ class TableGroupView(MasterDetailView):
         return json_success(json.dumps(data))
 
     @expose('/list/')
-    @expose('/list/<pk>')
+    @expose('/list/<pk>/')
     @has_access
     def list(self, pk=None):
         pages = get_page_args()

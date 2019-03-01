@@ -706,7 +706,6 @@ class KV(BaseSupersetView):
     @log_this
     @expose('/<key_id>/', methods=['GET'])
     def get_value(self, key_id):
-        kv = None
         try:
             kv = db.session.query(models.KeyValue).filter_by(id=key_id).one()
         except Exception as e:
@@ -1121,7 +1120,6 @@ class Superset(BaseSupersetView):
             columns = df.columns.tolist()
             columns = change_en_to_zh(columns, verbose_map)
             df.columns = df.columns.__class__(columns, dtype='object')
-        print(df)
         return df
 
     def get_xlsx_file(self, viz_obj):
@@ -2325,9 +2323,7 @@ class Superset(BaseSupersetView):
         schema = utils.js_string_to_python(schema)
         mydb = db.session.query(models.Database).filter_by(id=database_id).one()
         payload_columns = []
-        indexes = []
-        primary_key = []
-        foreign_keys = []
+
         try:
             columns = mydb.get_columns(table_name, schema)
             indexes = mydb.get_indexes(table_name, schema)
