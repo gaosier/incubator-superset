@@ -32,6 +32,13 @@ class SqlTableGroup(Model):
         query = db.session.query(cls.name).filter(cls.id == group_id).scalar()
         return query
 
+    @classmethod
+    def get_groups_by_ids(cls, ids):
+        query = db.session.query(cls.id, cls.name).filter(cls.id.in_(ids)).order_by(cls.sort_id).all()
+        data = [{"id": item[0], "name": item[1]} for item in query]
+        return data
+
+
 
 class SqlTableColumnSort(Model):
     """

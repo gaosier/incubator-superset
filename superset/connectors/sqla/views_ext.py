@@ -97,7 +97,8 @@ class TableGroupView(MasterDetailView):
             data = models_ext.SqlTableGroup.get_group_menus(parent_id)
         else:
             views = list(permission.get_view_menus("datasource_access"))
-            data = models.SqlaTable.get_group_ids(views, parent_id)
+            group_ids = models.SqlaTable.get_group_ids(views, parent_id)
+            data = models_ext.SqlTableGroup.get_groups_by_ids(group_ids)
         return data
 
 
@@ -163,6 +164,6 @@ appbuilder.add_view(
     label='数据中心',
     category='',
     icon='fa-table',
-    href='/tablegroupview/list/1',
+    href='/tablegroupview/list/1/',
 )
 

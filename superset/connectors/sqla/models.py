@@ -992,6 +992,7 @@ class SqlaTable(Model, BaseDatasource):
     def get_group_ids(cls, perms, parent_id):
         data = []
         used_ids = []
+
         if perms is None:
             perms = []
 
@@ -1001,13 +1002,20 @@ class SqlaTable(Model, BaseDatasource):
             if not item.group:
                 continue
 
-            if item.group.parent_id == parent_id:
-                group_id = item.group.id
-                if group_id not in used_ids:
-                    used_ids.append(group_id)
-                    name = item.group.name
-                    data.append({"id": group_id, "name": name, 'sort_id': item.group.sort_id})
-        data = sorted(data, key=lambda x: x.get('sort_id'))
+            if parent_id == 0:
+                if item.group.parent_id == 0:
+                    group_id = item.group.id
+                else:
+                    group_id = item.group.parent_id
+            else:
+                if item.group.parent_id == parent_id:
+                    group_id = item.group.id
+                else:
+                    group_id = None
+
+            if group_id and group_id not in used_ids:
+                used_ids.append(group_id)
+                data.append(group_id)
         return data
 
 
