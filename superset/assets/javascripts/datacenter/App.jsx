@@ -16,7 +16,7 @@ export default class App extends Component {
             treeData: [], //存放初始化加载的菜单内容，即第一层级菜单内容
             TreeNodeData: [], //存放获取的子菜单内容
             infos: [], //存放右侧数据
-            title: '用户数据中心', //存放右侧数据title
+            title: '', //存放右侧数据title
             expandedKeys:[]
         };
         this.onLoadData = this.onLoadData.bind(this);
@@ -33,7 +33,7 @@ export default class App extends Component {
             async:false,
             timeout: 2000,
             success: function (data) {
-                this.setState({ treeData: data['data'] });  // 将第一层级数据赋值给状态机
+                this.setState({ treeData: data['data'],title:data['data'][0].name });  // 将第一层级数据赋值给状态机
             }.bind(this),
             error: function (xhr, status, err) {
             },
@@ -67,7 +67,7 @@ export default class App extends Component {
 
     getKnowInfo(knowid=1) {
         let ajaxTimeOut = $.ajax({
-            url: "/tablegroupview/tables/" + knowid,
+            url: "/tablegroupview/tables/" + knowid+ '/',
             type: "GET",
             dataType: "json",
             timeout: 2000,
