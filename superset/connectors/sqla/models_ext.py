@@ -38,6 +38,11 @@ class SqlTableGroup(Model):
         data = [{"id": item[0], "name": item[1]} for item in query]
         return data
 
+    @classmethod
+    def all_group_names(self):
+        qrys = db.session.query(SqlTableGroup.id, SqlTableGroup.name).all()
+        data = {item[0]:item[1] for item in qrys}
+        return data
 
 
 class SqlTableColumnSort(Model):

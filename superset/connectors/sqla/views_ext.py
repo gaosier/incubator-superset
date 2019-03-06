@@ -5,8 +5,8 @@ from flask_appbuilder.views import MasterDetailView
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder.urltools import get_page_args, get_page_size_args, get_order_args
 
-from superset import appbuilder
-from . import models_ext, models
+from superset import appbuilder, db
+from . models import SqlTableGroup, SqlaTable
 from .views import TableModelView,TableColumnInlineView,SqlMetricInlineView
 from superset.views.base_ext import PermManager
 from superset.views.core_ext import TableColumnFilter
@@ -84,7 +84,7 @@ appbuilder.add_view_no_menu(MyTableModelView)
 
 class TableGroupView(MasterDetailView):
     list_title = '数据集分类'
-    datamodel = SQLAInterface(models_ext.SqlTableGroup)
+    datamodel = SQLAInterface(SqlTableGroup)
     related_views = [MyTableModelView]
     base_order = ('sort_id', 'asc')
 
@@ -94,11 +94,11 @@ class TableGroupView(MasterDetailView):
 
     def get_table_groups(self, permission, parent_id):
         if permission.has_all_datasource_access():
-            data = models_ext.SqlTableGroup.get_group_menus(parent_id)
+            data = SqlTableGroup.get_group_menus(parent_id)
         else:
             views = list(permission.get_view_menus("datasource_access"))
-            group_ids = models.SqlaTable.get_group_ids(views, parent_id)
-            data = models_ext.SqlTableGroup.get_groups_by_ids(group_ids)
+            group_ids = SqlaTable.get_group_ids(views, parent_id)
+            data = SqlTableGroup.get_groups_by_ids(group_ids)
         return data
 
 
@@ -130,7 +130,7 @@ class TableGroupView(MasterDetailView):
         else:
             perms = permission.get_view_menus('datasource_access')
 
-        data = models.SqlaTable.get_table_list(pk, perms)
+        data = SqlaTable.get_table_list(pk, perms)
         return json_success(json.dumps(data))
 
     @expose('/list/')
@@ -156,6 +156,54 @@ class TableGroupView(MasterDetailView):
                                     entry='datacenter',
                                     related_views=related_views,
                                     master_div_width=self.master_div_width)
+
+    @expose('/search/table/')
+    def search_table(self):
+        """
+        搜索表 表的中文名/英文名
+        :return: 返回当前用户有权限的表
+        """
+        permission = PermManager()
+        if permission.has_all_datasource_access():
+            tables = self.get_all_tables()
+        else:
+            perms = permission.get_view_menus('datasource_access')
+            tables = self.get_tables_by_perms(perms)
+
+        data = self.get_group_names(tables)
+        return json_success(json.dumps(data))
+
+    def get_all_tables(self):
+        querys = db.session.query(SqlaTable.table_name, SqlaTable.verbose_name, SqlaTable.group_id,
+                                  SqlTableGroup.parent_id).outerjoin(SqlTableGroup).filter(SqlaTable.group_id != None).all()
+        return querys
+
+    def get_tables_by_perms(self, perms):
+        if not perms:
+            return []
+
+        querys = db.session.query(SqlaTable.table_name, SqlaTable.verbose_name, SqlaTable.group_id,
+                                  SqlTableGroup.parent_id).outerjoin(SqlTableGroup).filter(SqlaTable.group_id != None,
+                                                                                        SqlaTable.perm.in_(perms)).all()
+
+        return querys
+
+    def get_group_names(self, tabs):
+        """
+        获取table所在的分类的名字  一级菜单和二级菜单
+        :param tabs: 
+        :return: 
+        """
+        groups_name = SqlTableGroup.all_group_names() or {}
+
+        data = []
+
+        for tab in tabs:
+            tab = list(tab)
+            tab[2] = groups_name.get(tab[2], '')
+            tab[3] = groups_name.get(tab[3], '')
+            data.append(tab)
+        return data
 
 
 appbuilder.add_view(
