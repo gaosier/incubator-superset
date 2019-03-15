@@ -34,6 +34,7 @@ from superset.models.analysis import Analysis, SkModel
 from .base import (BaseSupersetView, api, DATASOURCE_MISSING_ERR, get_datasource_access_error_msg, is_owner,
                    json_error_response, json_success, UserInfo, REQ_PARAM_NULL_ERR)
 from superset.analysis_log import ANALYSIS_LOG_DIR
+from superset.views.base_ext import login_required
 
 
 log_this = Log.log_this
@@ -231,8 +232,8 @@ appbuilder.add_view(AnalysisModelView, 'Analysis', icon="fa-comments", label=u"�
 class Online(BaseSupersetView):
 
     @api
-    @has_access_api
     @expose('/versions/<name>/')
+    @login_required
     def versions(self, name):
         """
         获取分析模型的版本 
@@ -440,8 +441,8 @@ class Online(BaseSupersetView):
             standalone_mode=standalone)
 
     @api
-    @has_access_api
     @expose('/columns/<datasource_type>/<datasource_id>/')
+    @login_required
     def columns(self, datasource_type, datasource_id):
         """
         获取用户有权限的表字段
@@ -468,8 +469,8 @@ class Online(BaseSupersetView):
         return json_success(payload)
 
     @api
-    @has_access_api
     @expose('/filter/<datasource_type>/<datasource_id>/<column>/')
+    @login_required
     def filter(self, datasource_type, datasource_id, column):
         """
         过滤用户有权限的表字段
@@ -490,16 +491,16 @@ class Online(BaseSupersetView):
         return json_success(payload)
 
     @api
-    @has_access_api
     @expose('/skmodels/')
+    @login_required
     def names(self):
         data = SkModel.names()
         payload = json.dumps(data)
         return json_success(payload)
 
     @api
-    @has_access_api
     @expose('/datasources/')
+    @login_required
     def datasources(self):
         datasources = ConnectorRegistry.get_all_datasources(db.session)
 
@@ -514,8 +515,8 @@ class Online(BaseSupersetView):
         return json_success(json.dumps(datasources))
 
     @api
-    @has_access_api
     @expose('/dealna/', methods=['POST'])
+    @login_required
     def deal_null_value(self):
         """
         处理缺失值 
@@ -553,8 +554,8 @@ class Online(BaseSupersetView):
                          attachment_filename=parse.quote(filename))
 
     @api
-    @has_access_api
     @expose('/download/', methods=['POST'])
+    @login_required
     def download(self):
         """
         下载处理之后的数据 
@@ -582,8 +583,8 @@ class Online(BaseSupersetView):
 
 
     @api
-    @has_access_api
     @expose('/model/params/<name>/')
+    @login_required
     def get_model_params(self, name):
         """
         获取模型的参数
@@ -598,9 +599,8 @@ class Online(BaseSupersetView):
         return '.' in filename and \
                filename.rsplit('.', 1)[1].lower() in config.get("ALLOWED_EXTENSIONS")
 
-    @api
-    @has_access_api
     @expose('/upload/file/', methods=['GET', 'POST'])
+    @login_required
     def upload_file(self):
         if request.method == "POST":
             if 'file' not in request.files:
@@ -617,9 +617,8 @@ class Online(BaseSupersetView):
                 return json_success(json.dumps(payload))
         return render_template("superset/import_files.html")
 
-    @api
-    @has_access_api
     @expose('/preview/code/', methods=['GET'])
+    @login_required
     def preview_code(self):
         title = "sk_model.py"
         try:
@@ -634,8 +633,8 @@ class Online(BaseSupersetView):
         return json_success(json.dumps(payload))
 
     @api
-    @has_access_api
     @expose('/describe/', methods=['POST'])
+    @login_required
     def describe(self):
         """
         查看原始数据的分布
@@ -660,8 +659,8 @@ class Online(BaseSupersetView):
         return json_success(html)
 
     @api
-    @has_access_api
     @expose('/correlation_analysis/', methods=["POST"])
+    @login_required
     def correlation_analysis(self):
         """
         查看数据相关性
@@ -688,8 +687,8 @@ class Online(BaseSupersetView):
 
     @log_this
     @api
-    @has_access_api
     @expose('/run/model/', methods=["POST"])
+    @login_required
     def run_model(self):
         form_data, analysis = self.get_form_data()
         sk_type = form_data.get("sk_type")
@@ -711,9 +710,9 @@ class Online(BaseSupersetView):
                    "model_result_execl_bs": execl_bs}
         return json_success(json.dumps(payload))
 
-    @api
-    @has_access_api
+
     @expose('/log/<name>/')
+    @login_required
     def log(self, name):
         if name not in ["code", "param", "image"]:
             return json_error_response(u"参数[name]的值错误. 取值范围[code, param, image]")
@@ -747,9 +746,9 @@ class Online(BaseSupersetView):
 
         return json_success(json.dumps(payload))
 
-    @api
-    @has_access_api
+
     @expose("/log/business/")
+    @login_required
     def log_bussiness(self):
         log_dir_id = request.args.get("log_dir_id")
         if not log_dir_id:
@@ -769,9 +768,8 @@ class Online(BaseSupersetView):
                 logs[i] = log.decode('utf-8')
         return json_success(json.dumps(logs))
 
-    @api
-    @has_access_api
     @expose("/model/complete/download/<filename>/")
+    @login_required
     def download_model_data(self, filename):
         """
         下载模型运行完成之后生成的数据
@@ -786,8 +784,8 @@ class Online(BaseSupersetView):
         return response
 
     @api
-    @has_access_api
     @expose("/table/schema/<datasource_type>/<datasource_id>/")
+    @login_required
     def table_schema(self, datasource_type, datasource_id):
         """
         获取表结构

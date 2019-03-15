@@ -1,6 +1,21 @@
 # -*- coding:utf-8 -*-
 # __author__ = majing
+from functools import wraps
 from .base import get_user_roles
+from flask import g
+
+
+class AuthenticatedExc(Exception):
+    pass
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        if not g.user.is_authenticated():
+            raise AuthenticatedExc(u"用户认证失败")
+        return f(*args, **kwargs)
+    return decorated_view
 
 
 class PermManager(object):

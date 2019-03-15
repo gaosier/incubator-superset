@@ -151,7 +151,7 @@ def api(f):
             return f(self, *args, **kwargs)
         except Exception as e:
             logging.exception(e)
-            return json_error_response(get_error_msg())
+            return json_error_response(str(e))
 
     return functools.update_wrapper(wraps, f)
 

@@ -8,12 +8,14 @@ from flask_appbuilder.urltools import get_page_args, get_page_size_args, get_ord
 from superset import appbuilder, db
 from . models import SqlTableGroup, SqlaTable
 from .views import TableModelView,TableColumnInlineView,SqlMetricInlineView
-from superset.views.base_ext import PermManager
+from superset.views.base_ext import PermManager, login_required
 from superset.views.core_ext import TableColumnFilter
 from superset.views.core import check_ownership, json_success, json_error_response
+from superset.views.base import api
 
 from flask_appbuilder import expose
 from flask_appbuilder.security.decorators import has_access
+from flask_appbuilder.security.views import AuthDBView
 from past.builtins import basestring
 
 
@@ -87,6 +89,7 @@ class TableGroupView(MasterDetailView):
     datamodel = SQLAInterface(SqlTableGroup)
     related_views = [MyTableModelView]
     base_order = ('sort_id', 'asc')
+    login_view = AuthDBView
 
     list_columns = ['name']
     list_template = 'superset/datacenter/datacenter.html'
@@ -102,8 +105,9 @@ class TableGroupView(MasterDetailView):
         return data
 
 
-    @has_access
+    @api
     @expose('/menu/<int:parent_id>/')
+    @login_required
     def menu(self, parent_id):
         """
         获取数据集分类
@@ -118,8 +122,9 @@ class TableGroupView(MasterDetailView):
         data = self.get_table_groups(permission, parent_id)
         return json_success(json.dumps({"data": data}))
 
-    @has_access
+    @api
     @expose('/tables/<pk>/')
+    @login_required
     def tables(self, pk=None):
         if pk is None:
             return json_error_response(u"参数pk为空")
@@ -156,8 +161,9 @@ class TableGroupView(MasterDetailView):
                                     entry='datacenter',
                                     related_views=related_views,
                                     master_div_width=self.master_div_width)
-
+    @api
     @expose('/search/table/')
+    @login_required
     def search_table(self):
         """
         搜索表 表的中文名/英文名
