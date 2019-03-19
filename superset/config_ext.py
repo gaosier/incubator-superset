@@ -107,6 +107,6 @@ SMTP_PORT = 587
 SMTP_PASSWORD = 'axxsyfxbg'
 SMTP_MAIL_FROM = 'axxsyfxbg@gaosiedu.com'
 
-# table viz not group by query config
-TABLE_MAX_ROW_LIMIT = 10000
-TABLE_DEFAULT_ROW_LIMIT = 1000
+# 表和透视表页面展示配置
+NOT_GROUPBY_ROW_LIMIT = 1000       # 非聚合查询显示1000
+GROUPBY_ROW_LIMIT = 1500           # 聚合查询显示1500

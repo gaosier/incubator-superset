@@ -668,12 +668,13 @@ class TableViz(BaseViz):
             columns.remove(DTTM_ALIAS)
             columns.insert(fd.get('include_time') - 1, DTTM_ALIAS)
         df = df[columns]
-        if fd.get('all_columns'):
-            row_limit = int(fd.get('row_limit'))
-            limit = int(conf.get("TABLE_MAX_ROW_LIMIT", 10000))
-            default = int(conf.get("TABLE_DEFAULT_ROW_LIMIT", 1000))
-            if row_limit >= limit:
-                df = df.head(default)
+
+        if fd.get("all_columns"):
+            default = conf.get("NOT_GROUPBY_ROW_LIMIT")
+        else:
+            default = conf.get("GROUPBY_ROW_LIMIT")
+
+        df = df.head(default)
         data = self.handle_js_int_overflow(
             dict(
                 records=df.to_dict(orient='records'),
@@ -826,8 +827,10 @@ class PivotTableViz(BaseViz):
         if is_xlsx:
             return df
 
+        default = conf.get("GROUPBY_ROW_LIMIT")
+        df = df.head(default)
+
         return dict(
-            # columns=list(df.columns),
             columns=parsed_columns,
             html=df.to_html(
                 na_rep='',
