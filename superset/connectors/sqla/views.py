@@ -42,6 +42,7 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'count_distinct', 'sum', 'avg','min', 'max', 'expression',
         'is_dttm', 'python_date_format', 'database_expression','order_number', 'is_partition', 'partition_expression']
     add_columns = edit_columns
+    show_columns = edit_columns
     list_columns = [
         'order_number','column_name', 'verbose_name', 'type', 'groupby', 'filterable', 'count_distinct',
         'sum', 'avg','min', 'max', 'is_dttm','is_memcached','is_active', 'is_partition']
@@ -103,6 +104,9 @@ class TableColumnInlineView(CompactCRUDMixin, SupersetModelView):  # noqa
         'type': _('Type'),
         'is_memcached': _("Is Memcached"),
         'owners': _('Owners'),
+        'order_number': _("Order Number"),
+        'is_partition': _("Is Partition"),
+        'partition_expression': _("Partition Expression")
     }
     def post_delete(self, item):
         """
@@ -293,7 +297,8 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
         'description': _('Description'),
         'group': _('Group Name'),
         'verbose_name': _('Verbose Name'),
-        'has_special_sort_cols': _('Has Special Sort Columns')
+        'has_special_sort_cols': _('Has Special Sort Columns'),
+        'perm': _('Perm')
     }
 
     def pre_add(self, table):
@@ -358,27 +363,6 @@ class TableModelView(DatasourceModelView, DeleteMixin, YamlExportMixin):  # noqa
             tables=', '.join([t.table_name for t in tables]))
         flash(msg, 'info')
         return redirect('/tablemodelview/list/')
-
-    def _get_list_widget(self, filters,
-                         actions=None,
-                         order_column='',
-                         order_direction='',
-                         page=None,
-                         page_size=None,
-                         widgets=None,
-                         **args):
-        group_id = filters.get_filter_value('group')
-        if group_id is not None:
-            group_name = models_ext.SqlTableGroup.get_name(group_id)
-            self.list_title = group_name
-        return super(TableModelView, self)._get_list_widget(filters,
-                         actions=None,
-                         order_column='',
-                         order_direction='',
-                         page=None,
-                         page_size=None,
-                         widgets=None,
-                         **args)
 
 
 appbuilder.add_view(

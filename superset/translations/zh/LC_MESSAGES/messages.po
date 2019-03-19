@@ -823,7 +823,7 @@ msgstr "在数据源列表中点击数据源将重定向到此端点"
 
 #: superset/connectors/druid/views.py:254 superset/connectors/sqla/views.py:266
 msgid "Associated Charts"
-msgstr ""
+msgstr "关联的报表"
 
 #: superset/connectors/druid/views.py:255
 msgid "Data Source"
@@ -856,7 +856,7 @@ msgstr "缓存时间"
 
 #: superset/connectors/sqla/models.py:185 superset/connectors/sqla/views.py:93
 msgid "Avg"
-msgstr ""
+msgstr "平均值"
 
 #: superset/connectors/sqla/models.py:537
 msgid ""
@@ -930,7 +930,7 @@ msgstr "数据库表达式"
 
 #: superset/connectors/sqla/views.py:101
 msgid "Is Memcached"
-msgstr ""
+msgstr "是否缓存"
 
 #: superset/connectors/sqla/views.py:153
 msgid "List Metrics"
@@ -3453,6 +3453,33 @@ msgstr "报表邮件"
 
 msgid "Slice data"
 msgstr "是否发送报表附件"
+
+msgid "Perm"
+msgstr "权限"
+
+msgid "Is Partition"
+msgstr "是否分区"
+
+msgid "Partition Expression"
+msgstr "分区表达式"
+
+msgid "Order Number"
+msgstr "序列号(用于字段排序)"
+
+msgid "Is Active"
+msgstr "是否可用"
+
+msgid "Created By"
+msgstr "创建者"
+
+msgid "Changed By"
+msgstr "修改者"
+
+msgid "Created On"
+msgstr "创建时间"
+
+msgid "Changed On"
+msgstr "修改时间"
 
 
 
