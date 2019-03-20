@@ -3454,6 +3454,9 @@ msgstr "报表邮件"
 msgid "Slice data"
 msgstr "是否发送报表附件"
 
+msgid "Mail content"
+msgstr "邮件正文"
+
 msgid "Perm"
 msgstr "权限"
 
