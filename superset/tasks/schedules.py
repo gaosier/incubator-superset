@@ -79,6 +79,14 @@ def _deliver_email(schedule, subject, email):
 def _generate_mail_content(schedule, screenshot, name, url, data=None):
 # wanxiang 20190129 end
     aps_logger.info("generate mail content")
+    # wanxiang 20190305 start
+    mail_content = schedule.mail_content
+    if mail_content:
+        mail_content = mail_content.replace(' ', '&nbsp;').replace('\n', '<br>')
+        mail_content = mail_content + '<br>'
+    else:
+        mail_content = ''
+    # wanxiang 20190305 end
     if schedule.delivery_type == EmailDeliveryType.attachment:
         images = None
         # wanxiang 20190219 start
@@ -91,7 +99,7 @@ def _generate_mail_content(schedule, screenshot, name, url, data=None):
             }
         # wanxiang 20190219 end
         body = __(
-            '',
+            mail_content + '\n' + '',
             name=name,
             url=url,
         )
@@ -109,6 +117,7 @@ def _generate_mail_content(schedule, screenshot, name, url, data=None):
         data = data
         # wanxiang 20190129 end
         body = __(
+            mail_content + '\n <br>' + \
             """
             <img src="cid:%(msgid)s">
             """,

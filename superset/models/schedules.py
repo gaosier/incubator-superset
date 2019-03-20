@@ -51,6 +51,9 @@ class EmailSchedule(object):
     # wanxiang 20190214 end
     crontab = Column(String(50))
     comment = Column(Text)
+    # wanxiang 20190305 start
+    mail_content = Column(Text)
+    # wanxiang 20190305 end
 
     @declared_attr
     def user_id(self):

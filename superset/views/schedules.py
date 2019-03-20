@@ -61,6 +61,7 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
             raise SupersetException('Invalid crontab format')
 
     def pre_update(self, obj):
+        print('UPDATE HERE ......')
         self.pre_add(obj)
 
     def post_add(self, obj):
@@ -83,6 +84,7 @@ class EmailScheduleView(SupersetModelView, DeleteMixin):
         """
         更新的任务
         """
+        print('POST UPDATE ....')
         if obj.active:
             job_id = "%s_%s_%s" % (obj.name, self.schedule_type, obj.id)
             job = flask_scheduler.get_job(job_id)
@@ -139,6 +141,9 @@ class DashboardEmailScheduleView(EmailScheduleView):
         # wanxiang 附件选择框 20190214 start
         'slice_data',
         # wanxiang 20190214 end
+        # wanxiang 20190305 start
+        'mail_content',
+        # wanxiang 20190305 end
     ]
 
     add_columns = [
@@ -152,6 +157,9 @@ class DashboardEmailScheduleView(EmailScheduleView):
         # wanxiang 附件选择框 20190214 start
         'slice_data',
         # wanxiang 20190214 end
+        # wanxiang 20190305 start
+        'mail_content',
+        # wanxiang 20190305 end
         'comment'
     ]
     edit_columns = add_columns
@@ -177,6 +185,9 @@ class DashboardEmailScheduleView(EmailScheduleView):
         # wanxiang 附件选择框 20190214 start
         'slice_data':_('Slice data'),
         # wanxiang 20190214 end
+        # wanxiang 20190305 start
+        'mail_content':_('Mail content'),
+        # wanxiang 20190305 end
         'comment': _('Comment')
     }
 
