@@ -88,7 +88,7 @@ EMAIL_REPORTS_WEBDRIVER = 'chrome'
 
 # Window size - this will impact the rendering of the data
 WEBDRIVER_WINDOW = {
-    'dashboard': (1600, 2000),
+    'dashboard': (2000, 3000),
     'slice': (3000, 1200),
 }
  # Any config options to be passed as-is to the webdriver
