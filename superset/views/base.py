@@ -11,10 +11,11 @@ import logging
 import traceback
 
 from flask import abort, flash, g, get_flashed_messages, redirect, Response
-from flask_appbuilder import BaseView, ModelView
+from flask_appbuilder import BaseView, expose
 from flask_appbuilder.actions import action
 from flask_appbuilder.models.sqla.filters import BaseFilter
 from flask_appbuilder.widgets import ListWidget
+from flask_appbuilder.security.decorators import has_access
 from flask_babel import get_locale
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
@@ -187,6 +188,14 @@ class SupersetListWidget(ListWidget):
 class SupersetModelView(ModelView):
     page_size = 25
     list_widget = SupersetListWidget
+
+    @expose('/delete/<pk>')
+    @has_access
+    def delete(self, pk):
+        pk = self._deserialize_pk_if_composite(pk)
+        self._delete(pk)
+        self.update_redirect()
+        return self.post_delete_redirect()
 
 
 class ListWidgetWithCheckboxes(ListWidget):
