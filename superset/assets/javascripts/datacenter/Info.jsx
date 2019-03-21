@@ -1,15 +1,124 @@
 import React, {Component} from 'react';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {OverlayTrigger, Tooltip,  FormControl, Modal} from 'react-bootstrap';
+import { Button } from 'antd';
+import { Table } from 'reactable';
 
 
 export default class Info extends Component {
     constructor(props) {
-        super();
-        this.rendertable = this.rendertable.bind(this);
+        super(props);
+        this.state = {
+            showModal: false,
+            filter: '',
+            all_data: [],
+            first_load:true,
+            loading: true
+        };
+        this.renderTable = this.renderTable.bind(this);
+        this.changeSearch = this.changeSearch.bind(this);
+        this.onEnterModal = this.onEnterModal.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+        this.setSearchRef = this.setSearchRef.bind(this);
 
     }
 
-    rendertable() {
+    getAllData() {
+        let ajaxTimeOut = $.ajax({
+            url: "/tablegroupview/search/table/",
+            type: "GET",
+            dataType: "json",
+            timeout: 2000,
+            success: function (data) {
+                const datasources = data.map(ds => ({
+                    name: ds[0],
+                    表名: ds[1],
+                    一级菜单: ds[2],
+                    二级菜单: ds[3],
+                  }))
+                this.setState({ 
+                    first_load:false,
+                    datasources
+                 });  
+            }.bind(this),
+            error: function (xhr, status, err) {
+            },
+        });
+    }
+
+    setSearchRef(searchRef){
+        this.searchRef = searchRef;
+    }
+
+    toggleModal() {
+            this.setState({showModal: !this.state.showModal})
+    }
+
+    onEnterModal(){
+        if (this.searchRef) {
+            this.searchRef.focus();
+        }
+        if(!this.state.datasources)
+        {
+            this.getAllData();
+        }
+        this.setState({
+            loading: false,
+        });
+    }
+
+    changeSearch(event) {
+        this.setState({filter: event.target.value});
+    }
+
+    renderModal() {
+        return (
+            <Modal
+                show={this.state.showModal}
+                onHide={this.toggleModal}
+                onEnter={this.onEnterModal}
+                onExit={this.setSearchRef}
+                bsSize="lg"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>查看表分类</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div>
+                        <FormControl
+                            id="formControlsText"
+                            inputRef={(ref) => {
+                                this.setSearchRef(ref);
+                            }}
+                            type="text"
+                            bsSize="sm"
+                            value={this.state.filter}
+                            placeholder={'搜索 / 过滤'}
+                            onChange={this.changeSearch}
+                        />
+                    </div>
+                    {this.state.loading &&
+                        <img
+                        className="loading"
+                        alt="Loading..."
+                        src="/static/assets/images/loading.gif"
+                        />
+                    }
+                    {this.state.datasources &&
+                        <Table
+                            columns={['表名','一级菜单','二级菜单']}
+                            className="table table-condensed"
+                            data = {this.state.datasources}
+                            itemsPerPage={20}
+                            filterable={['表名']}
+                            filterBy={this.state.filter}
+                            hideFilterInput
+                        />
+                    }
+                </Modal.Body>
+            </Modal>);
+    }
+
+    renderTable() {
         // 定义tooltip(鼠标移动至按钮出现提示语)
         const tooltip = (
             <Tooltip id="tooltip">
@@ -45,10 +154,13 @@ export default class Info extends Component {
                                 <th>表</th>
                                 <th>数据库</th>
                                 <th>修改人</th>
-                                <th><a
-                                    href="#"
-                                    data-original-title="" title="">修改时间
-                                    <i className="fa fa-arrows-v pull-right"></i></a></th>
+                                <th>
+                                    {/*<a*/}
+                                    {/*href="#"*/}
+                                    {/*data-original-title="" title="">修改时间*/}
+                                    {/*<i className="fa fa-arrows-v pull-right"></i></a>*/}
+                                    修改时间
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -102,10 +214,12 @@ export default class Info extends Component {
             <div className="col-lg-10 col-md-10 container">
                 <div className="panel panel-primary">
                     <div className="panel-heading">
+                        <Button icon="search" id="filter" onClick={this.toggleModal} >搜索</Button> 
                         <h4 className="panel-title">{this.props.title}</h4>
                     </div>
-                    { this.rendertable() }
+                    { this.renderTable() }                
                 </div>
+                {this.renderModal()}
             </div>
         )
     }

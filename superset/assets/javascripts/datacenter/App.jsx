@@ -5,6 +5,7 @@ import { Tree } from 'antd';
 import React, { Component } from 'react';
 import './datacenter.less';  // 加载自写样式
 import Info from './Info';  // 右侧列表组件
+import '../../stylesheets/reactable-pagination.css';
 
 
 
