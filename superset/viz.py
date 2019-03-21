@@ -48,6 +48,8 @@ METRIC_KEYS = [
     'x', 'y', 'size',
 ]
 
+PAYLOAD_ERROR_MSG = u'查询出错:没有数据'
+
 
 class BaseViz(object):
 
@@ -403,7 +405,7 @@ class BaseViz(object):
         df = payload.get('df')
         if self.status != utils.QueryStatus.FAILED:
             if df is not None and df.empty:
-                payload['error'] = 'No data'
+                payload['error'] = PAYLOAD_ERROR_MSG
             else:
                 payload['data'] = self.get_data(df)
         if 'df' in payload:
