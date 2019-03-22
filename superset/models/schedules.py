@@ -11,14 +11,13 @@ from __future__ import unicode_literals
 
 import enum
 from flask_appbuilder import Model
+from flask_appbuilder.models.decorators import renders
 from sqlalchemy import (
-    Boolean, Column, Enum, ForeignKey, Integer, String, Text,
+    Boolean, Column, Enum, ForeignKey, Integer, Text, String, create_engine
 )
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 
-from superset import security_manager
-from superset.models.helpers import AuditMixinNullable, ImportMixin
+from superset.models.helpers import AuditMixinNullable
 
 metadata = Model.metadata
 
@@ -42,42 +41,33 @@ class EmailSchedule(object):
     """
       发送邮件
     """
-    __tablename__ = 'email_schedules'
+    __tablename__ = 'email_schedule'
     id = Column(Integer, primary_key=True)
     name = Column(String(60), nullable=False)
-    active = Column(Boolean, default=True, index=True)
-    # wanxiang 20190214 start
-    slice_data = Column(Boolean, default=True, index=True)
-    # wanxiang 20190214 end
+    active = Column(Boolean, default=True)
+    slice_data = Column(Boolean, default=True, comment=u"是否发送报表内容")
     crontab = Column(String(50))
-    comment = Column(Text)
-    # wanxiang 20190305 start
-    mail_content = Column(Text)
-    # wanxiang 20190305 end
-
-    @declared_attr
-    def user_id(self):
-        return Column(Integer, ForeignKey('ab_user.id'))
-
-    @declared_attr
-    def user(self):
-        return relationship(
-            security_manager.user_model,
-            backref=self.__tablename__,
-            foreign_keys=[self.user_id],
-        )
+    comment = Column(String(150))
+    mail_content = Column(Text, comment=u"邮件正文")
+    job_id = Column(String(36), nullable=False, comment=u"apscheduler job id")
     recipients = Column(Text)
-    # wanxiang 20190219 start 默认按组发送
-    # deliver_as_group = Column(Boolean, default=False)
-    deliver_as_group = Column(Boolean, default=True, index=True)
-    # wanxiang 20190219 end
+    deliver_as_group = Column(Boolean, default=True, comment=u"默认按组发送")
     delivery_type = Column(Enum(EmailDeliveryType))
 
+    @renders('active')
+    def is_active(self):
+        return u"启用" if self.active else u"禁用"
 
-class DashboardEmailSchedule(Model,
-                             AuditMixinNullable,
-                             ImportMixin,
-                             EmailSchedule):
+    @renders('deliver_as_group')
+    def is_deliver_as_group(self):
+        return u"是" if self.deliver_as_group else u"否"
+
+    @renders('slice_data')
+    def is_slice_data(self):
+        return u"是" if self.slice_data else u"否"
+
+
+class DashboardEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
     """
     发送看板邮件
     """
@@ -90,10 +80,7 @@ class DashboardEmailSchedule(Model,
     )
 
 
-class SliceEmailSchedule(Model,
-                         AuditMixinNullable,
-                         ImportMixin,
-                         EmailSchedule):
+class SliceEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
 
     __tablename__ = 'slice_email_schedules'
     slice_id = Column(Integer, ForeignKey('slices.id'))
