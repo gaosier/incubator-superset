@@ -214,7 +214,7 @@ export default class Info extends Component {
             <div className="col-lg-10 col-md-10 container">
                 <div className="panel panel-primary">
                     <div className="panel-heading">
-                        <Button icon="search" id="filter" onClick={this.toggleModal} >搜索</Button> 
+                        <Button type="primary" icon="search" id="filter" onClick={this.toggleModal} ghost>搜索</Button>
                         <h4 className="panel-title">{this.props.title}</h4>
                     </div>
                     { this.renderTable() }                
