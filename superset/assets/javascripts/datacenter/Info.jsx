@@ -50,7 +50,7 @@ export default class Info extends Component {
     }
 
     toggleModal() {
-            this.setState({showModal: !this.state.showModal})
+            this.setState({showModal: !this.state.showModal,filter:''})
     }
 
     onEnterModal(){
