@@ -123,14 +123,20 @@ class TableColumn(Model, BaseColumn):
     def datasource(self):
         return self.table
 
-    def get_time_filter(self, start_dttm, end_dttm):
+    def get_time_filter(self, start_dttm, end_dttm, not_groupby):
+        """
+        解析时间过滤条件,对于kylin查询，在非聚合查询的时候，将时间条件去掉
+        :param start_dttm:开始时间
+        :param end_dttm:结束时间
+        :param not_groupby: 是否为非聚合查询 True：是
+        :return:
+        """
         col = self.sqla_col.label('__time')
         l = []  # noqa: E741
-        if start_dttm:
-            l.append(col >= text(self.dttm_sql_literal(start_dttm)))
-        if end_dttm:
-            l.append(col <= text(self.dttm_sql_literal(end_dttm)))
-        col_partition = column('day').label('day')
+        if self.table.database.backend == 'kylin':
+            col_partition = column('day_pt').label('day_pt')
+        else:
+            col_partition = column('day').label('day')
         if self.is_partition:
             if start_dttm:
                 l.append(col_partition >= text(self.dttm_hybird_literal(start_dttm)))
@@ -138,6 +144,18 @@ class TableColumn(Model, BaseColumn):
             if end_dttm:
                 l.append(col_partition <= text(self.dttm_hybird_literal(end_dttm)))
 
+            if self.table.database.backend == 'kylin' and not not_groupby:
+                pass
+            else:
+                if start_dttm:
+                    l.append(col >= text(self.dttm_sql_literal(start_dttm)))
+                if end_dttm:
+                    l.append(col <= text(self.dttm_sql_literal(end_dttm)))
+        else:
+            if start_dttm:
+                l.append(col >= text(self.dttm_sql_literal(start_dttm)))
+            if end_dttm:
+                l.append(col <= text(self.dttm_sql_literal(end_dttm)))
         return and_(*l)
 
     def get_timestamp_expression(self, time_grain):
@@ -618,8 +636,8 @@ class SqlaTable(Model, BaseDatasource):
                     self.main_dttm_col in self.dttm_cols and \
                     self.main_dttm_col != dttm_col.column_name:
                 time_filters.append(cols[self.main_dttm_col].
-                                    get_time_filter(from_dttm, to_dttm))
-            time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm))
+                                    get_time_filter(from_dttm, to_dttm,not groupby))
+            time_filters.append(dttm_col.get_time_filter(from_dttm, to_dttm,not groupby))
 
         select_exprs += metrics_exprs
         qry = sa.select(select_exprs)
@@ -751,7 +769,7 @@ class SqlaTable(Model, BaseDatasource):
                 subq = subq.select_from(tbl)
                 inner_time_filter = dttm_col.get_time_filter(
                     inner_from_dttm or from_dttm,
-                    inner_to_dttm or to_dttm,
+                    inner_to_dttm or to_dttm,not groupby
                 )
                 subq = subq.where(and_(*(where_clause_and + [inner_time_filter])))
                 subq = subq.group_by(*inner_groupby_exprs)
@@ -797,10 +815,14 @@ class SqlaTable(Model, BaseDatasource):
 		
     def init_table(self, table):
         import re
-        if re.match('^mysql:', str(self.database.get_sqla_engine().url)):
+        url = str(self.database.sqla_engine2().url)
+        if re.match('^mysql:', url):
             sql = 'select column_name,column_comment from information_schema.columns WHERE TABLE_NAME ="%s" ' % str(
                 table)
-            return {k: (v or k) for (k, v) in self.database.get_sqla_engine().execute(sql).fetchall()}
+            return {k: (v or k) for (k, v) in self.database.sqla_engine2().execute(sql).fetchall()}
+        elif re.match('^presto:', url):
+            sql = 'desc %s' % table
+            return {k: (v or k) for (k, a, b, v) in self.database.sqla_engine2().execute(sql).fetchall()}
 			
     def _get_top_groups(self, df, dimensions):
         cols = {col.column_name: col for col in self.columns}

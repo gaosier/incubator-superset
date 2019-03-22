@@ -590,6 +590,7 @@ class Database(Model, AuditMixinNullable, ImportMixin):
     perm = Column(String(1000))
 
     impersonate_user = Column(Boolean, default=False)
+    sqlalchemy_uri2 = Column(String(1024))
     export_fields = ('database_name', 'sqlalchemy_uri', 'cache_timeout',
                      'expose_in_sqllab', 'allow_run_sync', 'allow_run_async',
                      'allow_ctas', 'extra')
@@ -831,7 +832,7 @@ class Database(Model, AuditMixinNullable, ImportMixin):
             table_name, meta,
             schema=schema or None,
             autoload=True,
-            autoload_with=self.get_sqla_engine())
+            autoload_with=self.get_sqla_engine2())
 
     def get_columns(self, table_name, schema=None):
         return self.inspector.get_columns(table_name, schema)
@@ -875,6 +876,14 @@ class Database(Model, AuditMixinNullable, ImportMixin):
     def get_dialect(self):
         sqla_url = url.make_url(self.sqlalchemy_uri_decrypted)
         return sqla_url.get_dialect()()
+
+    def sqla_engine2(self):
+        """
+        与该数据库相对应的另一数据库连接，主要是为了获取备注信息以及数据表的字段
+        当sqlalchemy_uri2不存在时，则还是原始engine
+        :return: engine
+        """
+        return create_engine(self.sqlalchemy_uri2) if self.sqlalchemy_uri2 else self.get_sqla_engine()
 
 
 sqla.event.listen(Database, 'after_insert', set_perm)
