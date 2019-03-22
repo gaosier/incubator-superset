@@ -92,7 +92,7 @@ export default class Info extends Component {
                             type="text"
                             bsSize="sm"
                             value={this.state.filter}
-                            placeholder={'搜索 / 过滤'}
+                            placeholder={'搜索 / 过滤(可通过表名和数据库中表名进行搜索)'}
                             onChange={this.changeSearch}
                         />
                     </div>
@@ -109,7 +109,7 @@ export default class Info extends Component {
                             className="table table-condensed"
                             data = {this.state.datasources}
                             itemsPerPage={20}
-                            filterable={['表名']}
+                            filterable={['表名', 'name']}
                             filterBy={this.state.filter}
                             hideFilterInput
                         />
