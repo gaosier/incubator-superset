@@ -832,7 +832,7 @@ class Database(Model, AuditMixinNullable, ImportMixin):
             table_name, meta,
             schema=schema or None,
             autoload=True,
-            autoload_with=self.get_sqla_engine2())
+            autoload_with=self.sqla_engine2())
 
     def get_columns(self, table_name, schema=None):
         return self.inspector.get_columns(table_name, schema)
