@@ -123,6 +123,24 @@ class SliceEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
     )
     email_format = Column(Enum(SliceEmailReportFormat))
 
+    @classmethod
+    def get_list(cls):
+        data = []
+        querys = db.session.query(cls)
+        for item in querys:
+            info = {}
+            info['name'] = item.name
+            info['slice'] = item.slice.name
+            info['active'] = u"启用" if item.active else u"禁用"
+            info['crontab'] = item.crontab
+            info['creator'] = item.creator
+            info['deliver_as_group'] = u"是" if item.deliver_as_group else u"否"
+            info['delivery_type'] = item.delivery_type
+            info['slice_data'] = item.slice_data
+            info['email_format'] = item.email_format
+            data.append(info)
+        return data
+
 
 def get_scheduler_model(report_type):
     if report_type == ScheduleType.dashboard.value:

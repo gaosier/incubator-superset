@@ -23,7 +23,6 @@ from flask_appbuilder.security.decorators import has_access
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
 
-
 from apscheduler.triggers.cron import CronTrigger
 
 from superset import appbuilder, flask_scheduler, aps_logger
@@ -33,14 +32,11 @@ from superset.models.schedules import DashboardEmailSchedule, ScheduleType, Slic
 
 from superset.utils import get_email_address_list
 from .base import SupersetModelView, api, json_success
+from .base_ext import login_required
 
+EMAIL_TYPE = {"dash": DashboardEmailSchedule, "slice": SliceEmailSchedule}
 
 class EmailScheduleView(SupersetModelView):
-    schedule_type = None
-    schedule_type_model = None
-    page_size = 20
-    add_exclude_columns = ['created_on','changed_on','created_by', 'changed_by']
-    edit_exclude_columns = add_exclude_columns
     description_columns = {
         'deliver_as_group': '如果选择了，邮件的接收人是所有的成员',
         'crontab': 'Unix crontab 表达式',
@@ -98,6 +94,207 @@ class EmailScheduleView(SupersetModelView):
             raise SupersetException(u'crontab格式不正确')
 
 
+    def get_model_cls(self, param):
+        keys = EMAIL_TYPE.keys()
+        if param not in keys:
+            raise SupersetException(u"参数[type]取值错误! 取值范围:%s" % keys)
+        return EMAIL_TYPE.get(param)
+
+    @api
+    @expose('/copy/', methods=('POST',))
+    @login_required
+    def copy_dash(self):
+        """
+        复制定时任务
+        """
+        task_ids = request.form.getlist('task_ids', [])
+        _type = request.form.get('type', 'dash')
+
+        model_cls = self.get_model_cls(_type)
+        instances = model_cls.get_instances(task_ids)
+
+        for item in instances:
+            task = model_cls()
+            task.name = item.name + '[copy]'
+            task.delivery_type = item.delivery_type
+            task.recipients = item.recipients
+            task.crontab = item.crontab
+            task.mail_content = item.mail_content
+            task.deliver_as_group = item.deliver_as_group
+            task.comment = item.comment
+            task.slice_data = item.slice_data
+            task.job_id = str(uuid.uuid4())
+
+            if _type == 'dash':
+                task.dashboard_id = item.dashboard_id
+            else:
+                task.slice_id = item.slice_id
+                task.email_format = item.email_format
+
+            try:
+                self.add_apscheduler_job(task)
+            except (SupersetException, Exception) as exc:
+                raise SupersetException(u"复制定时任务失败。错误原因：%s " % str(exc))
+            else:
+                db.session.add(item)
+                db.session.commit()
+
+        return json_success(u"复制定时任务成功!!!")
+
+    @api
+    @expose('/enable/', methods=('POST',))
+    @login_required
+    def enable(self):
+        """
+        对定时任务进行启用禁用操作
+        """
+        task_ids = request.form.getlist('task_ids', [])
+        _type = request.form.get('type', 'dash')
+
+        model_cls = self.get_model_cls(_type)
+        instances = model_cls.get_instances(task_ids)
+
+        for item in instances:
+            job_id = item.job_id
+            status = item.active
+
+            job = flask_scheduler.get_job(job_id, 'default')
+            if not job:
+                raise SupersetException(u"找不到看板邮件任务的定时任务！任务名字:%s " % item.name)
+
+            try:
+                if status:
+                    job.pause()
+                else:
+                    job.resume()
+            except Exception as exc:
+                msg = "apscheduler[禁用/启用]任务失败：job_id:%s  name:%s  msg:%s " % (job_id, item.name, str(exc))
+                aps_logger.error(msg)
+                raise SupersetException(msg)
+            else:
+                item.active = not status
+                db.session.add(item)
+                db.session.commit()
+        return json_success(u"设置定时任务状态成功!!!")
+
+    @api
+    @expose('/check/jobs/', methods=('POST',))
+    @login_required
+    def check_jobs(self):
+        """
+        校验数据一致性  apscheduler中的job是否存在
+        """
+        errors = []
+
+        task_ids = request.form.getlist('task_ids', [])
+        _type = request.form.get('type', 'dash')
+
+        model_cls = self.get_model_cls(_type)
+        instances = model_cls.get_instances(task_ids)
+
+        for item in instances:
+            job_id = item.job_id
+            job = flask_scheduler.get_job(job_id, 'default')
+            if not job:
+                errors.append(item.name)
+
+        msg = u"定时任务的apscheduler job都存在" if not errors else u"apscheduler任务不存在的看板邮件任务：%s" % ', '.join(errors)
+        return json_success(msg)
+
+    @api
+    @expose('/multi/delete/', methods=('POST',))
+    @login_required
+    def multi_delete(self):
+        """
+        批量删除 
+        """
+        task_ids = request.form.getlist('task_ids', [])
+        _type = request.form.get('type', 'dash')
+
+        model_cls = self.get_model_cls(_type)
+        instances = model_cls.get_instances(task_ids)
+
+        for task in instances:
+            job_id = task.job_id
+            try:
+                flask_scheduler.remove_job(job_id, 'default')
+            except Exception as exc:
+                raise SupersetException(u"apscheduler删除job失败: %s " % str(exc))
+            else:
+                task.delete_instance()
+        return json_success(u"删除定时任务成功!!!")
+
+    @api
+    @expose('/modify/name/', methods=['POST'])
+    @login_required
+    def modify_name(self):
+        """
+        修改名字
+        :return: 
+        """
+        pk = request.form.get('pk')
+        new_name = request.form.get('name')
+        _type = request.form.get('type')
+
+        model_cls = self.get_model_cls(_type)
+        instance = model_cls.get_instance_by_id(pk)
+        if not instance:
+            raise SupersetException(u"找不到定时任务。pk:%s  type: %s " % (pk, _type))
+
+        job_id = instance.job_id
+
+        try:
+            flask_scheduler.modify_job(job_id, jobstore='default', name=new_name)
+        except Exception as exc:
+            raise SupersetException(u"修改定时任务名字失败: %s" % str(exc))
+
+        instance.name = new_name
+        db.session.add(instance)
+        db.session.commit()
+
+    @api
+    @expose('/modify/corntab/')
+    @login_required
+    def modify_corntab(self):
+        """
+        修改定时时间
+        :return: 
+        """
+        pk = request.form.get('pk')
+        crontab = request.form.get('crontab')
+        _type = request.form.get('type')
+
+        model_cls = self.get_model_cls(_type)
+        instance = model_cls.get_instance_by_id(pk)
+        if not instance:
+            raise SupersetException(u"找不到定时任务。pk:%s  type: %s " % (pk, _type))
+
+        job_id = instance.job_id
+
+        try:
+            flask_scheduler.reschedule_job(job_id, jobstore='default', trigger=CronTrigger.from_crontab(crontab))
+        except Exception as exc:
+            raise SupersetException(u"修改定时任务的运行时间失败: %s" % str(exc))
+
+        instance.crontab = crontab
+        db.session.add(instance)
+        db.session.commit()
+
+    @api
+    @expose('/list/', methods=['POST'])
+    @login_required
+    def list(self):
+        """
+        列表
+        :return: 
+        """
+        _type = request.form.get('type')
+        model_cls = self.get_model_cls(_type)
+
+        data = model_cls.get_list()
+        return json_success(json.dumps(data))
+
+
 class DashboardEmailView(EmailScheduleView):
     schedule_type = ScheduleType.dashboard.name
     schedule_type_model = Dashboard
@@ -138,134 +335,6 @@ class DashboardEmailView(EmailScheduleView):
         'creator': _('Creator'),
         'job_id': _('Job Id')
     }
-
-
-    @api
-    @expose('/copy/', methods=('POST',))
-    def copy_dash(self):
-        """
-        复制定时任务
-        """
-        dash_ids = request.form.getlist('dash_ids', [])
-        dash_tasks = DashboardEmailSchedule.get_instances(dash_ids)
-        for item in dash_tasks:
-            task = DashboardEmailSchedule()
-            task.name = item.name + '[copy]'
-            task.delivery_type = item.delivery_type
-            task.recipients = item.recipients
-            task.crontab = item.crontab
-            task.mail_content = item.mail_content
-            task.dashboard_id = item.dashboard_id
-            task.deliver_as_group = item.deliver_as_group
-            task.comment = item.comment
-            task.slice_data = item.slice_data
-            task.job_id = str(uuid.uuid4())
-
-            try:
-                self.add_apscheduler_job(task)
-            except (SupersetException, Exception) as exc:
-                raise SupersetException(u"复制定时任务失败。错误原因：%s " % str(exc))
-            else:
-                db.session.add(item)
-                db.session.commit()
-
-        return json_success(u"复制定时任务成功!!!")
-
-    @api
-    @expose('/enable/', methods=('POST',))
-    def enable(self):
-        """
-        对定时任务进行启用禁用操作
-        """
-        dash_ids = request.form.getlist('dash_ids', [])
-        dash_tasks = DashboardEmailSchedule.get_instances(dash_ids)
-        for item in dash_tasks:
-            job_id = item.job_id
-            status = item.active
-
-            job = flask_scheduler.get_job(job_id, 'default')
-            if not job:
-                raise SupersetException(u"找不到看板邮件任务的定时任务！任务名字:%s " % item.name)
-
-            try:
-                if status:
-                    job.pause()
-                else:
-                    job.resume()
-            except Exception as exc:
-                msg = "apscheduler[禁用/启用]任务失败：job_id:%s  name:%s  msg:%s " % (job_id, item.name, str(exc))
-                aps_logger.error(msg)
-                raise SupersetException(msg)
-            else:
-                item.active = not status
-                db.session.add(item)
-                db.session.commit()
-        return json_success(u"设置定时任务状态成功!!!")
-
-    @api
-    @expose('/check/jobs/', methods=('POST',))
-    def check_jobs(self):
-        """
-        校验数据一致性  看板的任务的定时邮件是否都存在
-        """
-        errors = []
-        dash_ids = request.form.getlist('dash_ids', [])
-        dash_tasks = DashboardEmailSchedule.get_instances(dash_ids)
-        for item in dash_tasks:
-            job_id = item.job_id
-            job = flask_scheduler.get_job(job_id, 'default')
-            if not job:
-                errors.append(item.name)
-
-        if not errors:
-            msg = u"看板任务对应的apscheduler任务都存在"
-        else:
-            msg = u"apscheduler任务不存在的看板邮件任务：%s" % ', '.join(errors)
-
-        return json_success(msg)
-
-    @api
-    @expose('/multi/delete/', methods=('POST',))
-    def multi_delete(self):
-        """
-        批量删除 
-        """
-        dash_ids = request.form.getlist('dash_ids', [])
-        dash_tasks = DashboardEmailSchedule.get_instances(dash_ids)
-        for task in dash_tasks:
-            job_id = task.job_id
-            try:
-                flask_scheduler.remove_job(job_id, 'default')
-            except Exception as exc:
-                raise SupersetException(u"apscheduler删除job失败: %s " % str(exc))
-            else:
-                task.delete_instance()
-        return json_success(u"删除定时任务成功!!!")
-
-    # @api
-    # @has_access
-    # @expose('/list/', methods=['POST'])
-    # def list(self):
-    #     data = DashboardEmailSchedule.get_list()
-    #     return json_success(json.dumps(data))
-
-    @api
-    @expose('/modify/name/<dash_id>/', methods=['POST'])
-    def modify_name(self):
-        """
-        修改名字
-        :return: 
-        """
-        pass
-
-    @api
-    @expose('/modify/corntab/<dash_id>/')
-    def modify_corntab(self):
-        """
-        修改定时时间
-        :return: 
-        """
-        pass
 
 
 class SliceEmailView(EmailScheduleView):
