@@ -57,10 +57,6 @@ BABEL_DEFAULT_LOCALE = 'zh'
 timezone = 'Asia/Shanghai'
 
 # 邮件配置
-
-# Enable / disable scheduled email reports
-ENABLE_SCHEDULED_EMAIL_REPORTS = True
-
 # Email reports - minimum time resolution (in minutes) for the crontab
 EMAIL_REPORTS_CRON_RESOLUTION = 15
 

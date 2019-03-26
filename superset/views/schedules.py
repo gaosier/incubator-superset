@@ -13,19 +13,23 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 import uuid
+import json
+from flask import request
 from croniter import croniter
-from flask import redirect
 from flask_appbuilder import expose
 from flask_appbuilder.models.sqla.interface import SQLAInterface
-from flask_appbuilder.actions import action
+from flask_appbuilder.security.decorators import has_access
+
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
+
+
 from apscheduler.triggers.cron import CronTrigger
 
-from superset import app, appbuilder, db, flask_scheduler, aps_logger
+from superset import appbuilder, flask_scheduler, aps_logger
 from superset.exceptions import SupersetException
 from superset.models.core import Dashboard, Slice
-from superset.models.schedules import DashboardEmailSchedule, ScheduleType, SliceEmailSchedule
+from superset.models.schedules import DashboardEmailSchedule, ScheduleType, SliceEmailSchedule, db
 
 from superset.utils import get_email_address_list
 from .base import SupersetModelView, api, json_success
@@ -83,8 +87,18 @@ class EmailScheduleView(SupersetModelView):
             aps_logger.error(msg)
             raise SupersetException(msg)
 
+    def pre_update(self, obj):
+        try:
+            recipients = get_email_address_list(obj.recipients)
+            obj.recipients = ', '.join(recipients)
+        except Exception:
+            raise SupersetException(u'邮件列表格式不正确')
 
-class DashboardEmailScheduleView(EmailScheduleView):
+        if not croniter.is_valid(obj.crontab):
+            raise SupersetException(u'crontab格式不正确')
+
+
+class DashboardEmailView(EmailScheduleView):
     schedule_type = ScheduleType.dashboard.name
     schedule_type_model = Dashboard
     add_title = '添加看板定时邮件'
@@ -92,7 +106,7 @@ class DashboardEmailScheduleView(EmailScheduleView):
     list_title = "看板定时邮件"
     show_title = "看板定时任务详情"
     datamodel = SQLAInterface(DashboardEmailSchedule)
-    order_columns = ['dashboard', 'created_on']
+    order_columns = ['created_on']
     list_columns = ['name', 'dashboard', 'is_active', 'crontab', 'creator', 'is_deliver_as_group', 'delivery_type',
                     'is_slice_data']
 
@@ -125,18 +139,15 @@ class DashboardEmailScheduleView(EmailScheduleView):
         'job_id': _('Job Id')
     }
 
-    def pre_add(self, obj):
-        if obj.dashboard is None:
-            raise SupersetException('Dashboard is mandatory')
-        super(DashboardEmailScheduleView, self).pre_add(obj)
 
     @api
-    @expose('/copy/<dash_ids>/', methods=('POST',))
-    def copy_dash(self, dash_ids):
+    @expose('/copy/', methods=('POST',))
+    def copy_dash(self):
         """
         复制定时任务
         """
-        dash_tasks = db.session.query(DashboardEmailSchedule).filter(DashboardEmailSchedule.id.in_(dash_ids))
+        dash_ids = request.form.getlist('dash_ids', [])
+        dash_tasks = DashboardEmailSchedule.get_instances(dash_ids)
         for item in dash_tasks:
             task = DashboardEmailSchedule()
             task.name = item.name + '[copy]'
@@ -155,18 +166,19 @@ class DashboardEmailScheduleView(EmailScheduleView):
             except (SupersetException, Exception) as exc:
                 raise SupersetException(u"复制定时任务失败。错误原因：%s " % str(exc))
             else:
-                db.session.add(task)
+                db.session.add(item)
                 db.session.commit()
 
         return json_success(u"复制定时任务成功!!!")
 
     @api
-    @expose('/enable/<dash_ids>/', methods=('POST',))
-    def enable(self, dash_ids):
+    @expose('/enable/', methods=('POST',))
+    def enable(self):
         """
         对定时任务进行启用禁用操作
         """
-        dash_tasks = db.session.query(DashboardEmailSchedule).filter(DashboardEmailSchedule.id.in_(dash_ids))
+        dash_ids = request.form.getlist('dash_ids', [])
+        dash_tasks = DashboardEmailSchedule.get_instances(dash_ids)
         for item in dash_tasks:
             job_id = item.job_id
             status = item.active
@@ -191,13 +203,14 @@ class DashboardEmailScheduleView(EmailScheduleView):
         return json_success(u"设置定时任务状态成功!!!")
 
     @api
-    @expose('/check/jobs/<dash_ids>', methods=('GET',))
-    def check_jobs(self, dash_ids):
+    @expose('/check/jobs/', methods=('POST',))
+    def check_jobs(self):
         """
         校验数据一致性  看板的任务的定时邮件是否都存在
         """
         errors = []
-        dash_tasks = db.session.query(DashboardEmailSchedule).filter(DashboardEmailSchedule.id.in_(dash_ids))
+        dash_ids = request.form.getlist('dash_ids', [])
+        dash_tasks = DashboardEmailSchedule.get_instances(dash_ids)
         for item in dash_tasks:
             job_id = item.job_id
             job = flask_scheduler.get_job(job_id, 'default')
@@ -212,12 +225,13 @@ class DashboardEmailScheduleView(EmailScheduleView):
         return json_success(msg)
 
     @api
-    @expose('/multi/delete/<dash_ids>/', methods=('POST',))
-    def multi_delete(self, dash_ids):
+    @expose('/multi/delete/', methods=('POST',))
+    def multi_delete(self):
         """
         批量删除 
         """
-        dash_tasks = db.session.query(DashboardEmailSchedule).filter(DashboardEmailSchedule.id.in_(dash_ids))
+        dash_ids = request.form.getlist('dash_ids', [])
+        dash_tasks = DashboardEmailSchedule.get_instances(dash_ids)
         for task in dash_tasks:
             job_id = task.job_id
             try:
@@ -225,12 +239,36 @@ class DashboardEmailScheduleView(EmailScheduleView):
             except Exception as exc:
                 raise SupersetException(u"apscheduler删除job失败: %s " % str(exc))
             else:
-                db.session.delete(task)
-                db.session.commit()
+                task.delete_instance()
         return json_success(u"删除定时任务成功!!!")
 
+    # @api
+    # @has_access
+    # @expose('/list/', methods=['POST'])
+    # def list(self):
+    #     data = DashboardEmailSchedule.get_list()
+    #     return json_success(json.dumps(data))
 
-class SliceEmailScheduleView(EmailScheduleView):
+    @api
+    @expose('/modify/name/<dash_id>/', methods=['POST'])
+    def modify_name(self):
+        """
+        修改名字
+        :return: 
+        """
+        pass
+
+    @api
+    @expose('/modify/corntab/<dash_id>/')
+    def modify_corntab(self):
+        """
+        修改定时时间
+        :return: 
+        """
+        pass
+
+
+class SliceEmailView(EmailScheduleView):
     schedule_type = ScheduleType.slice.name
     schedule_type_model = Slice
     add_title = '添加报表定时邮件'
@@ -259,28 +297,20 @@ class SliceEmailScheduleView(EmailScheduleView):
         'creator': _('Creator')
     }
 
-    def pre_add(self, obj):
-        if obj.slice is None:
-            raise SupersetException('Slice is mandatory')
-        super(SliceEmailScheduleView, self).pre_add(obj)
 
+appbuilder.add_separator('Manage')
+appbuilder.add_view(
+    DashboardEmailView,
+    'Dashboard Emails',
+    label=__('Dashboard Emails'),
+    category='Manage',
+    category_label=__('Manage'),
+    icon='fa-search')
 
-def _register_schedule_menus():
-    appbuilder.add_separator('Manage')
-    appbuilder.add_view(
-        DashboardEmailScheduleView,
-        'Dashboard Emails',
-        label=__('Dashboard Emails'),
-        category='Manage',
-        category_label=__('Manage'),
-        icon='fa-search')
-    appbuilder.add_view(
-        SliceEmailScheduleView,
-        'Chart Email',
-        label=__('Chart Email'),
-        category='Manage',
-        category_label=__('Manage'),
-        icon='fa-search')
-
-if app.config.get('ENABLE_SCHEDULED_EMAIL_REPORTS'):
-    _register_schedule_menus()
+appbuilder.add_view(
+    SliceEmailView,
+    'Chart Email',
+    label=__('Chart Email'),
+    category='Manage',
+    category_label=__('Manage'),
+    icon='fa-search')

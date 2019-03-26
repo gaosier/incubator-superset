@@ -17,6 +17,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
+from superset import db
 from superset.models.helpers import AuditMixinNullable
 
 metadata = Model.metadata
@@ -66,28 +67,59 @@ class EmailSchedule(object):
     def is_slice_data(self):
         return u"是" if self.slice_data else u"否"
 
+    @classmethod
+    def get_instances(cls, ins_ids):
+        instances = db.session.query(cls).filter(cls.id.in_(ins_ids))
+        return instances
+
+    @classmethod
+    def get_instance_by_id(cls, ins_id):
+        instance = db.session.query(cls).filter(cls.id == ins_id).first()
+        return instance
+
+    def delete_instance(self):
+        db.session.delete(self)
+        db.session.commit()
+
 
 class DashboardEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
     """
     发送看板邮件
     """
     __tablename__ = 'dashboard_email_schedules'
-    dashboard_id = Column(Integer, ForeignKey('dashboards.id'))
+    dashboard_id = Column(Integer, ForeignKey('dashboards.id'), nullable=False)
     dashboard = relationship(
         'Dashboard',
-        backref='email_schedules',
-        foreign_keys=[dashboard_id],
+        backref=db.backref('email_schedules', cascade='all, delete-orphan'),
+        foreign_keys=[dashboard_id]
     )
+
+    @classmethod
+    def get_list(cls):
+        data = []
+        querys = db.session.query(cls)
+        for item in querys:
+            info = {}
+            info['name'] = item.name
+            info['dashboard'] = item.dashboard.name
+            info['active'] = u"启用" if item.active else u"禁用"
+            info['crontab'] = item.crontab
+            info['creator'] = item.creator
+            info['deliver_as_group'] = u"是" if item.deliver_as_group else u"否"
+            info['delivery_type'] = item.delivery_type
+            info['slice_data'] = item.slice_data
+            data.append(info)
+        return data
 
 
 class SliceEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
 
     __tablename__ = 'slice_email_schedules'
-    slice_id = Column(Integer, ForeignKey('slices.id'))
+    slice_id = Column(Integer, ForeignKey('slices.id'), nullable=False)
     slice = relationship(
         'Slice',
-        backref='email_schedules',
-        foreign_keys=[slice_id],
+        backref=db.backref('email_schedules', cascade='all, delete-orphan'),
+        foreign_keys=[slice_id]
     )
     email_format = Column(Enum(SliceEmailReportFormat))
 
