@@ -443,14 +443,13 @@ def schedule_email_report(report_type, schedule_id, recipients=None):
     try:
         model_cls = get_scheduler_model(report_type)
         dbsession = db.create_scoped_session()
-        schedule = dbsession.query(model_cls).get(schedule_id)
+        schedule = dbsession.query(model_cls).filter(model_cls.job_id == schedule_id).first()
 
         if not schedule or not schedule.active:
-            aps_logger.info('Ignoring deactivated schedule')
+            aps_logger.info('Ignoring deactivated scheduler: scheduler is disabled')
             return
 
         if recipients is not None:
-            schedule.id = schedule_id
             schedule.recipients = recipients
 
         aps_logger.info("report_type: %s " % report_type)

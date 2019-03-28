@@ -14,11 +14,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import uuid
 import json
+import datetime
 from flask import request
 from croniter import croniter
 from flask_appbuilder import expose
 from flask_appbuilder.models.sqla.interface import SQLAInterface
-from flask_appbuilder.security.decorators import has_access
 
 from flask_babel import gettext as __
 from flask_babel import lazy_gettext as _
@@ -28,7 +28,7 @@ from apscheduler.triggers.cron import CronTrigger
 from superset import appbuilder, flask_scheduler, aps_logger
 from superset.exceptions import SupersetException
 from superset.models.core import Dashboard, Slice
-from superset.models.schedules import DashboardEmailSchedule, ScheduleType, SliceEmailSchedule, db
+from superset.models.schedules import DashboardEmailSchedule, ScheduleType, SliceEmailSchedule, db, g
 
 from superset.utils import get_email_address_list
 from .base import SupersetModelView, api, json_success
@@ -70,7 +70,7 @@ class EmailScheduleView(SupersetModelView):
     def add_apscheduler_job(self, task):
         from superset.tasks.schedules import schedule_email_report
         recipients = task.recipients
-        args = (self.schedule_type, task.id)
+        args = (self.schedule_type, task.job_id)
         kwargs = dict(recipients=recipients)
 
         try:
@@ -93,7 +93,6 @@ class EmailScheduleView(SupersetModelView):
         if not croniter.is_valid(obj.crontab):
             raise SupersetException(u'crontab格式不正确')
 
-
     def get_model_cls(self, param):
         keys = EMAIL_TYPE.keys()
         if param not in keys:
@@ -103,11 +102,11 @@ class EmailScheduleView(SupersetModelView):
     @api
     @expose('/copy/', methods=('POST',))
     @login_required
-    def copy_dash(self):
+    def copy_task(self):
         """
         复制定时任务
         """
-        task_ids = request.form.getlist('task_ids', [])
+        task_ids = request.form.getlist('pks')
         _type = request.form.get('type', 'dash')
 
         model_cls = self.get_model_cls(_type)
@@ -124,6 +123,10 @@ class EmailScheduleView(SupersetModelView):
             task.comment = item.comment
             task.slice_data = item.slice_data
             task.job_id = str(uuid.uuid4())
+            task.created_on = datetime.datetime.now()
+            task.changed_on = datetime.datetime.now()
+            task.created_by_fk = g.user.id
+            task.changed_by_fk = g.user.id
 
             if _type == 'dash':
                 task.dashboard_id = item.dashboard_id
@@ -131,15 +134,17 @@ class EmailScheduleView(SupersetModelView):
                 task.slice_id = item.slice_id
                 task.email_format = item.email_format
 
+            db.session.add(task)
+
             try:
                 self.add_apscheduler_job(task)
             except (SupersetException, Exception) as exc:
+                db.session.rollback()
                 raise SupersetException(u"复制定时任务失败。错误原因：%s " % str(exc))
-            else:
-                db.session.add(item)
-                db.session.commit()
 
-        return json_success(u"复制定时任务成功!!!")
+            db.session.commit()
+
+        return json_success(json.dumps({"success": u"复制定时任务成功!!!"}))
 
     @api
     @expose('/enable/', methods=('POST',))
@@ -148,8 +153,10 @@ class EmailScheduleView(SupersetModelView):
         """
         对定时任务进行启用禁用操作
         """
-        task_ids = request.form.getlist('task_ids', [])
+        task_ids = request.form.getlist('pks')
         _type = request.form.get('type', 'dash')
+
+        print("task_ids: ", task_ids)
 
         model_cls = self.get_model_cls(_type)
         instances = model_cls.get_instances(task_ids)
@@ -175,7 +182,7 @@ class EmailScheduleView(SupersetModelView):
                 item.active = not status
                 db.session.add(item)
                 db.session.commit()
-        return json_success(u"设置定时任务状态成功!!!")
+        return json_success(json.dumps({"success": u"设置定时任务状态成功!!!"}))
 
     @api
     @expose('/check/jobs/', methods=('POST',))
@@ -252,8 +259,19 @@ class EmailScheduleView(SupersetModelView):
         db.session.add(instance)
         db.session.commit()
 
+        return json_success(u"修改定时任务名字成功！！！")
+
+    def from_crontab(self, expr):
+        values = expr.split()
+        if len(values) != 5:
+            raise ValueError('Wrong number of fields; got {}, expected 5'.format(len(values)))
+
+        params = dict(minute=values[0], hour=values[1], day=values[2], month=values[3], day_of_week=values[4])
+
+        return params
+
     @api
-    @expose('/modify/corntab/')
+    @expose('/modify/corntab/', methods=['POST'])
     @login_required
     def modify_corntab(self):
         """
@@ -262,6 +280,7 @@ class EmailScheduleView(SupersetModelView):
         """
         pk = request.form.get('pk')
         crontab = request.form.get('crontab')
+        print("crontab: ", crontab)
         _type = request.form.get('type')
 
         model_cls = self.get_model_cls(_type)
@@ -272,27 +291,29 @@ class EmailScheduleView(SupersetModelView):
         job_id = instance.job_id
 
         try:
-            flask_scheduler.reschedule_job(job_id, jobstore='default', trigger=CronTrigger.from_crontab(crontab))
+            trigger_args = self.from_crontab(crontab)
+            flask_scheduler.modify_job(job_id, jobstore='default', trigger='cron', **trigger_args)
         except Exception as exc:
             raise SupersetException(u"修改定时任务的运行时间失败: %s" % str(exc))
 
         instance.crontab = crontab
         db.session.add(instance)
         db.session.commit()
+        return json_success(json.dumps({"success": u"修改定时任务的运行时间成功！！！"}))
 
-    @api
-    @expose('/list/', methods=['POST'])
-    @login_required
-    def list(self):
-        """
-        列表
-        :return: 
-        """
-        _type = request.form.get('type')
-        model_cls = self.get_model_cls(_type)
-
-        data = model_cls.get_list()
-        return json_success(json.dumps(data))
+    # @api
+    # @expose('/list/', methods=['POST'])
+    # @login_required
+    # def list(self):
+    #     """
+    #     列表
+    #     :return:
+    #     """
+    #     _type = request.form.get('type')
+    #     model_cls = self.get_model_cls(_type)
+    #
+    #     data = model_cls.get_list()
+    #     return json_success(json.dumps(data))
 
 
 class DashboardEmailView(EmailScheduleView):

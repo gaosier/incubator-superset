@@ -20,6 +20,7 @@ from sqlalchemy.orm import relationship
 
 from superset import db
 from superset.models.helpers import AuditMixinNullable
+from superset.custom_user.sec_models import MyUser
 
 metadata = Model.metadata
 
@@ -70,6 +71,7 @@ class EmailSchedule(object):
 
     @classmethod
     def get_instances(cls, ins_ids):
+        print("ins_ids: %s  type(ins_ids): %s" % (ins_ids, type(ins_ids)))
         instances = db.session.query(cls).filter(cls.id.in_(ins_ids))
         return instances
 
@@ -81,6 +83,13 @@ class EmailSchedule(object):
     def delete_instance(self):
         db.session.delete(self)
         db.session.commit()
+
+    def get_user_name(self, user_id):
+        user = db.session.query(MyUser).filter(id == user_id).first()
+        return user.username if user else ''
+
+    def __unicode__(self):
+        return self.name
 
 
 class DashboardEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
@@ -106,13 +115,13 @@ class DashboardEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
         for item in querys:
             info = {}
             info['name'] = item.name
-            info['dashboard'] = item.dashboard.name
+            info['dashboard'] = item.dashboard.dashboard_title
             info['active'] = u"启用" if item.active else u"禁用"
             info['crontab'] = item.crontab
-            info['creator'] = item.creator
+            info['creator'] = cls.get_user_name(item, item.created_by_fk)
             info['deliver_as_group'] = u"是" if item.deliver_as_group else u"否"
-            info['delivery_type'] = item.delivery_type
-            info['slice_data'] = item.slice_data
+            info['delivery_type'] = item.delivery_type.value
+            info['slice_data'] = u"是" if item.slice_data else u"否"
             data.append(info)
         return data
 
@@ -139,14 +148,14 @@ class SliceEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
         for item in querys:
             info = {}
             info['name'] = item.name
-            info['slice'] = item.slice.name
+            info['slice'] = item.slice.slice_name
             info['active'] = u"启用" if item.active else u"禁用"
             info['crontab'] = item.crontab
-            info['creator'] = item.creator
+            info['creator'] = cls.get_user_name(item, item.created_by_fk)
             info['deliver_as_group'] = u"是" if item.deliver_as_group else u"否"
-            info['delivery_type'] = item.delivery_type
+            info['delivery_type'] = item.delivery_type.value
             info['slice_data'] = item.slice_data
-            info['email_format'] = item.email_format
+            info['email_format'] = item.email_format.value
             data.append(info)
         return data
 
