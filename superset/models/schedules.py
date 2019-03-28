@@ -10,10 +10,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import enum
+from flask import g
 from flask_appbuilder import Model
 from flask_appbuilder.models.decorators import renders
 from sqlalchemy import (
-    Boolean, Column, Enum, ForeignKey, Integer, Text, String, create_engine
+    Boolean, Column, Enum, ForeignKey, Integer, Text, String
 )
 from sqlalchemy.orm import relationship
 
@@ -97,7 +98,11 @@ class DashboardEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
     @classmethod
     def get_list(cls):
         data = []
-        querys = db.session.query(cls)
+        if 'Admin' in g.user.roles:
+            querys = db.session.query(cls)
+        else:
+            querys = db.session.query(cls).filter(cls.created_by_fk == g.user.id)
+
         for item in querys:
             info = {}
             info['name'] = item.name
@@ -126,7 +131,11 @@ class SliceEmailSchedule(Model, AuditMixinNullable, EmailSchedule):
     @classmethod
     def get_list(cls):
         data = []
-        querys = db.session.query(cls)
+        if 'Admin' in g.user.roles:
+            querys = db.session.query(cls)
+        else:
+            querys = db.session.query(cls).filter(cls.created_by_fk == g.user.id)
+
         for item in querys:
             info = {}
             info['name'] = item.name
