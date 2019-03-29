@@ -185,7 +185,7 @@ class EmailScheduleView(SupersetModelView):
         return json_success(json.dumps({"success": u"设置定时任务状态成功!!!"}))
 
     @api
-    @expose('/check/jobs/', methods=('POST',))
+    @expose('/check/', methods=('POST',))
     @login_required
     def check_jobs(self):
         """
@@ -193,20 +193,22 @@ class EmailScheduleView(SupersetModelView):
         """
         errors = []
 
-        task_ids = request.form.getlist('task_ids', [])
+        task_ids = request.form.getlist('pks')
         _type = request.form.get('type', 'dash')
 
         model_cls = self.get_model_cls(_type)
         instances = model_cls.get_instances(task_ids)
 
+        count = instances.count()
         for item in instances:
             job_id = item.job_id
             job = flask_scheduler.get_job(job_id, 'default')
             if not job:
                 errors.append(item.name)
 
-        msg = u"定时任务的apscheduler job都存在" if not errors else u"apscheduler任务不存在的看板邮件任务：%s" % ', '.join(errors)
-        return json_success(msg)
+        msg = u"apscheduler job不存在的定时任务 %s ." % ', '.join(errors) if errors else u"apscheduler job都存在"
+
+        return json_success(json.dumps({"success": "共有%s个任务进行校验。%s" % (count, msg)}))
 
     @api
     @expose('/multi/delete/', methods=('POST',))
@@ -215,7 +217,7 @@ class EmailScheduleView(SupersetModelView):
         """
         批量删除 
         """
-        task_ids = request.form.getlist('task_ids', [])
+        task_ids = request.form.getlist('pks')
         _type = request.form.get('type', 'dash')
 
         model_cls = self.get_model_cls(_type)
@@ -229,7 +231,7 @@ class EmailScheduleView(SupersetModelView):
                 raise SupersetException(u"apscheduler删除job失败: %s " % str(exc))
             else:
                 task.delete_instance()
-        return json_success(u"删除定时任务成功!!!")
+        return json_success(json.dumps({"success": u"删除定时任务成功!!!"}))
 
     @api
     @expose('/modify/name/', methods=['POST'])
@@ -259,7 +261,7 @@ class EmailScheduleView(SupersetModelView):
         db.session.add(instance)
         db.session.commit()
 
-        return json_success(u"修改定时任务名字成功！！！")
+        return json_success(json.dumps({"success": u"修改定时任务名字成功！！！"}))
 
     def from_crontab(self, expr):
         values = expr.split()
@@ -278,27 +280,24 @@ class EmailScheduleView(SupersetModelView):
         修改定时时间
         :return: 
         """
-        pk = request.form.get('pk')
+        pks = request.form.getlist('pks')
         crontab = request.form.get('crontab')
-        print("crontab: ", crontab)
         _type = request.form.get('type')
+        trigger_args = self.from_crontab(crontab)
 
         model_cls = self.get_model_cls(_type)
-        instance = model_cls.get_instance_by_id(pk)
-        if not instance:
-            raise SupersetException(u"找不到定时任务。pk:%s  type: %s " % (pk, _type))
+        instances = model_cls.get_instances(pks)
+        for item in instances:
+            job_id = item.job_id
 
-        job_id = instance.job_id
+            try:
+                flask_scheduler.modify_job(job_id, jobstore='default', trigger='cron', **trigger_args)
+            except Exception as exc:
+                raise SupersetException(u"修改定时任务的运行时间失败: %s" % str(exc))
 
-        try:
-            trigger_args = self.from_crontab(crontab)
-            flask_scheduler.modify_job(job_id, jobstore='default', trigger='cron', **trigger_args)
-        except Exception as exc:
-            raise SupersetException(u"修改定时任务的运行时间失败: %s" % str(exc))
-
-        instance.crontab = crontab
-        db.session.add(instance)
-        db.session.commit()
+            item.crontab = crontab
+            db.session.add(item)
+            db.session.commit()
         return json_success(json.dumps({"success": u"修改定时任务的运行时间成功！！！"}))
 
     # @api

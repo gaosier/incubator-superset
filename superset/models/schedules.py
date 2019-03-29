@@ -71,7 +71,6 @@ class EmailSchedule(object):
 
     @classmethod
     def get_instances(cls, ins_ids):
-        print("ins_ids: %s  type(ins_ids): %s" % (ins_ids, type(ins_ids)))
         instances = db.session.query(cls).filter(cls.id.in_(ins_ids))
         return instances
 
