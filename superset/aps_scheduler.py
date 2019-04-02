@@ -50,18 +50,14 @@ class CuBackgroundScheduler(BackgroundScheduler):
         wait_seconds = None
         try:
             fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            logger.info("locked the pid {%s} success" % os.getpid())
         except Exception as exc:
-            logger.error("[CuBackgroundScheduler] error: %s    os.pid:%s" % (str(exc), os.getpid()))
             f.close()
         else:
-            logger.info("pid {%s} Scheduler is {%s}" % (os.getpid(), self.state))
             if self.state == STATE_PAUSED:
                 self._logger.debug('Scheduler is paused -- not processing jobs')
                 return None
 
             self._logger.debug('Looking for jobs to run and os.pid is {%s}' % os.getpid())
-            logger.info('Looking for jobs to run and os.pid is {%s}' % os.getpid())
             now = datetime.now(self.timezone)
             next_wakeup_time = None
             events = []
@@ -71,7 +67,7 @@ class CuBackgroundScheduler(BackgroundScheduler):
                     try:
                         due_jobs = jobstore.get_due_jobs(now)
                         self._logger.info("due_jobs:%s     os.pid: %s\n" % (len(due_jobs), os.getpid()))
-                        logger.info("due_jobs:%s     os.pid: %s\n" % (len(due_jobs), os.getpid()))
+                        logger.info("due_jobs:%s     os.pid: %s\n" % (due_jobs, os.getpid()))
                     except Exception as e:
                         # Schedule a wakeup at least in jobstore_retry_interval seconds
                         self._logger.warning('Error getting due jobs from job store %r: %s',
