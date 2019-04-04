@@ -811,6 +811,8 @@ class Database(Model, AuditMixinNullable, ImportMixin):
         return self.db_engine_spec.hybrid_time_grains
 
     def grains_dict(self):
+        if self.backend in ('presto','kylin'):
+            return {grain.duration: grain for grain in self.grains()}
         if self.is_hybrid:
             return {grain.duration: grain for grain in self.hybrid_grains()}
         else:

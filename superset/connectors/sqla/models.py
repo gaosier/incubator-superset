@@ -133,7 +133,7 @@ class TableColumn(Model, BaseColumn):
         """
         col = self.sqla_col.label('__time')
         l = []  # noqa: E741
-        if self.table.database.backend == 'kylin':
+        if self.table.database.backend in('kylin','presto'):
             col_partition = column('day_pt').label('day_pt')
         else:
             col_partition = column('day').label('day')
@@ -144,7 +144,7 @@ class TableColumn(Model, BaseColumn):
             if end_dttm:
                 l.append(col_partition <= text(self.dttm_hybird_literal(end_dttm)))
 
-            if self.table.database.backend == 'kylin' and not not_groupby:
+            if self.table.database.backend in('kylin','presto') and not not_groupby:
                 pass
             else:
                 if start_dttm:
@@ -508,6 +508,7 @@ class SqlaTable(Model, BaseDatasource):
             ),
         )
         sql = sqlparse.format(sql, reindent=True)
+        sql=sql.replace('"__timestamp"','__timestamp')
         if query_obj['is_prequery']:
             query_obj['prequeries'].append(sql)
         return sql
@@ -839,7 +840,7 @@ class SqlaTable(Model, BaseDatasource):
     def query(self, query_obj, viz_type=None, special_sql=None):
         def format_time_grain(index, time_grain_sqla=None):
             if index.name == '__timestamp':
-                index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla))
+                index = index.apply(lambda x: time_grain_convert(x, time_grain_sqla,self.database.backend))
             return index
 
         qry_start_dttm = datetime.now()

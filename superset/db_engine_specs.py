@@ -483,8 +483,12 @@ class MySQLEngineSpec(BaseEngineSpec):
               'INTERVAL HOUR({col}) HOUR)',
               'PT1H'),
         Grain('day', _('day'), 'DATE({col})', 'P1D'),
-        Grain('week', _('week'), 'DATE(DATE_SUB({col}, '
-              'INTERVAL DAYOFWEEK({col}) - 1 DAY))',
+        # Grain('week', _('week'), 'DATE(DATE_SUB({col}, '
+        #       'INTERVAL DAYOFWEEK({col}) - 1 DAY))',
+        #       'P1W'),
+        Grain('week', _('week'),
+              'DATE(DATE_SUB({col}, '
+              'INTERVAL DAYOFWEEK(DATE_SUB({col}, INTERVAL 1 DAY)) - 1 DAY))',
               'P1W'),
         Grain('month', _('month'), 'DATE(DATE_SUB({col}, '
               'INTERVAL DAYOFMONTH({col}) - 1 DAY))',
@@ -495,10 +499,10 @@ class MySQLEngineSpec(BaseEngineSpec):
         Grain('year', _('year'), 'DATE(DATE_SUB({col}, '
               'INTERVAL DAYOFYEAR({col}) - 1 DAY))',
               'P1Y'),
-        Grain('week_start_monday', _('week_start_monday'),
-              'DATE(DATE_SUB({col}, '
-              'INTERVAL DAYOFWEEK(DATE_SUB({col}, INTERVAL 1 DAY)) - 1 DAY))',
-              'P1W'),
+        # Grain('week_start_monday', _('week_start_monday'),
+        #       'DATE(DATE_SUB({col}, '
+        #       'INTERVAL DAYOFWEEK(DATE_SUB({col}, INTERVAL 1 DAY)) - 1 DAY))',
+        #       'P1W1'),
     )
 
     hybrid_time_grains = (
@@ -508,16 +512,19 @@ class MySQLEngineSpec(BaseEngineSpec):
         Grain("minute", _('minute'), "concat(date({col}),' ',`hour`({col}),':',`MINUTE`(send_time_fstr),':00')",'PT1M'),
         Grain("hour", _('hour'), "concat(date({col}),' ',`hour`({col}),':00:00')",'PT1H'),
         Grain('day', _('day'), 'DATE({col})','P1D'),
-        Grain("week", _('week'), "DATE(subdate(DATE({col}), "
-              "DAYOFWEEK(DATE({col})) - 1))",'P1W'),
+        # Grain("week", _('week'), "DATE(subdate(DATE({col}), "
+        #       "DAYOFWEEK(DATE({col})) - 1))",'P1W'),
+        Grain("week", _('week'),
+              "DATE(subdate(DATE({col}), cast(IF(DAYOFWEEK(DATE({col}))=1,"
+              "7,DAYOFWEEK(DATE({col}))-1) AS INT) - 1))", 'P1W'),
         Grain("month", _('month'), "DATE(subdate(DATE({col}), "
               "DAYOFMONTH(DATE({col})) - 1))",'P1M'),
         Grain("quarter", _('quarter'), "DATE(CONCAT(YEAR(DATE({col})),'-',QUARTER(DATE({col}))*3-2,'-01'))",'P0.25Y'),
         Grain("year", _('year'), "DATE(subdate(DATE({col}), "
               "DAYOFYEAR(DATE({col})) - 1))",'P1Y'),
-        Grain("week_start_monday", _('week_start_monday'),
-              "DATE(subdate(DATE({col}), cast(IF(DAYOFWEEK(DATE({col}))=1,"
-              "7,DAYOFWEEK(DATE({col}))-1) AS INT) - 1))",'P1W'),
+        # Grain("week_start_monday", _('week_start_monday'),
+        #       "DATE(subdate(DATE({col}), cast(IF(DAYOFWEEK(DATE({col}))=1,"
+        #       "7,DAYOFWEEK(DATE({col}))-1) AS INT) - 1))",'P1W1'),
     )
 
     @classmethod
@@ -579,11 +586,11 @@ class PrestoEngineSpec(BaseEngineSpec):
         Grain('week_ending_saturday', _('week_ending_saturday'),
               "date_add('day', 5, date_trunc('week', date_add('day', 1, "
               'CAST({col} AS TIMESTAMP))))',
-              'P1W'),
+              'P1W1'),
         Grain('week_start_sunday', _('week_start_sunday'),
               "date_add('day', -1, date_trunc('week', "
               "date_add('day', 1, CAST({col} AS TIMESTAMP))))",
-              'P1W'),
+              'P1W2'),
         Grain('year', _('year'),
               "date_trunc('year', CAST({col} AS TIMESTAMP))",
               'P1Y'),
@@ -1171,11 +1178,11 @@ class AthenaEngineSpec(BaseEngineSpec):
         Grain('week_ending_saturday', _('week_ending_saturday'),
               "date_add('day', 5, date_trunc('week', date_add('day', 1, "
               'CAST({col} AS TIMESTAMP))))',
-              'P1W'),
+              'P1W1'),
         Grain('week_start_sunday', _('week_start_sunday'),
               "date_add('day', -1, date_trunc('week', "
               "date_add('day', 1, CAST({col} AS TIMESTAMP))))",
-              'P1W'),
+              'P1W2'),
     )
 
     @classmethod
@@ -1309,6 +1316,12 @@ class DruidEngineSpec(BaseEngineSpec):
     limit_method = LimitMethod.FETCH_MANY
     inner_joins = False
 
+
+class KylinveEngineSpec(PrestoEngineSpec):
+
+    """Reuses PrestoEngineSpec functionality."""
+
+    engine = 'kylin'
 
 engines = {
     o.engine: o for o in globals().values()

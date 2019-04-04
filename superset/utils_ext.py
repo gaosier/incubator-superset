@@ -4,9 +4,18 @@ from datetime import datetime
 from flask_babel import lazy_gettext as _
 
 
-def time_grain_convert(frm_date, time_grain_sqla):
-    '''切片时间分组，格式化中文
-    '''
+def time_grain_convert(frm_date, time_grain_sqla,engine_type):
+    """
+        切片时间分组，格式化中文
+    :param frm_date: 需要格式化的数据
+    presto和mysql返回的均是字符串，只是数据形式不太一样
+    kylin返回的是时间对象
+    :param time_grain_sqla: 所选类型
+    :param engine_type: 引擎类型
+    :return:
+    """
+    if engine_type in ("presto"):
+        frm_date=datetime.strptime(str(frm_date), '%Y-%m-%d %H:%M:%S.%f')
     if time_grain_sqla is None:
         if type(frm_date) == type(''):
             return frm_date
@@ -55,7 +64,7 @@ def time_grain_convert(frm_date, time_grain_sqla):
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年'.format(frm_date.year)
-    elif time_grain_sqla=='P1W':
+    elif time_grain_sqla=='P1W1':
         if type(frm_date) == type(''):
             frm_date = datetime.strptime(frm_date, '%Y-%m-%d')
         return '{0}年第{1}周'.format(frm_date.year, frm_date.strftime('%W'))
