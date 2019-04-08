@@ -30,10 +30,12 @@ export default class Info extends Component {
             timeout: 2000,
             success: function (data) {
                 const datasources = data.map(ds => ({
-                    name: ds[0],
-                    表名: ds[1],
-                    一级菜单: ds[2],
-                    二级菜单: ds[3],
+                    id:ds[0],
+                    表名:<a href="/superset/explore/table/310/">{ds[2]}</a>,
+                    name: ds[1],
+                    表名1: ds[2],
+                    一级菜单: ds[3],
+                    二级菜单: ds[4],
                   }))
                 this.setState({ 
                     first_load:false,
@@ -109,7 +111,7 @@ export default class Info extends Component {
                             className="table table-condensed"
                             data = {this.state.datasources}
                             itemsPerPage={20}
-                            filterable={['表名', 'name']}
+                            filterable={['表名1', 'name']}
                             filterBy={this.state.filter}
                             hideFilterInput
                         />
