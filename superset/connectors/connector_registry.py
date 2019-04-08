@@ -4,7 +4,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from sqlalchemy.orm import subqueryload
+from sqlalchemy.orm import subqueryload, load_only
 
 
 class ConnectorRegistry(object):
@@ -79,3 +79,23 @@ class ConnectorRegistry(object):
         datasource_class = ConnectorRegistry.sources[database.type]
         return datasource_class.query_datasources_by_name(
             session, database, datasource_name, schema=None)
+
+    @classmethod
+    def get_model_cols(cls, cols, model_cls, session=None):
+        querys = session.query(model_cls).options(load_only(*cols))
+
+        data = []
+        for item in querys:
+            info = []
+            for col in cols:
+                value = getattr(item, col)
+                if not value:
+                    break
+                info.append(getattr(item, col))
+
+            if not info:
+                continue
+
+            data.append(info)
+
+        return data

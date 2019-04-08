@@ -1,10 +1,14 @@
 # -*-coding:utf-8-*-
+import json
+import logging
 from collections import defaultdict
 
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, UniqueConstraint, ForeignKey
+from sqlalchemy.orm import relationship
 from flask_appbuilder import Model
 
-from superset import db
+from superset import db, security_manager
+from superset.models.helpers import AuditMixinNullable
 
 
 class SqlTableGroup(Model):
@@ -56,62 +60,101 @@ class SqlTableColumnSort(Model):
     expression = Column(Text)
     remark = Column(String(64))
 
+    @classmethod
+    def get_sort_columns(cls, table_id, table_name):
+        qry = db.session.query(SqlTableColumnSort).filter(SqlTableColumnSort.table_id == table_id,
+                SqlTableColumnSort.table_name == table_name)
+        if qry.count() == 0:
+            logging.info('表{0}-{1}未匹配到配置项'.format(table_id, table_name))
+            return None
+        col = qry.first()
+        exp = None
+        try:
+            exp = json.loads(col.expression)
+        except:
+            logging.info('表{0}的排序参数不是合法的json'.format(table_name))
+        return exp
 
-class SqlTableColumnVal(Model):
+
+class SqlTableColumnVal(Model, AuditMixinNullable):
     """
     需要特殊控制的字段的值
     """
     __tablename__ = "table_column_val"
+    __table_args__ = (UniqueConstraint('datasource_id', 'user_id', 'col'), )
     id = Column(Integer, primary_key=True)
-    datasource_type = Column(String(10), nullable=False, comment=u"表的类型")
-    datasource_id = Column(Integer, nullable=False, comment=u"表的ID")
-    user_id = Column(Integer, nullable=False, comment=u"用户ID")
+    datasource_id = Column(Integer, ForeignKey('tables.id'), nullable=False, comment=u"表的ID")
+    datasource = relationship("SqlaTable", backref=db.backref("columnvals", cascade="all, delete-orphan"))
+    user_id = Column(Integer, ForeignKey('ab_user.id'), comment=u"用户ID")
+    user = relationship(security_manager.user_model, foreign_keys=[user_id])
     col = Column(String(50), nullable=False, comment=u"字段的名字")
-    val = Column(String(100), nullable=False, comment=u"字段的值")
+    val = Column(String(500), nullable=False, comment=u"字段的值")
 
     @classmethod
-    def is_perm_control_col(cls, table_type, table_id, col):
+    def is_perm_control_col(cls, table_id, col):
 
-        qry = db.session.query().filter(cls.datasource_type == table_type, cls.datasource_id == table_id,
-                                              cls.col == col).count()
+        qry = db.session.query().filter(cls.datasource_id == table_id, cls.col == col).count()
 
         return True if qry > 0 else False
 
     @classmethod
-    def is_perm_control_table(cls, table_type, table_id):
-        count = db.session.query(cls).filter(cls.datasource_type == table_type, cls.datasource_id == table_id).count()
+    def is_perm_control_table(cls, table_id):
+        count = db.session.query(cls).filter(cls.datasource_id == table_id).count()
 
         return True if count > 0 else False
 
     @classmethod
-    def has_perm_col(cls, table_type, table_id, col, user_id):
-        qry = db.session.query(cls).filter(cls.datasource_type == table_type, cls.datasource_id == table_id,
-                                              cls.col == col, cls.user_id == user_id).count()
+    def has_perm_col(cls, table_id, col, user_id):
+        qry = db.session.query(cls).filter(cls.datasource_id == table_id, cls.col == col,
+                                           cls.user_id == user_id).count()
 
         return True if qry > 0 else False
 
     @classmethod
-    def perm_user_col_vals(cls, table_type, table_id, col, user_id):
+    def perm_user_col_vals(cls, table_id, col, user_id):
         """
         用户当前字段有权限的值
         """
-        qry = db.session.query(cls.val).filter(cls.datasource_type == table_type, cls.datasource_id == table_id,
-                                           cls.col == col, cls.user_id == user_id).all()
+        qry = db.session.query(cls.val).filter(cls.datasource_id == table_id, cls.col == col, cls.user_id == user_id)
         qry = [item[0] for item in qry]
         return qry
 
     @classmethod
-    def perm_table_user_col_vals(cls, table_type, table_id, user_id):
+    def perm_table_user_col_vals(cls, table_id, user_id):
         """
         当前的表和user是否在需要特殊控制
         """
         data = defaultdict(list)
-        qrys = db.session.query(cls.col, cls.val).filter(cls.datasource_type == table_type, cls.datasource_id == table_id,
-                                           cls.user_id == user_id)
+        qrys = db.session.query(cls.col, cls.val).filter(cls.datasource_id == table_id, cls.user_id == user_id)
 
         for name, val in qrys:
             if val not in data[name]:
                 data[name].append(val)
 
         return data
+
+    def get_username(self, user):
+        return "%s%s" % (user.last_name, user.first_name)
+
+    @classmethod
+    def get_lists(cls):
+        data = []
+        qrys = db.session.query(cls)
+        for qry in qrys:
+            info = {}
+            info['id'] = qry.id
+            info['table_name'] = qry.datasource.table_name
+            info['verbose_name'] = qry.datasource.verbose_name
+            info['username'] = cls.get_username(qry, qry.user)
+            info['col'] = qry.col
+            info['val'] = qry.val
+            info['creator'] = cls.get_username(qry, qry.created_by) if qry.created_by else ''
+            info['modify'] = qry.changed_on
+            data.append(info)
+        return data
+
+    @classmethod
+    def get_instance(cls, pk):
+        return db.session.query(cls).filter(cls.id == pk)
+
 
