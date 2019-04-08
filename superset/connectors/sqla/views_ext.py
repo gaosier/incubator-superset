@@ -180,7 +180,7 @@ class TableGroupView(MasterDetailView):
         return json_success(json.dumps(data))
 
     def get_all_tables(self):
-        querys = db.session.query(SqlaTable.table_name, SqlaTable.verbose_name, SqlaTable.group_id,
+        querys = db.session.query(SqlaTable.id, SqlaTable.table_name, SqlaTable.verbose_name, SqlaTable.group_id,
                                   SqlTableGroup.parent_id).outerjoin(SqlTableGroup).filter(SqlaTable.group_id != None).all()
         return querys
 
@@ -188,8 +188,8 @@ class TableGroupView(MasterDetailView):
         if not perms:
             return []
 
-        querys = db.session.query(SqlaTable.table_name, SqlaTable.verbose_name, SqlaTable.group_id,
-                                  SqlTableGroup.parent_id).outerjoin(SqlTableGroup).filter(SqlaTable.group_id != None,
+        querys = db.session.query(SqlaTable.id, SqlaTable.table_name, SqlaTable.verbose_name, SqlTableGroup.parent_id,
+                                  SqlaTable.group_id).outerjoin(SqlTableGroup).filter(SqlaTable.group_id != None,
                                                                                         SqlaTable.perm.in_(perms)).all()
 
         return querys
@@ -203,11 +203,15 @@ class TableGroupView(MasterDetailView):
         groups_name = SqlTableGroup.all_group_names() or {}
 
         data = []
-
         for tab in tabs:
             tab = list(tab)
-            tab[2] = groups_name.get(tab[2], '')
-            tab[3] = groups_name.get(tab[3], '')
+            if tab[3] == 0:
+                group_id = tab[4]
+                tab[3] = groups_name.get(group_id, '')
+                tab[4] = ''
+            else:
+                tab[3] = groups_name.get(tab[3], '')
+                tab[4] = groups_name.get(tab[4], '')
             data.append(tab)
         return data
 
