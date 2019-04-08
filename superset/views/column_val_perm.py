@@ -87,6 +87,9 @@ class ValuePermView(BaseView):
     @expose('/column/vals/', methods=['POST'])
     @login_required
     def column_vals(self):
+        """
+        获取列的值 
+        """
         pk = request.form.get('pk')
         col = request.form.get('col')
 
@@ -124,6 +127,9 @@ class ValuePermView(BaseView):
     @expose('/edit/<pk>/', methods=['GET', 'POST'])
     @login_required
     def edit(self, pk):
+        """
+        编辑
+        """
         instance = SqlTableColumnVal.get_instance(pk)
         if request.method == 'GET':
             data = {}
@@ -150,14 +156,23 @@ class ValuePermView(BaseView):
 
     @api
     @expose('/delete/<pk>/', methods=['GET'])
+    @expose('delete/', methods=['POST'])
     @login_required
     def delete(self, pk):
-        instance = SqlTableColumnVal.get_instance(pk)
-        if not instance:
-            db.session.delete(instance)
+        """
+        删除
+        """
+        if request.method == 'GET':
+            instance = SqlTableColumnVal.get_instance(pk)
+            if instance:
+                db.session.delete(instance)
+        else:
+            pks = request.form.get('pks')
+            for pk in pks:
+                instance = SqlTableColumnVal.get_instance(pk)
+                if instance:
+                    db.session.delete(instance)
         return json_success(json.dumps({"msg": u"删除成功"}))
-
-
 
 
 appbuilder.add_separator('Manage')
