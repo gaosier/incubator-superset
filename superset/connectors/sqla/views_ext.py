@@ -180,8 +180,8 @@ class TableGroupView(MasterDetailView):
         return json_success(json.dumps(data))
 
     def get_all_tables(self):
-        querys = db.session.query(SqlaTable.id, SqlaTable.table_name, SqlaTable.verbose_name, SqlaTable.parent_id,
-                                  SqlTableGroup.group_id).outerjoin(SqlTableGroup).filter(SqlaTable.group_id != None).all()
+        querys = db.session.query(SqlaTable.id, SqlaTable.table_name, SqlaTable.verbose_name, SqlTableGroup.parent_id,
+                                  SqlaTable.group_id).outerjoin(SqlTableGroup).filter(SqlaTable.group_id != None).all()
         return querys
 
     def get_tables_by_perms(self, perms):
