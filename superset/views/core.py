@@ -1138,12 +1138,12 @@ class Superset(BaseSupersetView):
         return send_file(filepath, as_attachment=True,
                          attachment_filename=parse.quote(filename))
 
-    def add_extra_filters(self, datasource_type, datasource_id, form_data):
+    def add_extra_filters(self, datasource_id, form_data):
         """
         如果这个表和用户有了特殊控制的字段的值，就添加额外的过滤条件
         """
         extra_filters = []
-        data = SqlTableColumnVal.perm_table_user_col_vals(datasource_type, datasource_id, g.user.id)
+        data = SqlTableColumnVal.perm_table_user_col_vals(datasource_id, g.user.id)
         for name, val in data.items():
             extra_filters.append({"col": name, "op": "in", "val": val})
 
@@ -1156,7 +1156,7 @@ class Superset(BaseSupersetView):
     def generate_json(self, datasource_type, datasource_id, form_data,
                       csv=False, query=False, force=False, xlsx=False):
 
-        form_data = self.add_extra_filters(datasource_type, datasource_id, form_data)
+        form_data = self.add_extra_filters(datasource_id, form_data)
 
         try:
             viz_obj = self.get_viz(

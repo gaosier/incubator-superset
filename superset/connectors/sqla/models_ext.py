@@ -128,8 +128,9 @@ class SqlTableColumnVal(Model, AuditMixinNullable):
         qrys = db.session.query(cls.col, cls.val).filter(cls.datasource_id == table_id, cls.user_id == user_id)
 
         for name, val in qrys:
-            if val not in data[name]:
-                data[name].append(val)
+            if name not in data:
+                vals = val.split(',') if ',' in val else [val]
+                data[name].extend(vals)
 
         return data
 
