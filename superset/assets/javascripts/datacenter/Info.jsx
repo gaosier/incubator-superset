@@ -29,14 +29,18 @@ export default class Info extends Component {
             dataType: "json",
             timeout: 2000,
             success: function (data) {
-                const datasources = data.map(ds => ({
+                const datasources = data.map(ds => {
+                    const url = "/superset/explore/table/"+ds[0]+"/";
+                   return {
                     id:ds[0],
-                    表名:<a href="/superset/explore/table/310/">{ds[2]}</a>,
+                    表名:<a href={url}>{ds[2]}</a>,
                     name: ds[1],
                     表名1: ds[2],
                     一级菜单: ds[3],
                     二级菜单: ds[4],
-                  }))
+                  };
+                  });
+                console.log(datasources);
                 this.setState({ 
                     first_load:false,
                     datasources
