@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {OverlayTrigger, Tooltip,  FormControl, Modal} from 'react-bootstrap';
-import { Button } from 'antd';
-import { Table } from 'reactable';
+import {OverlayTrigger, Tooltip, FormControl, Modal} from 'react-bootstrap';
+import {Button} from 'antd';
+import {Table} from 'reactable';
 
 
 export default class Info extends Component {
@@ -11,7 +11,7 @@ export default class Info extends Component {
             showModal: false,
             filter: '',
             all_data: [],
-            first_load:true,
+            first_load: true,
             loading: true
         };
         this.renderTable = this.renderTable.bind(this);
@@ -30,41 +30,39 @@ export default class Info extends Component {
             timeout: 2000,
             success: function (data) {
                 const datasources = data.map(ds => {
-                    const url = "/superset/explore/table/"+ds[0]+"/";
-                   return {
-                    id:ds[0],
-                    表名:<a href={url}>{ds[2]}</a>,
-                    name: ds[1],
-                    表名1: ds[2],
-                    一级菜单: ds[3],
-                    二级菜单: ds[4],
-                  };
-                  });
-                console.log(datasources);
-                this.setState({ 
-                    first_load:false,
+                    const url = "/superset/explore/table/" + ds[0] + "/";
+                    return {
+                        id: ds[0],
+                        表名: <a href={url}>{ds[2]}</a>,
+                        name: ds[1],
+                        表名1: ds[2],
+                        一级菜单: ds[3],
+                        二级菜单: ds[4],
+                    };
+                });
+                this.setState({
+                    first_load: false,
                     datasources
-                 });  
+                });
             }.bind(this),
             error: function (xhr, status, err) {
             },
         });
     }
 
-    setSearchRef(searchRef){
+    setSearchRef(searchRef) {
         this.searchRef = searchRef;
     }
 
     toggleModal() {
-            this.setState({showModal: !this.state.showModal,filter:''})
+        this.setState({showModal: !this.state.showModal, filter: ''})
     }
 
-    onEnterModal(){
+    onEnterModal() {
         if (this.searchRef) {
             this.searchRef.focus();
         }
-        if(!this.state.datasources)
-        {
+        if (!this.state.datasources) {
             this.getAllData();
         }
         this.setState({
@@ -103,22 +101,22 @@ export default class Info extends Component {
                         />
                     </div>
                     {this.state.loading &&
-                        <img
+                    <img
                         className="loading"
                         alt="Loading..."
                         src="/static/assets/images/loading.gif"
-                        />
+                    />
                     }
                     {this.state.datasources &&
-                        <Table
-                            columns={['表名','一级菜单','二级菜单']}
-                            className="table table-condensed"
-                            data = {this.state.datasources}
-                            itemsPerPage={20}
-                            filterable={['表名1', 'name']}
-                            filterBy={this.state.filter}
-                            hideFilterInput
-                        />
+                    <Table
+                        columns={['表名', '一级菜单', '二级菜单']}
+                        className="table table-condensed"
+                        data={this.state.datasources}
+                        itemsPerPage={20}
+                        filterable={['表名1', 'name']}
+                        filterBy={this.state.filter}
+                        hideFilterInput
+                    />
                     }
                 </Modal.Body>
             </Modal>);
@@ -223,7 +221,7 @@ export default class Info extends Component {
                         <Button type="primary" icon="search" id="filter" onClick={this.toggleModal} ghost>搜索</Button>
                         <h4 className="panel-title">{this.props.title}</h4>
                     </div>
-                    { this.renderTable() }                
+                    {this.renderTable()}
                 </div>
                 {this.renderModal()}
             </div>
