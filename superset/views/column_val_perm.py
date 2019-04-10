@@ -30,14 +30,19 @@ class ValuePermView(BaseView):
         return render_template('', entry='')
 
     @api
-    @expose('/list/', methods=['GET'])
+    @expose('/list/', methods=['POST'])
     @login_required
     def list(self):
         """
         列表 
         """
-        data = SqlTableColumnVal.get_lists()
-        return json_success(json.dumps(data))
+        search = json.loads(request.form.get('search')) if request.form.get('search') else {}
+        page = int(request.form.get('page', 1))
+        page_size = int(request.form.get('page_size', 20))
+
+        data, total = SqlTableColumnVal.get_lists(search, page, page_size)
+        payload = {"data": data, "search_column": SqlTableColumnVal.search_columns(), "total": total}
+        return json_success(json.dumps(payload))
 
     @api
     @expose('/tables/', methods=['GET'])
