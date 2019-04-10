@@ -115,14 +115,14 @@ class ValuePermView(BaseView):
         self.check_params(request.form)
         tab_id = request.form.get('tab_id')
         user_id = request.form.get('user_id')
-        col_vals = request.form.get('col_vals')
+        col_vals = json.loads(request.form.get('col_vals')) if request.form.get('col_vals') else {}
 
-        for item in col_vals:
+        for key, value in col_vals.items():
             instance = SqlTableColumnVal()
             instance.datasource_id = tab_id
             instance.user_id = user_id
-            instance.col = item.get('col')
-            instance.val = item.get('val')
+            instance.col = key
+            instance.val = value
 
             db.session.add(instance)
             db.session.commit()

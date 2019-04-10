@@ -184,6 +184,6 @@ class SqlTableColumnVal(Model, AuditMixinNullable):
 
     @classmethod
     def get_instance(cls, pk):
-        return db.session.query(cls).filter(cls.id == pk)
+        return db.session.query(cls).filter(cls.id == pk).first()
 
 
