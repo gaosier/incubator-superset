@@ -37,8 +37,8 @@ class ValuePermView(BaseView):
         列表 
         """
         search = json.loads(request.form.get('search')) if request.form.get('search') else {}
-        page = int(request.form.get('page', 1))
-        page_size = int(request.form.get('page_size', 20))
+        page = int(request.form.get('page'))
+        page_size = int(request.form.get('page_size'))
 
         data, total = SqlTableColumnVal.get_lists(search, page, page_size)
         payload = {"data": data, "search_column": SqlTableColumnVal.search_columns(), "total": total}
@@ -168,15 +168,17 @@ class ValuePermView(BaseView):
         删除
         """
         if request.method == 'GET':
-            instance = SqlTableColumnVal.get_instance(pk)
+            instance = SqlTableColumnVal.get_instance(int(pk))
             if instance:
                 db.session.delete(instance)
         else:
             pks = request.form.get('pks')
+            pks = pks.split(',') if ',' in pks else [pks]
             for pk in pks:
                 instance = SqlTableColumnVal.get_instance(pk)
                 if instance:
                     db.session.delete(instance)
+        db.session.commit()
         return json_success(json.dumps({"msg": u"删除成功"}))
 
 
