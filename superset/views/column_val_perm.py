@@ -85,7 +85,7 @@ class ValuePermView(BaseView):
 
         table = ConnectorRegistry.get_datasource('table', pk, db.session)
 
-        data = table.columns if table else []
+        data = [item.verbose_name or item.column_name for item in table.columns] if table else []
         return json_success(json.dumps(data))
 
     @api
