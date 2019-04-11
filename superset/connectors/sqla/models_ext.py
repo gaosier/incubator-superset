@@ -165,7 +165,6 @@ class SqlTableColumnVal(Model, AuditMixinNullable):
             query = qrys
 
         total = query.count()
-        print("total: ", total)
 
         query = query.limit(page_size).offset((page-1)*page_size)
 
@@ -173,6 +172,8 @@ class SqlTableColumnVal(Model, AuditMixinNullable):
             info = {}
             info['id'] = qry.id
             info['table_name'] = qry.datasource.table_name
+            info['tab_id'] = qry.datasource_id
+            info['user_id'] = qry.user_id
             info['verbose_name'] = qry.datasource.verbose_name
             info['username'] = cls.get_username(qry, qry.user)
             info['col'] = qry.col

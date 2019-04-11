@@ -129,29 +129,18 @@ class ValuePermView(BaseView):
         return json_success(json.dumps({"msg": u"添加成功"}))
 
     @api
-    @expose('/edit/<pk>/', methods=['GET', 'POST'])
+    @expose('/edit/<pk>/', methods=['POST'])
     @login_required
     def edit(self, pk):
         """
         编辑
         """
         instance = SqlTableColumnVal.get_instance(pk)
-        if request.method == 'GET':
-            data = {}
-            data['tab_id'] = instance.datasource_id
-            data['user_id'] = instance.user_id
-            data['col'] = instance.col
-            data['val'] = instance.val
-            return json_success(json.dumps(data))
 
         self.check_params(request.form)
-        tab_id = request.form.get('tab_id')
-        user_id = request.form.get('user_id')
         col = request.form.get('col')
         val = request.form.get('val')
 
-        instance.datasource_id = tab_id
-        instance.user_id = user_id
         instance.col = col
         instance.val = val
 
