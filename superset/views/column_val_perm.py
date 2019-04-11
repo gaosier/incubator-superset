@@ -160,10 +160,10 @@ class ValuePermView(BaseView):
         return json_success(json.dumps({"msg": u"编辑成功"}))
 
     @api
+    @expose('/delete/', methods=['POST'])
     @expose('/delete/<pk>/', methods=['GET'])
-    @expose('delete/', methods=['POST'])
     @login_required
-    def delete(self, pk):
+    def delete(self, pk=None):
         """
         删除
         """
