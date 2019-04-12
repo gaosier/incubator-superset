@@ -85,7 +85,7 @@ class ValuePermView(BaseView):
 
         table = ConnectorRegistry.get_datasource('table', pk, db.session)
 
-        data = [item.column_name for item in table.columns] if table else []
+        data = [item.column_name for item in table.columns if item.is_string] if table else []
         return json_success(json.dumps(data))
 
     @api
@@ -102,7 +102,7 @@ class ValuePermView(BaseView):
             raise SupersetException(u"pk不能为空")
 
         table = ConnectorRegistry.get_datasource('table', pk, db.session)
-        data = table.values_for_column(col) if table else []
+        data = table.values_for_column(col, limit=300) if table else []
         return json_success(json.dumps(data))
 
     @api
@@ -161,8 +161,7 @@ class ValuePermView(BaseView):
             if instance:
                 db.session.delete(instance)
         else:
-            pks = request.form.get('pks')
-            pks = pks.split(',') if ',' in pks else [pks]
+            pks = request.form.get('pks[]')
             for pk in pks:
                 instance = SqlTableColumnVal.get_instance(pk)
                 if instance:
