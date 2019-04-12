@@ -27,7 +27,7 @@ class ValuePermView(BaseView):
     @expose('/get/template/', methods=['GET'])
     @login_required
     def get_template(self):
-        return render_template('', entry='')
+        return render_template('superset/datacenter/datacenter.html', entry='valuePermView', appbuilder=appbuilder)
 
     @api
     @expose('/list/', methods=['POST'])
@@ -161,7 +161,8 @@ class ValuePermView(BaseView):
             if instance:
                 db.session.delete(instance)
         else:
-            pks = request.form.get('pks[]')
+            pks = request.form.getlist('pks[]')
+
             for pk in pks:
                 instance = SqlTableColumnVal.get_instance(pk)
                 if instance:

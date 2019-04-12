@@ -244,6 +244,7 @@ class BaseViz(object):
         self.error_message = self.results.error_message
 
         df = self.results.df
+        df.columns=df.columns.map(lambda x:x.lower())
         # Transform the timestamp we received from database to pandas supported
         # datetime format. If no python_date_format is specified, the pattern will
         # be considered as the default ISO date format
