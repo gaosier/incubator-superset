@@ -1,8 +1,8 @@
 const webpack = require('webpack');
-const path = require('path');
-const ManifestPlugin = require('webpack-manifest-plugin');
+const path               = require('path');
+const ManifestPlugin     = require('webpack-manifest-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const ExtractTextPlugin  = require('extract-text-webpack-plugin');
 
 // input dir
 const APP_DIR = path.resolve(__dirname, './');
@@ -15,22 +15,23 @@ const config = {
     fs: 'empty',
   },
   entry: {
-    theme: APP_DIR + '/javascripts/theme.js',
-    common: APP_DIR + '/javascripts/common.js',
-    addSlice: ['babel-polyfill', APP_DIR + '/javascripts/addSlice/index.jsx'],
-    explore: ['babel-polyfill', APP_DIR + '/javascripts/explore/index.jsx'],
-    dashboard: ['babel-polyfill', APP_DIR + '/javascripts/dashboard/index.jsx'],
-    sqllab: ['babel-polyfill', APP_DIR + '/javascripts/SqlLab/index.jsx'],
-    welcome: ['babel-polyfill', APP_DIR + '/javascripts/welcome/index.jsx'],
-    profile: ['babel-polyfill', APP_DIR + '/javascripts/profile/index.jsx'],
-    datacenter: ['babel-polyfill', APP_DIR + '/javascripts/datacenter/index.jsx'],
-    addAnalysis: ['babel-polyfill', APP_DIR + '/javascripts/addAnalysis/index.jsx'],
-    analysis: ['babel-polyfill', APP_DIR + '/javascripts/onlineAnalysis/index.jsx'],
-    showResult:['babel-polyfill', APP_DIR + '/javascripts/showAnalysisResult/index.jsx']
+    theme        : APP_DIR + '/javascripts/theme.js',
+    common       : APP_DIR + '/javascripts/common.js',
+    addSlice     : ['babel-polyfill', APP_DIR + '/javascripts/addSlice/index.jsx'],
+    explore      : ['babel-polyfill', APP_DIR + '/javascripts/explore/index.jsx'],
+    dashboard    : ['babel-polyfill', APP_DIR + '/javascripts/dashboard/index.jsx'],
+    sqllab       : ['babel-polyfill', APP_DIR + '/javascripts/SqlLab/index.jsx'],
+    welcome      : ['babel-polyfill', APP_DIR + '/javascripts/welcome/index.jsx'],
+    profile      : ['babel-polyfill', APP_DIR + '/javascripts/profile/index.jsx'],
+    datacenter   : ['babel-polyfill', APP_DIR + '/javascripts/datacenter/index.jsx'],
+    addAnalysis  : ['babel-polyfill', APP_DIR + '/javascripts/addAnalysis/index.jsx'],
+    analysis     : ['babel-polyfill', APP_DIR + '/javascripts/onlineAnalysis/index.jsx'],
+    showResult   : ['babel-polyfill', APP_DIR + '/javascripts/showAnalysisResult/index.jsx'],
+    valuePermView: ['babel-polyfill', APP_DIR + '/javascripts/valuePermView/index.jsx']
   },
   output: {
-    path: BUILD_DIR,
-    filename: '[name].[chunkhash].entry.js',
+    path         : BUILD_DIR,
+    filename     : '[name].[chunkhash].entry.js',
     chunkFilename: '[name].[chunkhash].entry.js',
   },
   resolve: {
@@ -46,14 +47,14 @@ const config = {
   module: {
     loaders: [
       {
-        test: /datatables\.net.*/,
+        test  : /datatables\.net.*/,
         loader: 'imports-loader?define=>false',
       },
       {
-        test: /\.jsx?$/,
+        test   : /\.jsx?$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
+        loader : 'babel-loader',
+        query  : {
           presets: [
             'airbnb',
             'env',
@@ -63,51 +64,51 @@ const config = {
       },
       // Extract css files
       {
-        test: /\.css$/,
+        test   : /\.css$/,
         include: APP_DIR,
-        loader: ExtractTextPlugin.extract({
-          use: ['css-loader'],
+        loader : ExtractTextPlugin.extract({
+          use     : ['css-loader'],
           fallback: 'style-loader',
         }),
       },
       // Optionally extract less files
       // or any other compile-to-css language
       {
-        test: /\.less$/,
+        test   : /\.less$/,
         include: APP_DIR,
-        loader: ExtractTextPlugin.extract({
-          use: ['css-loader', 'less-loader'],
+        loader : ExtractTextPlugin.extract({
+          use     : ['css-loader', 'less-loader'],
           fallback: 'style-loader',
         }),
       },
       /* for css linking images */
       {
-        test: /\.png$/,
+        test  : /\.png$/,
         loader: 'url-loader?limit=100000',
       },
       {
-        test: /\.jpg$/,
+        test  : /\.jpg$/,
         loader: 'file-loader',
       },
       {
-        test: /\.gif$/,
+        test  : /\.gif$/,
         loader: 'file-loader',
       },
       /* for font-awesome */
       {
-        test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        test  : /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: 'url-loader?limit=10000&mimetype=application/font-woff',
       },
       {
-        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        test  : /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: 'file-loader',
       },
     ],
   },
   externals: {
-    cheerio: 'window',
+    cheerio                         : 'window',
     'react/lib/ExecutionEnvironment': true,
-    'react/lib/ReactContext': true,
+    'react/lib/ReactContext'        : true,
   },
   plugins: [
     new ManifestPlugin(),
@@ -124,9 +125,9 @@ if (process.env.NODE_ENV === 'production') {
   // Using settings suggested in https://github.com/webpack/webpack/issues/537
   const UJSplugin = new webpack.optimize.UglifyJsPlugin({
     sourceMap: false,
-    minimize: true,
-    parallel: {
-      cache: true,
+    minimize : true,
+    parallel : {
+      cache  : true,
       workers: 4,
     },
     compress: false,
