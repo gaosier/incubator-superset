@@ -179,7 +179,7 @@ class SqlTableColumnVal(Model, AuditMixinNullable):
             info['col'] = qry.col
             info['val'] = qry.val
             info['creator'] = cls.get_username(qry, qry.created_by) if qry.created_by else ''
-            info['modify'] = qry.changed_on
+            info['modify'] = qry.changed_on.strftime('%Y-%m-%d %H:%M:%S') if qry.changed_on else ''
             data.append(info)
         return data, total
 

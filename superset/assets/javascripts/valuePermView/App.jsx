@@ -29,14 +29,12 @@ export default class App extends Component {
             visible: false,
             confirmLoading: false,
             updateText: {},
-            add_form:{
-                table_name:'',
-                user_name:'',
-                col:[],
-                val:[]
-            },
-            add_loading:false,
-            add_visible:false
+            add_form: {},
+            add_col: '',
+            add_loading: false,
+            add_visible: false,
+            show_e_search:[],
+            show_c_search:[]
         };
         this.handleChange = this.handleChange.bind(this);
         this.getData = this.getData.bind(this);
@@ -48,9 +46,7 @@ export default class App extends Component {
         this.handleCancel = this.handleCancel.bind(this);
         this.getAllColumn = this.getAllColumn.bind(this);
         this.renderOption = this.renderOption.bind(this);
-        this.handleBlur = this.handleBlur.bind(this);
         this.handleChangeSelect = this.handleChangeSelect.bind(this);
-        this.handleFocus = this.handleFocus.bind(this);
         this.getAllValue = this.getAllValue.bind(this);
         this.renderData = this.renderData.bind(this);
         this.handleChangeData = this.handleChangeData.bind(this);
@@ -60,7 +56,20 @@ export default class App extends Component {
         this.handleAddOk = this.handleAddOk.bind(this);
         this.handleAddCancel = this.handleAddCancel.bind(this);
         this.renderAddModal = this.renderAddModal.bind(this);
-        // this.edit = this.edit.bind(this);
+        this.getAllTable = this.getAllTable.bind(this);
+        this.getAllUser = this.getAllUser.bind(this);
+        this.renderAddTable = this.renderAddTable.bind(this);
+        this.renderAddUser = this.renderAddUser.bind(this);
+        this.chooseSelectUser = this.chooseSelectUser.bind(this);
+        this.chooseSelectTable = this.chooseSelectTable.bind(this);
+        this.handleChangeAddTable = this.handleChangeAddTable.bind(this);
+        this.handleChangeAddUser = this.handleChangeAddUser.bind(this);
+        this.handleChangeAddCol = this.handleChangeAddCol.bind(this);
+        this.chooseSelectCol = this.chooseSelectCol.bind(this);
+        this.handleAddData = this.handleAddData.bind(this);
+        this.addNew = this.addNew.bind(this);
+        this.onClickSearch = this.onClickSearch.bind(this);
+        this.renderSearchDiv = this.renderSearchDiv.bind(this);
         // this.deleteOne = this.deleteOne.bind(this);
         // this.onShowSizeChange = this.onShowSizeChange.bind(this);
     }
@@ -72,21 +81,27 @@ export default class App extends Component {
         this.getData(this.state.search, this.state.page, this.state.pageSize);
     }
 
-    showAddModal(){
+    showAddModal() {
+        this.getAllUser();
+        this.getAllTable();
         this.setState({
-            add_visible:true
+            add_visible: true
         })
     }
 
-    handleAddOk(){
-        this.setState({ add_loading:true });
-        setTimeout(() => {
-            this.setState({ add_loading: false, add_visible: false });
-          }, 3000);
+    handleAddOk() {
+        this.setState({ add_loading: true });
+        // setTimeout(() => {
+        //     this.setState({ add_loading: false, add_visible: false });
+        // }, 3000);
+        this.addNew();
     }
 
-    handleAddCancel(){
-        this.setState({ add_visible:false });
+    handleAddCancel() {
+        this.setState({
+             add_visible: false,
+             add_form:{}
+            });
     }
 
     showEditModal() {
@@ -96,10 +111,11 @@ export default class App extends Component {
     }
     //打开编辑模态框
     openEditModal(text) {
-        this.getAllColumn(text);
-        console.log(text);
         text.new_col = text.col;
         text.new_val = text.val;
+        this.getAllColumn(text);
+        this.getAllValue(text);
+        console.log(text);      
         this.setState({ updateText: text }, this.setState({ visible: true }))
         // this.setState({
         //     visible: true,
@@ -134,36 +150,25 @@ export default class App extends Component {
     handleChangeSelect(value) {
         console.log(`selected ${value}`);
         this.state.updateText.new_col = value;
-        this.state.updateText.new_val= undefined;
-        this.setState({updateText:this.state.updateText}, ()=>{this.getAllValue(this.state.updateText)});
-      }
-      
-    handleBlur() {
-        console.log('blur');
-      }
-      
-    handleFocus() {
-        console.log('focus');
-      }
-      
-
-
-    edit(text) {
-        console.log(text);
-        // console.log(record);
+        this.state.updateText.new_val = undefined;
+        this.setState({ updateText: this.state.updateText }, () => { this.getAllValue(this.state.updateText) });
     }
+
     // 更新
     updateText() {
-        const form_data={
-            col:this.state.updateText.new_col,
-            val:this.state.updateText.new_val
+        const form_data = {
+            col: this.state.updateText.new_col,
+            val: this.state.updateText.new_val
         }
         let ajaxTimeOut = $.ajax({
             type: 'POST',
-            url: "/valuepermview/edit/"+this.state.updateText.id+'/',
+            url: "/valuepermview/edit/" + this.state.updateText.id + '/',
             data: form_data,
             success: ((data) => {
                 console.log(data);
+                if (data.msg == '编辑成功') {
+                    this.getData(this.state.search, this.state.page, this.state.pageSize);
+                }
             }),
             error: ((data, type, err) => {
                 console.log(data, type, err);
@@ -256,10 +261,10 @@ export default class App extends Component {
             }),
         })
     }
-    handleChangeData(value){
+    handleChangeData(value) {
         console.log(`selected ${value}`);
         this.state.updateText.new_val = value;
-        this.setState({updateText:this.state.updateText});
+        this.setState({ updateText: this.state.updateText });
     }
 
     handleChange(value) {
@@ -288,7 +293,7 @@ export default class App extends Component {
             url: "/valuepermview/list/",
             data: form_data,
             success: ((data) => {
-                // console.log(data);
+                console.log(data);
                 const now_data = data.data
                 const new_data = now_data.map((res) => {
                     res.key = res.id
@@ -297,14 +302,18 @@ export default class App extends Component {
                 console.log(new_data);
                 const total = Math.ceil(data.total / pageSize) * 10;
                 console.log(111, total);
+                
                 this.setState({
                     allShow: new_data,
                     total,
-                    showTotal: data.total
+                    showTotal: data.total,
+                    search: data.search_column,
+                    show_e_search:Object.keys(data.search_column),
+                    show_c_search:Object.values(data.search_column)
                 })
-                console.log(this.state.allShow)
-                console.log(this.state.pageSize)
-                console.log(this.state.total);
+                // console.log(this.state.allShow)
+                // console.log(this.state.pageSize)
+                // console.log(this.state.total);
             }),
             error: ((data, type, err) => {
                 console.log(data, type, err);
@@ -313,9 +322,12 @@ export default class App extends Component {
     }
 
     getAllUser() {
-        axios.get("")
+        axios.get("/valuepermview/users/")
             .then(res => {
                 console.log(res);
+                this.setState({
+                    allUser: res.data
+                })
             })
             .catch(error => {
                 console.log(error);
@@ -323,9 +335,12 @@ export default class App extends Component {
     }
 
     getAllTable() {
-        axios.get("")
+        axios.get("/valuepermview/tables/")
             .then(res => {
                 console.log(res);
+                this.setState({
+                    allDatasource: res.data
+                })
             })
             .catch(error => {
                 console.log(error);
@@ -344,7 +359,7 @@ export default class App extends Component {
             success: ((data) => {
                 console.log(data);
                 // this.state.updateText.new_col = this.state.updateText.col
-                this.setState({allColumn:data})
+                this.setState({ allColumn: data })
             }),
             error: ((data, type, err) => {
                 console.log(data, type, err);
@@ -353,10 +368,10 @@ export default class App extends Component {
     }
 
     getAllValue(text) {
-        console.log('xxxxx',text);
+        console.log('xxxxx', text);
         const form_data = {
             pk: text.tab_id,
-            col:text.new_col
+            col: text.new_col
         }
         console.log('form_data', form_data);
         let ajaxTimeOut = $.ajax({
@@ -365,96 +380,281 @@ export default class App extends Component {
             data: form_data,
             success: ((data) => {
                 console.log(data);
-                this.setState({allValue:data})
+                this.setState({ allValue: data })
             }),
             error: ((data, type, err) => {
                 console.log(data, type, err);
             }),
         })
     }
+    addNew() {
+        const form_data = this.state.add_form;
+        let ajaxTimeOut = $.ajax({
+            type: 'POST',
+            url: "/valuepermview/add/",
+            data: form_data,
+            success: ((data) => {
+                if(data.msg =='添加成功'){
+                    this.setState({
+                        add_loading:false,
+                        add_visible:false,
+                        add_form:{}
+                    })
+                    notification["success"]({
+                        message: '添加成功'
+                    });
+                }
+            }),
+            error: ((data, type, err) => {
+                console.log(data, type, err);
+                notification["error"]({
+                    message: '添加失败'
+                });
+            }),
+        })
+    }
 
-    renderOption(){
+    renderOption() {
         let a = 0
-        console.log(11111111,this.state.allColumn);
-        return(this.state.allColumn.map((res)=>{
-            return(<Select.Option value={res} key={a+1}>{res}</Select.Option>)
+        console.log(11111111, this.state.allColumn);
+        return (this.state.allColumn.map((res) => {
+            return (<Select.Option value={res} key={a + 1}>{res}</Select.Option>)
         }))
     }
 
-    renderData(){
+    renderData() {
         let b = 0;
-        return(this.state.allValue.map((res)=>{
-            return(<Select.Option value={res} key={b+1}>{res}</Select.Option>)
+        return (this.state.allValue.map((res) => {
+            return (<Select.Option value={res} key={b + 1}>{res}</Select.Option>)
         }))
     }
     // 更新模态框
-    renderEditModal(){
-        <Modal
-                        title="编辑"
-                        visible={this.state.visible}
-                        onOk={this.handleOk}
-                        confirmLoading={this.state.confirmLoading}
-                        onCancel={this.handleCancel}
+    renderEditModal() {
+        return (
+            <Modal
+                title="编辑"
+                visible={this.state.visible}
+                onOk={this.handleOk}
+                confirmLoading={this.state.confirmLoading}
+                onCancel={this.handleCancel}
+                width={1000}
+            >
+                <div>
+                    <span>表名:</span>
+                    <Input value={this.state.updateText.verbose_name} disabled />
+                </div>
+                <div>
+                    <span>用户名:</span>
+                    <Input value={this.state.updateText.username} disabled />
+                    {/* <span>{this.state.updateText.username}</span> */}
+                </div>
+                <div>
+                    <span>字段名:</span>
+                    <Select
+                        showSearch
+                        style={{ width: '100%' }}
+                        placeholder="Select a person"
+                        optionFilterProp="children"
+                        onChange={this.handleChangeSelect}
+                        value={this.state.updateText.new_col}
                     >
-                        <div>
-                            <span>表名:</span>
-                            <Input value={this.state.updateText.verbose_name} disabled />
-                        </div>
-                        <div>
-                            <span>用户名:</span>
-                            <Input value={this.state.updateText.username} disabled />
-                            {/* <span>{this.state.updateText.username}</span> */}
-                        </div>
-                        <div>
-                            <span>字段名:</span>
-                            <Select
-                                showSearch
-                                style={{ width: 200 }}
-                                placeholder="Select a person"
-                                optionFilterProp="children"
-                                onChange={this.handleChangeSelect}
-                                onFocus={this.handleFocus}
-                                onBlur={this.handleBlur}
-                                value = {this.state.updateText.new_col}
-                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                            >
-                                {this.renderOption()}
-                            </Select>
-                        </div>
-                        <div>
-                            <span>字段值:</span>
-                            <Select
-                            mode="multiple"
-                            style={{ width: '100%' }}
-                            placeholder="Please select"
-                            value={this.state.updateText.new_val}
-                            onChange={this.handleChangeData}
-                        >
-                            {this.renderData()}
-                        </Select>
-                        </div>
-                    </Modal>
+                        {this.renderOption()}
+                    </Select>
+                </div>
+                <div>
+                    <span>字段值:</span>
+                    <Select
+                        mode="multiple"
+                        style={{ width: '100%' }}
+                        placeholder="Please select"
+                        value={this.state.updateText.new_val}
+                        onChange={this.handleChangeData}
+                    >
+                        {this.renderData()}
+                    </Select>
+                </div>
+            </Modal>)
     }
 
-    renderAddModal(){
-        <Modal
-          visible={this.state.add_visible}
-          title="增加新纪录"
-          onOk={this.handleAddOk}
-          onCancel={this.handleAddCancel}
-          footer={[
-            <Button key="back" onClick={this.handleAddCancel}>Return</Button>,
-            <Button key="submit" type="primary" loading={this.state.add_loading} onClick={this.handleAddOk}>
-              Submit
+    renderAddModal() {
+        return (<Modal
+            visible={this.state.add_visible}
+            width={1000}
+            title="添加新记录"
+            onOk={this.handleAddOk}
+            onCancel={this.handleAddCancel}
+            footer={[
+                <Button key="back" onClick={this.handleAddCancel}>取消</Button>,
+                <Button key="submit" type="primary" loading={this.state.add_loading} onClick={this.handleAddOk}>
+                    提交
             </Button>,
-          ]}
+            ]}
         >
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-        </Modal>
+            <div>
+                <span>表名:</span>
+                <Select
+                    showSearch
+                    style={{ width: 200 }}
+                    placeholder="选择一个表名"
+                    optionFilterProp="children"
+                    onChange={this.handleChangeAddTable}
+                >
+                    {this.chooseSelectTable()}
+                </Select>
+            </div>
+            <div>
+                <span>用户名:</span>
+                <Select
+                    showSearch
+                    style={{ width: 200 }}
+                    placeholder="选择一个用户"
+                    optionFilterProp="children"
+                    onChange={this.handleChangeAddUser}
+                >
+                    {this.chooseSelectUser()}
+                </Select>
+            </div>
+            <div>
+                <span>字段名:</span>
+                <Select
+                    showSearch
+                    style={{ width: 200 }}
+                    placeholder="选择一个列名"
+                    optionFilterProp="children"
+                    onChange={this.handleChangeAddCol}
+                >
+                    {this.chooseSelectCol()}
+                </Select>
+            </div>
+            <div>
+                <span>字段值:</span>
+                <Select
+                    mode="multiple"
+                    style={{ width: '100%' }}
+                    placeholder="Please select"
+                    onChange={this.handleAddData}
+                >
+                    {this.renderData()}
+                </Select>
+            </div>
+        </Modal>)
+    }
+
+    handleAddData(value) {
+        console.log(value);
+        // this.state.add_form[this.state.add_col] = value;
+        const new_col = this.state.add_col;
+        console.log('---->', new_col);
+        // this.state.add_form[new_col] = value;
+        const new_add_form = {
+            tab_id: this.state.add_form.tab_id,
+            user_id: this.state.add_form.user_id,
+            [new_col]: value
+        }
+        this.setState({ add_form: new_add_form }, () => {
+            console.log('========', this.state.add_form)
+        })
+
+    }
+
+    handleChangeAddCol(value) {
+        console.log(value);
+        const text = {
+            tab_id: this.state.add_form.tab_id,
+            new_col: value
+        }
+        console.log('text-------', text)
+        this.getAllValue(text);
+        this.setState({
+            add_form: this.state.add_form,
+            add_col: value
+        })
+    }
+
+    chooseSelectCol() {
+        let e = 0
+        console.log(11111111, this.state.allColumn);
+        return (this.state.allColumn.map((res) => {
+            return (<Select.Option value={res} key={e + 1}>{res}</Select.Option>)
+        }))
+    }
+
+    renderAddTable() {
+        // return(
+
+        // )
+    }
+
+    handleChangeAddTable(value) {
+        console.log(value);
+        const text = {
+            tab_id: value
+        }
+        this.getAllColumn(text);
+        this.state.add_form.tab_id = value;
+        this.setState({ add_form: this.state.add_form });
+    }
+
+
+
+    renderAddUser() {
+        // return(
+
+        // )
+    }
+
+    onClickSearch(key){
+        console.log(key);
+    }
+
+
+
+    handleChangeAddUser(value) {
+        console.log(value);
+        this.state.add_form.user_id = value;
+        this.setState({ add_form: this.state.add_form })
+    }
+
+    chooseSelectUser() {
+        let d = 0;
+        return (this.state.allUser.map((res) => {
+            return (
+                <Select.Option value={res[0]} key={d + 1}>{res[1]}</Select.Option>
+            )
+        }))
+    }
+
+    chooseSelectTable() {
+        let c = 0;
+        return (this.state.allDatasource.map((res) => {
+            return (
+                <Select.Option value={res[0]} key={c + 1}>{res[1]}</Select.Option>
+            )
+        }))
+    }
+
+    ClickSearchOne(res,index){
+        console.log(res,index);
+    }
+
+    renderSearchDiv(){
+        const menu_list = this.state.show_e_search.map((res,index)=>{
+            return(
+                <Menu.Item key={index}>
+                    <a href="#" value={res} onClick={this.ClickSearchOne.bind(this,res,index)}>{this.state.show_c_search[index]}</a>
+                </Menu.Item>
+            )
+        })
+
+        return(
+            <div>
+            <Dropdown overlay={<Menu>{menu_list}</Menu>} trigger={['click']}>
+            <a className="ant-dropdown-link" href="#">
+              Click me <Icon type="down" />
+            </a>
+          </Dropdown>
+          </div>
+        )
     }
 
     render() {
@@ -477,16 +677,24 @@ export default class App extends Component {
                 </Menu.Item>
             </Menu>
         )
+        
         return (
             <div className="container">
-                        <Icon type="plus-circle" theme="twoTone" twoToneColor="#eb2f96" />
-                        <button onClick={this.showAddModal}>111</button>
-                <Select defaultValue={this.state.pageSize} style={{ width: 120 }} onChange={this.handleChange}>
-                    <Option value={20}>20条/页</Option>
-                    <Option value={50}>50条/页</Option>
-                    <Option value={75}>75条/页</Option>
-                    <Option value={100}>100条/页</Option>
-                </Select>
+                <div>
+                    <Icon type="plus-circle" theme="twoTone" twoToneColor="#eb2f96" />
+                    <button onClick={this.showAddModal}>111</button>
+                </div>
+                <div>
+                {this.renderSearchDiv()}
+                </div>
+                <div>
+                    <Select defaultValue={this.state.pageSize} style={{ width: 120 }} onChange={this.handleChange}>
+                        <Option value={20}>20条/页</Option>
+                        <Option value={50}>50条/页</Option>
+                        <Option value={75}>75条/页</Option>
+                        <Option value={100}>100条/页</Option>
+                    </Select>
+                </div>
                 <Table dataSource={this.state.allShow} pagination={false} scroll={{ y: 600 }} rowSelection={rowSelection}>
                     <Column
                         title="表"
